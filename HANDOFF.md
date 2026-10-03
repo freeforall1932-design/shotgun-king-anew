@@ -22,7 +22,8 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 | Thing | Location |
 |---|---|
 | Working branch | `arena/01a101d6-shotgun-king-anew` (push here; PR #1 already merged) |
-| Our mod | `modded/sk-rework/` (info.lua + script.lua stub + cover.png) |
+| Our mod | `modded/sk-rework/` (info.lua + script.lua = diagnostics build 3 + cover.png) |
+| Log parser + smoke test | `tools/parse_log.py`, `tools/mod_smoketest.py` (both tested, see §5) |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
 | Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
@@ -89,17 +90,30 @@ confidence). Done in this session:
 
 ## 5. Current state & immediate next step
 
-Same blocker as before, just better documented: **one live run by the owner**
-(README §"First run", steps 1–4). Then upload `log.txt` (via
-`apply.ps1 -GetLog`, or attach it in chat).
+**The stub is now a self-reporting diagnostics build (build 3)** and the
+parser exists, so the live run harvests everything in one pass:
 
-With that log: finish `notes/map.md` (exact ammo/damage/spawn functions), then
-build the **dev-cheat panel** (Phase 2c) using native `mk_menu_but` UI, then
-ammo rework A→B→C.
+1. owner runs `INSTALL.md` steps 1–7 (Step 5 = launch, enter a run, play a
+   couple of turns, quit; Step 6 = `apply.ps1 -GetLog`);
+2. upload `log.txt`;
+3. `python tools/parse_log.py uploads/game-insights/log.txt` →
+   `notes/game-map-draft.md` (auto: load verdict, API check, hook list,
+   **append-vs-on_* dispatch verdict**, live object model, candidate lists
+   per TBD area);
+4. promote confirmed names into `notes/map.md`, then build Phase 2c
+   (dev-cheat panel via `mk_menu_but`), then ammo rework A→B→C.
 
-Highest-value work that is NOT blocked and is fully testable in-sandbox:
-a **log.txt parser** (Python) that turns the `SKG|/SKR|/SKF|` dump into the
-function map automatically — proposed next.
+What the diagnostics build logs: see the table in `tools/mod-dev.md` §3.
+Safety: no `pcall` in this engine (no shipped mod uses it) → everything is
+nil/boolean-safe (`sv()`), loops capped, no gameplay code touched.
+
+Verified without the game: `python tools/parse_log.py --selftest` (16/16) and
+`python tools/mod_smoketest.py` (needs `lupa`; 27/27 under both `all()`
+semantics; it caught two real bugs — boolean concatenation and nested-table
+dumps — before the live run).
+
+Next unblocked candidates: pre-build the cheat-panel skeleton against
+candidate names, real cover art, or the `install-mods.ps1` .rar path.
 
 ## 6. Owner (human) intervention points
 

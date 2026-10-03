@@ -37,12 +37,53 @@ In-mod debugging:
 
 ```lua
 _log("hello")                        -- writes to log.txt
-_log(ser(gimme("global")))           -- dump every global name
-_log(ser(gimme("replaceable")))      -- what we may replace outright
-append("new_turn", function(...) _log("turn!") end, "dbg")  -- trace calls
+for a,b in all(gimme("global")) do _log("G|"..(b or a)) end   -- global names
+append("new_turn", function(...) _log("turn!") end, "dbg")    -- trace calls
 ```
 
-## 3. Dev etiquette (survives game updates)
+> `all(t)` yields **values** (shipped mods do `for f in all(t) do f() end`).
+> Our mod reads it defensively (`for a,b in all(t)`, prefer `b`) so it works
+> under either semantics.
+
+## 3. Diagnostics build & the log parser
+
+`modded/sk-rework/script.lua` is build 3 — a **diagnostics** build. It still
+changes nothing in the game; it proves itself and harvests intel:
+
+| Prefix | Meaning |
+|---|---|
+| `SK-REWORK: BUILD=… loaded`, `SK-REWORK: READY …` | load + registration proof |
+| `SKA\|<name>\|YES/no` | which globals we plan to use actually exist |
+| `SKG\|` `SKR\|` `SKF\|` | global / replaceable / forbidden names |
+| `SKH\|<target>\|<id>` | a hook (append) was registered |
+| `SKE\|<event>\|…` | event seen through an `append()` hook |
+| `SKE2\|<event>\|…` | event seen through an `on_*` callback probe |
+| `SKO\|<obj>\|key=value` | real field names of a game object |
+| `SKW\|turn=…` | per-turn world state line |
+
+Volume is capped (first 30 hits of an event, then every 25th).
+
+Parsing a log into a draft map:
+
+```bash
+python tools/parse_log.py uploads/game-insights/log.txt   # -> notes/game-map-draft.md
+python tools/parse_log.py <log> --print                   # markdown to stdout
+python tools/parse_log.py --selftest                      # parser checks
+```
+
+Sandbox-testing the mod **without the game** (fake SUGAR environment):
+
+```bash
+pip install lupa           # dev-only
+python tools/mod_smoketest.py      # loads script.lua, fires hooks, checks output
+python tools/mod_smoketest.py --dump
+```
+
+The smoke test runs the mod under **both** possible `all()` semantics and then
+feeds the captured lines through the parser, so mod format and parser can't
+drift apart unnoticed.
+
+## 4. Dev etiquette (survives game updates)
 
 - Only use documented mod APIs (`SUGAR_manual.txt`, guide README) and
   patterns proven by the workshop mods.
@@ -50,7 +91,7 @@ append("new_turn", function(...) _log("turn!") end, "dbg")  -- trace calls
 - Every hook we add gets a `-- SK-REWORK:` comment in `script.lua`.
 - Log discoveries into `notes/map.md` as you find them.
 
-## 4. Sharing (optional, later)
+## 5. Sharing (optional, later)
 
 In-game mod menu → type **UPLOAD** on the keyboard → button next to our mod
 uploads it to Steam Workshop (needs the cover.png, 16:9). See guide README

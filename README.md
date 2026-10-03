@@ -52,7 +52,9 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ files verified | every folder name matches its `info.lua` (`name=`) — the #1 reason mods silently fail |
-| `sk-rework` mod stub | 🟡 code ready, unproven | Lua compiles, uses only patterns seen in shipped mods; **has never been loaded by the game yet** |
+| `sk-rework` diagnostics mod (build 3) | 🟡 code ready, unproven | logs its own load + hooks + live game state; smoke-tested against a fake engine under both `all()` semantics, but **never loaded by the real game yet** |
+| `tools/parse_log.py` log parser | ✅ tested | turns the mod's log lines into `notes/game-map-draft.md`; selftest 16/16 + end-to-end against the smoke-test log |
+| `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 27/27 checks under both engine semantics |
 | `tools/build-dist.ps1` | 🟡 code ready, unproven | syntax-checked, but no PowerShell exists in the dev sandbox — first real execution is on your machine |
 | `tools/save_codec.py` | ✅ verified | byte-identical parse/serialize on all 6 real saves (earlier session); re-tested end-to-end now |
 | `tools/make_100pct_save.py` | ✅ mechanics · 🟡 game acceptance | dry-run/write/backup/restore all tested; whether the game *accepts* the edited save is only provable in-game |
@@ -81,13 +83,15 @@ In 20 seconds, it goes:
 | 2 | put this repo at `E:\testing\repo` | — |
 | 3 | dry run (`apply.ps1 -List`) | nothing |
 | 4 | `build-dist.ps1` → `E:\testing\ShotgunKing-Modded` | the copy only |
-| 5 | launch the copy, check the mod menu, quit | game's own files |
+| 5 | launch the copy, play a couple of turns, note the mod menu, quit | game's own files |
 | 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
 | 7 | *optional:* `make_100pct_save.py` unlock-all, in the copy | copy's `save\` (backed up) |
 
-Step 6 is what unblocks all feature work: our stub mod writes the game's
-function map into `log.txt` (`SKG|`/`SKR|`/`SKF|` lines), which can't be
-obtained any other way.
+Step 6 is what unblocks all feature work: our diagnostics mod writes its own
+load/hook proof plus a live dump of the game's functions, state and objects
+into `log.txt` (`SKG|`, `SKA|`, `SKH|`, `SKW|`… lines). `tools/parse_log.py`
+then turns that into `notes/game-map-draft.md` — the raw material for the
+cheat panel, ammo rework and pickers.
 
 ### What to download
 
@@ -148,7 +152,9 @@ and the game must be closed while it runs.
 │                          · install-mods.ps1 fix & install workshop zips
 │                          · save_codec.py    .sav reader/writer
 │                          · make_100pct_save.py  unlock-all generator
-│                          · mod-dev.md       dev loop + SUGAR API notes
+│                          · parse_log.py     log -> draft game map
+│                          · mod_smoketest.py run our mod without the game
+│                          · mod-dev.md       dev loop + log-line reference
 ├── notes/                 map.md (game internals), mods.md (inventory + API),
 │                          review-2026-10-03.md (readiness review), changelog.md
 ├── PLANNING.md            full plan & decision log (dev-facing)

@@ -132,15 +132,29 @@ extras can simply be toggled off in the mod menu afterwards.
 > Windows may warn that the copied `.exe` is from an unknown publisher —
 > it's the same file you already own, just copied to a new folder.
 
-### Step 5 — launch the copy once (5 minutes of live testing)
+### Step 5 — launch the copy and play a minute (5 minutes of live testing)
 
 1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
    (the script prints its exact path when Step 4 finishes).
 2. From the main menu, open the **mod menu**.
 3. **Look and note:** are all 14 mods listed? Are they ON or OFF?
    (This answers an open question the project can't answer without you.)
-4. Optionally start a run and play a minute.
+4. **Start a run and play a couple of turns** — this is what makes the log
+   useful. The `sk-rework` mod is a diagnostics build: it watches the game
+   and writes what it sees to `log.txt` (it changes nothing in the game).
+   Even 30 seconds of play is enough.
 5. Quit the game normally.
+
+The `sk-rework` mod reports on itself — you don't need to read the log, but if
+you're curious, these lines mean it worked:
+
+| Line in `log.txt` | Meaning |
+|---|---|
+| `SK-REWORK: BUILD=3 loaded (mod_index=…)` | the mod loaded |
+| `SKA\|append\|YES` (a list of these) | the game API it plans to use exists |
+| `SKH\|new_turn\|…` (5 of these) | its hooks registered |
+| `SKE\|heartbeat\|frames=900` | it is alive and watching during play |
+| `SK-REWORK: READY build=3 hooks=5` | everything above succeeded |
 
 If the game crashes after the intro logos, don't worry — the reason is at the
 **end** of `E:\testing\ShotgunKing-Modded\log.txt`. Continue to Step 6.
@@ -153,11 +167,23 @@ powershell -ExecutionPolicy Bypass -File tools\apply.ps1 -GameDir "E:\testing\Sh
 
 This copies the game log to `E:\testing\repo\uploads\game-insights\log.txt`.
 **Attach that file in chat** (or upload it to the repo the same way the game
-archives were uploaded before). That file contains the stub mod's dump of the
-game's function map — the raw material every feature needs.
+archives were uploaded before). That file contains the diagnostics mod's dump
+of the game — the raw material every feature needs.
 
 **Check:** the file exists and contains lines starting with `SK-REWORK:`,
-`SKG|`, `SKR|`, `SKF|`.
+`SKG|`, `SKA|`, `SKH|`, `SKE|`.
+
+You can preview what the project will extract from it (optional, needs
+Python):
+
+```powershell
+python tools\parse_log.py uploads\game-insights\log.txt
+```
+
+That writes `notes\game-map-draft.md`: the mod-load verdict, the API list, the
+live object model, and candidate functions for the ammo/damage/spawn/card
+systems. If it says "this log contains no SK-REWORK lines", the mod didn't
+run — the tool then shows the end of the log where the reason is.
 
 ### Step 7 (optional) — unlock everything, in the copy only
 
@@ -182,7 +208,7 @@ Prefer to see what it would do without writing? Add `--dry-run`.
 | 2 | Step 4 build | `ShotgunKing-Modded\mods\` has the 14 expected folders; `game\` unchanged |
 | 3 | Step 5 launch | game reaches the main menu |
 | 4 | Step 5 mod menu | 14 mods visible; note ON/OFF state |
-| 5 | Step 6 log | `log.txt` collected and attached |
+| 5 | Step 6 log | `log.txt` collected and attached, containing `SK-REWORK: READY` |
 | 6 | Step 7 (optional) | achievements/shotguns/codex unlocked in the copy |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
@@ -209,15 +235,22 @@ steps in this file.
 | 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ after 2b |
 | 6 | balance knobs + final packaging | ⛔ after 2b |
 
-Work that is **not** blocked (mine, no action needed from you): the `log.txt`
-parser that will fill the function map automatically, better cover art, and
-polish on the tools. The `-NoInheritMods` build option mentioned in Step 4 is
-already done.
+Work that is **not** blocked (mine, no action needed from you): better cover
+art, polish on the tools, and pre-building the panel/picker code against the
+candidate names the parser finds. The `log.txt` parser
+(`tools/parse_log.py`) and the `-NoInheritMods` build option are already done.
+
+**One question your run settles:** whether plain mods get `on_*` callbacks
+directly, or only through the "Glacies Module Terminal" mod. The diagnostics
+build probes both and the log's verdict line tells us which — it decides how
+the cheat panel and pickers will be wired.
 
 Scaffolding already in place: the mod skeleton (`modded/sk-rework/`), the
-build/install/save tools, the 13 vendored mods, the save codec, and the docs
-in `notes/`. No extra folders need to be created by you — a Shotgun King mod
-is just files, so there is nothing to "set up" beyond the steps above.
+build/install/save tools, the 13 vendored mods, the save codec, the log parser
+(`tools/parse_log.py`) and the no-game smoke test (`tools/mod_smoketest.py`),
+plus the docs in `notes/`. No extra folders need to be created by you — a
+Shotgun King mod is just files, so there is nothing to "set up" beyond the
+steps above.
 
 ---
 

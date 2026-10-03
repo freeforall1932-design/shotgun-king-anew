@@ -20,8 +20,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] **Step 4 — harvest the log** (**the true blocker**):
       `pwsh tools/apply.ps1 -GameDir "dist\ShotgunKing-Modded" -GetLog` →
       send `uploads/game-insights/log.txt` (attach in chat / upload to repo).
-      Then: parse `SKG|/SKR|/SKF|` lines → complete `notes/map.md`
+      Then: `python tools/parse_log.py uploads/game-insights/log.txt` →
+      draft map → complete `notes/map.md`
       (ammo spend/refill, damage entry point, spawn decision, offer roll).
+      Log must contain `SK-REWORK: READY` (the mod's own success proof).
 - [ ] **Step 5 — 100% save on the copy**: launch the copy once (creates
       `save\`) → `python tools/make_100pct_save.py --game-dir
       "dist\ShotgunKing-Modded"` → verify in-game: all shotguns, chase mode,
@@ -40,9 +42,17 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
-- [ ] **log.txt parser** (Python): ingest `SKG|/SKR|/SKF|` lines + `SK-REWORK`
-      markers, emit a draft function map for `notes/map.md`. Fully testable in
-      sandbox with synthetic log input. ← proposed next task
+- [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — shipped 2026-10-03
+      session 2b: parses `SKG|/SKR|/SKF|/SKA|/SKH|/SKE|/SKE2|/SKO|/SKW|` into
+      `notes/game-map-draft.md` (load verdict, API list, live object model,
+      candidate function lists per TBD area, event-dispatch verdict);
+      `--selftest` 16/16, end-to-end against the smoke-test log
+- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — shipped: runs
+      `script.lua` against a fake SUGAR env under BOTH `all()` semantics,
+      fires hooks, feeds the output to the parser; 27/27 checks
+- [x] ~~**diagnostics build 3** of sk-rework~~ — shipped: self-check
+      (`SKA|`/`SKH|`), on_* probes (`SKE2|`), live state (`SKW|`), object
+      dumps (`SKO|`), heartbeat; volume-capped; nil/boolean-safe
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
@@ -54,7 +64,33 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
+## ❓ Open questions the live log will answer
+
+1. Do plain mods receive `on_*` callbacks, or only via the Glacies Module
+   Terminal? (Diagnostics build probes both; parser prints the verdict.)
+2. Are mods enabled by default? (Step 5 observation.)
+3. Which real field names hold ammo/hp? (`SKO|hero|…`,
+   `SKO|disp_stats|ammo.value=…`.)
+
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 2b — self-logging diagnostics + parser):**
+- ✅ `modded/sk-rework/script.lua` rewritten as diagnostics build 3:
+      load proof, MODLIST self-check, API availability check, globals dump,
+      5 `append()` hooks (new_turn/new_level/setup_piece/add_card/init_game),
+      `on_*` callback probes, per-turn world state, object dumps, frame
+      heartbeat; all values nil/boolean-safe; volume-capped
+- ✅ `tools/parse_log.py`: log → `notes/game-map-draft.md`; 16/16 selftest;
+      explains "mod didn't load" with the log tail when our lines are absent
+- ✅ `tools/mod_smoketest.py`: runs the mod against a fake SUGAR env (lupa)
+      under both `all()` semantics, 27/27 checks, feeds output to the parser
+- 🐛 CAUGHT by the smoke test before the live run: concatenating a boolean
+      (`mod.active`) crashes Lua 5.1 — sv() now handles booleans, nil, tables
+- 🐛 CAUGHT: `dump_fields` skipped nested tables — the displayed-stats table
+      *is* nested (`{id=,name=,value=}`), i.e. exactly where the ammo stat
+      lives; now expands one level (`SKO|disp_stats|ammo.value=…`)
+- ⚠️ engine nuance found in the workshop mods: `all()` yields VALUES, not
+      indices (mods call the yielded elements); our code now survives both
 
 **2026-10-03 (session 2b — single canonical install path):**
 - ✅ **`INSTALL.md` added** — the one click-by-click guide: whole-repo

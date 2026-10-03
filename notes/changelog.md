@@ -14,6 +14,54 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 2b) — Self-logging diagnostics build + log parser
+
+- **`modded/sk-rework/script.lua` → diagnostics build 3.** Owner asked that
+  the mod "log itself, or the game state during live testing, if the patch was
+  successful". It now:
+  - proves itself: load banner with build id, `MODLIST` self-check,
+    `SK-REWORK: READY build=3 hooks=5 globals=N` marker;
+  - self-checks the API: `SKA|<name>|YES/no` for 38 globals the project
+    plans to use (so we stop coding against names that don't exist);
+  - dumps the function map: `SKG|`/`SKR|`/`SKF|` (as before) + counts;
+  - hooks 5 proven game globals via `append()` (`new_turn`, `new_level`,
+    `setup_piece`, `add_card`, `init_game`) and logs each registration
+    (`SKH|`) — hooks are the proven mechanism for *script.lua*; `on_*`
+    callbacks are only probed (`SKE2|`) because independent workshop mods
+    never rely on them (the "Glacies Module Terminal" mod supplies that
+    dispatch). Comparing `SKE|` vs `SKE2|` counts in the log settles it.
+  - logs live state: `SKW|turn=…|bads=…|bullets=…|hero_px=…|hero_py=…` each
+    turn, `SKO|hero|…` / `SKO|piece|…` / `SKO|card|…` object field dumps,
+    `SKO|disp_stats|…` from `edit_disp_stats` (the fastest route to the real
+    ammo/health field names), plus a 900-frame heartbeat.
+  - safety: no `pcall` exists in this engine (no shipped mod uses it), so
+    every value goes through a nil/boolean/table-safe `sv()`, all loops are
+    capped (first 30 hits then every 25th) and no gameplay logic is touched.
+- **`tools/parse_log.py` (NEW)** — parses those lines into
+  `notes/game-map-draft.md`: mod-load verdict, API availability, hook list,
+  **event-dispatch verdict** (append vs on_*), live state samples, discovered
+  object model, and keyword-grouped candidate names for each `map.md` TBD
+  (ammo/damage/spawn/cards/turn/UI/save/shots). `--print`, `--json`,
+  `--selftest` (16/16). If the log has no SK-REWORK lines it says so and
+  prints the log tail, where the game writes the Lua error.
+- **`tools/mod_smoketest.py` (NEW)** — runs `script.lua` against a **fake
+  SUGAR environment** (lupa), fires the hooks, and feeds the captured lines
+  to the parser: 27/27 checks, run twice (once per possible `all()` semantics,
+  since the engine's iterator is only known from usage in the workshop mods).
+  Caught two real defects before the owner's live test — see below.
+- 🐛 **Fixed (found by the smoke test):** `sv()` would concatenate a boolean
+  (`mod.active`) — a runtime error in Lua 5.1; now booleans/ nil/ tables are
+  handled explicitly. Also `dump_fields` skipped nested tables, which would
+  have hidden the `{id=,name=,value=}` shape of the displayed-stats table —
+  i.e. exactly where the ammo stat name lives; it now expands one level.
+- **Docs**: `tools/mod-dev.md` gained the log-line reference + parser/smoke
+  test usage; `INSTALL.md` step 5 shows what "it worked" looks like (READY
+  line etc.) and step 6 mentions the parser; README tool table + status rows
+  updated.
+- why: owner wanted the patch to prove itself during live testing and log
+  game state, rather than only dumping a name list.
+- status: shipped (fully tested without the game; live run still pending)
+
 ## 2026-10-03 (session 2b) — One canonical install path (INSTALL.md)
 
 - **`INSTALL.md` (NEW)** — the owner asked for an unambiguous, step-by-step
