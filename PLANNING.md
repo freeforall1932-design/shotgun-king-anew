@@ -32,6 +32,42 @@
    still holds part4 + the 13 mod zips until the owner deletes them via web
    UI or the private flip happens).
 
+## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
+
+6. **Right-click-slot rule — REMOVE the exclusivity** (owner's own words:
+   offers of 2 cards are randomized; cards using right-click, e.g. a snipe
+   card vs a dump-magazine card, have *less chance to appear together*, and
+   once one is chosen — e.g. the snipe card — no other card using right-click
+   is ever offered because "the slot was already full"). Live data: the slot
+   = a card's `special=` field; exactly 10 vanilla cards carry one
+   (scope: Engraved Scope · grenade ×5: Kingly Alms, Philanthropy, Indelible
+   Memories, Sacred Light, Guerilla Tactics · strafe: Royal Loafers ·
+   orb: Seer's Orb · dig: Shovel · decree: Unjust Decree). Goal: collecting
+   several right-click cards becomes possible. Blocked on pinning the offer
+   roll (map.md TBD) → next sk-rework build probes it.
+7. **Card picker — free choice instead of the 2-card offer** (already
+   Phase 4; owner re-confirmed). Reference implementation exists in the
+   vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer
+   button's handler via the `on_card_but_init(but, ca)` callback and
+   rebuilds the offer list from `get_slot_cards(true)`.
+8. **Infinite soul card** (new): a card that, once owned, lets the player
+   switch souls freely and infinitely during the current stage — like a
+   skill card but reusable — **except the pawn soul** (pawn = power/ammo
+   economy; cf. vanilla "Low-Cost Disguise" that disguises as a white pawn
+   for 3 turns). Souls = piece types; API seen in vendored mods:
+   `add_soul(type, …)`, `activate_soul` (global), `stack.replace_soul`
+   (glacies collection `effects.soul`). Needs the soul system dumped
+   (which souls exist, activation cooldown) → probe in the next build.
+9. **Full button-remap menu** (owner chose this over a fixed binding):
+   in-game settings panel assigning any action to any extra mouse button
+   (owner mouse: 2 side buttons + middle click). Mods can read/wrap
+   `but.left_clic` / `but.right_clic` and query `btn("unsafe")`; no mod
+   touches mouse4/5 or middle click yet → feasibility probe needed (dump
+   the `MOUSE` global, `but` table fields, `btn()` argument space).
+10. **Mod-menu Back button** (confirmed): the vanilla mod menu only offers
+    reset / save+reboot; add a Back button via the same UI-hook route as
+    the white/black legend line (Phase 2c).
+
 ## 0. What this project is
 
 **Game:** Shotgun King: The Final Checkmate (PUNKCAKE Délicieux) — a 2D roguelike

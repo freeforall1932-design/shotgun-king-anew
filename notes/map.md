@@ -204,6 +204,29 @@ OBSERVED facts — prefer them over anything guessed above.
 - `append`, `prepend`, `gimme` are **mod-environment functions**: they work
   but are NOT listed by `gimme("global")` (SKA said `no` while hooks
   registered fine).
+
+#### API patterns from the vendored reference mods (read 2026-10-04)
+- **`get_slot_cards(true)`** — returns the offer-eligible card list; with
+  `true` it includes everything (Royal Card Lab builds its full picker from
+  it; disgraced_justice searches it by `ca.id`). "Slot cards" = the offered
+  cards. The vanilla offer roll (which 2 appear, and the right-click-slot
+  filtering) is still TBD — prime probe target.
+- **`on_card_but_init(but, ca)`** — define this global in a mod and the game
+  calls it when a card-offer button is created; wrap `but.left_clic` to
+  intercept picks (Royal Card Lab's whole picker works this way, incl. its
+  `mode.unlimited` free-choice mode = our Phase 4 blueprint).
+- **Input**: mods read `but.left_clic` / `but.right_clic` (state + wrappable
+  handlers) and `btn("unsafe")` (named-button query). NO vendored mod uses
+  middle click / mouse4 / mouse5 — remap-menu feasibility needs a probe
+  (`MOUSE` global, `but` table fields, `btn()` argument space).
+- **Souls** (= piece types): `add_soul(type, …)` + `stack.replace_soul`
+  (glacies collection `effects.soul`), `activate_soul` global. Custom card
+  pattern for soul effects: `concat(CARDS, { … })` with effect fields.
+- **Custom cards** (Shootout / fairy pieces defs): fields incl. `gid, n, id,
+  pwe, special=, need_card=, need_chamber_max=, need_grenade=, grenades_max=,
+  freegren=, firepower=, wild=` — `need_card="Kingly Alms"` shows cards can
+  require other cards; `special=` = the right-click ability slot (10 vanilla
+  cards carry one: scope, grenade×5, strafe, orb, dig, decree).
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain

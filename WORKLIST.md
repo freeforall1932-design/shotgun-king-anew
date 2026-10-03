@@ -37,7 +37,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       give ammo/cards, god mode, spawn pieces, damage multipliers
       (+ owner ask from run 2: an always-visible "white = ON / black = OFF"
       legend line in the mod menu itself — needs a draw hook on the mods
-      menu; the legend currently lives in sk-rework's description text)
+      menu; the legend currently lives in sk-rework's description text).
+      Build 5 should carry the intel probes for §0.7 asks: offer roll
+      (right-click-slot filtering), soul system (`add_soul`/`activate_soul`/
+      `TEST_SOULS`), input (`MOUSE` global, `but` fields, `btn()` args —
+      remap-menu feasibility), mods-menu draw hook (legend + Back button)
 - [ ] **Mod-menu Back button** (owner ask run 3, **confirmed 2026-10-04**):
       the game's mod menu only offers reset / save+reboot — no way out
       without rebooting. Add a Back button via the same UI-hook route as
@@ -45,16 +49,24 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
-- [ ] **Exclude-rule rework** (owner ask run 3 — **rule details still
-      pending**: my "auto-ban of un-chosen offered cards" reading was wrong;
-      owner will describe the actual rule. Implementation needs offer-roll
-      internals — `EXCLUDE` global, live-seen `exclude.N` card lists)
+- [ ] **Right-click-slot rule removal** (owner ask run 3, described
+      2026-10-04 — see PLANNING.md §0.7.6): offers rarely pair right-click
+      cards, and once a `special=` slot is owned no other card for that
+      slot is offered. Remove the exclusivity → collecting multiple
+      right-click cards becomes possible. Affected: the 10 `special=` cards
+      (scope, grenade×5, strafe, orb, dig, decree). Blocked on the offer
+      roll (TBD in map.md) → next build probes it
+- [ ] **Infinite soul card** (owner ask run 3): switch souls freely /
+      infinitely during a stage, except the pawn soul (pawn = power/ammo).
+      API seen: `add_soul`, `activate_soul`, `stack.replace_soul` (glacies
+      collection `effects.soul`) — needs a soul-system dump probe
 - [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
       settings panel to assign any action to any extra mouse button
       (owner mouse: 2 side buttons + middle click; right-click exclude
       stays default). Gated on a probe: does SUGAR expose mouse4/mouse5
-      to mods at all? (candidate: check workshop mods' input handling +
-      add an input probe to the next sk-rework build)
+      to mods at all? (mods only use `but.left_clic`/`but.right_clic` +
+      `btn("unsafe")` so far; dump `MOUSE` global + `but` fields + `btn()`
+      args in the next sk-rework build)
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
       (persist knobs via the mod's own `save/mods/sk-rework.sav` slot —
