@@ -56,24 +56,27 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
       5 soul slots, 3 scepters") — owning one removes all others from
-      offers. Goal: own multiple + pick which one right-click triggers
-      (swap key / remap-menu binding / SPECIAL_BUTTON interception).
-      **Dynamic by design (owner clarification): discover ALL active-ability
-      cards at runtime — `special=` (10 known) AND scepter-type/other
-      implementations (the magazine-dump card is not `special=`), including
-      cards added by other mods. No hardcoded list, no fixed count.**
-      Build-5 probe: dump ALL card fields (not just special=) + the
-      `scepters` global + offer roll
+      offers. Goal: own multiple + pick which one each button triggers.
+      **Soft-coded by design (owner): discover ALL active-ability cards at
+      runtime (`special=` — the 10 known ones cover v1.623b per owner,
+      Unjust Decree = the magazine-dump card — plus scepters, plus cards
+      other mods add); no hardcoded list, no fixed count — "universal
+      soft coded adaptable as I play".** Expected bindings (not caps):
+      RMB + 2 side buttons + optional middle click (~3–4 bound), remap
+      menu for assignment, swap/cycle when abilities outnumber buttons.
+      **Scepter cap (3) relaxed too (owner's yes).** Build-5 probe: dump
+      ALL card fields + `scepters` global + offer roll
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
       freely use/exchange any stored soul mid-stage (pawn excluded —
-      pawn = power/ammo); optionally summon the held soul's piece as a
-      per-floor temporary ally (vanilla summon-family: Right-hand,
-      Warhorse, Onboarding Party, Rapunzel, Small Key; holograms:
-      Holoking, Soul Projection). API mapped (add_soul/activate_soul/
-      stack.replace_soul/hero.free_souls/soul_slot fields/dj_summon
-      pattern) — needs a live probe of soul activation flow + slot
-      internals
+      pawn = power/ammo); summon the held soul's piece as a per-floor
+      temporary ally — **no summon cap beyond board capacity ("as much
+      as the board can hold, like a normal game of chess")**. Vanilla
+      summon-family: Right-hand, Warhorse, Onboarding Party, Rapunzel,
+      Small Key; holograms: Holoking, Soul Projection. API mapped
+      (add_soul/activate_soul/stack.replace_soul/hero.free_souls/
+      soul_slot fields/dj_summon pattern) — needs a live probe of soul
+      activation flow + slot internals
 - [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
       settings panel to assign any action to any extra mouse button
       (owner mouse: 2 side buttons + middle click; right-click exclude

@@ -44,17 +44,23 @@
    *"You can't have more than: 1 right-click ability, or 5 soul slots, or
    3 scepters"* (plus other offer rules: no 0 max ammo, no grabbing+blade
    together, …). **Owner clarification #2 (2026-10-04): the right-click
-   skill cards are NOT just snipe + orb — e.g. a card that fires the whole
-   magazine in 1 turn is also a right-click skill. The design must be
-   DYNAMIC: discover every active-ability card at runtime — `special=`
-   cards AND other implementations (scepters etc.), including cards other
-   mods add via `concat(CARDS, …)` — no hardcoded list, no fixed count.**
-   Note: the magazine-dump card is NOT among the 10 dumped `special=`
-   cards → at least one more implementation exists (scepter-type or an
-   undumped field); the build-5 probe must dump ALL card fields + the
-   `scepters` global so every active-ability route is caught. Goal: own
-   MULTIPLE right-click abilities + a way to pick which one right-click
-   triggers (swap key / remap-menu binding / SPECIAL_BUTTON interception).
+   skill cards are NOT just snipe + orb — e.g. Unjust Decree fires the
+   whole magazine in 1 turn as a right-click skill. Owner confirms the 10
+   `special=` cards probably cover ALL right-click abilities in v1.623b
+   (the dynamic scan stays the design anyway — future versions, modded
+   cards). The system must be DYNAMIC and SOFT-CODED: discover every
+   active-ability card at runtime (incl. cards other mods add via
+   `concat(CARDS, …)`), no hardcoded list, no fixed count — "universal
+   soft coded adaptable as I play".**
+   Owner's expected bindings (NOT caps): right-click + 2 side mouse
+   buttons + optional middle/wheel click ≈ 3–4 simultaneously bound,
+   reassignable via the remap menu; more abilities than buttons →
+   swap/cycle UI. **Scepter cap (3): owner said relax it too** — scepters
+   unify into the same dynamic active-ability pool. Build-5 probe still
+   dumps all card fields + the `scepters` global (what scepters are and
+   how they activate is still unknown). Goal: own MULTIPLE right-click
+   abilities + pick which one each button triggers (remap-menu binding /
+   SPECIAL_BUTTON interception).
 8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a
    piece and let him move like it for 1 turn. Vanilla slots: max 5, grown
    via `soul_slot=N` cards (Majestic Censer +1, Possessed +2 w/
@@ -69,7 +75,9 @@
    sanctity, replace)`, `activate_soul`, `stack.replace_soul`,
    `PIECES_NAMES[x].type`; summon blueprint = disgraced_justice's
    `dj_summon` (`new_piece(typ, false, sq)` + `fx_spawn(p)` + a hero cost
-   field).
+   field). **Summon cap (owner, 2026-10-04): none beyond board capacity —
+   "as much as the board game can hold, like a normal game of chess"**
+   (free squares are the limit; still per-floor temporary).
 7. **Card picker — free choice instead of the 2-card offer** (already
    Phase 4; owner re-confirmed). Reference implementation exists in the
    vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer

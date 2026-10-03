@@ -232,7 +232,12 @@ OBSERVED facts — prefer them over anything guessed above.
   3 scepters**; no 0 max ammo; can't remove so many pieces that hand
   requirements break; no grabbing ability + blade together. These caps are
   what filters the offer roll — the exclusion system the owner wants
-  relaxed (right-click cap) is one of these general rules.
+  relaxed (right-click cap + scepter cap) is one of these general rules.
+  Owner-identified: the "fire whole magazine in 1 turn" right-click card =
+  **Unjust Decree** (`special=decree`) — the 10 `special=` cards likely
+  cover ALL right-click abilities in v1.623b (correction of an earlier
+  speculation that it might be a separate implementation). What scepters
+  actually are/how they activate: still unknown → build-5 probe.
 - **Soul system** (owner-confirmed semantics): a soul = turn the king into
   a piece type and move like it for 1 turn. Card fields: `soul_slot=N`
   (add slots: Majestic Censer +1, Possessed +2, Succubus +1), `need_soul=N`
