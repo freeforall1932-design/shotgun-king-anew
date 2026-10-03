@@ -109,8 +109,15 @@ append("fn_name", nil, "id")    -- unregister a hook
    weapon_unl — the cheat target), stats.sav (per-card played/ignored — the
    card-offer memory; picker phase can edit it), achievements.sav, runs.sav,
    misc.sav (codexitems). No mod-enable state anywhere in saves → **resolved
-   by the live test: mods ARE enabled by default; the enable state lives in
-   `mods/modlist.lua`, which the game writes itself at boot** (see §live).
+   by the live tests: mod support is always active, but each mod's on/off
+   state lives in `mods/modlist.lua` (absent entry/false = OFF — run 2
+   corrected run 1's guess), which the game writes itself at boot** (§live).
+   Zlib note (audit 2026-10-04): the game's own writer emits FLEVEL-0
+   deflate whose exact bytes python-zlib cannot reproduce (game sizes sit
+   between zlib L0 and L1 on every real save). The game READS any valid
+   zlib stream — our tool's level-9 output was read back fine in live
+   runs 2–3 (unlock persisted). Byte-exactness is guaranteed at the TEXT
+   layer (`save_codec.py --selftest`), not the container bytes.
 4. Game internals known from its log: runtime SUGAR **v0.0.8f**, LuaJIT 2.1 /
    Lua 5.1, SDL 3.4.12. Top-level files: exe, data.sgr, `lang/*.txt` (18
    languages, readable string tables — copy in `uploads/game-insights/`),
@@ -128,10 +135,13 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ---
 
-## Live-verified facts — first live test (2026-10-03, build 3, v1.623b)
+## Live-verified facts — live tests 1 & 2 (2026-10-03, builds 3–4, v1.623b)
 
-Source: `live testing result/` (two runs: inherited-mods build and
-`-NoInheritMods` build) + parsed draft `notes/game-map-draft.md`. These are
+Source: live runs 1–3, 2026-10-03 (raw evidence since consolidated into
+`live testing result/SUMMARY.md`; run 1: inherited-mods + `-NoInheritMods`
+builds; run 2: full `-GetInsights` pack — log, `mods/modlist.lua`, whole
+`save\` folder; run 3: pre-enable verification + save-and-reboot path) +
+parsed draft `notes/game-map-draft.md`. These are
 OBSERVED facts — prefer them over anything guessed above.
 
 ### Engine / log
@@ -139,28 +149,141 @@ OBSERVED facts — prefer them over anything guessed above.
   markers; `_log()` output included. `tools/parse_log.py` strips them now
   (the first live test exposed that missing this = false "mod did not run").
 - Lua errors appear at the END of log.txt (confirmed pattern).
+- **Mod-menu "save and reboot" = soft reboot inside the SAME log.txt**
+  (run 3): subsystems shut down (`Deleting window… main loop exit`), then
+  data.sgr + all mods RELOAD (every mod script runs a second time → all
+  dumps appear twice) — there is no second `Starting log.` line.
+- **Log-write collision on that reboot path** (run 3): the engine's writes
+  landed on top of an in-flight mod `_log()` line (boot 1's SKC dump was
+  truncated mid-line at card 177 and its tail — 9 cards, `SKC count`,
+  `READY`, `loadfile`, `PROBE done` — was lost; line order around the
+  transition is non-chronological). So **a missing READY line in a
+  rebooted session does NOT mean the mod failed** — check the BUILD banner
+  and the post-reboot load. `parse_log.py` now dedupes multi-boot dumps
+  (cards by id, hooks by target+id; last occurrence wins).
+- The engine looks for `save/mods/<mod>.bnk` at each boot
+  (`!! Could not open file … .bnk` warning, benign — the per-mod save slot
+  works without it; related globals: `bank`, `_savbnk`, `MODSAV`).
 
-### Mod loading & enable state
-- Mods are **ON by default**: on the copy's FIRST boot (no modlist.lua, no
-  per-mod saves yet) our mod loaded with `active=true`.
-- The game writes `mods/modlist.lua` itself at boot (right after the
-  info.lua scan) and again after mod-menu interaction. On-disk format still
-  unknown — build 4 probes it (`SKML|`) and `apply.ps1 -GetInsights` harvests
-  the file.
-- Per-mod saves exist: `save/mods/<name>.sav` (+ `save/mods/reg.sav`),
-  written by the engine at quit.
-- `MODLIST` entries carry at least `.title`, `.active`, `.env` (env = the
-  mod's script environment; Glac Terminal iterates `mod.env` pairs).
-- In-game mod menu: NOT on the title screen — **Play → top entry**. Click
-  toggles on/off (bright text = ON); up/down arrows = load priority
-  (override order), renumbering is cosmetic.
-- Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam achievement
-  tracking paused while modded; save-side achievements/codex unaffected.
+### Mod loading & enable state (run 2 corrected run 1's guess)
+- **Mods start OFF by default.** The mod menu shows untouched mods in black
+  text; the owner's run-2 `modlist.lua` stores `false` for all 13 workshop
+  mods (only `sk-rework` is `true` — toggled manually by the owner). Run 1's
+  "ON by default" conclusion was wrong.
+- `mods/modlist.lua` **on-disk format (byte-verified)**: a Lua chunk
+  `return {` CRLF `\t{ '<mod name>', <bool> },` … `}` — tab indent, trailing
+  comma on EVERY entry incl. the last, CRLF line endings, closing brace,
+  no trailing newline, no BOM. Order = load priority. The game writes the
+  file itself at boot/after menu interaction; `build-dist.ps1` now writes it
+  too (verified byte-identical to the game's own file for the same states),
+  pre-enabling `sk-rework` (`-AllModsOn` = everything on).
+- `loadfile` does **not exist** in the mod environment (`SKA2|loadfile=no`,
+  run 2) — the build-4 `SKML|` in-log probe could never fire; the harvested
+  file (via `apply.ps1 -GetInsights`) is the way to learn the format.
+- Per-mod saves exist: `save/mods/<mod-save-name>.sav` + `save/mods/reg.sav`
+  (registry mapping save-name → file path, e.g.
+  `s"sk-rework"\x1f: f"save/mods/sk-rework.sav"`). Written by the engine at
+  quit. **Container differs from main saves: raw PUNKCAKE plaintext, no
+  `[u32 len][zlib]` wrapper** (sk-rework.sav = 24 bytes:
+  `PUNKCAKE\nt{\n}\nFOREVER`). An active mod gets its slot automatically
+  (MODLIST entry field `save=`); `MODSAV`/`save` globals exist — candidate
+  API for sk-rework's own persistent config (cheat panel / balance knobs).
+- The game keeps `.sav.bak` snapshots (one generation) next to saves it
+  rewrites (run 2: `achievements.sav.bak` = the owner's original 27; our
+  tools never write `.bak` files, and `apply.ps1 -GetInsights` only copies).
+  Useful as a free extra safety net.
+- `MODLIST` entry fields (build-4 `SKM|` dump): `title, name, folder, save,
+  active, priority_hint, author, cover, desc, num, here, exists, id,
+  script, modes, langs, mode_description, mode_record`. `priority_hint`
+  comes from info.lua; `num` = menu position; `here` = folder present.
+- In-game mod menu: NOT on the title screen — **Play → top entry**. **Black
+  text = OFF, white text = ON** (click toggles; survives restarts);
+  up/down arrows = load priority (override order), renumbering is cosmetic.
+- Title bar with an active mod: `MODDED: ON - ACHIEVEMENTS: OFF` = *Steam*
+  achievement tracking paused. Save-side achievements are **preserved** —
+  proven end-to-end by the owner's full console log: unlock-all ran
+  22:49:38 (128 set True) → modded session (sk-rework active, build 4) →
+  quit → `-GetInsights` fetched the save AFTER all that, and the fetched
+  `achievements.sav` still has all 128 True. ⚠️ Analysis footnote: an early
+  read of run 2's `achievements.sav` claimed a "wipe" — that was a
+  bool-vs-string comparison bug in the analysis script, not the game;
+  `save_codec` parses `bTrue` as Python `True`.
 
 ### Mod API (what actually exists)
 - `append`, `prepend`, `gimme` are **mod-environment functions**: they work
   but are NOT listed by `gimme("global")` (SKA said `no` while hooks
   registered fine).
+
+#### API patterns from the vendored reference mods (read 2026-10-04)
+- **`get_slot_cards(true)`** — returns the offer-eligible card list; with
+  `true` it includes everything (Royal Card Lab builds its full picker from
+  it; disgraced_justice searches it by `ca.id`). "Slot cards" = the offered
+  cards. The vanilla offer roll (which 2 appear, and the right-click-slot
+  filtering) is still TBD — prime probe target.
+- **`on_card_but_init(but, ca)`** — define this global in a mod and the game
+  calls it when a card-offer button is created; wrap `but.left_clic` to
+  intercept picks (Royal Card Lab's whole picker works this way, incl. its
+  `mode.unlimited` free-choice mode = our Phase 4 blueprint).
+- **Input**: mods read `but.left_clic` / `but.right_clic` (state + wrappable
+  handlers) and `btn("unsafe")` (named-button query). NO vendored mod uses
+  middle click / mouse4 / mouse5 — remap-menu feasibility needs a probe
+  (`MOUSE` global, `but` table fields, `btn()` argument space).
+- **Souls** (= piece types): `add_soul(type, …)` + `stack.replace_soul`
+  (glacies collection `effects.soul`), `activate_soul` global. Custom card
+  pattern for soul effects: `concat(CARDS, { … })` with effect fields.
+- **Custom cards** (Shootout / fairy pieces defs): fields incl. `gid, n, id,
+  pwe, special=, need_card=, need_chamber_max=, need_grenade=, grenades_max=,
+  freegren=, firepower=, wild=` — `need_card="Kingly Alms"` shows cards can
+  require other cards; `special=` = the right-click ability slot (10 vanilla
+  cards carry one: scope, grenade×5, strafe, orb, dig, decree).
+- **Vanilla offer caps, documented verbatim by Better Codex** (`show
+  exclude` mod info.lua): max **1 right-click ability, 5 soul slots,
+  3 scepters**; no 0 max ammo; can't remove so many pieces that hand
+  requirements break; no grabbing ability + blade together. These caps are
+  what filters the offer roll — the exclusion system the owner wants
+  relaxed (right-click cap + scepter cap) is one of these general rules.
+  Owner-identified: the "fire whole magazine in 1 turn" right-click card =
+  **Unjust Decree** (`special=decree`) — the 10 `special=` cards likely
+  cover ALL right-click abilities in v1.623b (correction of an earlier
+  speculation that it might be a separate implementation). What scepters
+  actually are/how they activate: still unknown → build-5 probe.
+- **Soul system** (owner-confirmed semantics): a soul = turn the king into
+  a piece type and move like it for 1 turn. Card fields: `soul_slot=N`
+  (add slots: Majestic Censer +1, Possessed +2, Succubus +1), `need_soul=N`
+  (require filled souls: Sacred Crown 1, Gradual Absolution 2), `gain=N`.
+  `hero.free_souls` = empty slots (live-seen = 0 at start). API:
+  `add_soul(type, p, sanctity, replace)` (glacies `effects.soul`),
+  `activate_soul`, `stack.replace_soul`, `PIECES_NAMES[x].type`,
+  `TEST_SOULS`. Summon-family cards (temporary per-floor allies): ext=3
+  block Right-hand/Warhorse/Onboarding Party/Rapunzel/Small Key; hologram
+  cards Holoking / Soul Projection.
+- **Pawn power route (card-driven)**: pawns → ammo is done by CARDS, not
+  by the soul system — card fields `pawn_shell=1` (Small Fry Harvest, also
+  `ammo_max=1`) and `pawnreap=1` (Cannon Fodder) convert pawns/pawn-souls
+  into shells. Related: `PIECES` is a global, moddable table (disgraced_
+  justice does `add(PIECES, {…})` to add piece types; type = index).
+  **Open (build-5 soul probe): what using a stored PAWN soul actually does
+  — movement route (king moves like a pawn 1 turn, the general soul rule)
+  vs power route, or both. The soul deck must expose whichever routes the
+  game supports — no hardcoded choice (owner 2026-10-04).**
+- **Summon blueprint** (disgraced_justice `dj_summon`): find free squares
+  (`is_free(sq)`), `new_piece(typ, false, sq)`, `fx_spawn(p)`, pay from a
+  hero field (`hero.book_power -= cost`); `convert(target, cb)` turns an
+  enemy. `spawn_pieces` / `new_piece` / `setup_piece` are mod-env-callable.
+- **`stack` global** = aggregate of owned cards' effect fields (live uses:
+  `stack.pierce`, `stack.knockback`, `stack.blade`, `stack.fearsome`,
+  `stack.special`, `stack.replace_soul`) — read it to know what the player
+  owns without scanning cards.
+- **Shot-modifier pipeline** (glac terminal's `get_disp_stats`
+  interception): the next-shot stat id is picked by priority
+  `jump > fearsome > blade > pierce > knock > f_arc`; `pierce` and
+  `knockback` are PERCENTAGES (card fields: A Piercing Truth `pierce=30`,
+  Rightful Curtsy `knockback=50`), `blade` a count (Ritual Dagger 1,
+  Nightbane 3, Bushido 2), `firepower` = per-bullet damage stat
+  (`firepower=-1` on several cards). Interception pattern for the stats
+  display: `prepend("get_disp_stats", …)` + `append("add", …)` +
+  `edit_disp_stats` callback list. Damage-related globals awaiting a probe:
+  `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`.
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain
@@ -183,8 +306,19 @@ OBSERVED facts — prefer them over anything guessed above.
 
 ### Cards / codex / saves
 - Codex/stats keys = card display names (same as `card.id`).
-- v1.623b codex = **170 cards**: 164 regular + 6 special
-  (Right-hand, Gatehouse, Catacombs, Onboarding Party, Faithful Steed,
-  Redemption). `tools/make_100pct_save.py` now writes all 170 (was 96% live).
+- **Complete live-verified card set (run 2): the game's CARDS table holds
+  186 cards** (build-4 `SKC|` dump: `id|gid|ext|pwe` per card; gid 0–192,
+  ext 0–3). The game itself writes **195 entries** to `stats.sav` — the 186
+  CARDS names **plus 9 special codex keys tracked outside CARDS**:
+  `bleed, cloak, grenade, jump, leader, line, mission, orb,
+  Unfaithful Steed`. `tools/make_100pct_save.py` now writes exactly those
+  195 (run-2's harvested `stats.sav` key set matches 1:1). The old "170
+  cards" list missed 25 real cards (Anarchy, Stoning, Vendetta, Warhorse,
+  Shovel, Sprint, … mostly the ext=3 block).
+- `SKC|` also exposes a `special=` field on 10 cards: `strafe` (Royal
+  Loafers), `scope` (Engraved Scope), `decree` (Unjust Decree), `grenade`
+  (Kingly Alms, Philanthropy, Indelible Memories, Sacred Light, Guerilla
+  Tactics), `orb` (Seer's Orb), `dig` (Shovel) — these are the special
+  *mechanics* cards (matching several of the lowercase codex keys).
 - Offer events observed through `add_card` append hook; `pwe` present on
   live cards (4 common, 3 seen once) — offer roll candidates in draft §6.

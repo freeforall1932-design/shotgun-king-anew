@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-03 (session 4, branch `arena/01a10235-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-04 (session 6, branch `arena/01a1027e-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -12,20 +12,24 @@ Private, personal-use mod project for **Shotgun King: The Final Checkmate
 v1.623b** (PUNKCAKE Délicieux). The game runs on **SUGAR** — the studio's
 custom Pico-8-style Lua engine (LuaJIT 2.1 / Lua 5.1, SDL3) — **not Godot**.
 Deliverable = a normal SGK mod (`modded/sk-rework/`) plus a toolchain that
-builds a ready-to-play modded **copy** of the game. Goal list: ammo rework
-(A→B→C), card picker, enemy picker, extra shot mechanics, balance knobs,
-in-game dev-cheat panel, 100%-unlock save. The play path never patches game
-files; "injection" = adding folders under `mods/` (the game's own mod system).
+builds a ready-to-play modded **copy** of the game. Goal list: in-game
+dev-cheat panel, ammo rework (A→B→C), free-choice card picker, enemy
+picker, right-click ability cap removal + button remapping, Yu-Gi-Oh soul
+deck + board-cap summons, bullet damage/crit system, balance knobs,
+100%-unlock save (full specs: `PLANNING.md` §0.7). The play path never
+patches game files; "injection" = adding folders under `mods/` (the
+game's own mod system).
 
 ## 2. Where things are
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a101f3-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
-| Our mod | `modded/sk-rework/` (info.lua + script.lua = diagnostics build 3 + cover.png) |
-| Log parser + smoke test | `tools/parse_log.py` (23/23, live-fixed), `tools/mod_smoketest.py` (29/29) |
-| Live-test evidence | `live testing result/` — critique.txt, 8 screenshots, run-2 log; `live testing result/game-insights/log.txt` = run-1 log (in repo) |
-| Parsed live map | `notes/game-map-draft.md` (from run-1 log) |
+| Working branch | `arena/01a1027e-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
+| Our mod | `modded/sk-rework/` (info.lua with mod-menu legend + script.lua = diagnostics build 4 + cover.png) |
+| Log parser + smoke test | `tools/parse_log.py` (23/23; summary incl. mods/cards; multi-boot dedup), `tools/mod_smoketest.py` (29/29) |
+| Live-test evidence | `live testing result/SUMMARY.md` — **consolidated** (raw logs/screenshots/saves deleted after absorption; findings live in the docs below) |
+| Parsed live map | `notes/game-map-draft.md` (from run-3 log: SKM/SKC sections live) |
+| Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
 | Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
@@ -49,11 +53,21 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
    on all 6 real v1.623b saves (prior session). `make_100pct_save.py` =
    unlock-all (128 achievements, weapons 1–9, rank 20 + badges, endless
    floor 15 ⇒ chase unlocked, 164-card codex). Backups + `--restore`.
-4. **Mods are ON by default; enable state lives in `mods/modlist.lua`** (the
-   game writes it at boot; not in saves). Mod menu = Play screen's top entry;
-   click = on/off (bright = ON), up/down = load priority only.
+4. **Mods are OFF by default (black text; white = ON); enable state lives in
+   `mods/modlist.lua`** — format (byte-verified run 2):
+   `return {` CRLF `\t{ '<mod name>', <bool> },` … `}` (tab indent, trailing
+   comma on every entry, no trailing newline). The game writes it at boot;
+   `build-dist.ps1` now writes it too → built copies boot with `sk-rework`
+   already ON (`-AllModsOn` for everything). Mod menu = Play screen's top
+   entry; click = on/off, up/down = load priority only.
    Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam tracking
-   paused, save-side achievements fine.
+   paused, save-side achievements fine (run 2: all 128 stayed True).
+4d. **Per-mod saves**: an active mod gets `save/mods/<name>.sav`
+   automatically (raw PUNKCAKE plaintext — NO zlib container) +
+   `save/mods/reg.sav` registry (`s"name"\x1f: f"save/mods/name.sav"`).
+   `MODSAV`/`save` globals exist = candidate API for sk-rework config
+   persistence. The game also keeps one-generation `.sav.bak` snapshots.
+   `loadfile` does NOT exist in the mod env.
 4b. **Game log wraps every line in `  . ` / ` !! `** — any new parser/grep
    must strip it (session-4 parser bug). Lua errors still at log END.
 4c. **`append()` is the only proven hook.** `on_*`/`upd` globals never fire
@@ -112,39 +126,52 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 4)
+## 5. Current state & immediate next step (session 6)
 
-**Live test #1 is done and absorbed.** Both runs loaded build 3 (the old
-parser's "mod did not run" was its own prefix bug — fixed). Run 1 harvested
-920 globals / 41 replaceable / 26 forbidden, 47 gameplay events and the live
-object model → `notes/game-map-draft.md`; verdicts promoted into
-`notes/map.md` ("Live-verified facts"). The 100% save was game-accepted
-(achievements 100%, chase unlocked; codex 96% → tool now writes 170 cards).
+**All live testing is absorbed AND consolidated.** Runs 1–3 are distilled
+into `live testing result/SUMMARY.md` (raw evidence deleted — every
+finding lives in the docs). The toolchain is complete and live-proven:
+`build-dist.ps1` pre-enables sk-rework (3b/3, byte-exact modlist.lua),
+auto-applies the 100% unlock (4/4), and the parser handles multi-boot
+logs. The 100% tool writes the live-verified 195-card set. sk-rework's
+description carries the white/black mod-menu legend.
 
-**Build 4 is shipped and awaits one short run** (owner, ~5 min):
-`INSTALL.md` steps 4–6 with the updated repo, then
-`apply.ps1 -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights` and upload
-the `uploads/game-insights/` pack. That delivers the two remaining unknowns:
-`mods/modlist.lua` on-disk format (SKML probe + the harvested file) and the
-exact special-card ids (SKC dump). With those: `build-dist.ps1` can
-pre-enable mods (closes owner critique #2), and the save tool's special-card
-keys get re-confirmed.
+**The owner's feature requests are fully specified** (five asks, refined
+over several Q&A rounds into `PLANNING.md` §0.7 items 6–11): right-click
+ability cap removal (soft-coded discovery, any number of ability cards,
+bindings RMB + side buttons + optional middle click, scepter cap relaxed
+too), free-choice card picker, the Yu-Gi-Oh soul deck (any soul allowed —
+pawn behavior stays card-driven; summons capped by board capacity only),
+the bullet damage & crit system (configurable damage/crit-chance/crit-damage,
+pierce auto-crits), the button-remap menu, and the mod-menu Back button.
+Design rule throughout: **nothing hardcoded that can't be confirmed —
+universal, soft-coded, adaptable as the owner plays.**
 
-**Then feature work is unblocked**, in owner-priority order: Phase 2c
-dev-cheat panel (`mk_menu_but`; read `hero.ammo`/`hero.hp` directly,
-`get_disp_stats` is a global), ammo rework A→B→C, card/enemy pickers
-(card.id = display name; `pwe` live-confirmed).
+**Next: sk-rework build 5** — Phase 2c dev-cheat panel
+(`mk_menu_but`; read `hero.ammo`/`hero.hp` directly; persist settings via
+`save/mods/sk-rework.sav`) + mod-menu legend line & Back button + the
+probes that pin the last unknowns (see WORKLIST "Next features" for the
+full probe list: offer roll, full card-field dump, scepters, soul flow,
+damage application point, MOUSE/but/btn input space). One short owner run
+after build 5 unblocks implementing every §0.7 feature on real data.
 
-Verified without the game this session: `parse_log.py --selftest` 23/23;
-`mod_smoketest.py` 29/29 under both `all()` semantics (venv with lupa).
-Safety rules unchanged: no `pcall`, nil/boolean-safe `sv()`, capped loops,
-probe code runs AFTER the READY line.
+Verified without the game this session: parser selftest 23/23 + run-3
+parse (`hooks: 5 · cards: 186` post-dedup) + run-2 regression parse;
+smoke test 29/29 (both `all()` semantics); codec roundtrip on all real
+saves; unlock tool E2E; 3/3 `.ps1` tree-sitter clean; modlist generator
+byte-identical to the game's own file. Safety rules unchanged: no
+`pcall`, nil/boolean-safe `sv()`, capped loops, probe code AFTER the
+READY line.
 
 ## 6. Owner (human) intervention points
 
-- One short build-4 run + `apply.ps1 -GetInsights` upload (modlist format +
-  card ids) ← the only remaining harvest; feature work no longer blocked
-- Playtest each phase build; report crashes (error text = END of log.txt)
+- ~~Harvest + verification runs~~ **DONE (runs 1–3, consolidated)**
+- Next rebuilt copy (updated repo): one glance — console shows
+  `3b/3` + `4/4 applying the 100% unlock...`, copy boots with everything
+  unlocked + sk-rework ON
+- Playtest build 5 (cheat panel + legend + Back button + probes); report
+  crashes (error text = END of log.txt — a missing READY in a rebooted
+  session is the log collision, not a failure)
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning
 

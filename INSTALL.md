@@ -67,7 +67,7 @@ E:\testing\
 |---|---|
 | Windows + PowerShell | built into Windows — no install |
 | `E:\testing\game` and `E:\testing\repo` placed manually | see Steps 1 & 2 below |
-| Python 3 (optional, only for Step 6 preview & Step 7 save unlock) | in PowerShell: `python --version` — if it opens the Microsoft Store or errors, install from python.org and **tick "Add python.exe to PATH"** |
+| Python 3 (recommended: Step 4 uses it for the automatic 100% unlock; also Step 6 preview) | in PowerShell: `python --version` — if it opens the Microsoft Store or errors, install from python.org and **tick "Add python.exe to PATH"**. Without it the build still works — it prints the manual unlock command instead. |
 
 ---
 
@@ -76,7 +76,7 @@ E:\testing\
 > **Re-running this after a repo update (e.g. the second live test)?**
 > First bring `E:\testing\repo` up to date with the newest code (re-download
 > the ZIP and overwrite, or `git pull`), then simply redo Steps 4 → 5 → 6 → 7.
-> Every command here is safe to re-run; Step 7 is idempotent (running it again
+> Every command here is safe to re-run; the unlock step is idempotent (running it again
 > only adds what is missing).
 
 ### Step 1 (Manual in File Explorer) — put your game files in `E:\testing\game`
@@ -147,7 +147,9 @@ normalizes any compressed or unpacked mods that were in `game\mod` or
 `game\mods`, and injects the 13 workshop mods from `dist-overlay\mods` plus our
 `sk-rework` mod. If you prefer to completely ignore `game\mod` / `game\mods` and
 only install the 14 mods from `repo`, add `-NoInheritMods` to the end of the
-command.)*
+command. The build also writes `mods\modlist.lua` (step 3b/3, `sk-rework`
+starts ON) and applies the 100% unlock to the copy's save (step 4/4); add
+`-NoUnlockAll` if you want the copy to keep its inherited save progress.)*
 
 **Which to pick:**
 
@@ -164,6 +166,9 @@ itself silently ignores those too.
 - `E:\testing\ShotgunKing-Modded\mods\` contains the **14 mod folders**
   (13 workshop mods + `sk-rework`, plus any extra `info.lua` mods you had in
   `game\mod` or `game\mods`)
+- `E:\testing\ShotgunKing-Modded\mods\modlist.lua` exists — that is the build
+  pre-enabling `sk-rework` for you (add `-AllModsOn` to the command above if
+  you want every mod to start ON)
 - `E:\testing\ShotgunKing-Modded\PLAY-THIS.txt` exists
 - `E:\testing\game` was only read from, never modified
 
@@ -175,12 +180,14 @@ itself silently ignores those too.
    (Step 4 printed its exact path).
 2. The **mod menu is NOT on the title screen**: click **Play** — the mod menu
    is the **top entry** of that screen.
-3. **Look and note:** all 14 mods should be listed and **ON by default**
-   (verified live 2026-10-03). Clicking a mod flips it; the text colour
-   changes (bright/white = ON). The **up/down arrows do not toggle on/off** —
-   they change *load priority* (which mod overrides which), so if the
-   numbering looks disordered after moving something, that is cosmetic.
-   Make sure `SK Rework` / `sk-rework` is ON, then back out.
+3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
+   — in the menu, **black text = OFF, white text = ON**. The build writes
+   `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
+   (ON) and the 13 workshop mods black (OFF) — if so, there is nothing to
+   click. Clicking any entry flips it, and the change survives restarts.
+   The **up/down arrows do not toggle on/off** — they change *load priority*
+   (which mod overrides which when several touch the same thing), so the
+   numbering after moving something is cosmetic, not a bug.
 4. **Start a run and play a couple of turns** — this is what makes the log
    useful. The `sk-rework` mod is a diagnostics build: it watches the game
    and writes what it sees to `log.txt` (it changes nothing in gameplay).
@@ -235,37 +242,46 @@ python "E:\testing\repo\tools\parse_log.py" "E:\testing\repo\uploads\game-insigh
 
 ---
 
-### Step 7 (Optional, PowerShell) — unlock everything in the copy only
+### Step 7 (Automatic since run 3) — unlock everything in the copy only
 
-Only do this **after Step 5** (the game must have launched once so
-`E:\testing\ShotgunKing-Modded\save\` exists) and with the game **closed**:
+**You usually don't run anything for this anymore.** `build-dist.ps1` (Step 4)
+now applies the 100% unlock itself as its **step 4/4** — right after building
+the copy you should have seen:
+
+```
+4/4 applying the 100% unlock to the copy (achievements/shotguns/modes/codex)
+backup  -> E:\testing\ShotgunKing-Modded\save_backup_<timestamp>
+achievements: 128 set True
+...
+```
+
+So the copy boots with everything unlocked from the start, and the pre-unlock
+save is backed up inside the copy (`save_backup_<timestamp>\`). Your original
+game's save is never touched.
+
+Manual use is only needed if:
+
+- Step 4 printed `4/4 unlock-all skipped` (no `save\` in the copy yet — happens
+  when the source game was never launched). Then: launch the copy once, quit,
+  and run the command below with the game **closed**.
+- You want to re-apply (idempotent), dry-run, or undo:
 
 ```powershell
 cd E:\testing\repo\tools
-python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded"
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded"            # apply / re-apply
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --dry-run  # show, don't write
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --restore  # undo (newest backup)
 ```
-
-- **Dry run first (writes nothing):**
-  ```powershell
-  cd E:\testing\repo\tools
-  python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --dry-run
-  ```
-- **Undo / restore automatic backup:**
-  ```powershell
-  cd E:\testing\repo\tools
-  python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --restore
-  ```
 
 **Two things that look wrong but are not:**
 
-- The title screen says `MODDED: ON - ACHIEVEMENTS: OFF`. That only means
-  *Steam* achievement tracking is paused while mods are installed — the codex
-  still shows `Achievements: 100%` because this tool writes them straight into
-  the save. Nothing to fix.
-- The codex should now show **100%**. (An earlier version of this tool left it
-  at 96%: six *special* cards — Right-hand, Gatehouse, Catacombs, Onboarding
-  Party, Faithful Steed, Redemption — were missing. If you ran the old version,
-  just run the new one again; it is idempotent.)
+- The title screen says `MODDED: ON - ACHIEVEMENTS: OFF` while a mod is
+  active. That pauses *Steam* achievement tracking only — the achievements
+  in this copy's save stay unlocked (run-2 live check: all 128 still True
+  after a full modded session). Nothing to fix.
+- The codex shows **100%**. The tool writes the complete live-verified card
+  set — all 186 real cards plus the 9 special codex keys the game tracks
+  (195 total, exactly what the game itself records). It is idempotent.
 
 ---
 
@@ -275,9 +291,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, ON by default; up/down = priority only |
+| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; up/down = priority only |
 | 4 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `SK-REWORK: READY build=4` |
-| 5 | Step 7 (optional) | achievements/shotguns/codex 100% in the copy; `ACHIEVEMENTS: OFF` title label is normal |
+| 5 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
 the game crashed.
@@ -321,9 +337,9 @@ the game crashed.
 | `python` opens the Microsoft Store / not recognized | Install Python from python.org with "Add python.exe to PATH" ticked, or replace `python` with `py` in Steps 6–7. |
 | build script says `No data.sgr in …` | Make sure `E:\testing\game` contains the game `.exe` **and** `data.sgr`. |
 | game crashes after the intro logos | Lua error — the reason is at the **end** of `E:\testing\ShotgunKing-Modded\log.txt`; send it via Step 6. |
-| the 100% save "did nothing" | The game must be closed while running Step 7, and `--game-dir` must point at `E:\testing\ShotgunKing-Modded` (not `E:\testing\game`). |
-| title bar says `ACHIEVEMENTS: OFF` | Normal with mods installed (Steam tracking paused). The codex in the save still shows 100%. |
-| codex stuck at 96% | You used the old save tool before the 6 special cards were added — re-run Step 7 with the updated repo. |
+| the 100% save "did nothing" | Step 4 prints `4/4 unlock-all skipped` when the copy has no `save\` yet (source game never launched) — launch the copy once, quit, then run the Step 7 command manually. The game must be closed while it runs. |
+| title bar says `ACHIEVEMENTS: OFF` | Normal with mods active (Steam tracking paused; the save-side achievements stay unlocked — live-verified). |
+| codex stuck below 100% | Old save tool version — re-run Step 7 with the updated repo (now writes the live-verified 195-card set). |
 | mod menu numbering looks scrambled after moving mods | Up/down = load priority, not on/off; the renumbering is cosmetic. |
 | `parse_log.py` says "no SK-REWORK lines" | You ran an old copy of the parser on a real log — update the repo; the parser now strips the game's `  . ` line prefix. |
 

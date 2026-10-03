@@ -196,6 +196,19 @@ def parse_text(text: str) -> dict:
             d["modlist_raw"].append(s[5:])
             continue
         d["other_lines"] += 1
+    # Multi-boot logs: the mod-menu's "save and reboot" reloads every mod in
+    # the SAME log.txt, so all dumps appear twice (run-3 live finding; the
+    # reboot can even truncate the first boot's dump mid-line). Merge: keep
+    # one entry per card id / hook target+id, last occurrence wins (the
+    # later boot's dump is the complete one).
+    _by_key = {}
+    for c in d["cards"]:
+        _by_key[c["id"]] = c
+    d["cards"] = list(_by_key.values())
+    _by_key = {}
+    for h in d["hooks"]:
+        _by_key[(h["target"], h["id"])] = h
+    d["hooks"] = list(_by_key.values())
     d["tail"] = [l for l in lines[-40:]]
     return d
 
@@ -549,7 +562,9 @@ def main(argv):
           f"hooks: {len(d['hooks'])} · globals: {g} · "
           f"append-events: {sum(d['events'].values())} · "
           f"callback-events: {sum(d['callbacks'].values())} · "
-          f"object tables: {len(d['objects'])}")
+          f"object tables: {len(d['objects'])}"
+          + (f" · mods: {len(d['modlist'])}" if d["modlist"] else "")
+          + (f" · cards: {len(d['cards'])}" if d["cards"] else ""))
     return 0
 
 

@@ -32,6 +32,107 @@
    still holds part4 + the 13 mod zips until the owner deletes them via web
    UI or the private flip happens).
 
+## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
+
+> **Where this work happens:** these specs are implemented via the queue in
+> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 5 first**
+> (Phase 2c cheat panel + mod-menu legend/Back button + the §0.7 intel
+> probes — offer roll, full card fields, scepters, soul flow, damage point,
+> input space), then the cap removal + bindings, card picker, soul deck,
+> crit system, and remap menu on top of that panel. Live-test status of
+> every ask: `live testing result/SUMMARY.md`.
+
+6. **Right-click ability cap — REMOVE it** (owner's refined description,
+   2026-10-04): right-click is ONE button, so vanilla lets you hold only
+   ONE right-click ability — take the scope/snipe card and Seer's Orb (and
+   every other right-click card) is never offered again, "like dev
+   preventing the player from making a dumb decision… or maybe they were
+   too lazy to implement button assignment, or for balance". Better Codex
+   (vendored `show exclude` mod) documents the vanilla caps verbatim:
+   *"You can't have more than: 1 right-click ability, or 5 soul slots, or
+   3 scepters"* (plus other offer rules: no 0 max ammo, no grabbing+blade
+   together, …). **Owner clarification #2 (2026-10-04): the right-click
+   skill cards are NOT just snipe + orb — e.g. Unjust Decree fires the
+   whole magazine in 1 turn as a right-click skill. Owner confirms the 10
+   `special=` cards probably cover ALL right-click abilities in v1.623b
+   (the dynamic scan stays the design anyway — future versions, modded
+   cards). The system must be DYNAMIC and SOFT-CODED: discover every
+   active-ability card at runtime (incl. cards other mods add via
+   `concat(CARDS, …)`), no hardcoded list, no fixed count — "universal
+   soft coded adaptable as I play".**
+   Owner's expected bindings (NOT caps): right-click + 2 side mouse
+   buttons + optional middle/wheel click ≈ 3–4 simultaneously bound,
+   reassignable via the remap menu; more abilities than buttons →
+   swap/cycle UI. **Scepter cap (3): owner said relax it too** — scepters
+   unify into the same dynamic active-ability pool. Build-5 probe still
+   dumps all card fields + the `scepters` global (what scepters are and
+   how they activate is still unknown). Goal: own MULTIPLE right-click
+   abilities + pick which one each button triggers (remap-menu binding /
+   SPECIAL_BUTTON interception).
+8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a
+   piece and let him move like it for 1 turn. Vanilla slots: max 5, grown
+   via `soul_slot=N` cards (Majestic Censer +1, Possessed +2 w/
+   `need_card`, Succubus +1); `hero.free_souls` = empty slots (live-seen).
+   Separate summon-family cards bring temporary ALLY pieces for the
+   current floor only (reset on floor change / run restart — the ext=3
+   block: Right-hand, Warhorse, Onboarding Party, Rapunzel, Small Key;
+   hologram cards: Holoking, Soul Projection). **Owner's modded vision
+   ("like a Yu-Gi-Oh deck"): 2–3 soul slots where ONE slot holds MANY
+   souls — freely use or exchange any stored soul at any time during the
+   stage. NO hardcoded pawn exclusion (owner correction 2026-10-04:
+   pawn-as-power comes from skill cards — pawn souls become bullets that
+   each deal 1 damage — so the behavior must stay CARD-DRIVEN, not a
+   baked-in exception; any soul is allowed in the deck).** Owner's open
+   question (2026-10-04): does a stored pawn soul feed POWER or turn the
+   king into a pawn? Answer plan: the power route is card-driven
+   (`pawn_shell=1` Small Fry Harvest, `pawnreap=1` Cannon Fodder); whether
+   the movement route also accepts pawn is a build-5 probe — and the deck
+   UI will expose whichever routes the game actually supports (choice if
+   both), never a hardcoded pick. API:
+   `add_soul(type, p, sanctity, replace)`, `activate_soul`,
+   `stack.replace_soul`, `PIECES_NAMES[x].type`; summon blueprint =
+   disgraced_justice's `dj_summon` (`new_piece(typ, false, sq)` +
+   `fx_spawn(p)` + a hero cost field). **Summon cap (owner, 2026-10-04):
+   none beyond board capacity — "as much as the board game can hold, like
+   a normal game of chess"** (free squares are the limit; still per-floor
+   temporary).
+11. **Bullet damage & crit system** (owner, 2026-10-04): per-bullet damage
+   configurable (vanilla = 1 per bullet; `firepower` is the damage stat on
+   cards); **crits** — a crit probability and a crit damage value, both
+   configurable (crit may exceed 2 damage); **pierce auto-crits by
+   default** — `pierce` is a percentage status (`stack.pierce`, e.g.
+   A Piercing Truth `pierce=30`), and piercing shots crit unless the
+   player changes the rule. All knobs live in the cheat panel / balance
+   config (persisted via the mod's own save slot) — nothing hardcoded.
+   Known pipeline: shot modifiers are `stack.pierce` / `stack.blade` /
+   `stack.knockback` / `stack.fearsome` with display priority
+   `jump > fearsome > blade > pierce > knock > f_arc` (glac terminal's
+   `get_disp_stats` interception); damage globals to probe: `ev_hit`,
+   `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg` → build-5 probe
+   pins the exact hit/damage application point.
+7. **Card picker — free choice instead of the 2-card offer** (already
+   Phase 4; owner re-confirmed). Reference implementation exists in the
+   vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer
+   button's handler via the `on_card_but_init(but, ca)` callback and
+   rebuilds the offer list from `get_slot_cards(true)`.
+8. **Infinite soul card** (new): a card that, once owned, lets the player
+   switch souls freely and infinitely during the current stage — like a
+   skill card but reusable — **except the pawn soul** (pawn = power/ammo
+   economy; cf. vanilla "Low-Cost Disguise" that disguises as a white pawn
+   for 3 turns). Souls = piece types; API seen in vendored mods:
+   `add_soul(type, …)`, `activate_soul` (global), `stack.replace_soul`
+   (glacies collection `effects.soul`). Needs the soul system dumped
+   (which souls exist, activation cooldown) → probe in the next build.
+9. **Full button-remap menu** (owner chose this over a fixed binding):
+   in-game settings panel assigning any action to any extra mouse button
+   (owner mouse: 2 side buttons + middle click). Mods can read/wrap
+   `but.left_clic` / `but.right_clic` and query `btn("unsafe")`; no mod
+   touches mouse4/5 or middle click yet → feasibility probe needed (dump
+   the `MOUSE` global, `but` table fields, `btn()` argument space).
+10. **Mod-menu Back button** (confirmed): the vanilla mod menu only offers
+    reset / save+reboot; add a Back button via the same UI-hook route as
+    the white/black legend line (Phase 2c).
+
 ## 0. What this project is
 
 **Game:** Shotgun King: The Final Checkmate (PUNKCAKE Délicieux) — a 2D roguelike

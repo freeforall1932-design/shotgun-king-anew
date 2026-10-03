@@ -14,6 +14,133 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-04 (session 6) — live-testing evidence consolidated; docs finalized; full audit before PR
+
+All raw run-1/2/3 evidence (8 screenshots, 3 critique notes, 3 log packs
+with save folders and modlist copies) is deleted — every finding was
+already recorded in `notes/map.md`, `notes/game-map-draft.md`,
+`PLANNING.md` §0.7 and the changelog entries below. New:
+- `live testing result/SUMMARY.md` — the single consolidated live-testing
+  log: per-run findings tables (fixed vs open), pointers to where each
+  result lives now, and the open feature-ask list
+- `HANDOFF.md` — session 6 state: toolchain complete + live-proven, five
+  owner feature specs locked (PLANNING §0.7.6–.11), next = sk-rework
+  build 5 (Phase 2c panel + legend/Back button + probes)
+- `IMPROVEMENTS.md` — sessions 5–6 arc (items 17–22)
+- `PLANNING.md` §0.7 — routing note: specs → WORKLIST queue, build 5 first
+- `WORKLIST.md` — consolidation sweep entry, stale path references fixed,
+  owner to-do refreshed
+- older changelog entries keep their original `live testing result/…`
+  paths as history — those files no longer exist (see SUMMARY.md)
+- audit findings folded in (no functional bugs): `save_codec.py` docstring
+  now tells the truth about containers — the game's own deflate writer
+  isn't python-zlib-reproducible (FLEVEL 0, sizes between L0/L1), so the
+  byte-exact guarantee is the TEXT layer while our level-9 containers are
+  live-proven readable; `notes/map.md` stale "mods ARE enabled by default"
+  line reworded (mods start OFF; run 2's correction now stated everywhere)
+- why: owner asked to consolidate the evidence, update all four log docs,
+  audit the entire branch diff, then open the PR
+- status: shipped; full test suite re-run green (parser 23/23 + both log
+  parses; smoke 29/29; codec roundtrips; unlock E2E; 3/3 .ps1 parse)
+
+---
+
+## 2026-10-03 (session 5b) — run 3 absorbed: unlock unified into the build, multi-boot log handling
+
+Owner rebuilt with the updated repo (`-Clean -NoInheritMods`), played without
+opening the mod menu (as instructed), then toggled one workshop mod on/off and
+used save-and-reboot, and uploaded the run-3 `-GetInsights` pack plus their
+full console log.
+
+- **Pre-enable verified live:** console showed `3b/3 wrote mods/modlist.lua`,
+  the copy booted with sk-rework ON and all 13 workshop mods OFF with zero
+  menu visits, and the harvested `modlist.lua` matches the build's written
+  order exactly. The legend text also shipped (visible in the SKM desc dump).
+- **`tools/build-dist.ps1` — 100% unlock unified (owner run-3 request).** New
+  step 4/4 runs `make_100pct_save.py` on the copy automatically: python/py
+  auto-detected, `-NoUnlockAll` skips, friendly messages when the copy has no
+  `save\` yet or python is missing (manual command printed). Run 3's saves
+  proved the need: 27 achievements / 163 cards / rank 6 — the owner's real
+  progress, because the separate tool step was never run. PLAY-THIS.txt,
+  INSTALL.md (Step 7 now "automatic"), README updated to match.
+- **`tools/parse_log.py` — multi-boot log support.** The mod menu's
+  save-and-reboot soft-reboots the game inside the same log.txt: every mod
+  script runs twice (dumps duplicated) and the reboot truncated boot 1's SKC
+  dump mid-line at card 177 (its tail — 9 cards, count, READY, probe — lost;
+  line order non-chronological at the transition). Parser now dedupes cards
+  by id and hooks by target+id (last occurrence wins): run-3 parse reports
+  `hooks: 5 · cards: 186`. A missing READY line in a rebooted session is the
+  collision, not a mod failure — documented in `notes/map.md`.
+- **New feature asks logged in WORKLIST:** mod-menu Back button (Phase 2c,
+  same UI-hook route as the always-visible legend line) and the exclude-rule
+  rework (remove auto-ban of un-chosen offered cards after a pick + make the
+  exclude action rebindable to extra mouse buttons; needs offer-roll
+  internals + a mouse4/5 probe).
+- why: owner's run-3 critique ("how about unify it since we inject it to
+  modded app already anyway") + the reboot-path log anomaly their run exposed
+- status: shipped — verified: parser selftest 23/23, run-3 + run-2 parses,
+  3/3 `.ps1` tree-sitter clean. Owner's next rebuilt copy should show 4/4
+  and boot fully unlocked (pending that one glance).
+
+---
+
+## 2026-10-03 (session 5) — live test run 2 absorbed: modlist format, pre-enable, 195-card set
+
+Owner ran build 4 with `apply.ps1 -GetInsights` and uploaded the pack into
+`live testing result/run 2/` (log + the game's own `mods/modlist.lua` + the
+whole `save\` folder) plus a critique of the mod-menu documentation. Both
+remaining harvest goals landed; feature work is unblocked.
+
+- **`notes/game-map-draft.md` regenerated from the run-2 log** — build 4
+  confirmed clean (`READY build=4 hooks=5 globals=920`); new sections live:
+  §10 MODLIST dump (all 14 entries with author/save/priority_hint/active…),
+  §11 card id map (186 cards, gid 0–192, ext 0–3, pwe, `special=` flags on
+  10 cards). The `SKML|` in-log probe never fired because `loadfile` does
+  not exist in the mod environment (`SKA2|loadfile=no`) — the harvested file
+  itself supplied the format instead.
+- **`tools/build-dist.ps1` — mods pre-enabled (owner critique #2 closed).**
+  New step 3b writes `mods/modlist.lua` in the game's byte-exact format
+  (CRLF, tab indent, trailing comma every entry, no trailing newline —
+  generator verified byte-identical to the game's own file): `sk-rework`
+  starts ON, workshop mods start OFF, new `-AllModsOn` switch. PLAY-THIS.txt
+  and console output updated to match.
+- **`tools/make_100pct_save.py` — card set corrected 170 → 195.** The run-2
+  SKC dump showed the old list missed 25 real cards (Anarchy, Stoning,
+  Vendetta, Warhorse, Shovel, Sprint, …); the game itself writes exactly 186
+  CARDS names + 9 special keys (bleed, cloak, grenade, jump, leader, line,
+  mission, orb, Unfaithful Steed) to stats.sav — the tool now writes that
+  exact set (E2E-verified on a disposable copy of the run-2 save).
+- **Docs corrected from the run-2 critique:** mods are **OFF by default**
+  (run 1's "ON by default" was wrong — black text = OFF, white = ON; the
+  owner's paradox observation was right). `INSTALL.md` Step 5 rewritten in
+  neutral tone with the correct color facts and the new no-toggling-needed
+  flow; README + PLAY-THIS.txt + success checklist + troubleshooting rows
+  all updated.
+- **`modded/sk-rework/info.lua`** — description now leads with the mod-menu
+  legend the owner asked for ("white text = ON, black text = OFF; up/down =
+  load priority"), visible in the mod menu. (An always-on legend line inside
+  the menu itself needs a draw hook — queued with Phase 2c.)
+- **`tools/parse_log.py`** — summary line now also prints `mods:` and
+  `cards:` counts when SKM/SKC sections are present.
+- **`notes/map.md`** — live-verified section updated: OFF-by-default +
+  modlist.lua byte format, per-mod save system (`save/mods/<name>.sav`
+  plaintext, no zlib wrapper; `reg.sav` registry; `MODSAV`/`save` globals),
+  game-made `.sav.bak` snapshots, `loadfile` absent, full MODLIST entry
+  fields, 195-key codex set with the 10 `special=` mechanics cards, and a
+  footnote about the caught-in-analysis bool-vs-string bug (briefly
+  suggested "modded sessions wipe achievements" — false; run-2 post-session
+  file has all 128 True).
+- why: owner's run-2 critique (mod-menu default state paradox, doc tone,
+  in-game legend request) + the two harvested unknowns (modlist format,
+  card ids) that gated pre-enable and the codex fix
+- status: shipped — verified: parser selftest 23/23; smoke test 29/29 (both
+  `all()` semantics); codec roundtrip byte-identical on run-2's 6 saves;
+  100% tool E2E (128 achievements True, 195/195 cards); 3/3 `.ps1`
+  tree-sitter parse clean. Playtest of the pre-enable behavior pending
+  (owner's next launch of a rebuilt copy).
+
+---
+
 ## 2026-10-03 (session 4) — live test #1 absorbed: parser fix, build 4, codex 100%, docs corrected
 
 Owner ran the whole ladder twice (inherited mods + `-NoInheritMods`) and the
