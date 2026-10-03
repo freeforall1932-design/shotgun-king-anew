@@ -108,8 +108,9 @@ append("fn_name", nil, "id")    -- unregister a hook
    files exist), prog.sav (progression: throne lvl, best_time, badges,
    weapon_unl — the cheat target), stats.sav (per-card played/ignored — the
    card-offer memory; picker phase can edit it), achievements.sav, runs.sav,
-   misc.sav (codexitems). No mod-enable state anywhere in saves → mods in
-   mods/ are probably enabled by default (unconfirmed; live test will tell).
+   misc.sav (codexitems). No mod-enable state anywhere in saves → **resolved
+   by the live test: mods ARE enabled by default; the enable state lives in
+   `mods/modlist.lua`, which the game writes itself at boot** (see §live).
 4. Game internals known from its log: runtime SUGAR **v0.0.8f**, LuaJIT 2.1 /
    Lua 5.1, SDL 3.4.12. Top-level files: exe, data.sgr, `lang/*.txt` (18
    languages, readable string tables — copy in `uploads/game-insights/`),
@@ -124,3 +125,66 @@ append("fn_name", nil, "id")    -- unregister a hook
    Steam).
 7. Reference repos spotted, worth mining later: modderongithub/shotgun-king-mods,
    Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod.
+
+---
+
+## Live-verified facts — first live test (2026-10-03, build 3, v1.623b)
+
+Source: `live testing result/` (two runs: inherited-mods build and
+`-NoInheritMods` build) + parsed draft `notes/game-map-draft.md`. These are
+OBSERVED facts — prefer them over anything guessed above.
+
+### Engine / log
+- Every game log line is wrapped in `  . ` (info) or ` !! ` (warning)
+  markers; `_log()` output included. `tools/parse_log.py` strips them now
+  (the first live test exposed that missing this = false "mod did not run").
+- Lua errors appear at the END of log.txt (confirmed pattern).
+
+### Mod loading & enable state
+- Mods are **ON by default**: on the copy's FIRST boot (no modlist.lua, no
+  per-mod saves yet) our mod loaded with `active=true`.
+- The game writes `mods/modlist.lua` itself at boot (right after the
+  info.lua scan) and again after mod-menu interaction. On-disk format still
+  unknown — build 4 probes it (`SKML|`) and `apply.ps1 -GetInsights` harvests
+  the file.
+- Per-mod saves exist: `save/mods/<name>.sav` (+ `save/mods/reg.sav`),
+  written by the engine at quit.
+- `MODLIST` entries carry at least `.title`, `.active`, `.env` (env = the
+  mod's script environment; Glac Terminal iterates `mod.env` pairs).
+- In-game mod menu: NOT on the title screen — **Play → top entry**. Click
+  toggles on/off (bright text = ON); up/down arrows = load priority
+  (override order), renumbering is cosmetic.
+- Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam achievement
+  tracking paused while modded; save-side achievements/codex unaffected.
+
+### Mod API (what actually exists)
+- `append`, `prepend`, `gimme` are **mod-environment functions**: they work
+  but are NOT listed by `gimme("global")` (SKA said `no` while hooks
+  registered fine).
+- `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
+  callback name.
+- **`on_*` globals and `upd()` are NEVER called by the engine for plain
+  mods** (SKE2 = 0 and no heartbeat during real gameplay). `append()` on
+  game globals is the only proven hook mechanism. Do NOT define global
+  `on_*`/`upd` names in sk-rework — they can shadow the Terminal's
+  dispatchers.
+- Counts: 920 globals, 41 replaceable, 26 forbidden (full lists in
+  `notes/game-map-draft.md` §6–9).
+
+### Live object model (real field names, from SKO dumps)
+- **piece**: `type, hp, hp_max, bad, danger, seek, still, prison_bar,
+  vx, vy, x, y, piece, hdy, dp, ysort_dy` + `sq.{x, vy, dp, cl, frict, dcx, fr}`.
+- **card**: `id` (= display name, e.g. `A Piercing Truth`), `pwe`, `index`,
+  `n`, `dp`, `t`, `chosen`, `ext`, plus effect fields (`pawn_assault`,
+  `pawn_hp`, …) and `exclude.N` lists.
+- **hero**: `hp`, `ammo`, `sq.px`, `sq.py` (+ full dump in the draft §5).
+- **world/turn**: `SKW|turn|bads|bullets|hero_px|hero_py` — bads count drops
+  as kills happen; bullets=0 outside shots.
+
+### Cards / codex / saves
+- Codex/stats keys = card display names (same as `card.id`).
+- v1.623b codex = **170 cards**: 164 regular + 6 special
+  (Right-hand, Gatehouse, Catacombs, Onboarding Party, Faithful Steed,
+  Redemption). `tools/make_100pct_save.py` now writes all 170 (was 96% live).
+- Offer events observed through `add_card` append hook; `pwe` present on
+  live cards (4 common, 3 seen once) — offer roll candidates in draft §6.

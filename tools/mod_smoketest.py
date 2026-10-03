@@ -74,15 +74,21 @@ def build_env(L, all_mode="value"):
         {"title": "Glacies Module Terminal", "active": False},
         {"title": "SK Rework", "active": True},
     ])
-    # globals gimme() should report, incl. everything our API check probes
+    # build 4 dumps the card id map — card.id == display name (live-verified)
+    g.CARDS = to_lua(L, [
+        {"id": "Peace", "gid": 12, "ext": 0, "pwe": 4},
+        {"id": "Right-hand", "gid": 157, "ext": 2, "pwe": 1, "special": True},
+    ])
+    # globals gimme() should report — mirrors the LIVE v1.623b result:
+    # append/prepend/gimme/edit_disp_stats are NOT gimme globals (they are
+    # mod-environment functions / Terminal callbacks), so they stay absent
+    # here too and exercise the "no" branch of the API check.
     names = [
-         "append", "prepend", "gimme", "_log", "concat", "add", "del", "all",
+         "_log", "concat", "add", "del", "all",
          "get_slot_cards", "gsq", "mk_menu_but", "init_menu", "spawn_pieces",
          "new_piece", "setup_piece", "new_turn", "new_level", "add_card",
-         "new_card", "CARDS", "get_disp_stats", "edit_disp_stats", "draw_mode",
-         "goto_sq", "get_range",
-         # deliberately absent, to exercise the "no" branch of the API check:
-         # "throw_grenade", "mk_hint_but",
+         "new_card", "CARDS", "get_disp_stats", "draw_mode",
+         "goto_sq", "get_range", "throw_grenade", "mk_hint_but",
          "spend_hop", "uplift",
          "check_cards_auto_flip", "flip_card", "unflip_card",
          "set_mode", "init_game", "init_codex", "opp_turn", "wait",
@@ -155,16 +161,8 @@ def run_scenario(L, hooks, captured, mode, dump=False):
             return 1
         fn(*args) if args else fn()
 
-    L.execute("""
-        on_fire()
-        on_bad_hurt({type = 3, hp = 1})
-        on_bad_death({type = 3})
-        on_bad_spawn({type = 0})
-        on_new_turn()
-        on_empty()
-        edit_disp_stats({ammo = {value = "5"}, health = {value = "3"}})
-        for i = 1, 905 do upd() end
-    """)
+    # build 4 defines NO on_*/upd/edit_disp_stats globals (the live run proved
+    # the engine never calls them for plain mods) — nothing extra to fire.
 
     text = "\n".join(FAKE_ENGINE_LINES + captured) + "\n"
 
@@ -173,9 +171,11 @@ def run_scenario(L, hooks, captured, mode, dump=False):
         return any(frag in ln for ln in captured)
 
     checks = [
-        ("load banner", has("SK-REWORK: BUILD=3 loaded (mod_index=2)")),
+        ("load banner", has("SK-REWORK: BUILD=4 loaded (mod_index=2)")),
         ("modlist self-check", has("SKA2|mod_found=yes|active=true")),
-        ("api check", has("SKA|append|YES") and has("SKA|throw_grenade|no")),
+        ("modlist entry dump", has("SKM|2|title=SK Rework")
+                              and has("SKM|2|active=true")),
+        ("api check", has("SKA|append|no") and has("SKA|_log|YES")),
         ("global dump", has("SKG|ammo_spend") and has("SK-REWORK: SKG count=")),
         ("replaceable/forbidden", has("SKR|hero") and has("SKF|data_sgr")),
         ("hook registrations", has("SKH|new_turn|sk-rework:turn")
@@ -184,11 +184,11 @@ def run_scenario(L, hooks, captured, mode, dump=False):
         ("object dumps", has("SKO|hero|hp=3") and has("SKO|hero|ammo=5")),
         ("piece event", has("SKE|setup_piece|n=1|type=0|hp=2")),
         ("card event", has("SKE|add_card|n=1|id=Peace|pwe=4")),
-        ("callback probe", has("SKE2|on_fire|n=1") and has("SKE2|on_bad_hurt|n=1")),
-        ("disp stats dump (nested)", has("SKO|disp_stats|ammo.value=5")
-                                    and has("SKO|disp_stats|health.value=3")),
-        ("heartbeat", has("SKE|heartbeat|frames=900")),
-        ("ready marker", has("SK-REWORK: READY build=3")),
+        ("card id map", has("SKC|Peace|gid=12") and has("SKC|Right-hand|gid=157")),
+        ("no on_* probes (build 4)", not has("SKE2|")),
+        ("loadfile probe logged", has("SKA2|loadfile=")),
+        ("ready marker", has("SK-REWORK: READY build=4")),
+        ("probe-done marker", has("SK-REWORK: PROBE done build=4")),
     ]
     bad = [n for n, ok in checks if not ok]
 
@@ -199,18 +199,20 @@ def run_scenario(L, hooks, captured, mode, dump=False):
     parser_checks = [
         ("parser: banner", d["banner"] is not None),
         ("parser: ready", d["ready"] is not None),
-        ("parser: api", d["api"].get("append") is True and
-                        d["api"].get("throw_grenade") is False),
+        ("parser: api", d["api"].get("append") is False and
+                        d["api"].get("_log") is True and
+                        d["api"].get("throw_grenade") is True),
         ("parser: globals", len(d["globals"]) >= 40),
         ("parser: hooks", len(d["hooks"]) == 5),
         ("parser: append events", d["events"]["init_game"] == 1 and
                                   d["events"]["new_level"] == 1 and
                                   d["events"]["setup_piece"] == 1),
         ("parser: world rows", len(d["world"]) == 2),
-        ("parser: callback events", d["callbacks"]["on_fire"] == 1),
+        ("parser: modlist", d["modlist"]["2"].get("title") == "SK Rework"),
+        ("parser: cards", [c["id"] for c in d["cards"]] ==
+                          ["Peace", "Right-hand"]),
         ("parser: objects", d["objects"]["hero"]["ammo"] == "5"),
         ("parser: world", d["world"][0]["bads"] == "3"),
-        ("parser: heartbeat", d["events"]["heartbeat"] == 1),
         ("parser: candidates", "ammo_spend" in
             parse_log._candidates(d["globals"], parse_log.GROUPS[
                 "ammo / shells (map.md: spend & refill TBD)"])),

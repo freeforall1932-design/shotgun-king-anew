@@ -7,6 +7,7 @@
 # Usage — full path (works from ANY folder in PowerShell, recommended):
 #   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\game" -List
 #   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetLog
+#   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights
 #
 # Usage — relative path (depends on where your PowerShell prompt is):
 #   from repo root (PS E:\testing\repo>):        powershell -ExecutionPolicy Bypass -File .\tools\apply.ps1 -GameDir "E:\testing\game" -List
@@ -16,7 +17,8 @@ param(
     [string]$ModName = "sk-rework",
     [string]$Modded  = "",
     [switch]$List,
-    [switch]$GetLog   # just copy the game's log.txt into uploads/game-insights/
+    [switch]$GetLog,      # just copy the game's log.txt into uploads/game-insights/
+    [switch]$GetInsights  # log.txt + mods/modlist.lua + the whole save/ folder
 )
 
 $ErrorActionPreference = "Stop"
@@ -78,6 +80,39 @@ if ($GetLog) {
     $dstFile = Join-Path $dst "log.txt"
     Copy-Item -LiteralPath $src -Destination $dstFile -Force
     Write-Host "Fetched log -> $dstFile"
+    exit 0
+}
+
+if ($GetInsights) {
+    # Everything the dev side needs after a live run: the log, the mod-list
+    # file the game writes (its format decides whether the toolchain can
+    # pre-enable mods), and the save folder (codex/achievement key names).
+    if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetInsights (e.g. -GameDir `"E:\testing\ShotgunKing-Modded`")" }
+    $GameDir = Resolve-GameDir $GameDir
+    $dst = Join-Path $RepoRoot "uploads\game-insights"
+    New-Item -ItemType Directory -Path $dst -Force | Out-Null
+    foreach ($rel in @("log.txt", "mods\modlist.lua")) {
+        $src = Join-Path $GameDir $rel
+        if (Test-Path -LiteralPath $src) {
+            Copy-Item -LiteralPath $src -Destination (Join-Path $dst (Split-Path -Leaf $rel)) -Force
+            Write-Host "Fetched $rel -> $dst"
+        } else {
+            Write-Host "skip (not present): $rel" -ForegroundColor Yellow
+        }
+    }
+    $saveSrc = Join-Path $GameDir "save"
+    if (Test-Path -LiteralPath $saveSrc) {
+        Get-ChildItem -LiteralPath $saveSrc -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $rel2  = $_.FullName.Substring($saveSrc.Length + 1)
+            $to2   = Join-Path (Join-Path $dst "save") $rel2
+            $dir2  = Split-Path -Parent $to2
+            if (-not (Test-Path -LiteralPath $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
+            Copy-Item -LiteralPath $_.FullName -Destination $to2 -Force
+        }
+        Write-Host "Fetched save\ -> $dst\save"
+    } else {
+        Write-Host "skip (not present): save\ (launch the game once first)" -ForegroundColor Yellow
+    }
     exit 0
 }
 
