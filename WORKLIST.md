@@ -38,18 +38,23 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (+ owner ask from run 2: an always-visible "white = ON / black = OFF"
       legend line in the mod menu itself — needs a draw hook on the mods
       menu; the legend currently lives in sk-rework's description text)
-- [ ] **Mod-menu Back button** (owner ask, run 3): the game's mod menu only
-      offers reset / save+reboot — no way out without rebooting. Add a Back
-      button via the same UI-hook route as the legend (Phase 2c work)
+- [ ] **Mod-menu Back button** (owner ask run 3, **confirmed 2026-10-04**):
+      the game's mod menu only offers reset / save+reboot — no way out
+      without rebooting. Add a Back button via the same UI-hook route as
+      the legend (Phase 2c work)
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
-- [ ] **Exclude-rule rework** (owner ask, run 3): vanilla auto-bans the
-      un-chosen offered cards after you pick one — remove that rule, and
-      make the exclude/right-click action rebindable (owner mouse: 2 side
-      buttons + middle click). Needs offer-roll internals (`EXCLUDE`
-      global, live-seen `exclude.N` card lists) + whether SUGAR exposes
-      mouse4/mouse5 to mods (probe needed)
+- [ ] **Exclude-rule rework** (owner ask run 3 — **rule details still
+      pending**: my "auto-ban of un-chosen offered cards" reading was wrong;
+      owner will describe the actual rule. Implementation needs offer-roll
+      internals — `EXCLUDE` global, live-seen `exclude.N` card lists)
+- [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
+      settings panel to assign any action to any extra mouse button
+      (owner mouse: 2 side buttons + middle click; right-click exclude
+      stays default). Gated on a probe: does SUGAR expose mouse4/mouse5
+      to mods at all? (candidate: check workshop mods' input handling +
+      add an input probe to the next sk-rework build)
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
       (persist knobs via the mod's own `save/mods/sk-rework.sav` slot —
