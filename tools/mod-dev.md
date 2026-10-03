@@ -28,7 +28,9 @@ That copies `modded/sk-rework/` → `<game>/mods/sk-rework/` (idempotent).
 Then:
 
 1. Launch the game (Steam).
-2. Mod menu → enable **sk-rework**.
+2. Mods are **ON by default**; if you toggled one off: mod menu = **Play
+   screen, top entry**; click = on/off (bright text = ON); up/down = load
+   priority only.
 3. Play / trigger the feature.
 4. On crash or weirdness: read `<game folder>/log.txt` and the crashlog
    (SUGAR writes crashlogs; the error is at the END of the log).
@@ -47,8 +49,10 @@ append("new_turn", function(...) _log("turn!") end, "dbg")    -- trace calls
 
 ## 3. Diagnostics build & the log parser
 
-`modded/sk-rework/script.lua` is build 3 — a **diagnostics** build. It still
-changes nothing in the game; it proves itself and harvests intel:
+`modded/sk-rework/script.lua` is build 4 — a **diagnostics** build. It still
+changes nothing in the game; it proves itself and harvests intel.
+(Build 3's `on_*`/`upd` probes were removed: the first live run proved the
+engine never calls them for plain mods — `append()` is the mechanism.)
 
 | Prefix | Meaning |
 |---|---|
@@ -57,9 +61,14 @@ changes nothing in the game; it proves itself and harvests intel:
 | `SKG\|` `SKR\|` `SKF\|` | global / replaceable / forbidden names |
 | `SKH\|<target>\|<id>` | a hook (append) was registered |
 | `SKE\|<event>\|…` | event seen through an `append()` hook |
-| `SKE2\|<event>\|…` | event seen through an `on_*` callback probe |
 | `SKO\|<obj>\|key=value` | real field names of a game object |
 | `SKW\|turn=…` | per-turn world state line |
+| `SKM\|<i>\|k=v` | MODLIST entry dump (mod menu state) |
+| `SKC\|<id>\|…` | full CARDS id map (card.id = display name) |
+| `SKML\|…` | `mods/modlist.lua` probe (enable-state format) |
+
+Note: the game wraps every log line in `  . ` / ` !! ` — the parser strips
+that; grep accordingly.
 
 Volume is capped (first 30 hits of an event, then every 25th).
 

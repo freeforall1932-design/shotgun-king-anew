@@ -1,31 +1,34 @@
--- SK-REWORK diagnostics build 3 — 2026-10-03
+-- SK-REWORK diagnostics build 4 — 2026-10-03 (after live test #1)
 -- =====================================================================
--- Purpose of this build (it still changes NOTHING in the game):
---   1. prove the mod loaded and hooks registered    -> SK-REWORK markers, SKA|, SKH|
---   2. dump the game's function map                 -> SKG|, SKR|, SKF|
---   3. trace live game state during play            -> SKW|, SKE|, SKO|
--- The Python side of the project reads these lines with
---   python tools/parse_log.py <logfile>            -> notes/game-map-draft.md
+-- Build 3's live run proved the concept; build 4 harvests what build 3
+-- missed and drops what the live run proved dead. It still changes NOTHING
+-- in the game.
 --
--- Hook strategy (chosen after reading the 13 shipped mods):
---   * primary hooks use append() on game globals that real mods already wrap
---     (new_turn, new_level, setup_piece, add_card, init_game)
---   * on_* callbacks are only *probed* (SKE2| prefix): independent mods never
---     rely on them; the "Glacies Module Terminal" mod provides that dispatch
---     for its dependants. Comparing SKE| vs SKE2| counts tells us whether the
---     engine calls on_* by itself — useful intel, zero gameplay impact.
---   * no pcall exists in this engine (no shipped mod uses it) -> every line
---     is written nil-safe, values go through sv(), loops are capped.
+-- Lessons applied from the live log (live testing result/game-insights/):
+--   * The game wraps every log line in "  . " / " !! " markers — harmless
+--     here; tools/parse_log.py now strips them.
+--   * append() hooks fired; on_* globals and upd() NEVER fired during real
+--     gameplay (SKE2 count = 0, no heartbeat). Defining global on_* names is
+--     also risky: those names belong to the Glacies Module Terminal's
+--     dispatch, and a mod defining them can shadow the dispatcher.
+--     -> build 4 removes all on_*/upd probes and keeps append() only.
+--   * The game writes mods/modlist.lua itself at boot (mods ON by default).
+--     -> build 4 probes that file (loadfile) and dumps every MODLIST entry
+--     so the toolchain can learn its format (SKML| / SKM|).
+--   * Card objects carry id = display name -> dump the full CARDS id map
+--     (SKC|) for the save tool and the future card picker.
 --
--- Volume control: the first CAP_FIRST hits of each event are logged, then
--- every CAP_EVERY-th, so a long session cannot flood log.txt.
--- Line prefixes for grepping: SKG=global names, SKR=replaceable, SKF=forbidden,
+-- Line prefixes: SKG=global names, SKR=replaceable, SKF=forbidden,
 --   SKA=api availability, SKH=hook registered, SKE=event (append hooks),
---   SKE2=event (on_* callback probe), SKO=object field, SKW=world state,
---   SKC=candidate tally.
+--   SKO=object field, SKW=world state, SKM=MODLIST entry dump,
+--   SKC=CARDS id map, SKML=mods/modlist.lua probe.
+-- Volume control: first CAP_FIRST hits of each event, then every CAP_EVERY-th.
+-- Safety: no pcall in this engine -> everything nil/boolean-safe (sv()),
+--   loops capped, the modlist.lua probe runs AFTER the READY line so even a
+--   probe error cannot cost us the harvest.
 -- =====================================================================
 
-local BUILD = 3
+local BUILD = 4
 local CAP_FIRST = 30          -- log the first N hits of every event
 local CAP_EVERY = 25          -- after that, every Nth hit
 local MAX_FIELDS = 12         -- fields dumped per object
@@ -64,9 +67,7 @@ local function capped(tag)
 end
 
 -- dump up to MAX_FIELDS fields of a table: SKO|tag|key=value
--- One level of nesting is expanded (key.sub=value): the displayed-stats table
--- is a list of subtables ({id=, name=, value=}), and that is where the real
--- stat names (ammo/health/...) live.
+-- One level of nesting is expanded (key.sub=value).
 local MAX_SUB = 8
 local function dump_fields(tag, t, max)
 	if t == nil then log("SKO|" .. tag .. "|nil=true") return end
@@ -110,6 +111,28 @@ else
 	log("SKA2|mod_found=yes|active=" .. sv(mod.active))
 end
 
+-- ---------- 1b. dump EVERY MODLIST entry (mod menu state, build 4) -------
+-- Live test showed the game writes mods/modlist.lua at boot and the menu's
+-- up/down = load priority. Dump each entry's scalar fields so the format of
+-- that file and the menu's on/off field can be matched up offline.
+local mi = 0
+for i, v in ipairs(MODLIST) do
+	mi = mi + 1
+	if mi > 40 then break end
+	if type(v) == "table" then
+		local j = 0
+		for k2, v2 in pairs(v) do
+			j = j + 1
+			if j > 12 then break end
+			local tv2 = type(v2)
+			if tv2 ~= "function" then
+				log("SKM|" .. sv(i) .. "|" .. sv(k2) .. "=" .. sv(v2))
+			end
+		end
+	end
+end
+log("SK-REWORK: SKM entries=" .. sv(mi))
+
 -- ---------- 2. which globals exist? (membership test on gimme list) ------
 local known = {}
 local n_global = 0
@@ -120,7 +143,9 @@ for a, b in all(gimme("global")) do
 end
 log("SK-REWORK: globals visible = " .. sv(n_global))
 
--- API self-check: names the project intends to use, plus useful extras
+-- API self-check: names the project intends to use, plus useful extras.
+-- (live note: append/prepend/gimme are NOT in gimme("global") yet work —
+-- they are mod-environment functions, not game globals.)
 local api_wanted = {
 	"append", "prepend", "gimme", "_log", "concat", "add", "del", "all",
 	"get_slot_cards", "gsq", "mk_menu_but", "init_menu", "spawn_pieces",
@@ -134,7 +159,7 @@ for _, name in ipairs(api_wanted) do
 	log("SKA|" .. name .. "|" .. (known[name] and "YES" or "no"))
 end
 
--- ---------- 3. the function map (unchanged from build 2) ----------------
+-- ---------- 3. the function map ------------------------------------------
 local function dump(tag, tbl)
 	local n = 0
 	for a, b in all(tbl) do
@@ -148,7 +173,8 @@ dump("SKR", gimme("replaceable"))
 dump("SKF", gimme("forbidden"))
 
 -- ---------- 4. hook registration: append() to proven game globals -------
--- (every id is stable and prefixed so it can be unregistered later)
+-- (on_* probes removed in build 4: the live run proved they never fire for
+-- plain mods — append() is the mechanism. See header.)
 local hooks_ok = 0
 local function hookf(target, fn, id)
 	append(target, fn, id)
@@ -208,55 +234,55 @@ hookf("init_game", function(...)
 	log("SKE|init_game|n=" .. sv(n))
 end, "sk-rework:init_game")
 
--- ---------- 5. on_* callback probes (SKE2| prefix: see header) ----------
--- If these ever fire, the engine dispatches them to plain mods; if they never
--- fire while the SKE| hooks above do, event dispatch is Terminal-provided.
-function on_fire()
-	local n = capped("cb_fire")
-	if not n then return end
-	log("SKE2|on_fire|n=" .. sv(n))
-end
-function on_bad_hurt(p)
-	local n = capped("cb_hurt")
-	if not n then return end
-	log("SKE2|on_bad_hurt|n=" .. sv(n) .. "|type=" .. sv(p and p.type) .. "|hp=" .. sv(p and p.hp))
-end
-function on_bad_death(p)
-	local n = capped("cb_death")
-	if not n then return end
-	log("SKE2|on_bad_death|n=" .. sv(n) .. "|type=" .. sv(p and p.type))
-end
-function on_bad_spawn(p)
-	local n = capped("cb_spawn")
-	if not n then return end
-	log("SKE2|on_bad_spawn|n=" .. sv(n) .. "|type=" .. sv(p and p.type))
-end
-function on_new_turn()
-	local n = capped("cb_turn")
-	if not n then return end
-	log("SKE2|on_new_turn|n=" .. sv(n))
-end
-function on_empty()
-	local n = capped("cb_empty")
-	if not n then return end
-	log("SKE2|on_empty|n=" .. sv(n))
-end
--- the displayed-stats table is the fastest route to the real stat names
-function edit_disp_stats(stats)
-	if capped("cb_disp") == 1 then dump_fields("disp_stats", stats, 20) end
-end
--- frame heartbeat: proves the mod is alive even if nothing else fires
-local frames = 0
-function upd()
-	frames = frames + 1
-	if (frames % 900) == 0 then
-		log("SKE|heartbeat|frames=" .. sv(frames) .. "|turn=" .. sv(counts["turn"] or 0))
+-- ---------- 5. card id map (save tool + card picker intel, build 4) ------
+-- live log proved card.id == display name; dump the whole table so the
+-- special cards' ids (Right-hand, Gatehouse, ...) are known offline.
+local nc = 0
+if CARDS then
+	for a, b in all(CARDS) do
+		local c = pick(a, b)
+		nc = nc + 1
+		if nc <= 400 and type(c) == "table" then
+			log("SKC|" .. sv(c.id) .. "|gid=" .. sv(c.gid) .. "|ext=" .. sv(c.ext)
+				.. "|pwe=" .. sv(c.pwe) .. "|name=" .. sv(c.name)
+				.. "|special=" .. sv(c.special))
+		end
 	end
 end
+log("SK-REWORK: SKC count=" .. sv(nc))
 
--- ---------- 6. ready line (the "patch worked" marker for the owner) -----
+-- ---------- 6. ready line (the "patch worked" marker for the owner) ------
 log("SK-REWORK: READY build=" .. sv(BUILD) .. " hooks=" .. sv(hooks_ok)
 	.. " globals=" .. sv(n_global))
+
+-- ---------- 7. mods/modlist.lua probe (AFTER READY: cannot cost harvest) --
+-- The game wrote this file at boot in the live run; its format decides
+-- whether the toolchain can pre-enable mods. loadfile may or may not exist
+-- in the mod environment — check, and log whatever it returns.
+log("SKA2|loadfile=" .. (type(loadfile) == "function" and "yes" or "no"))
+if type(loadfile) == "function" then
+	local chunk = loadfile("mods/modlist.lua")
+	log("SKML|load|" .. sv(type(chunk)))
+	if type(chunk) == "function" then
+		local r = chunk()
+		log("SKML|type|" .. sv(type(r)))
+		if type(r) == "table" then
+			local i = 0
+			for k, v in pairs(r) do
+				i = i + 1
+				if i > 60 then break end
+				local tv = type(v)
+				if tv ~= "table" and tv ~= "function" then
+					log("SKML|e|" .. sv(k) .. "=" .. sv(v))
+				else
+					log("SKML|e|" .. sv(k) .. "=" .. tv)
+				end
+			end
+			log("SKML|count|" .. sv(i))
+		end
+	end
+end
+log("SK-REWORK: PROBE done build=" .. sv(BUILD))
 
 -- SK-REWORK: TODO (next phases, once the harvested map is parsed):
 --   F-key/panel debug UI (mk_menu_but patterns from the reference mods)

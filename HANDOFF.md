@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-03 (session 3, branch `arena/01a101f3-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-03 (session 4, branch `arena/01a10235-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -23,7 +23,9 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 |---|---|
 | Working branch | `arena/01a101f3-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
 | Our mod | `modded/sk-rework/` (info.lua + script.lua = diagnostics build 3 + cover.png) |
-| Log parser + smoke test | `tools/parse_log.py`, `tools/mod_smoketest.py` (both tested, see §5) |
+| Log parser + smoke test | `tools/parse_log.py` (23/23, live-fixed), `tools/mod_smoketest.py` (29/29) |
+| Live-test evidence | `live testing result/` — critique.txt, 8 screenshots, run-2 log; `live testing result/game-insights/log.txt` = run-1 log (in repo) |
+| Parsed live map | `notes/game-map-draft.md` (from run-1 log) |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
 | Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
@@ -47,8 +49,17 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
    on all 6 real v1.623b saves (prior session). `make_100pct_save.py` =
    unlock-all (128 achievements, weapons 1–9, rank 20 + badges, endless
    floor 15 ⇒ chase unlocked, 164-card codex). Backups + `--restore`.
-4. **No mod-enable state in saves** → mods in `mods/` are likely enabled by
-   default; the in-game mod menu toggles them. *(Unconfirmed — live test.)*
+4. **Mods are ON by default; enable state lives in `mods/modlist.lua`** (the
+   game writes it at boot; not in saves). Mod menu = Play screen's top entry;
+   click = on/off (bright = ON), up/down = load priority only.
+   Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam tracking
+   paused, save-side achievements fine.
+4b. **Game log wraps every line in `  . ` / ` !! `** — any new parser/grep
+   must strip it (session-4 parser bug). Lua errors still at log END.
+4c. **`append()` is the only proven hook.** `on_*`/`upd` globals never fire
+   for plain mods (live-proven); `append/prepend/gimme` are mod-env functions
+   (absent from `gimme("global")` but working). Never define global `on_*`
+   names (can shadow Glac Terminal's dispatch).
 5. **data.sgr** = 79 MB package with all 278 game files. Format undocumented;
    **decision: don't crack it** — runtime `gimme()` dump gives the same intel.
 6. The analyzed game copy is a Goldberg-emu repack (owner's); Steam Workshop
@@ -101,36 +112,38 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step
+## 5. Current state & immediate next step (session 4)
 
-**The stub is now a self-reporting diagnostics build (build 3)** and the
-parser exists, so the live run harvests everything in one pass:
+**Live test #1 is done and absorbed.** Both runs loaded build 3 (the old
+parser's "mod did not run" was its own prefix bug — fixed). Run 1 harvested
+920 globals / 41 replaceable / 26 forbidden, 47 gameplay events and the live
+object model → `notes/game-map-draft.md`; verdicts promoted into
+`notes/map.md` ("Live-verified facts"). The 100% save was game-accepted
+(achievements 100%, chase unlocked; codex 96% → tool now writes 170 cards).
 
-1. owner runs `INSTALL.md` steps 1–7 (Step 5 = launch, enter a run, play a
-   couple of turns, quit; Step 6 = `apply.ps1 -GetLog`);
-2. upload `log.txt`;
-3. `python tools/parse_log.py uploads/game-insights/log.txt` →
-   `notes/game-map-draft.md` (auto: load verdict, API check, hook list,
-   **append-vs-on_* dispatch verdict**, live object model, candidate lists
-   per TBD area);
-4. promote confirmed names into `notes/map.md`, then build Phase 2c
-   (dev-cheat panel via `mk_menu_but`), then ammo rework A→B→C.
+**Build 4 is shipped and awaits one short run** (owner, ~5 min):
+`INSTALL.md` steps 4–6 with the updated repo, then
+`apply.ps1 -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights` and upload
+the `uploads/game-insights/` pack. That delivers the two remaining unknowns:
+`mods/modlist.lua` on-disk format (SKML probe + the harvested file) and the
+exact special-card ids (SKC dump). With those: `build-dist.ps1` can
+pre-enable mods (closes owner critique #2), and the save tool's special-card
+keys get re-confirmed.
 
-What the diagnostics build logs: see the table in `tools/mod-dev.md` §3.
-Safety: no `pcall` in this engine (no shipped mod uses it) → everything is
-nil/boolean-safe (`sv()`), loops capped, no gameplay code touched.
+**Then feature work is unblocked**, in owner-priority order: Phase 2c
+dev-cheat panel (`mk_menu_but`; read `hero.ammo`/`hero.hp` directly,
+`get_disp_stats` is a global), ammo rework A→B→C, card/enemy pickers
+(card.id = display name; `pwe` live-confirmed).
 
-Verified without the game: `python tools/parse_log.py --selftest` (16/16) and
-`python tools/mod_smoketest.py` (needs `lupa`; 27/27 under both `all()`
-semantics; it caught two real bugs — boolean concatenation and nested-table
-dumps — before the live run).
-
-Next unblocked candidates: pre-build the cheat-panel skeleton against
-candidate names, real cover art, or the `install-mods.ps1` .rar path.
+Verified without the game this session: `parse_log.py --selftest` 23/23;
+`mod_smoketest.py` 29/29 under both `all()` semantics (venv with lupa).
+Safety rules unchanged: no `pcall`, nil/boolean-safe `sv()`, capped loops,
+probe code runs AFTER the READY line.
 
 ## 6. Owner (human) intervention points
 
-- Run the live-test ladder and upload log.txt ← **only blocker**
+- One short build-4 run + `apply.ps1 -GetInsights` upload (modlist format +
+  card ids) ← the only remaining harvest; feature work no longer blocked
 - Playtest each phase build; report crashes (error text = END of log.txt)
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning

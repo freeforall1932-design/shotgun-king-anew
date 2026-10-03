@@ -18,7 +18,14 @@ Line formats it understands (see modded/sk-rework/script.lua):
     SKE2|<event>|k=v|...         event seen via on_* callback probe
     SKO|<obj>|<key>=<value>      object field dump
     SKW|k=v|...                  per-turn world state
+    SKM|<i>|k=v|...              MODLIST entry dump (build 4+)
+    SKC|<id>|k=v|...             CARDS id map (build 4+)
+    SKML|...                     mods/modlist.lua probe (build 4+)
     SK-REWORK: READY build=3 hooks=5 globals=452
+
+The game wraps every log line in a "  . " (info) / " !! " (warning) marker;
+this parser strips that marker first, so both raw mod output and a real
+log.txt parse identically (bug found by the first live test).
 
 Usage (full paths — works from ANY folder in PowerShell):
     python "E:\\testing\\repo\\tools\\parse_log.py" "E:\\testing\\repo\\uploads\\game-insights\\log.txt"
@@ -72,12 +79,20 @@ def parse_text(text: str) -> dict:
         "events": collections.Counter(), "event_samples": {},
         "callbacks": collections.Counter(), "callback_samples": {},
         "event_total": {}, "callback_total": {},
+        "modlist": collections.OrderedDict(), "cards": [], "modlist_raw": [],
         "objects": collections.defaultdict(dict), "object_order": [],
         "world": [], "counts_reported": {}, "other_lines": 0, "tail": [],
     }
     lines = text.splitlines()
     for ln in lines:
         s = ln.strip()
+        # The game writes every log line with a "  . " (info) or " !! "
+        # (warning) marker, so our lines arrive as ". SK-REWORK: ..." /
+        # ". SKG|..." — strip the marker so raw and game-wrapped logs parse
+        # identically. (Bug found by the first live test 2026-10-03: without
+        # this, a perfectly good log was reported as "mod did not run".)
+        if s[:2] in (". ", "! "):
+            s = s[2:].strip()
         if s.startswith(MAGIC):
             body = s[len(MAGIC):].strip()
             m = re.match(r"BUILD=(\d+) loaded \(mod_index=(-?\d+)\)", body)
@@ -155,6 +170,30 @@ def parse_text(text: str) -> dict:
                     k, v = part.split("=", 1)
                     row[k] = v
             d["world"].append(row)
+            continue
+        if s.startswith("SKM|"):
+            parts = s.split("|")
+            if len(parts) >= 3:
+                entry = d["modlist"].setdefault(parts[1],
+                                                collections.OrderedDict())
+                for part in parts[2:]:
+                    if "=" in part:
+                        k, v = part.split("=", 1)
+                        entry[k] = v
+            continue
+        if s.startswith("SKC|"):
+            parts = s.split("|")
+            if len(parts) >= 2:
+                fields = {}
+                for part in parts[2:]:
+                    if "=" in part:
+                        k, v = part.split("=", 1)
+                        fields[k] = v
+                fields["id"] = parts[1]
+                d["cards"].append(fields)
+            continue
+        if s.startswith("SKML|"):
+            d["modlist_raw"].append(s[5:])
             continue
         d["other_lines"] += 1
     d["tail"] = [l for l in lines[-40:]]
@@ -321,7 +360,41 @@ def render_markdown(d: dict, src: str) -> str:
         w("  ".join(f"{n:<26}" for n in globals_[i:i + 6]).rstrip())
     w("```")
     w("")
-    w("## 10. Next step")
+    # mod list state (build 4+: SKM| dumps every MODLIST entry)
+    if d["modlist"]:
+        w("## 10. Mod list (live MODLIST dump)")
+        w("")
+        for idx, fields in d["modlist"].items():
+            w(f"- entry {idx}: " + ", ".join(f"`{k}={v}`"
+                                             for k, v in fields.items()))
+        w("")
+
+    # card id map (build 4+: SKC| dumps CARDS)
+    if d["cards"]:
+        w("## 11. Card id map (live CARDS dump)")
+        w("")
+        w(f"{len(d['cards'])} cards. `id` is the display name (confirmed live: "
+          "`SKE|add_card|id=A Piercing Truth`); stats.sav codex keys use the "
+          "same names.")
+        w("")
+        w("| id | gid | ext | pwe |")
+        w("|---|---|---|---|")
+        for c in d["cards"]:
+            w(f"| {c.get('id', '?')} | {c.get('gid', '—')} | "
+              f"{c.get('ext', '—')} | {c.get('pwe', '—')} |")
+        w("")
+
+    # mods/modlist.lua probe (build 4+: SKML|)
+    if d["modlist_raw"]:
+        w("## 12. mods/modlist.lua (live probe)")
+        w("")
+        w("```")
+        for ln in d["modlist_raw"]:
+            w(ln)
+        w("```")
+        w("")
+
+    w("## 13. Next step")
     w("")
     w("- Promote confirmed entries into `notes/map.md` (replace the TBD lines).")
     w("- Pick the dev-cheat panel targets from the ammo/UI candidate lists.")
@@ -396,6 +469,27 @@ def selftest() -> int:
     checks.append(("callback total from n=", d2["callback_total"]["on_bad_hurt"] == 2))
     checks.append(("callback lines counted", d2["callbacks"]["on_bad_hurt"] == 1))
     checks.append(("sampling shown in table", "sampled: 1 lines" in md2))
+
+    # regression (live test 2026-10-03): real game logs wrap every line in a
+    # "  . " / " !! " marker — the parser must strip it before matching.
+    d3 = parse_text(
+        "  . SK-REWORK: BUILD=3 loaded (mod_index=9)\r\n"
+        "  . SKA2|mod_found=yes|active=true\r\n"
+        "  . SKA|append|no\r\n"
+        " !! Could not open file 'save/mods/x.bnk': No such file or directory'.\r\n"
+        "  . SKG|ammo_spend\r\n"
+        "  . SKM|1|title=SK Rework|active=true\r\n"
+        "  . SKC|Peace|gid=12|pwe=4\r\n"
+        "  . SKML|load|function\r\n"
+        "  . SK-REWORK: READY build=3 hooks=5 globals=1\r\n")
+    checks.append(("prefixed banner", d3["banner"] is not None))
+    checks.append(("prefixed api-no", d3["api"].get("append") is False))
+    checks.append(("prefixed globals", d3["globals"] == ["ammo_spend"]))
+    checks.append(("prefixed ready", d3["ready"] is not None))
+    checks.append(("modlist dump", d3["modlist"]["1"].get("title") == "SK Rework"))
+    checks.append(("card map", d3["cards"][0]["id"] == "Peace"
+                   and d3["cards"][0]["gid"] == "12"))
+    checks.append(("modlist probe", d3["modlist_raw"] == ["load|function"]))
 
     bad = [name for name, ok in checks if not ok]
     print(f"selftest: {len(checks) - len(bad)}/{len(checks)} checks passed")

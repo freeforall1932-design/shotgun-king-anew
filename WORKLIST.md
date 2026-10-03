@@ -10,25 +10,24 @@
 **Canonical instructions: `INSTALL.md`** (owner layout `E:\testing\{game, repo,
 ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
-- [ ] **Step 1 — dry run** (owner, 1 min): `pwsh tools/apply.ps1 -GameDir
-      "<game>" -List`. Writes nothing; prints exactly what would be copied.
-- [ ] **Step 2 — build the copy**: `pwsh tools/build-dist.ps1 -GameDir
-      "<game>" -Clean` → confirm `dist\ShotgunKing-Modded\mods\` has 14
-      folders and your install is unchanged. **Result: ⏳ not run.**
-- [ ] **Step 3 — launch the copy** → mod menu shows/toggles the 14 mods
-      (this also answers: do mods auto-enable?). **Result: ⏳ not run.**
-- [ ] **Step 4 — harvest the log** (**the true blocker**):
-      `pwsh tools/apply.ps1 -GameDir "dist\ShotgunKing-Modded" -GetLog` →
-      send `uploads/game-insights/log.txt` (attach in chat / upload to repo).
-      Then: `python tools/parse_log.py uploads/game-insights/log.txt` →
-      draft map → complete `notes/map.md`
-      (ammo spend/refill, damage entry point, spawn decision, offer roll).
-      Log must contain `SK-REWORK: READY` (the mod's own success proof).
-- [ ] **Step 5 — 100% save on the copy**: launch the copy once (creates
-      `save\`) → `python tools/make_100pct_save.py --game-dir
-      "dist\ShotgunKing-Modded"` → verify in-game: all shotguns, chase mode,
-      codex, achievements. **Result: ⏳ not run.** (Codec byte-lossless;
-      game acceptance unproven until played.)
+- [x] **Step 1 — dry run**: ✅ ran, printed the dry-run copy list.
+- [x] **Step 2 — build the copy**: ✅ ran twice (with and without
+      `-NoInheritMods -Clean`); 14 mod folders injected; inherited zips
+      unpacked & renamed; `King's Court.rar` removed as designed.
+- [x] **Step 3 — launch the copy**: ✅ 14 mods listed, **ON by default**;
+      menu lives under Play (top entry); click = on/off (bright text = ON);
+      up/down = load priority (cosmetic renumbering).
+- [x] **Step 4 — harvest the log**: ✅ run-1 log uploaded
+      (`live testing result/game-insights/log.txt`) and parsed →
+      `notes/game-map-draft.md` (920 globals / 41 replaceable / 26 forbidden,
+      47 events, object model). **🐛 found on the way:** the parser rejected
+      the good log (game wraps lines in `  . `) — fixed, selftest 23/23.
+      Remaining TBDs (ammo spend/refill entry, offer roll) now have candidate
+      lists in the draft; modlist.lua format awaited (build 4 SKML probe).
+- [x] **Step 5 — 100% save on the copy**: ✅ game ACCEPTED it —
+      Achievements 100%, chase unlocked; codex was 96% (6 special cards
+      missing) → tool now writes 170 cards. `ACHIEVEMENTS: OFF` title label
+      explained (Steam tracking paused while modded).
 
 ## 🟠 Next features (after log.txt)
 
@@ -39,20 +38,25 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
+- [ ] **Pre-enable mods from the toolchain** (owner critique #2): once the
+      harvested `modlist.lua` format is known, `build-dist.ps1` writes it so
+      no in-game toggling is ever needed (today: ON by default anyway)
 
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
-- [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — shipped 2026-10-03
-      session 2b: parses `SKG|/SKR|/SKF|/SKA|/SKH|/SKE|/SKE2|/SKO|/SKW|` into
-      `notes/game-map-draft.md` (load verdict, API list, live object model,
-      candidate function lists per TBD area, event-dispatch verdict);
-      `--selftest` 16/16, end-to-end against the smoke-test log
+- [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — shipped session 2b,
+      live-fixed session 4: strips the game's `  . `/` !! ` line prefix;
+      parses `SKG|/SKR|/SKF|/SKA|/SKH|/SKE|/SKE2|/SKO|/SKW|/SKM|/SKC|/SKML|`
+      into `notes/game-map-draft.md`; `--selftest` 23/23 incl. a
+      game-prefixed regression case
 - [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — shipped: runs
       `script.lua` against a fake SUGAR env under BOTH `all()` semantics,
-      fires hooks, feeds the output to the parser; 27/27 checks
-- [x] ~~**diagnostics build 3** of sk-rework~~ — shipped: self-check
-      (`SKA|`/`SKH|`), on_* probes (`SKE2|`), live state (`SKW|`), object
-      dumps (`SKO|`), heartbeat; volume-capped; nil/boolean-safe
+      fires hooks, feeds the output to the parser; 29/29 checks (build 4)
+- [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
+      game (load proof, 920 globals, hooks, 47 events, object dumps)
+- [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4: MODLIST
+      dump (`SKM|`), card id map (`SKC|`), `mods/modlist.lua` probe (`SKML|`);
+      dead `on_*`/`upd` probes removed; awaits one live run
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
@@ -68,15 +72,33 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
-## ❓ Open questions the live log will answer
+## ❓ Open questions — live-test answers (2026-10-03)
 
-1. Do plain mods receive `on_*` callbacks, or only via the Glacies Module
-   Terminal? (Diagnostics build probes both; parser prints the verdict.)
-2. Are mods enabled by default? (Step 5 observation.)
-3. Which real field names hold ammo/hp? (`SKO|hero|…`,
-   `SKO|disp_stats|ammo.value=…`.)
+1. ~~Do plain mods receive `on_*` callbacks?~~ **No.** `on_*`/`upd` never
+   fired during real gameplay; `append()` is the only proven hook. (Build 4
+   removed the probes; defining those globals can shadow the Terminal.)
+2. ~~Are mods enabled by default?~~ **Yes, ON by default**; enable state lives
+   in `mods/modlist.lua`, written by the game at boot. On-disk format still
+   unknown → build 4 `SKML|` probe + `apply.ps1 -GetInsights` will capture it.
+3. ~~Real field names for ammo/hp?~~ Partially: `hero.hp`, `hero.ammo`
+   confirmed live; the displayed-stats table (nested ammo/health names) is a
+   Terminal callback, not a global — cheat panel should read `hero.ammo`
+   directly or dump `get_disp_stats()` (it IS a global).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 4 — live test #1 absorbed; see changelog for detail):**
+- ✅ live ladder steps 1–5 all ran (twice); run-1 log parsed into
+      `notes/game-map-draft.md`; `notes/map.md` gained a Live-verified section
+- 🐛 FIXED `parse_log.py` false "mod did not run" (game `  . ` line prefix)
+- ✅ `sk-rework` build 4 shipped (SKM/SKC/SKML harvest; dead probes removed);
+      smoke test 29/29 both `all()` semantics
+- ✅ `make_100pct_save.py` codex 96%→100% (6 special cards) + achievements-off
+      explanation; `apply.ps1 -GetInsights`; `build-dist.ps1` PLAY-THIS.txt,
+      `INSTALL.md`, `README.md` corrected from the owner's critique
+- ⏳ NEW (owner, ~5 min): run build 4 once + `-GetInsights`, upload the pack →
+      modlist.lua format + exact special-card ids → then build-dist can
+      pre-enable mods (critique #2 fully closed)
 
 **2026-10-03 (session 3 — placement-aware INSTALL.md + `mod`/`mods` normalization):**
 - ✅ **`INSTALL.md` rewritten for manual setup + `E:\testing\repo\tools` copy-paste**:

@@ -14,6 +14,57 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 4) — live test #1 absorbed: parser fix, build 4, codex 100%, docs corrected
+
+Owner ran the whole ladder twice (inherited mods + `-NoInheritMods`) and the
+optional python step, uploaded `live testing result/` (critique + screenshots)
+and `live testing result/game-insights/log.txt` (run 1). Everything below is a
+response to observed reality.
+
+- **`tools/parse_log.py` — 🐛 fixed the false "mod did not run".** The game
+  wraps every log line in `  . ` / ` !! ` markers; the parser matched raw
+  prefixes only, so a perfectly good live log was rejected. Now strips the
+  marker; selftest grew to 23/23 including a game-prefixed regression case.
+  New prefixes understood: `SKM|` (MODLIST dump), `SKC|` (CARDS id map),
+  `SKML|` (modlist.lua probe), rendered as draft §10–12.
+- **`notes/game-map-draft.md` generated from the real log** — 920 globals,
+  41 replaceable, 26 forbidden, 47 gameplay events, 4 object tables; verdict:
+  append() hooks fire, on_* probes never do.
+- **`modded/sk-rework/` build 4** — drops the proven-dead `on_*`/`upd` probes
+  (they never fire for plain mods and shadowing those globals can break the
+  Glac Terminal dispatcher); adds SKM MODLIST dump, SKC card id map, and a
+  post-READY `loadfile("mods/modlist.lua")` probe so the next run reveals the
+  enable-state file format. Smoke test 29/29 under both `all()` semantics.
+- **`tools/make_100pct_save.py` — codex 96% → 100%.** Live run left 6 special
+  cards locked (Right-hand, Gatehouse, Catacombs, Onboarding Party, Faithful
+  Steed, Redemption); they are now written too (170 cards). Output explains
+  the harmless `MODDED: ON - ACHIEVEMENTS: OFF` title label.
+- **`tools/apply.ps1` — new `-GetInsights`**: harvests log.txt +
+  `mods/modlist.lua` + the whole `save\` folder into
+  `uploads/game-insights/` (backup route to learn the modlist format and the
+  exact codex keys).
+- **`tools/build-dist.ps1` PLAY-THIS.txt corrected**: mod menu is Play→top
+  entry (not main menu), mods ON by default, up/down = priority, and the
+  achievements-off label explained.
+- **`INSTALL.md` corrected from the critique**: real mod-menu location,
+  default-ON, bright text = ON, priority sorting is cosmetic; Step 5 log table
+  now shows build-4 lines (heartbeat line removed — it never fired); Step 6
+  offers `-GetInsights`; Step 7 documents the two "looks wrong but is not"
+  symptoms; troubleshooting rows for 96% codex / achievements-off / scrambled
+  numbering / stale parser.
+- **`notes/map.md`** — new "Live-verified facts" section (log wrapping,
+  default-ON + modlist.lua, append-only hooks, live object model, 170-card
+  codex); the "probably enabled by default" guess marked resolved.
+- **README.md** — status table flipped to live-proven; the three pre-live
+  unknowns listed as resolved.
+- why: owner's live-test critique (mod menu location, terminal-vs-patch mod
+  management, toggle colour confusion, codex thumbnails, achievements-off
+  label) — each item answered or tool-fixed here; modlist pre-enable waits
+  for the format (build 4 SKML / -GetInsights will deliver it).
+- status: shipped; build 4 + -GetInsights await the owner's next 5-minute run.
+
+---
+
 ## 2026-10-03 (session 3) — Placement-aware INSTALL.md + `mod`/`mods` normalization
 
 - **`INSTALL.md` fixed for manual folder setup & `E:\testing\repo\tools` commands.**

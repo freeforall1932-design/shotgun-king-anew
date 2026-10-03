@@ -204,9 +204,17 @@ That source folder was NOT modified - only this copy has the mods.
 
 PLAY: double-click the game's .exe in this folder.
 
-TOGGLES: mods are NOT forced on. Open the in-game MOD MENU (from the
-main menu) to switch each mod ON or OFF individually - injected mods
-appear there like any other mod. Changes apply on your next run.
+MOD MENU: injected mods are ON by default (verified live 2026-10-03). The
+menu is NOT on the title screen: click Play - the mod menu is the TOP entry
+of that screen. Clicking a mod flips it on/off (text colour changes; bright
+text = ON). The up/down arrows do NOT toggle on/off - they change load
+priority (which mod overrides which), so odd numbering after sorting is
+cosmetic. If you change anything, restart the game to be safe.
+
+TITLE BAR: "MODDED: ON - ACHIEVEMENTS: OFF" is NORMAL with mods installed -
+the game pauses Steam achievement tracking while modded. The optional
+unlock-all step below writes achievements/codex straight into this copy's
+save files, so the codex still shows 100%.
 
 Included: 13 workshop mods (by their authors, from the official Discord /
 Steam Workshop) + sk-rework (this project - currently a debug stub that

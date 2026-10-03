@@ -151,9 +151,14 @@ command.)*
 
 1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
    (Step 4 printed its exact path).
-2. From the main menu, open the **mod menu**.
-3. **Look and note:** are all 14 mods listed? Are they ON or OFF by default?
-   (Make sure `SK Rework` / `sk-rework` is ON.)
+2. The **mod menu is NOT on the title screen**: click **Play** — the mod menu
+   is the **top entry** of that screen.
+3. **Look and note:** all 14 mods should be listed and **ON by default**
+   (verified live 2026-10-03). Clicking a mod flips it; the text colour
+   changes (bright/white = ON). The **up/down arrows do not toggle on/off** —
+   they change *load priority* (which mod overrides which), so if the
+   numbering looks disordered after moving something, that is cosmetic.
+   Make sure `SK Rework` / `sk-rework` is ON, then back out.
 4. **Start a run and play a couple of turns** — this is what makes the log
    useful. The `sk-rework` mod is a diagnostics build: it watches the game
    and writes what it sees to `log.txt` (it changes nothing in gameplay).
@@ -161,15 +166,16 @@ command.)*
 5. Quit the game normally.
 
 The `sk-rework` mod reports on itself — if you open
-`E:\testing\ShotgunKing-Modded\log.txt`, these lines mean it worked:
+`E:\testing\ShotgunKing-Modded\log.txt`, these lines mean it worked (the game
+prefixes every line with `  . ` — that is normal):
 
 | Line in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=3 loaded (mod_index=…)` | the mod loaded |
-| `SKA\|append\|YES` (a list of these) | the game API it plans to use exists |
+| `SK-REWORK: BUILD=4 loaded (mod_index=…)` | the mod loaded |
+| `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
 | `SKH\|new_turn\|…` (5 of these) | its hooks registered |
-| `SKE\|heartbeat\|frames=900` | it is alive and watching during play |
-| `SK-REWORK: READY build=3 hooks=5` | everything above succeeded |
+| `SKW\|turn=1\|…` (one per turn played) | it is alive and watching during play |
+| `SK-REWORK: READY build=4 hooks=5` | everything above succeeded |
 
 If the game crashes after the intro logos, don't worry — the reason is at the
 **end** of `E:\testing\ShotgunKing-Modded\log.txt`. Continue to Step 6.
@@ -189,6 +195,18 @@ This copies `E:\testing\ShotgunKing-Modded\log.txt` to
 `E:\testing\repo\uploads\game-insights\log.txt`.
 **Attach that `log.txt` file in chat** (or attach
 `E:\testing\ShotgunKing-Modded\log.txt` directly — they are identical).
+
+**Even better — the full insight pack** (log + the game's `modlist.lua` + the
+copy's whole `save\` folder; lets the dev side learn the mod-enable format and
+the exact codex key names):
+
+```powershell
+cd E:\testing\repo\tools
+powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights
+```
+
+then attach everything from `E:\testing\repo\uploads\game-insights\` in chat
+(or upload the folder to the repo, like last time).
 
 **Optional preview (needs Python):** to generate `E:\testing\repo\notes\game-map-draft.md`
 on your own PC right away:
@@ -221,6 +239,17 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
   python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --restore
   ```
 
+**Two things that look wrong but are not:**
+
+- The title screen says `MODDED: ON - ACHIEVEMENTS: OFF`. That only means
+  *Steam* achievement tracking is paused while mods are installed — the codex
+  still shows `Achievements: 100%` because this tool writes them straight into
+  the save. Nothing to fix.
+- The codex should now show **100%**. (An earlier version of this tool left it
+  at 96%: six *special* cards — Right-hand, Gatehouse, Catacombs, Onboarding
+  Party, Faithful Steed, Redemption — were missing. If you ran the old version,
+  just run the new one again; it is idempotent.)
+
 ---
 
 ## 4. Success checklist (what to report back)
@@ -229,9 +258,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | game reaches main menu; 14 mods visible; note whether they start ON or OFF |
-| 4 | Step 6 log | `log.txt` collected and attached, containing `SK-REWORK: READY` |
-| 5 | Step 7 (optional) | achievements/shotguns/codex unlocked in the copy |
+| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, ON by default; up/down = priority only |
+| 4 | Step 6 log | `log.txt` collected and attached, containing `SK-REWORK: READY build=4` |
+| 5 | Step 7 (optional) | achievements/shotguns/codex 100% in the copy; `ACHIEVEMENTS: OFF` title label is normal |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
 the game crashed.
@@ -245,7 +274,7 @@ the game crashed.
 | Phase | What | Status |
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
-| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ⛔ blocked on Step 6 |
+| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | 🟢 unblocked — first live log parsed 2026-10-03 (`notes/game-map-draft.md`); build 4 harvests the remaining unknowns (mod list format, card id map) |
 | 2c | in-game dev/cheat panel (give ammo/cards, god mode, spawns) | ⛔ after 2b |
 | 3 | ammo rework, staged A → B → C | ⛔ after 2b |
 | 4 | card picker + enemy picker | ⛔ after 2b |
@@ -276,6 +305,10 @@ the game crashed.
 | build script says `No data.sgr in …` | Make sure `E:\testing\game` contains the game `.exe` **and** `data.sgr`. |
 | game crashes after the intro logos | Lua error — the reason is at the **end** of `E:\testing\ShotgunKing-Modded\log.txt`; send it via Step 6. |
 | the 100% save "did nothing" | The game must be closed while running Step 7, and `--game-dir` must point at `E:\testing\ShotgunKing-Modded` (not `E:\testing\game`). |
+| title bar says `ACHIEVEMENTS: OFF` | Normal with mods installed (Steam tracking paused). The codex in the save still shows 100%. |
+| codex stuck at 96% | You used the old save tool before the 6 special cards were added — re-run Step 7 with the updated repo. |
+| mod menu numbering looks scrambled after moving mods | Up/down = load priority, not on/off; the renumbering is cosmetic. |
+| `parse_log.py` says "no SK-REWORK lines" | You ran an old copy of the parser on a real log — update the repo; the parser now strips the game's `  . ` line prefix. |
 
 ---
 

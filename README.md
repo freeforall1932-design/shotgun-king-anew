@@ -51,24 +51,23 @@ Honest status, because "it's written" is not the same as "it's been run":
 
 | Thing | Status | Meaning |
 |---|---|---|
-| 13 workshop mods vendored in `dist-overlay/mods/` | ✅ files verified | every folder name matches its `info.lua` (`name=`) — the #1 reason mods silently fail |
-| `sk-rework` diagnostics mod (build 3) | 🟡 code ready, unproven | logs its own load + hooks + live game state; smoke-tested against a fake engine under both `all()` semantics, but **never loaded by the real game yet** |
-| `tools/parse_log.py` log parser | ✅ tested | turns the mod's log lines into `notes/game-map-draft.md`; selftest 16/16 + end-to-end against the smoke-test log |
-| `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 27/27 checks under both engine semantics |
-| `tools/build-dist.ps1` | 🟡 code ready, unproven | syntax-checked, but no PowerShell exists in the dev sandbox — first real execution is on your machine |
+| 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
+| `sk-rework` diagnostics mod (build 4) | ✅ live-proven | build 3 ran twice in the real game (load proof, 920 globals, hooks, live state); build 4 adds the mod-list + card-id harvest and drops the dead `on_*` probes |
+| `tools/parse_log.py` log parser | ✅ live-proven | turned the first real `log.txt` into `notes/game-map-draft.md`; prefix-stripping bug found & fixed by the live test; selftest 23/23 |
+| `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 29/29 checks under both engine semantics |
+| `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (with and without `-NoInheritMods`); copy played fine |
 | `tools/save_codec.py` | ✅ verified | byte-identical parse/serialize on all 6 real saves (earlier session); re-tested end-to-end now |
-| `tools/make_100pct_save.py` | ✅ mechanics · 🟡 game acceptance | dry-run/write/backup/restore all tested; whether the game *accepts* the edited save is only provable in-game |
-| Ammo rework, card/enemy pickers, cheat panel | ⛔ blocked | needs one live run of the stub mod to harvest the game's function map first |
+| `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100%, weapons/ranks/chase unlocked; codex was 96% (6 special cards missing) — now writes all 170 cards |
+| Ammo rework, card/enemy pickers, cheat panel | 🟢 unblocked | the live function map is in (`notes/game-map-draft.md`); feature work can start |
 
-**Before your first run, know these three unknowns** (details:
-[`notes/review-2026-10-03.md`](notes/review-2026-10-03.md)):
+**The three pre-live unknowns — all resolved on 2026-10-03:**
 
-1. The PowerShell scripts have never been executed anywhere — syntax is
-   checked, behaviour is not. That's why `INSTALL.md` starts with a no-write
-   dry run.
-2. Whether the game accepts the edited 100% save is unproven — it's reversible.
-3. Whether mods are enabled by default is unproven — if not, it's one toggle
-   in the in-game mod menu.
+1. PowerShell scripts: executed successfully on the owner's machine
+   (build-dist, apply -GetLog, both parse runs).
+2. 100% save acceptance: **accepted** — achievements/codex/unlocks showed up
+   in game; the only gap (6 special cards) is fixed.
+3. Mods enabled by default: **yes, ON by default** — the game writes
+   `mods/modlist.lua` itself at first boot with every mod active.
 
 ---
 
@@ -104,8 +103,12 @@ ship as folders too.
 
 ## 🎮 Playing & mods
 
-- Mods are **not forced on**. The in-game **mod menu** lists every mod found in
-  `mods\`; flip each one on/off per playthrough.
+- Mods are **ON by default** (live-verified). The in-game **mod menu** is not
+  on the title screen: click **Play**, it is the top entry there. Clicking a
+  mod flips it (bright text = ON); the up/down arrows only change load
+  priority (which mod overrides which). While any mod is installed the title
+  bar shows `MODDED: ON - ACHIEVEMENTS: OFF` — that just pauses *Steam*
+  achievement tracking; save/codex achievements still work.
 - A mod folder **must be unpacked** and its folder name must **equal the
   `name=` field** in its `info.lua`. A `.zip`/`.rar` in `mods\` is silently
   ignored. (`install-mods.ps1` fixes both cases for downloaded mods.)
@@ -136,9 +139,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 ```
 
 The unlock-all sets: every achievement · shotguns 2–9 · throne rank 20 +
-rank-20 badge per shotgun · endless floor 15 (unlocks Chase) · every vanilla
-card marked played (codex 100%). It never touches best times or run history,
-and the game must be closed while it runs.
+rank-20 badge per shotgun · endless floor 15 (unlocks Chase) · all 170 cards
+marked played (164 regular + 6 special — codex 100%). It never touches best
+times or run history, and the game must be closed while it runs.
 
 ---
 
@@ -173,7 +176,7 @@ and the game must be closed while it runs.
 |---|---|
 | Mod doesn't show up in the mod menu | folder name ≠ `name=` in `info.lua`, or still zipped — run `install-mods.ps1` |
 | Game crashes after the intro logos | Lua error — open `log.txt` next to the exe, the error is at the **end** |
-| Everything feels vanilla | mods are toggled off — check the in-game mod menu |
+| Everything feels vanilla | mods toggled off — mod menu = Play screen, top entry; bright text = ON |
 | 100% save didn't apply | game was running while writing, or you pointed at the wrong folder (the copy has its own `save\`) — close it, re-run |
 | `pwsh` not found | use `powershell` instead |
 
