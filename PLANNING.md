@@ -74,7 +74,13 @@
    stage. NO hardcoded pawn exclusion (owner correction 2026-10-04:
    pawn-as-power comes from skill cards — pawn souls become bullets that
    each deal 1 damage — so the behavior must stay CARD-DRIVEN, not a
-   baked-in exception; any soul is allowed in the deck).** API:
+   baked-in exception; any soul is allowed in the deck).** Owner's open
+   question (2026-10-04): does a stored pawn soul feed POWER or turn the
+   king into a pawn? Answer plan: the power route is card-driven
+   (`pawn_shell=1` Small Fry Harvest, `pawnreap=1` Cannon Fodder); whether
+   the movement route also accepts pawn is a build-5 probe — and the deck
+   UI will expose whichever routes the game actually supports (choice if
+   both), never a hardcoded pick. API:
    `add_soul(type, p, sanctity, replace)`, `activate_soul`,
    `stack.replace_soul`, `PIECES_NAMES[x].type`; summon blueprint =
    disgraced_justice's `dj_summon` (`new_piece(typ, false, sq)` +

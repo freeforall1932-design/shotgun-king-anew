@@ -248,6 +248,15 @@ OBSERVED facts — prefer them over anything guessed above.
   `TEST_SOULS`. Summon-family cards (temporary per-floor allies): ext=3
   block Right-hand/Warhorse/Onboarding Party/Rapunzel/Small Key; hologram
   cards Holoking / Soul Projection.
+- **Pawn power route (card-driven)**: pawns → ammo is done by CARDS, not
+  by the soul system — card fields `pawn_shell=1` (Small Fry Harvest, also
+  `ammo_max=1`) and `pawnreap=1` (Cannon Fodder) convert pawns/pawn-souls
+  into shells. Related: `PIECES` is a global, moddable table (disgraced_
+  justice does `add(PIECES, {…})` to add piece types; type = index).
+  **Open (build-5 soul probe): what using a stored PAWN soul actually does
+  — movement route (king moves like a pawn 1 turn, the general soul rule)
+  vs power route, or both. The soul deck must expose whichever routes the
+  game supports — no hardcoded choice (owner 2026-10-04).**
 - **Summon blueprint** (disgraced_justice `dj_summon`): find free squares
   (`is_free(sq)`), `new_piece(typ, false, sq)`, `fx_spawn(p)`, pay from a
   hero field (`hero.book_power -= cost`); `convert(target, cb)` turns an
