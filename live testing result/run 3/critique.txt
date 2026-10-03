@@ -1,0 +1,6 @@
+after using your branch as repo and you said to use it without opening mod menu i did and they did say modded but i didnt see the all unlock i know that it was separate but aside from that i dont know how to verify how about unify it since we inject it to modded app already anyway it would strange to not unlock all 100% from the start
+
+also i forgot that in original base game theres a rule that any black card that need me to use right click after i chose any one of that other card will be banned i want you to remove that rule and add customize to enable button for that button my mouse have 2 extra button (i usually use it for undo and redo or zoom in or out beside i also have click mouse wheel that makes it 3 extra button
+
+and at the end of play test i open mod menu after doing no mod menu test and can confirm that sk was on by default and other mod was off by default and since you dont add back button only reset or save and reboot im forced to reboot instead of turn off the game normally
+
