@@ -56,6 +56,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
+- [ ] **Waitlist (after core features work first):** zero-argument auto-file
+      discovery across all tools (auto-find `game`, `repo`, and
+      `ShotgunKing-Modded` anywhere on disk without predetermined `-GameDir` /
+      `-OutDir` flags; requested by owner 2026-10-03 session 3)
 - [ ] `install-mods.ps1`: no .rar support (prints manual-extract hint now);
       rar mods are already vendored so low priority
 - [ ] King's Court (2022 legacy mod) port to modern format — optional
@@ -73,6 +77,25 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    `SKO|disp_stats|ammo.value=…`.)
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 3 — placement-aware INSTALL.md + `mod`/`mods` normalization):**
+- ✅ **`INSTALL.md` rewritten for manual setup + `E:\testing\repo\tools` copy-paste**:
+      Steps 1 & 2 are now strictly **manual (File Explorer)** (removed the broken
+      `mkdir E:\testing` + Steam `Copy-Item` block that errored when `E:\testing`
+      already existed and the game wasn't in `C:\Program Files (x86)\Steam`);
+      Steps 3, 4, 6, 7 all `cd E:\testing\repo\tools` (where `apply.ps1`,
+      `build-dist.ps1`, `parse_log.py`, and `make_100pct_save.py` live) and pass
+      `"E:\testing\repo\tools\..."`
+- ✅ **`build-dist.ps1` & `install-mods.ps1` handle existing `game\mod` or `game\mods`**:
+      if the owner already put mods in `E:\testing\game\mod` or
+      `E:\testing\game\mods` (either as compressed `.zip`/`.rar` files or
+      already unpacked under their own folder names), `build-dist.ps1` now
+      merges `mod\` into `mods\`, unpacks `.zip`s, renames already-unpacked mod
+      folders to match `info.lua`'s `name=` (preventing duplicates or silent
+      load failures), removes `.rar` and legacy non-`info.lua` folders from the
+      copy, and overlays the 13 workshop mods + `sk-rework`
+- ✅ **Waitlist item recorded**: zero-argument auto-discovery of files/folders
+      queued for after core features are implemented and working first
 
 **2026-10-03 (session 2b — self-logging diagnostics + parser):**
 - ✅ `modded/sk-rework/script.lua` rewritten as diagnostics build 3:

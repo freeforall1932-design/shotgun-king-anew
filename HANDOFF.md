@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-03 (session 2, branch `arena/01a101d6-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-03 (session 3, branch `arena/01a101f3-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -21,7 +21,7 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a101d6-shotgun-king-anew` (push here; PR #1 already merged) |
+| Working branch | `arena/01a101f3-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
 | Our mod | `modded/sk-rework/` (info.lua + script.lua = diagnostics build 3 + cover.png) |
 | Log parser + smoke test | `tools/parse_log.py`, `tools/mod_smoketest.py` (both tested, see §5) |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
@@ -56,17 +56,30 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 7. `King's Court` (owner's mods/) is a 2022 pre-info.lua legacy mod — won't
    load on v1.623b without a port.
 
-## 4. Session 2 outcome (review → docs → fixes)
+## 4. Session 2 & 3 outcome (review → docs → placement-aware fixes)
 
-Owner asked: review before live testing (clone-vs-install ambiguity, low
-confidence). Done in this session:
+Owner asked in session 3: fix `INSTALL.md` because previous commands didn't
+account for how file placement affects copy-paste commands (`apply.ps1` lives
+inside `tools\`, while relative commands like `-File tools\apply.ps1` only work
+when PowerShell is at the root of the `main` branch `repo\`, breaking if run
+from `tools\`, `E:\testing\`, `C:\Users\...`, or when GitHub's ZIP creates a
+nested `shotgun-king-anew-main` folder). Done:
 
-- **`INSTALL.md` (NEW) — the single canonical setup + live-test guide** for
-  the owner's layout `E:\testing\{game, repo, ShotgunKing-Modded}`: steps 1–7
-  with per-step checks, whole-repo download answer (there is no single-file
-  patch), success checklist, live-testing vs roadmap boundary, undo table,
-  troubleshooting, clearly-marked variations. README's step list is now only
-  a summary that points here (no competing instructions).
+- **`INSTALL.md` fixed for manual Steps 1–2 & `E:\testing\repo\tools` commands:**
+  - Steps 1 & 2 are now **Manual (File Explorer) only** — removed the broken
+    `mkdir E:\testing` + Steam `Copy-Item` PowerShell block.
+  - Steps 3, 4, 6, 7 all `cd E:\testing\repo\tools` (where `apply.ps1`,
+    `build-dist.ps1`, `parse_log.py`, and `make_100pct_save.py` live) and use
+    explicit `"E:\testing\repo\tools\..."` paths.
+- **`tools/build-dist.ps1` & `tools/install-mods.ps1` handle existing `game\mod` or `game\mods`:**
+  - If `E:\testing\game` already has a `mod\` or `mods\` folder containing
+    compressed `.zip`/`.rar` files or already-unpacked folders with their own
+    folder names, `build-dist.ps1` merges `mod\` → `mods\`, unpacks `.zip`s,
+    renames unpacked folders to match `info.lua`'s `name=` (so nothing
+    duplicates or fails to load), removes `.rar` and legacy non-`info.lua`
+    folders in the copy, and overlays the 13 workshop mods + `sk-rework`.
+  - Zero-argument auto-file discovery placed on the waitlist in `WORKLIST.md`
+    until after core features work first.
 
 - **`notes/review-2026-10-03.md`** — full readiness review: what each tool
   writes and how to undo it, verification status per artifact, risks, and the

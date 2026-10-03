@@ -14,7 +14,33 @@ file lives in `modded/` at that path).
 
 ---
 
-## 2026-10-03 (session 2b) — Self-logging diagnostics build + log parser
+## 2026-10-03 (session 3) — Placement-aware INSTALL.md + `mod`/`mods` normalization
+
+- **`INSTALL.md` fixed for manual folder setup & `E:\testing\repo\tools` commands.**
+  - Steps 1 & 2 are now **Manual (File Explorer) only** — removed the broken
+    `mkdir E:\testing` and Steam `Copy-Item` block (owner already created
+    `E:\testing\game` 1:1 with the game `.exe` + `data.sgr` and `E:\testing\repo`
+    1:1 with the root of `main`).
+  - Every PowerShell step (Steps 3, 4, 6, 7) now points directly to
+    `E:\testing\repo\tools` (`cd E:\testing\repo\tools` +
+    `"E:\testing\repo\tools\..."`), where `apply.ps1`, `build-dist.ps1`,
+    `parse_log.py`, and `make_100pct_save.py` are located.
+- **`tools/build-dist.ps1` & `tools/install-mods.ps1` — handles pre-existing
+  `game\mod` or `game\mods` (compressed `.zip`/`.rar` or unpacked folders):**
+  - Merges `mod\` (singular) into `mods\` (plural) in the built copy;
+  - Unpacks any `.zip` archives in `game\mod` or `game\mods` and names the
+    folder after `name=` in `info.lua`;
+  - Normalizes already-unpacked mod folders (even if named after the zip or
+    double-nested) to match `name=` in `info.lua` so nothing duplicates;
+  - Removes `.rar` archives and legacy folders without `info.lua` from the
+    copy's `mods\`;
+  - Added `Resolve-RepoRoot` and `Resolve-GameDir`.
+- **Waitlist (`WORKLIST.md`):** queued zero-argument auto-file discovery for
+  after core features are implemented and working first.
+- why: `INSTALL.md` pointed to `repo` instead of `repo\tools`, had a failing
+  Steam `Copy-Item`/`mkdir` snippet in Step 1, and needed to account for mods
+  already placed inside `game\mod` or `game\mods`.
+- status: shipped
 
 - **`modded/sk-rework/script.lua` → diagnostics build 3.** Owner asked that
   the mod "log itself, or the game state during live testing, if the patch was

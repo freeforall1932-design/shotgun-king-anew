@@ -20,12 +20,12 @@ Line formats it understands (see modded/sk-rework/script.lua):
     SKW|k=v|...                  per-turn world state
     SK-REWORK: READY build=3 hooks=5 globals=452
 
-Usage:
-    python tools/parse_log.py uploads/game-insights/log.txt
-    python tools/parse_log.py <log> --out notes/game-map-draft.md
-    python tools/parse_log.py <log> --print          # markdown to stdout
-    python tools/parse_log.py <log> --json out.json  # machine-readable
-    python tools/parse_log.py --selftest             # parser self-check
+Usage (full paths — works from ANY folder in PowerShell):
+    python "E:\\testing\\repo\\tools\\parse_log.py" "E:\\testing\\repo\\uploads\\game-insights\\log.txt"
+    python "E:\\testing\\repo\\tools\\parse_log.py" <log> --out notes/game-map-draft.md
+    python "E:\\testing\\repo\\tools\\parse_log.py" <log> --print          # markdown to stdout
+    python "E:\\testing\\repo\\tools\\parse_log.py" <log> --json out.json  # machine-readable
+    python "E:\\testing\\repo\\tools\\parse_log.py" --selftest             # parser self-check
 
 If the log contains no SK-REWORK lines, the tool explains what that means and
 shows the tail of the log (the game writes its Lua error at the END).
@@ -415,9 +415,10 @@ def main(argv):
     if not os.path.isfile(src):
         raise SystemExit(
             f"log file not found: {src}\n"
-            "  collect it first with:\n"
-            "    tools/apply.ps1 -GameDir \"<game folder>\" -GetLog\n"
-            "  (writes uploads/game-insights/log.txt in the repo)")
+            "  collect it first with (works from any folder in PowerShell):\n"
+            "    powershell -ExecutionPolicy Bypass -File \"E:\\testing\\repo\\tools\\apply.ps1\" "
+            "-GameDir \"E:\\testing\\ShotgunKing-Modded\" -GetLog\n"
+            "  (writes E:\\testing\\repo\\uploads\\game-insights\\log.txt)")
     text = open(src, encoding="utf-8", errors="replace").read()
     d = parse_text(text)
 
@@ -431,9 +432,10 @@ def main(argv):
         return 2
 
     md = render_markdown(d, src)
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo_root = here if os.path.isdir(os.path.join(here, "modded")) else os.path.dirname(here)
     out = argv[argv.index("--out") + 1] if "--out" in argv else \
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
-                     "notes", "game-map-draft.md")
+        os.path.join(repo_root, "notes", "game-map-draft.md")
     if "--json" in argv:
         jp = argv[argv.index("--json") + 1]
         with open(jp, "w", encoding="utf-8") as f:
@@ -443,9 +445,10 @@ def main(argv):
     if "--print" in argv:
         sys.stdout.write(md)
     else:
+        os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
         with open(out, "w", encoding="utf-8") as f:
             f.write(md)
-        print(f"draft   -> {os.path.relpath(out)}")
+        print(f"draft   -> {os.path.abspath(out)}")
 
     g = len(set(d["globals"]))
     print(f"loaded: {'yes' if d['banner'] else 'NO'} · "

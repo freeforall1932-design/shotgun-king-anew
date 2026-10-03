@@ -1,48 +1,106 @@
 # SK-REWORK apply script
 # Deploys our mod folder (modded/sk-rework/) into the game's mods/ directory.
 #
-# Usage (from repo root):
-#   pwsh tools/apply.ps1 -GameDir "D:\SteamLibrary\steamapps\common\Shotgun King"
-#   pwsh tools/apply.ps1 -List    # dry-run (still needs -GameDir to make sense)
+# File placement in the repo: tools\apply.ps1 (inside the tools\ subfolder,
+# NOT at the root of the main branch).
+#
+# Usage — full path (works from ANY folder in PowerShell, recommended):
+#   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\game" -List
+#   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetLog
+#
+# Usage — relative path (depends on where your PowerShell prompt is):
+#   from repo root (PS E:\testing\repo>):        powershell -ExecutionPolicy Bypass -File .\tools\apply.ps1 -GameDir "E:\testing\game" -List
+#   from tools\    (PS E:\testing\repo\tools>):  powershell -ExecutionPolicy Bypass -File .\apply.ps1 -GameDir "E:\testing\game" -List
 param(
     [string]$GameDir = "",
     [string]$ModName = "sk-rework",
-    [string]$Modded  = (Join-Path $PSScriptRoot "..\modded"),
+    [string]$Modded  = "",
     [switch]$List,
     [switch]$GetLog   # just copy the game's log.txt into uploads/game-insights/
 )
 
 $ErrorActionPreference = "Stop"
 
+function Resolve-RepoRoot {
+    $candidates = @(
+        $PSScriptRoot,
+        (Join-Path $PSScriptRoot ".."),
+        (Get-Location).Path,
+        (Join-Path (Get-Location).Path ".."),
+        "E:\testing\repo",
+        "E:\testing\repo\shotgun-king-anew-main",
+        "E:\testing\shotgun-king-anew-main"
+    )
+    foreach ($base in $candidates) {
+        if (-not $base) { continue }
+        try { $full = [System.IO.Path]::GetFullPath($base) } catch { continue }
+        if (Test-Path -LiteralPath (Join-Path $full "modded\sk-rework")) {
+            return $full
+        }
+        if (Test-Path -LiteralPath $full) {
+            $nested = Get-ChildItem -LiteralPath $full -Directory -Filter "shotgun-king-anew*" -ErrorAction SilentlyContinue |
+                Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "modded\sk-rework") } |
+                Select-Object -First 1
+            if ($nested) { return $nested.FullName }
+        }
+    }
+    return [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
+}
+
+function Resolve-GameDir([string]$Dir) {
+    if (-not $Dir -or -not (Test-Path -LiteralPath $Dir)) { return $Dir }
+    if ((Test-Path -LiteralPath (Join-Path $Dir "data.sgr")) -or
+        (Get-ChildItem -LiteralPath $Dir -Filter *.exe -File -ErrorAction SilentlyContinue)) {
+        return $Dir
+    }
+    $sub = Get-ChildItem -LiteralPath $Dir -Directory -ErrorAction SilentlyContinue |
+        Where-Object {
+            (Test-Path -LiteralPath (Join-Path $_.FullName "data.sgr")) -or
+            (Get-ChildItem -LiteralPath $_.FullName -Filter *.exe -File -ErrorAction SilentlyContinue)
+        } | Select-Object -First 1
+    if ($sub) {
+        Write-Host "NOTE: found game files inside subfolder '$($sub.FullName)' - using that as -GameDir." -ForegroundColor Yellow
+        return $sub.FullName
+    }
+    return $Dir
+}
+
+$RepoRoot = Resolve-RepoRoot
+if (-not $Modded) { $Modded = Join-Path $RepoRoot "modded" }
+
 if ($GetLog) {
-    if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetLog" }
+    if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetLog (e.g. -GameDir `"E:\testing\ShotgunKing-Modded`")" }
+    $GameDir = Resolve-GameDir $GameDir
     $src = Join-Path $GameDir "log.txt"
-    if (-not (Test-Path -LiteralPath $src)) { Write-Error "No log.txt in $GameDir" }
-    $dst = Join-Path $PSScriptRoot "..\uploads\game-insights"
+    if (-not (Test-Path -LiteralPath $src)) { Write-Error "No log.txt in $GameDir (launch the game from $GameDir once first)" }
+    $dst = Join-Path $RepoRoot "uploads\game-insights"
     New-Item -ItemType Directory -Path $dst -Force | Out-Null
-    Copy-Item -LiteralPath $src -Destination (Join-Path $dst "log.txt") -Force
-    Write-Host "Fetched log -> uploads/game-insights/log.txt"
+    $dstFile = Join-Path $dst "log.txt"
+    Copy-Item -LiteralPath $src -Destination $dstFile -Force
+    Write-Host "Fetched log -> $dstFile"
     exit 0
 }
 
 $ModDir = Join-Path $Modded $ModName
 if (-not (Test-Path -LiteralPath $ModDir)) {
-    Write-Error "Mod folder not found: $ModDir (create it per tools/mod-dev.md)"
+    Write-Error "Mod folder not found: $ModDir (keep tools\ inside the extracted repo folder alongside modded\)"
 }
 
 if (-not $GameDir) {
-    # Try to auto-locate a Steam library with the game installed
+    # Try to auto-locate a testing or Steam folder with the game installed
     $roots = @(
+        "E:\testing\game",
         "C:\Program Files (x86)\Steam\steamapps\common\Shotgun King",
         "D:\SteamLibrary\steamapps\common\Shotgun King"
         # add your library path here or pass -GameDir
     )
     $GameDir = $roots | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $GameDir) {
-        Write-Error "Game folder not found. Pass -GameDir `"...path...\Shotgun King`""
+        Write-Error "Game folder not found. Pass -GameDir `"E:\testing\game`""
     }
 }
 
+$GameDir = Resolve-GameDir $GameDir
 if (-not (Test-Path -LiteralPath $GameDir)) {
     Write-Error "Game folder does not exist: $GameDir"
 }

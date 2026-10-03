@@ -113,8 +113,8 @@ ship as folders too.
   that game folder to vanilla.
 
 ```powershell
-# a downloaded mod that won't load (zips live in one folder):
-pwsh tools/install-mods.ps1 -GameDir "<game folder>" -ZipsDir "<folder with mod zips>"
+# a downloaded mod that won't load (zips live in one folder; works from any folder in PowerShell):
+powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\install-mods.ps1" -GameDir "E:\testing\game" -ZipsDir "C:\Users\you\Downloads"
 ```
 
 ---
@@ -127,11 +127,12 @@ floor) · `achievements.sav` · `stats.sav` (per-card history) · `reg.sav`,
 `misc.sav`, `runs.sav`.
 
 ```powershell
-python tools/save_codec.py "save\prog.sav"                 # decode any save to text
-python tools/save_codec.py save --scan                      # check a whole save folder
-python tools/make_100pct_save.py --game-dir "<game folder>" # unlock-all (backup first)
-python tools/make_100pct_save.py --game-dir "<game folder>" --dry-run   # show, don't write
-python tools/make_100pct_save.py --game-dir "<game folder>" --restore   # undo
+# Full paths below work from ANY folder in PowerShell (adjust E:\testing if needed):
+python "E:\testing\repo\tools\save_codec.py" "E:\testing\ShotgunKing-Modded\save\prog.sav"                 # decode any save to text
+python "E:\testing\repo\tools\save_codec.py" "E:\testing\ShotgunKing-Modded\save" --scan                   # check a whole save folder
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded"              # unlock-all (backup first)
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --dry-run    # show, don't write
+python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\ShotgunKing-Modded" --restore    # undo
 ```
 
 The unlock-all sets: every achievement · shotguns 2–9 · throne rank 20 +
