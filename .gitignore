@@ -1,0 +1,31 @@
+# ── Recovered game & build outputs — NEVER commit game assets ────────────────
+# The recovered PUNKCAKE project lives here (creator's IP, personal use only).
+game-dump/*
+!game-dump/README.md
+
+# Build / repack outputs
+build/
+
+# Godot packs & backups (original .pck must never enter git)
+*.pck
+*.pck.orig
+*.orig
+
+# Godot editor cruft
+.godot/
+*.import
+export.cfg
+export_credentials.cfg
+
+# Archives someone might drop in
+*.zip
+*.7z
+*.rar
+
+# ── OS / editor noise ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.vscode/
+.idea/
