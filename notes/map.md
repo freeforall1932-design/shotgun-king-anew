@@ -227,6 +227,30 @@ OBSERVED facts — prefer them over anything guessed above.
   freegren=, firepower=, wild=` — `need_card="Kingly Alms"` shows cards can
   require other cards; `special=` = the right-click ability slot (10 vanilla
   cards carry one: scope, grenade×5, strafe, orb, dig, decree).
+- **Vanilla offer caps, documented verbatim by Better Codex** (`show
+  exclude` mod info.lua): max **1 right-click ability, 5 soul slots,
+  3 scepters**; no 0 max ammo; can't remove so many pieces that hand
+  requirements break; no grabbing ability + blade together. These caps are
+  what filters the offer roll — the exclusion system the owner wants
+  relaxed (right-click cap) is one of these general rules.
+- **Soul system** (owner-confirmed semantics): a soul = turn the king into
+  a piece type and move like it for 1 turn. Card fields: `soul_slot=N`
+  (add slots: Majestic Censer +1, Possessed +2, Succubus +1), `need_soul=N`
+  (require filled souls: Sacred Crown 1, Gradual Absolution 2), `gain=N`.
+  `hero.free_souls` = empty slots (live-seen = 0 at start). API:
+  `add_soul(type, p, sanctity, replace)` (glacies `effects.soul`),
+  `activate_soul`, `stack.replace_soul`, `PIECES_NAMES[x].type`,
+  `TEST_SOULS`. Summon-family cards (temporary per-floor allies): ext=3
+  block Right-hand/Warhorse/Onboarding Party/Rapunzel/Small Key; hologram
+  cards Holoking / Soul Projection.
+- **Summon blueprint** (disgraced_justice `dj_summon`): find free squares
+  (`is_free(sq)`), `new_piece(typ, false, sq)`, `fx_spawn(p)`, pay from a
+  hero field (`hero.book_power -= cost`); `convert(target, cb)` turns an
+  enemy. `spawn_pieces` / `new_piece` / `setup_piece` are mod-env-callable.
+- **`stack` global** = aggregate of owned cards' effect fields (live uses:
+  `stack.pierce`, `stack.knockback`, `stack.blade`, `stack.fearsome`,
+  `stack.special`, `stack.replace_soul`) — read it to know what the player
+  owns without scanning cards.
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain

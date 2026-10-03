@@ -34,17 +34,34 @@
 
 ## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
 
-6. **Right-click-slot rule — REMOVE the exclusivity** (owner's own words:
-   offers of 2 cards are randomized; cards using right-click, e.g. a snipe
-   card vs a dump-magazine card, have *less chance to appear together*, and
-   once one is chosen — e.g. the snipe card — no other card using right-click
-   is ever offered because "the slot was already full"). Live data: the slot
-   = a card's `special=` field; exactly 10 vanilla cards carry one
-   (scope: Engraved Scope · grenade ×5: Kingly Alms, Philanthropy, Indelible
-   Memories, Sacred Light, Guerilla Tactics · strafe: Royal Loafers ·
-   orb: Seer's Orb · dig: Shovel · decree: Unjust Decree). Goal: collecting
-   several right-click cards becomes possible. Blocked on pinning the offer
-   roll (map.md TBD) → next sk-rework build probes it.
+6. **Right-click ability cap — REMOVE it** (owner's refined description,
+   2026-10-04): right-click is ONE button, so vanilla lets you hold only
+   ONE right-click ability — take the scope/snipe card and Seer's Orb (and
+   every other right-click card) is never offered again, "like dev
+   preventing the player from making a dumb decision… or maybe they were
+   too lazy to implement button assignment, or for balance". Better Codex
+   (vendored `show exclude` mod) documents the vanilla caps verbatim:
+   *"You can't have more than: 1 right-click ability, or 5 soul slots, or
+   3 scepters"* (plus other offer rules: no 0 max ammo, no grabbing+blade
+   together, …). Goal: own MULTIPLE right-click abilities + a way to pick
+   which one right-click triggers (swap key / remap-menu binding /
+   SPECIAL_BUTTON interception). `special=` field = the ability slot
+   (10 vanilla cards: scope, grenade×5, strafe, orb, dig, decree).
+8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a
+   piece and let him move like it for 1 turn. Vanilla slots: max 5, grown
+   via `soul_slot=N` cards (Majestic Censer +1, Possessed +2 w/
+   `need_card`, Succubus +1); `hero.free_souls` = empty slots (live-seen).
+   Separate summon-family cards bring temporary ALLY pieces for the
+   current floor only (reset on floor change / run restart — the ext=3
+   block: Right-hand, Warhorse, Onboarding Party, Rapunzel, Small Key;
+   hologram cards: Holoking, Soul Projection). **Owner's modded vision
+   ("like a Yu-Gi-Oh deck"): 2–3 soul slots where ONE slot holds MANY
+   souls — freely use or exchange any stored soul at any time during the
+   stage (pawn excluded — pawn = power/ammo).** API: `add_soul(type, p,
+   sanctity, replace)`, `activate_soul`, `stack.replace_soul`,
+   `PIECES_NAMES[x].type`; summon blueprint = disgraced_justice's
+   `dj_summon` (`new_piece(typ, false, sq)` + `fx_spawn(p)` + a hero cost
+   field).
 7. **Card picker — free choice instead of the 2-card offer** (already
    Phase 4; owner re-confirmed). Reference implementation exists in the
    vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer

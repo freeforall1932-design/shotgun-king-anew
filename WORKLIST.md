@@ -49,17 +49,26 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
-- [ ] **Right-click-slot rule removal** (owner ask run 3, described
-      2026-10-04 — see PLANNING.md §0.7.6): offers rarely pair right-click
-      cards, and once a `special=` slot is owned no other card for that
-      slot is offered. Remove the exclusivity → collecting multiple
-      right-click cards becomes possible. Affected: the 10 `special=` cards
-      (scope, grenade×5, strafe, orb, dig, decree). Blocked on the offer
-      roll (TBD in map.md) → next build probes it
-- [ ] **Infinite soul card** (owner ask run 3): switch souls freely /
-      infinitely during a stage, except the pawn soul (pawn = power/ammo).
-      API seen: `add_soul`, `activate_soul`, `stack.replace_soul` (glacies
-      collection `effects.soul`) — needs a soul-system dump probe
+- [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
+      refinement — see PLANNING.md §0.7.6): vanilla caps right-click
+      abilities at 1 (Better Codex documents it: "1 right-click ability,
+      5 soul slots, 3 scepters") — owning one removes all others from
+      offers. Goal: own multiple + pick which one right-click triggers
+      (swap key / remap-menu binding / SPECIAL_BUTTON interception).
+      Affected: the 10 `special=` cards (scope, grenade×5, strafe, orb,
+      dig, decree). Blocked on the offer roll (TBD in map.md) → next
+      build probes it. Scepter cap (3) could be relaxed the same way if
+      wanted
+- [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
+      PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
+      freely use/exchange any stored soul mid-stage (pawn excluded —
+      pawn = power/ammo); optionally summon the held soul's piece as a
+      per-floor temporary ally (vanilla summon-family: Right-hand,
+      Warhorse, Onboarding Party, Rapunzel, Small Key; holograms:
+      Holoking, Soul Projection). API mapped (add_soul/activate_soul/
+      stack.replace_soul/hero.free_souls/soul_slot fields/dj_summon
+      pattern) — needs a live probe of soul activation flow + slot
+      internals
 - [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
       settings panel to assign any action to any extra mouse button
       (owner mouse: 2 side buttons + middle click; right-click exclude
