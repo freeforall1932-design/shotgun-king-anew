@@ -14,6 +14,40 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 2) — Readiness review + README rewrite + tool fixes
+
+- **`notes/review-2026-10-03.md` (NEW)** — pre-live-test review: per-tool
+  target/undo table, per-artifact verification status, findings F1–F9, risks,
+  risk-ordered test ladder. Written because the owner found the README
+  ambiguous about whether tools patch the install or build a clone.
+- **`README.md` rewritten** — "Does this touch my real game install?" is now
+  the first section (answer: the play path builds a copy; "injection" only
+  ever = adding folders under `mods/`); status table uses honest
+  ✅ verified / 🟡 ready-but-unproven / ⛔ blocked states instead of
+  "shipped"; dev roadmap reduced to a short pointer; safe first-run checklist
+  added (dry run → build copy → launch → -GetLog → optional 100% save).
+- **`tools/make_100pct_save.py`** — F2: `throne` table was dropped when the
+  save lacked the key (`prog.get` → `prog.setdefault`); F3: friendly
+  instructions instead of tracebacks when `save/` or its three `.sav` files
+  don't exist yet; `--restore` now works even if `save/` was deleted;
+  backup path made explicit (`game_dir`, not `dirname(save_dir)`).
+  Regression-tested end-to-end on disposable synthetic saves.
+- **`tools/save_codec.py`** — F4: `--help`/no args prints usage (previously
+  tried to decode a file named "--help").
+- **`tools/build-dist.ps1`** — F5: stray-archive cleanup rewritten with
+  `Where-Object { $_.Extension -in ... }` (the old `-LiteralPath` + `-Include`
+  combination is a PowerShell grey zone and the unquoted wildcard list was the
+  one construct flagged by a tree-sitter parse); `PLAY-THIS.txt` now states
+  the copy semantics and includes the unlock-the-copy recipe; typo `game''s`
+  fixed.
+- **`HANDOFF.md` / `WORKLIST.md`** — branch name corrected to the current
+  session branch; live tests re-cast as the risk-ordered ladder (Step 4 =
+  the only blocker); new "ready now, not blocked" list (log parser first).
+- why: owner asked for a review before live testing, and to have the README
+  reworded so it distinguishes "clone with injected mods" from "modifying my
+  base install".
+- status: shipped (docs + tool fixes verified in sandbox; live run pending)
+
 ## 2026-10-03 — Audit + 100% save generator + main-disposal merge + pro README
 
 - **Audit pass**: purged Godot-era leftovers (tools/repack.md, game-dump/,

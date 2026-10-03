@@ -51,7 +51,8 @@ Copy-Item -LiteralPath $OurMod -Destination (Join-Path $modsRoot "sk-rework") -R
 Write-Host "   + mods/sk-rework"
 
 # a stale rar/zip left in mods/ from manual installs would only confuse
-Get-ChildItem -LiteralPath $modsRoot -Include *.rar,*.zip -Recurse -File -ErrorAction SilentlyContinue |
+Get-ChildItem -LiteralPath $modsRoot -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Extension -in ".rar", ".zip" } |
     ForEach-Object {
         Write-Host "   ! removing stray archive $($_.Name) (mods must be unpacked folders)"
         Remove-Item -LiteralPath $_.FullName -Force
@@ -60,7 +61,11 @@ Get-ChildItem -LiteralPath $modsRoot -Include *.rar,*.zip -Recurse -File -ErrorA
 $readme = @'
 SHOTGUN KING - MODDED BUILD (private, personal use)
 ====================================================
-Play:  run shotgun_king.exe  (or "play Shotgun King.bat")
+WHAT THIS IS: a full COPY of the game with mods added inside this folder.
+Your original install was NOT touched - verify it yourself: all this
+script did was copy your game folder here and add a mods\ folder.
+
+Play:  run shotgun_king.exe
 
 TOGGLES: mods are NOT forced on. Open the in-game MOD MENU (from the
 main menu) to switch each mod ON or OFF individually - injected mods
@@ -68,10 +73,15 @@ appear there like any other mod. Changes apply on your next run.
 
 Included: 13 workshop mods (by their authors, from the official Discord /
 Steam Workshop) + sk-rework (this project - currently a debug stub that
-logs the game''s function map to log.txt).
+logs the game's function map to log.txt).
 
-Restore vanilla: turn mods off in the mod menu, or delete the mods/
-folder. Your original game folder was NOT modified by this build.
+UNLOCK EVERYTHING IN THIS COPY (optional):
+  1. launch this copy once, then quit (so save\ exists)
+  2. in the repo:  python tools\make_100pct_save.py --game-dir "dist\ShotgunKing-Modded"
+  3. play. (Backup + undo: --restore)
+
+Restore vanilla: turn mods off in the mod menu, or delete the mods\
+folder. To remove this whole build, delete dist\ - nothing else changed.
 '@
 Set-Content -LiteralPath (Join-Path $dest "PLAY-THIS.txt") -Value $readme
 

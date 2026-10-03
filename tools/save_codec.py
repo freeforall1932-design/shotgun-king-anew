@@ -168,6 +168,10 @@ def s(x: str) -> tuple:
 # ── CLI ────────────────────────────────────────────────────────────────────
 
 def main(argv):
+    if not argv[1:] or argv[1] in ("-h", "--help"):
+        print(__doc__)
+        return 0
+
     if "--selftest" in argv:
         d = argv[argv.index("--selftest") + 1]
         ok = 0
@@ -182,9 +186,6 @@ def main(argv):
         print(f"parse->serialize byte-identical on {ok} save(s)")
         return 0 if ok else 1
 
-    if len(argv) < 2:
-        print(__doc__)
-        return 1
     path, flags = argv[1], argv[2:]
 
     if "--scan" in flags:
