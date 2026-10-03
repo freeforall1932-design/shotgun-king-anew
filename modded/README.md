@@ -1,24 +1,29 @@
-# modded/ — our changes only, mirroring res://
+# modded/ — OUR mod, the project deliverable
 
-Every file we change or add lives here at its **exact `res://` path**, e.g.
+Everything we build lives in `modded/sk-rework/` as a normal Shotgun King mod
+(SUGAR engine, Lua). `tools/apply.ps1` deploys it into a game folder's
+`mods/` dir; `tools/build-dist.ps1` bakes it into a full ready-to-play copy.
 
-    game-dump/scripts/player.gd   (original, never committed)
-    modded/scripts/player.gd      (our version, committed)
+```
+sk-rework/
+├── info.lua     mod identity (name MUST match the folder name)
+├── script.lua   hooks: append/prepend + on_* events; debug keys land here
+├── modes/…      custom game modes (later phases)
+├── lang/…       strings (later phases)
+└── cover.png    16:9 workshop cover (placeholder art for now)
+```
 
-so `tools/apply.ps1` is a dumb folder copy. Nothing else goes in here.
+## Working rules (from PLANNING.md §3.4, adapted 2026-10-03)
 
-## Rules (from PLANNING.md §3.4)
+1. **Additive over invasive** — `append`/`prepend` with stable ids; never
+   overwrite a game global unless `gimme("replaceable")` says it's allowed.
+2. **Native feel** — UI reuses the game's own button/menu constructors
+   (`mk_menu_but`, menu init hooks) so panels look vanilla.
+3. Every hook gets a `-- SK-REWORK:` comment.
+4. Discoveries go into `notes/map.md` immediately.
+5. The game is the spec — read how PUNKCAKE did it before redesigning it
+   (reference: `uploads/modding-guide/`, the 13 workshop mods).
 
-1. **Additive over invasive** — bolt onto existing functions rather than
-   rewriting them, so game updates break less.
-2. **Never delete original logic** — comment it out with a `# SK-REWORK:` marker
-   and put the new logic next to it.
-3. New files (debug autoload, new scenes) are fine — they're simply NEW when
-   applied.
-4. If you edited a file directly inside `game-dump/` while experimenting,
-   copy it back here BEFORE committing, or the change is lost on the next
-   re-recovery.
-
-## Status
-
-Empty — nothing modified yet. First entries arrive in Phase 2 (debug autoload).
+The 13 workshop mods we ship alongside live in `dist-overlay/mods/` — do not
+edit those (they're third-party); we only fixed folder names to match their
+`info.lua`.

@@ -1,34 +1,25 @@
-# ── Owner uploads / reference material (never commit; re-downloadable) ───────
-uploads/
-
-# ── Recovered game & build outputs — NEVER commit game assets ────────────────
-# The recovered PUNKCAKE project lives here (creator's IP, personal use only).
-game-dump/*
-!game-dump/README.md
-
-# Build / repack outputs
-build/
-
-# Godot packs & backups (original .pck must never enter git)
-*.pck
-*.pck.orig
-*.orig
-
-# Godot editor cruft
-.godot/
-*.import
-export.cfg
-export_credentials.cfg
-
-# Archives someone might drop in
-*.zip
-*.7z
-*.rar
-
-# ── OS / editor noise ────────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-desktop.ini
-*~
+# ── Python / tooling noise ───────────────────────────────────────────────────
+__pycache__/
+*.pyc
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+*~
+
+# ── Never commit game assets or archives ─────────────────────────────────────
+# (the game itself is the owner's IP; workshop mods live in dist-overlay/
+#  with permission assumed for personal use — see dist-overlay/README.md)
+uploads/
+dist/
+save_backup_*/
+*.rar
+*.zip
+*.7z
+*.sgr
+*.exe
+*.dll
+
+# ── Legacy guards from the abandoned Godot plan (kept just in case) ──────────
+*.pck
+.godot/
