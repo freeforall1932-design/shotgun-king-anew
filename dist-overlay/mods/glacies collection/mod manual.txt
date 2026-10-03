@@ -1,0 +1,821 @@
+REMINDER: SOMETIMES IT CAN BE MORE CONVENIENT AND NEAT TO WRITE DESCRIPTIONS FOR CERTAIN CARDS.
+USING DUMMY EFFECTS RATHER THAN WRITING DESCRIPTIONS FOR GENERIC EFFECTS.
+
+To warn people that they're not loading this mod:
+copy the following lines to the start or bottom of script.lua
+
+local warn = true
+for mod in all(MODLIST) do if mod.title == "Glacies' Collection" and mod.active then warn = false end end
+if warn then
+	log("Glacies' Collection is not loaded correctly!")
+	wlog("Glacies' Collection is not loaded correctly!")
+	append("init_menu",bind(sfx,"wrong"),"glacies warning")
+end
+
+---------------------------------------------------------------------
+   Hooks
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+special = "hook"						
+   Activates the Hook.
+   Right click to shoot the hook.
+   - pull the piece hit to your face
+   - can't hit ghosts
+   - slightly longer than your firerange
+   Automatically excluded from other right click abilities.
+   Default icon is made by Etilon
+
+hook_dmg = <num>
+   Increases damage of the hook by <num>.
+
+hook_stun = <int>
+   Increases the stun duration by <int>.
+   Still stuns for 1 turn if the stun duration is lower than 1.
+
+hook_silver = 1
+   The hook can now hit ghost pieces.
+
+hook_range = <int>
+   Increases the range of the hook by <int>.
+
+hook_inf = 1
+   The hook now has infinite range.
+
+<piece>_hkim = 1
+   <piece> can't be pulled or stunned anymore.
+
+hooked_
+   See below: Composite Effects - Triggers.
+
+---------------------------------------------------------------------
+   Floor Restarter
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   You can restart your current floor if you can afford a restart.
+   The restart will fail if no `restart` and `temp_restart` stats can be payed.
+   By default, you can restart by pressing `/~ key.
+   This can be disabled in the settings.
+   There are also other ways to make a restart.
+
+restart = <int>
+temp_restart = <int>
+   Restarting a floor costs these two stats.
+
+   Specifically, if you have a positive `temp_restart`,
+   restarting will give yourself the effect `temp_restart=-1` until the next floor.
+   If you don't have a positive `temp_restart` but have a positive `restart`,
+   restarting will give yourself a permanent effect `restart=-1`.
+
+special = "restart"
+   In addition to the `/~ key, allows restarting by right clicking.
+
+restart_ | _restart | _reset
+   See below: Composite Effects.
+
+
+---------------------------------------------------------------------
+   Composite Effects
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Composite effects are effects that will be triggered under certain circumstances.
+   A composite effect consists of two or more parts, but the core is always: <trigger>_<command>.
+   The structure of a composite effects are similar to a train:
+   triggers are the head, commands are the tail, and an indefinite number of conditions are the carriages.
+   
+   Some triggers pass arguments to the attached conditions and commands.
+   Some triggers or commands have associated enhancements,
+   which do not have to be triggered or written in the <trigger>_<command> format as they are not composite effects themselves.
+
+   Some notations and terminology:
+      Things in brackets <> refer to an arbitrary member of that class.
+      When writing effects, they should be replaced by what you need.
+      e.g.: if you want to use hurt_<piece name>_, it should be like hurt_bishop_ etc.
+
+      trigger: kinda like the prefix of a composite effect, e.g.: hurt_bishop_
+      condition: the middle part of a composite effect, optional. e.g.: _if_p_flying_
+      command: the suffix of a composite effect, e.g.: _hit
+
+      effect: the name of a general effect found in cards, ranks etc.
+         Not necessarily a customised or composite one.
+         e.g.: firepower, queen_iron, hurt_bishop_if_p_flying_stun, ...
+         In an effect such as firepower=1, 1 is called the value of this effect.
+         In composite effects, the value will be used by the command.
+         Usually, triggers and conditions do not care about the value.
+
+      piece name: pawn, bishop, leader, all, etc.
+
+      stack: this is where the game stores effects.
+         The game collects effects from ranks, weapons and cards etc., and then form the stack.
+         In this process, like effects are merged.
+         e.g.: if you have two Rightful Curtsy, the stack will contain an effect knockback=100
+         instead of two entries of knockback=50.
+         And of course, effects in the stack lose track of which cards they come from.
+
+      argument: an object (number/piece/card) that a command has access to.
+         Many conditions and commands require arguments to work.
+         Usually, arguments are provided by triggers and conditions.
+         e.g.: command _stun stuns a piece, but it requires an argument to tell it which piece to stun.
+
+         Arguments have a key and a value. Key is the name of this argument, and value is the actual object.
+         e.g.: if you have an argument p, the key of this argument is "p", and the value might be some piece on the board.
+         Arguments are accessed by their key, so it is important to make sure they are stored with the correct key.
+
+      argument space: this is where the arguments are stored.
+         The argument space of a command contains all the arguments it can access.
+         When these conditions and commands are triggered, they seek arguments from here.
+         Besides arguments passed by triggers and conditions,
+         in each argument space there are also some built-in arguments that are accessible by default.
+
+         Built-in arguments (in <key> = <value> form):
+            - args = this argument space itself
+            - stack = the stack
+            
+            - turn = turn number
+            - floor = floor number
+            - rank = rank number
+
+            - hero = the black king piece
+            - leader = the leader piece type (a number)
+            - ammo = number of ammo
+            - chamber = number of loaded shells
+            - grenade = number of grenades
+            - shield = number of folly shields
+            - time = playing time
+         
+         e.g.:
+            _if_args_p_ = if there is an argument p in the argument space
+            period_1_if_args_p_ammo=1 doesn't do anything.
+            period_1_ifHero_if_args_p_ammo=1 works like period_1_ifHero_ammo=1.
+
+            _if_stack_blade_ = if you have blade
+            _if_stack_<effect>_ is very similar to _ifHas_, except that _if_stack_<effect> also stores the value of <effect>.
+            In the above example, it will store your blade stat as argument "blade".
+
+            consider:
+            greneff_grenadeHit = 1
+            bundle_grenadeHit = {"if_args_firerange_inc_firepower","if_args_firerange_halt",
+            "if_args_firepower_if_stack_firerange_ifHas_N_ammo","if_stack_firepower_ifHas_N_ammo"}
+            This effect gives you 1 firepower each time your grenade hits at least three pieces.
+            (firepower and firerange are used as a marker simply because they always exist in stack,
+            similarly ammo is just a random placeholder since it never gets triggered anyways)
+
+         Sometimes multiple commands are triggered in series (in the case of forAll and bundles).
+         If we view them as a tree, then a trigger is the root, the commands it triggers are the branches.
+         Triggering multiple commands corresponds to having multiple branches. Branches can lead to more branches.
+         All commands originating from the same root share the same argument space.
+         More details in Bundle Command Notes #3.
+
+      event: some commands are not executed upon being triggered. Instead, they register an event.
+         These commands are tagged as "EVENT".
+         All events will be held in a queue, and will be played one by one just before you are able to play.
+         Event commands will be executed when the event is played.
+
+      experimental: entries tagged as "EXPERIMENTAL" are very unstable.
+         These entries are more likely to cause bugs so they should be used with care.
+
+   Warning:
+      Effect chaining can result in bugs.
+      For example, killing a piece while it's still moving might cause a softlock.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Triggers
+
+period_<int>_
+   Every <int> turn.
+
+   perioddown_<command> = <int>
+      Reduces the period of period_<int2>_<command> by <int> turns.
+
+   perioddown = <int>
+      Reduces the period of all periodic commands by <int> turns.
+
+turn_<int>_
+   When Turn <int> comes.
+
+delayed_
+   When this card triggers delayed effects.
+   Must be written in "delayed" tables.
+
+   *The sound effect is slightly misleading.
+   The sound is played as an event, but delayed effects would have been applied just as the turn starts.
+   In fact this trigger happens just after period_ and turn_<int>,
+   so early that the turn number has not increased.
+
+delayed_
+   [EVENT]
+   When this card triggers delayed effects.
+   Must NOT be written in "delayed" tables.
+   >>> Passes this card as argument ca
+
+   *This is also when the conscription sfx is played, and when backups arrive.
+
+floorstart_
+   When a floor starts.
+
+floor_<int>_
+   When Floor <int> starts.
+
+death_<piece name>_
+   When a white <piece name> dies.
+   >>> Passes the dead piece as argument p
+
+hurt_<piece name>_
+   When <piece name> takes damage (and doesn't get killed).
+   Bullets are counted separately (eg. usually firepower 4 means 4 damages per shot)
+   >>> Passes the piece as argument p
+
+move_<piece name>_
+   When <piece name> moves.
+   Black king counts as well.
+   >>> Passes the piece as argument p
+
+spawn_<piece name>_
+   When a <piece name> is spawned.
+   Spawning takes many different forms.
+   >>> Passes the piece as argument p
+
+oflip_
+   When this card is flipped.
+   >>> Passes the card as argument ca
+
+unflip_
+   When this card is flipped back.
+   >>> Passes the card as argument ca
+
+nflip_
+   When this card is flipped or unflipped.
+   >>> Passes the card as argument ca
+
+click_ | rclick_
+   When this card is left / right clicked.
+   >>> Passes the card as argument ca
+
+flipped_ | unflipped_
+   When a card is flipped/unflipped.
+   >>> Passes the card as argument ca
+
+fire_
+   When you shoot.
+
+grenxpl_
+   When a grenade explodes.
+   >>> Passes the square under the grenade as argument sq
+
+greneff_
+   When a grenade explodes:
+   for each piece within its range,
+   trigger the attached command with the piece as argument p
+
+hooked_
+   When a piece is hit with the hook.
+   >>> Passes the piece as argument p
+
+restart_
+   When you restart a floor.
+
+premove_<int>_
+   See "Premove Your King" mod
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   commands
+
+_aura = <int>
+   Requires argument sq:
+   Releases a killing aura with radius <int> squares, centered at sq.
+
+   aura_dmg = <num>
+      Increases the damage of aura by <num>.
+
+_frag = <int>
+   Requires argument sq:
+   Blasts out <int> fragments/bullets at sq.
+
+   frag_range = <multiple of 0.5>
+      Increases minimum range of fragments (unit: squares)
+
+   frag_interval = <multiple of 0.5>
+      Increases the difference between min and max range (unit: squares)
+      
+   frag_dmg = <num>
+      Increases the damage of each fragment by <num>
+
+   frag_pierce = <num>	
+      Increases the pierce of each fragment by <num>
+
+_rats = <int>
+   Requires argument sq:
+   Summons <int> rats at sq.
+
+_ammo = <int>
+   Gains <int> ammo.
+   <int> can be negative.
+
+_grenade = <int>
+   Gains <int> grenades.
+   <int> can be negative.
+
+_load / _reload = 1
+   Loads 1/all shells.
+   Will squeeze 1 shell if your chamber is full.
+   Does nothing if you don't have any ammo.
+
+_loaddelay / _reloaddelay = 1
+   [EVENT]
+   Loads 1/all shells.
+   Does nothing if your chamber is full or you don't have any ammo.
+
+_ammobox = 1
+   [EVENT]
+   Summons an ammo box.
+
+_grenready = 1
+   Resets your grenade count so that you can throw another grenade.
+
+_scope = 1
+   Enter scope mode.
+
+_xturn = 1
+   Gains an extra turn.
+
+_skipturn = 1
+   [EXPERIMENTAL]
+   Ends your turn if it is your turn; otherwise skip your next turn.
+   Can break if used at inappropriate time.
+
+_gainhop = <int>
+   Gains <int> hop counts.
+
+_cloak = <int>
+   Enter stealth mode for <int> turns.
+
+_disguise_<piece name> = <int>
+   Disguises as a <piece name> for <int> turns.
+
+_disguise = <int>
+   Requires argument p:
+   Disguises as argument p for <int> turns.
+
+_expose = 1
+   Lose stealth effect.
+
+_holoking = 1
+   Requires argument sq:
+   Creates a hologram at sq.
+
+_soul_<piece name> = <int>
+   [EVENT]
+   Gains <int> <piece name> souls.
+
+_soul = 1
+   [EVENT]
+   Requires argument p:
+   Gains a soul from p. Affected by sanctity effect.
+
+   replace_soul = 1
+      New souls gained in the ways above will replace existing souls if there is no empty soul slot.
+
+_promote_<piece name> = <int>
+   [EVENT]
+   Promotes <int> random <piece name>.
+
+_promote = 1
+   [EVENT]
+   Requires argument p:
+   Promotes p.
+
+_transform = <int>
+   [EXPERIMENTAL]
+   Requires argument p:
+   Changes p into a piece of type <int>.
+   Can break if used at inappropriate time.
+
+   *To prevent crashes, nothing will be done if argument p does not exist on the board.
+   **Argument p will be updated to the new piece.
+
+_inc_<effect> = <num>
+   Increases <effect> by <num> until the end of the floor.
+
+_boost_<effect> = <num>
+   Increases <effect> by <num> until next shot.
+   Here <effect> can only be firepower, firerange or spread.
+
+_gain_<effect> = <num>
+   Increases <effect> by <num> until the end of the game.
+
+_hit = <num>
+   Requires argument p:
+   Deals <num> damage to p.
+
+_execute = 1
+   Requires argument p:
+   Kill p.
+
+_strike = 1
+   Requires argument p:
+   Kill p with a flash of lightning.
+
+_remove = 1
+   Requires argument p:
+   Removes p.
+
+_stun = <int>
+   Requires argument p:
+   Stuns p for <int> turns.
+
+_soulless = 1
+   Requires argument p:
+   Makes p soulless.
+
+_bleed = 1
+   Requires argument p:
+   Inflicts bleed on p.
+
+_poison = <int>
+   Requires argument p:
+   Poisons p for <int> turns.
+   By default, effect duration adds to existing poison effects.
+   This can be changed in the settings.
+
+_delay = <int>
+   Requires argument p:
+   Delays p for <int> turns.
+
+_heal = <num>
+   Requires argument p:
+   Heals p by <num>, but can't make it have more hp than max hp.
+
+_frighten = 1
+   Requires argument p:
+   Frightens p.
+
+_flip / _unflip = 1
+   Requires argument ca:
+   Flips/unflips ca.
+
+_accel = <int>
+   Requires argument ca:
+   Backup effects of ca come <int> turns sooner.
+
+_tear = 1
+   [EVENT]
+   Requires argument ca:
+   Tears ca apart.
+
+_replace = <card id>
+   [EXPERIMENTAL]
+   Requires argument ca:
+   Replaces ca with <card id>.
+
+_addcard = <card id>
+   [EVENT]
+   Adds a copy of <card id> into your slots.
+
+_restart = 1
+   [EXPERIMENTAL]
+   Restarts the current floor.
+   The restart will fail if no `restart` and `temp_restart` stats can be payed.
+
+_reset = 1
+   [EXPERIMENTAL]
+   Restarts the current floor without any cost.
+
+_win = 1
+   [EVENT]
+   Win.
+
+_fail = 1
+   [EXPERIMENTAL]
+   Gameover.
+   Might crash with certain triggers.
+
+_sfx_<sfx name> = <num>
+   Plays the sound effect named <sfx name>.
+   <num> controls the volume, should be in the range 0-1.
+
+_emote_<text> = <int>
+   Requires argument p:
+   Pops a line of text above p.
+   If there is a translation key for <text>, the translation will be used; otherwise <text> itself will be shown.
+   Lasts for <int> frames. (For reference, vanilla emote texts usually last for 30/60 frames)
+
+_burn = <int>
+   Requires argument p:
+   Adds burning gfx to p for <int> frames.
+
+_refresh = <int>
+   Removes all buttons, and refreshes buttons after <int> frames.
+   Events are also played when buttons are refreshed.
+   (Recall that events are played just before you are able to play)
+
+_halt = 1
+   Interrupts all other commands that share the same argument space and are yet to be triggered.
+   See details below: should be used with bundle commands.
+
+-- Bundle Commands --
+
+bundle_<com> = {<com1>,<com2>,...}
+   Defines a command _<com> that is equivalent to a sequence of commands.
+
+   When _<com> = {<val1>,<val2>,...} is triggered,
+   it will trigger _<com1> = <val1>, then _<com2> = <val2>, ... etc.
+
+   Alternatively, when _<com> = <val> is triggered,
+   it will trigger _<com1> = <val>, then _<com2> = <val>, ... etc.
+
+Caveat:
+bundle_<com> is an effect itself, so it can be written on a card.
+But when the card is flipped, you immediately lose all effects on that card, including bundle_<com>,
+which makes the bundle command undefined.
+So it is recommended to put it in script.lua, making it a globally applying effect.
+Alternatively, they can be put in "base" of gamemode files,
+but the bundle command will only be defined within that gamemode, since you only have the effect bundle_<com> there.
+
+Example:
+bundle_replenish = {"ammo","boost_firepower"}
+   This effect defines the command _replenish.
+
+   Then we can craft things like:
+   period_1_replenish = {1,1} - on every turn, gains 1 ammo and +1 firepower for the next shot.
+
+   Note that this is equivalent to period_1_replenish = 1 because {1,1} consists of the same value.
+
+   When writing descriptions, we can put
+   effect_period_1_replenish::on every turn, gains $0 ammo and +$1 firepower for the next shot.
+   The number of placeholders ($0,$1,...) is not limited, but all values are inserted without the +/- sign.
+
+Reasons for using bundle commands: [be familar with Conditions before reading this]
+
+   1. To make sure commands are triggered in the correct order.
+
+      Imagine we want +1 max hp and +1 hp for all kings on every turn.
+      This can't be done by period_1_inc_king_hp=1 & period_1_forAll_king_heal=1
+      since commands are triggered in a random order.
+      There's a chance that _forAll_king_heal=1 is triggered first, but kings with full hp won't get healed.
+      After _inc_king_hp=1 is triggered, they end up having an empty heart.
+
+      But if we define bundle_incHP = {"inc_king_hp","forAll_king_heal"},
+      then period_1_incHP=1 will always give one full heart to kings.
+
+   2. To make commands closely binded.
+
+      Imagine we want, on each turn, a 50% chance of gaining 1 ammo and +1 firepower for the next shot.
+      This can't be done by period_1_rnd_50_boost_firepower=1 & period_1_rnd_50_ammo=1
+      since this is not looking at the same coin; this is tossing two independant coins.
+      That means we might get just +1 firepower but no ammo.
+      
+      But if we define _replenish as in the example above, then period_1_rnd_50_replenish=1 does what we want.
+      _ammo and _boost_firepower are binded together, so that we always get both of them, or neither.
+
+   3. To make sure commands share the same argument space.
+
+      Imagine we want to deal 1 damage to and frighten a random piece on every turn.
+      This can't be done by period_1_ifExist_all_hit=1 & period_1_ifExist_all_frighten=1
+      since it's totally possible that we end up hitting piece A but frightening piece B.
+
+      But if we define bundle_hitAndFrighten = {"hit","frighten"},
+      then period_1_ifExist_all_hitAndFrighten=1 will always target the same piece.
+      This is because _hit and _frighten are activated by the same trigger period_1_ifExist_all_,
+      so they share the same argument p that is randomly chosen by _ifExist_all_.
+
+      This becomes even more important when considering _halt.
+      Imagine we want, on each turn, a 50/50 chance of gaining +1 firepower/-15 spread for the next shot.
+      This can't be done by period_1_rnd_50_boost_firepower=1 & period_1_rnd_50_boost_spread=-15
+      for the same reason as #2.
+
+      But we can define:
+      bundle_head = {"boost_firepower","halt"}, bundle_coinToss = {"rnd_50_head","boost_spread"},
+      then the effect can be achieved by period_1_coinToss = {{1,1},-15}.
+      (Note that {{1,1},-15} can be simplified to {1,-15})
+      See that there is a 50% chance of gaining firepower, and then _halt will shut down the rest of the process.
+      If we don't get the firepower, _halt will not be triggered, then we end up getting -15 spread.
+
+   4. To be more concise and efficient
+
+      Imagine we want an effect similar to the wand of downpour that activates on each turn.
+      That is: deal a total of 8 damage to random enemies on each turn.
+      This could've been done by:
+      period_1_ifExist_all_hit=1, period_1_ifExist_all_rnd_100_hit=1, period_1_ifExist_all_rnd_101_hit=1, ... repeated 8 times.
+      But this makes an ugly solution.
+
+      Instead we can define: bundle_eightHits = {"ifExist_all_hit","ifExist_all_hit","ifExist_all_hit",
+      "ifExist_all_hit","ifExist_all_hit","ifExist_all_hit","ifExist_all_hit","ifExist_all_hit"}.
+      Note that we don't have to add the rnd part to make them different from each other.
+      Then when we make the card, we just need a simple period_1_eightHits=1.
+
+   5. Even more efficient by use of recursion
+
+      Imagine we want the following effect:
+      when this card is clicked, drain and turn the total hp of all pawns on the board into firepower for the next shot.
+
+      This could've been done by repeatedly putting instances of
+      click_ifExist_pawn_boost_firepower=1 & click_ifExist_pawn_hit=1.
+      Basically, if there is a pawn on the board, we get +1 firepower and deal 1 damage to it,
+      then repeat this process suffciently many times so that no pawn can survive.
+      But we wouldn't know how many times of repetition counts as "suffcient",
+      and it will surely be a mess to write down the effects.
+
+      But if define bundle_bloodlust = {"ifExist_pawn_boost_firepower","ifExist_pawn_hit","ifExist_pawn_bloodlust"},
+      then one simple click_bloodlust = 1 will do.
+      See that _bloodlust endlessly repeats itself until no pawn is present on the board.
+
+Some bundle commands are already defined:
+bundle_targetfound = {"strike","halt"}
+bundle_retrostrike = {"if_p_wsq_if_wsq_p_targetfound","boost_firerange"}
+
+bundle_unflipCard = {"unflip","halt"}
+bundle_toggle = {"if_ca_flipped_unflipCard","flip"}
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Conditions & Controls (Optional, Stackable)
+   
+   Conditions decide whether the attached command should be executed.
+   If they are not passed, the stop the process.
+   Some of the entries are controls instead of conditions. They allow composite effects to be even more customisable. 
+   For example, they can be used to make commands fork, or allow you to select a piece to apply the command.
+
+   When combined with triggers/commands, the whole thing can be seen as a trigger/command.
+   e.g.: _if_p_flying_hit can be thought of as a command.
+
+_not_
+   Negates THE FOLLOWING condition.
+
+_if_<arg>_<key>_
+   Requires argument <arg>:
+   If argument <arg> has an attribute named <key> and the value of this attribute is not "false"
+   >>> If true, passes the value as argument <key>
+
+   *When writing this condition, replace any _ in <arg> and <key> with UNDER
+
+   Examples:
+   move_king_not_if_p_bad_ammo=1: +1 ammo each time you move
+   move_bishop_if_p_flying_ammo=1: +1 ammo each time a flying bishop moves
+   move_pawn_if_p_sq_ammo=1: +1 ammo each time a pawn moves if it's occupying a square
+
+   The one above is trivially true, but the next one might be tricky:
+   move_pawn_if_p_sq_if_sq_moat_ammo=1: +1 ammo each time a pawn moves to a moat
+   Here we use if_p_sq not for checking anything, but for generating the argument sq from the attributes of p.
+
+   Adding more stuff:
+   move_king_if_p_sq_if_sq_moat_not_if_p_bad_ammo=1: +1 ammo each time you move to a moat
+   move_king_if_p_wsq_if_wsq_moat_not_if_p_bad_ammo=1: +1 ammo each time you move from a moat
+   move_all_if_p_bad_promote=1: pieces promote after moving
+
+   Advanced examples:
+
+   hurt_all_retrostrike={-1,{1,1}}, death_all_if_p_hurt_retrostrike={-1,{1,1}}:
+   [Bundle Command _retrostrike as defined in the settings]
+   Each time a piece is damaged:
+   - if it has moved from a square, strike the piece that's currently occupying that square with lightning
+   - if no lightning is summoned in the first step, lose 1 firerange until your next shot
+
+   Other examples:
+   click_not_if_ca_flipped_ammo=1: +1 ammo each time you click this card (disabled if flipped)
+
+_ifTimeUnder_<int>_ | ifTimeOver_<int>_
+   If the playing time (the time used in the speedrun clock) is strictly under/over <int> frames
+   1 second = 60 frames [PLEASE REMEMBER THIS]
+
+_ifHas_<effect>_
+   If you have <effect>
+   *When writing this condition, replace any _ in <effect> with UNDER
+
+_ifGreater_<key1>_<int/key2>_ | _ifLower_<key1>_<int/key2>_ |  _ifEqual_<key1>_<int/key2>_
+   If argument <key1> >/</= <int>/argument <key2>
+   *When writing this condition, replace any _ in <key1> and <key2> with UNDER
+
+_ifAmmo_
+   If you have ammo
+
+_ifFullAmmo_
+   If your ammo is full
+
+_ifChamber_
+   If you have a loaded barrel
+
+_ifFullChamber_
+   If your chamber is full
+
+_ifChecked_
+   If you are being attacked
+
+_ifPass_
+   If you are safe according to the folly shields (i.e. the folly shields won't stop you)
+   Can't be negated.
+
+_ifExist_<piece name>_
+   If there is a <piece name> on the board
+   >>> if true, passes a random <piece name> as argument p
+
+_forAll_<piece name>_
+   For each <piece name> on the board,
+   trigger the attached command with the piece as argument p
+
+_ifHasCard_<name>_
+   If you have a card that either:
+   - is named <name>, or
+   - has an effect named <name>
+   >>> if true, passes a random card that satisfies the above condition as argument ca
+
+   *Replace spaces with SPACE, and replace _ with UNDER.
+   For example: _ifHasCard_HolySPACEGunpowder_
+
+_forAllCard_<name>_
+   For each card you have that satisfies the above condition,
+   trigger the attached command with the card as argument ca
+   
+   *Replace spaces with SPACE, and replace _ with UNDER.
+   For example: _forAllCard_soulUNDERslot_
+
+_ifHero_
+   If the black king has spawned
+   >>> if true, passes the black king as argument p
+
+_getNearest_
+   Requires argument sq:
+   >>> passes the nearest white piece to sq as argument p
+
+_ifLeftSquare_
+   Requires argument p:
+   If p has left a square
+   >>> if true, passes the square as argument sq
+
+_ifBlack_
+   Requires argument ca:
+   If ca is a black card
+
+_rnd_<int>_
+   Has <int>% chance to be true (i.e. condition passed)
+
+_selectPiece_ / _selectCard_
+   [EXPERIMENTAL]
+   Prompts you to select a piece/card
+   >>> Then passes the piece/card as argument p/ca
+
+   Can break if used at inappropriate time.
+   Recommended to use this when you can move/shoot.
+
+_setValue_<int/key>
+   Sets the value of this command as <int>/argument <key>
+   *For <key>, replace spaces with SPACE, and replace _ with UNDER.
+
+   e.g.:
+   period_1_setValue_2_ammo=1 is the same as period_1_ammo=2.
+   period_1_if_stack_ammoUNDERregen_setValue_ammoUNDERregen_ammo=1
+   gives you as many ammo as your ammo_regen on each turn.
+
+   Only affects its own command. Doesn't change any other command.
+   e.g.:
+   bundle_example = {"ammo","setValue_2_ammo","ammo"}
+   then _example=1 gives you a total of 4 ammo instead of 5.
+
+---------------------------------------------------------------------
+   Bullets
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+b_dmg = <num>
+   Increases the damage of all bullets by <num>
+
+>>> the following effects are imported from JP12's modules (last two adapted by Scavenger)
+
+long_gun
+
+b_curve
+
+b_fixed_angle
+
+b_homing
+
+b_strengthening
+
+b_weakening
+
+b_gamble
+
+airburst
+
+b_bounce
+
+>>>
+
+---------------------------------------------------------------------
+   Grenades
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+grenade_sticky = 1
+   Grenades do not bounce anymore.
+
+grenade_throwpower = <num>
+   Grenades are now thrown with <num>% of the original power.
+
+---------------------------------------------------------------------
+   Misc
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+<piece name>_promote = 1
+   <piece name> will promote like a pawn when reaching the bottom.
+   !!HAS BEEN ADDED TO VANILLA GAME!!
+
+(rankmore/rankless)_<num>_<effect> = <any>
+   Nothing will happen if the current rank isn't more/less then <num>.
+   Otherwise, this effect is automatically REPLACED by <effect> = <any> (adding to existing ones if any).
+
+   Example:
+   rankmore_2_firepower = 100 -> +100 firepower when rank > 2

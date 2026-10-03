@@ -1,0 +1,139 @@
+Load this mod last
+
+This mod aims to help simplify modding.
+
+------------------------------------------------------------------
+
+Functions in script.lua with following names will be automatically called:
+(just like how on_new_turn is automatically called in gamemode lua)
+
+function on_fire()
+   called when shotgun is fired
+
+function on_piece_move(p)
+   called when piece p moves
+   *Caution: the original on_piece_move (written in <gamemode>.lua) is called even when a piece is placed back after getting grabbed,
+   or when pieces jump onto knights in the apocalypse animation.
+   This one will not be called in those cases.
+
+function on_bad_hurt(p)
+   called when piece p is damaged
+
+function on_bad_death(p)
+   called when piece p die
+
+function on_new_turn()
+   called when a new turn starts
+
+function on_empty()
+   called when all white pieces die
+
+function start() -- NOT RECOMMENDED TO USE
+   called just before a new game is started
+
+function upd()
+   called on every frame during a game
+
+function upd_menu()
+   called on every frame when in menu page
+
+function upd_codex()
+   called on every frame when in codex page
+
+function draw_<int>()
+   draws at depth=<int> during a game
+
+function on_sq_but_init(but,sq)
+   called for each square along with its button
+   but: the button
+   sq: the square
+
+   (The square where the black king is won't be called since there's no button for that square.)
+
+function on_card_but_init(but,ca)
+   called for each card along with its button
+   but: the button
+   ca: the card
+
+function on_bad_spawn(p)
+   called when piece p is just spawned
+
+function edit_disp_stats(stats)
+   called when player stats are about to be displayed on the left
+   stats: a table that contains information on what to be displayed
+   
+   editing stats using this function changes the displayed stats
+
+   Note: the value attribute in each subtable should be a string
+
+function sort_spawn(pieces)
+   called when white pieces are about to spawn at the start of the floor.
+   pieces: a table of piece types that will be spawned.
+   For example, if you have a king and two pawns, pieces will be {5,0,0}
+   Pieces are spawned in the order as they appear in the pieces table.
+   So you can use methods such as custom_sort to control the order pieces are spawned.
+
+function check_custom_flip(ca)
+   called when checking if a card should be flipped.
+   ca: a card.
+   If ca should be flipped, return true.
+
+------------------------------------------------------------------
+
+Functions added by this mod:
+
+mode.get_squares(t,e,max_range,flying,add_sq,[min_range],[d]) -- NOT WORKING
+   t: a table that represents your move/attack range
+   e,max_range,flying,add_sq: inherited from custom_range and custom_atk
+   min_range: int, squares that are too close won't be available to the piece
+   d: depth, usually left blank
+
+   generates the movement or attack ranges for your custom pieces
+   simply by putting in a table converted from move/atk range.
+
+   Worked example:
+   add(PIECES, {type=#PIECES,
+	name="ranger", hp=4, tempo=3, danger=3, seek="wdist",
+	give_soul=true,
+	custom_range = function(...) mode.get_squares(
+		{{1,0,2,0,3,0,4,0,5,0,6,0,7,0},{-1,0,-2,0,-3,0,-4,0,-5,0,-6,0,-7,0},{0,1,0,2,0,3,0,4,0,5,0,6,0,7},{0,-1,0,-2,0,-3,0,-4,0,-5,0,-6,0,-7}}
+	,...,0) end,
+
+   ...(other lines)...
+
+   })
+
+   For how to convert ranges to tables, check the image in this folder.
+
+mode.strike(p)
+   summons a lightning strike to kill the piece p
+
+mode.hero_fail(tempo,e) -- EXPERIMENTAL
+   black king dies to e in tempo frames
+
+   Worked examples:
+   mode.hero_fail(0) -> you instantly lose
+   mode.hero_fail(180,hero) -> suicide in 3 seconds
+
+mode.heal(p,hp)
+   heals the piece p by hp, but can't make it have more hp than max hp
+
+mode.square_fall(sq [,animation])
+   [EXPERIMENTAL] Potentially unstable! But I won't spend too much time on this.
+   Sets the square sq to void. Expected behavior of void:
+   - Can't move into it
+   - Only flying pieces can move across it
+   - Pieces fall when pushed into it
+   - Grenades can't be thrown towards it, but will fall when bounced to it
+
+   If animation is set as true, it does the square falling animation. Default: false.
+   Otherwise nothing is visually done to the square, and it's not deleted as an entity.
+
+   Nothing is done to the piece on the square.
+   If you want to apply this function on occupied squares,
+   you have to write some codes to deal with the pieces yourself.
+
+------------------------------------------------------------------
+
+
+More features are on the way.

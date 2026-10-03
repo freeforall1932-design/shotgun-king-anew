@@ -1,0 +1,25 @@
+# ── Python / tooling noise ───────────────────────────────────────────────────
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*~
+
+# ── Never commit game assets or archives ─────────────────────────────────────
+# (the game itself is the owner's IP; workshop mods live in dist-overlay/
+#  with permission assumed for personal use — see dist-overlay/README.md)
+uploads/
+dist/
+save_backup_*/
+*.rar
+*.zip
+*.7z
+*.sgr
+*.exe
+*.dll
+
+# ── Legacy guards from the abandoned Godot plan (kept just in case) ──────────
+*.pck
+.godot/
