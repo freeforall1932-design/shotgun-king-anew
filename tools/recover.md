@@ -12,23 +12,33 @@ Grab the build for your OS (e.g. `gdre_tools-windows.zip`), unpack it somewhere
 outside this repo. Supports Godot 2.x–4.x; Shotgun King is Godot 3/4 — the tool
 detects the version from the pck.
 
-## 1. Locate & BACK UP the game's .pck
+## 1. Locate the game files & BACK UP
 
 Steam → right-click *Shotgun King* → **Manage → Browse local files**, e.g.
 
     D:\SteamLibrary\steamapps\common\Shotgun King\
 
-Find the `.pck` (e.g. `ShotgunKing.pck`). **Before anything else**, copy it:
+**Two possible layouts — both fine:**
 
-    copy ShotgunKing.pck ShotgunKing.pck.orig
+| You see | Meaning | Recovery target | Back this up |
+|---|---|---|---|
+| `ShotgunKing.pck` + exe | external pack | the `.pck` | `copy ShotgunKing.pck ShotgunKing.pck.orig` |
+| only a big `.exe` (no .pck) | **pack embedded in the exe** (Godot "Embed Pck") | the `.exe` itself | `copy ShotgunKing.exe ShotgunKing.exe.orig` |
 
-Keep that backup forever. It is the "verify integrity" escape hatch and the
-clean baseline to re-diff against. (`*.pck` / `*.pck.orig` are gitignored —
-the backup stays on disk, never in the repo.)
+**Before anything else, make that backup** and keep it forever. It is the
+"verify integrity" escape hatch and the clean baseline to re-diff against.
+(`*.pck` / `*.orig` are gitignored — backups stay on disk, never in the repo.)
 
 ## 2. Run recovery (from the repo root)
 
+Point `--recover` at whichever you have — a `.pck` OR the exe with the embedded
+pack:
+
+    # external pack:
     gdre_tools --headless --recover="C:\path\to\ShotgunKing.pck" --output-dir=game-dump
+
+    # embedded pack (no .pck in the folder — this is the normal case):
+    gdre_tools --headless --recover="C:\path\to\ShotgunKing.exe" --output-dir=game-dump
 
 This decompiles all GDScript to readable source, restores resources (.tres,
 scenes) and recovers `project.godot`. Wait for `Recovery complete` / similar.

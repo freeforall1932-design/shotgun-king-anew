@@ -190,7 +190,9 @@ pending) and notes: repo-map, integration-menu, ps2-route, side-projects
 
 ```bash
 # Recover (tools: github.com/GDRETools/gdsdecomp releases)
-gdre_tools --headless --recover="path/to/game.pck" --output-dir=game-dump
+# --recover accepts a .pck, .apk, OR an exe with the pack embedded in it
+# (Shotgun King ships with the pack embedded in the exe — no loose .pck).
+gdre_tools --headless --recover="path/to/game.exe" --output-dir=game-dump
 
 # Run from source (in Godot editor: import game-dump/project.godot, press F5)
 

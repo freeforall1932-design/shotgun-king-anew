@@ -1,4 +1,8 @@
-# repack.md — build a modded .pck from game-dump/
+# repack.md — build a modded game from game-dump/
+
+**First figure out which layout the game shipped with** (see tools/recover.md):
+an external `ShotgunKing.pck`, or the pack **embedded in the exe**. The install
+step differs; the preset setup is the same.
 
 ## 0. One-time: create the export preset
 
@@ -8,7 +12,9 @@
 2. **Project → Export → Add...** → pick the preset matching the game's desktop
    platform (Windows Desktop for a Windows install).
 3. Name the preset **`SK-Rework`**.
-4. Leave the export path as-is (we override it on the command line).
+4. **If the game's pack is embedded in its exe: tick "Embed Pck"** in the
+   preset (the whole point is producing an exe, not a loose .pck).
+5. Leave the export path as-is (we override it on the command line).
 
 This writes `export_presets.cfg` into `game-dump/`. That file is part of the
 dump (gitignored) — if you re-recover after an update you must re-create the
@@ -17,19 +23,45 @@ preset once. If you want it kept, copy it to `modded/export_presets.cfg` so
 
 ## 1. Repack (from repo root)
 
-    godot --headless --path game-dump --export-pack "SK-Rework" build/sk-rework.pck
+```bash
+# External-pack game → produces build/sk-rework.pck:
+godot --headless --path game-dump --export-pack "SK-Rework" build/sk-rework.pck
+
+# Embedded-pack game ("Embed Pck" ticked in preset) → produces a new EXE:
+godot --headless --path game-dump --export-pack "SK-Rework" build/SK-Rework.exe
+```
 
 Requires a `godot` binary on PATH (or give the full path to the editor exe).
-Output lands in `build/sk-rework.pck` (gitignored).
+Outputs land in `build/` (gitignored).
+
+Alternative without the Godot editor — gdre_tools can rebuild/patch and
+re-embed for you:
+
+```bash
+# patch just the files we changed back into a copy of the original exe:
+gdre_tools --headless --pck-patch="ShotgunKing.exe" \
+  --patch-file="modded/scripts/foo.gd=res://scripts/foo.gd" \
+  --embed="ShotgunKing.exe" --output=build/SK-Rework.exe
+```
+
+(If the game's scripts ship as compiled `.gdc`, patch files must be compiled
+first: `--compile=<file.gd> --bytecode=<engine-version>`.)
 
 ## 2. Install into the game (careful zone)
 
-1. Confirm `ShotgunKing.pck.orig` (the untouched backup) still sits next to the
-   game.
-2. Copy the ORIGINAL .pck aside if you haven't:
-       copy ShotgunKing.pck ShotgunKing.pck.orig
-3. Overwrite the live .pck with ours:
-       copy build\sk-rework.pck  "D:\...\Steamapps\common\Shotgun King\ShotgunKing.pck"
+1. Confirm the untouched backup still sits next to the game
+   (`ShotgunKing.pck.orig` or `ShotgunKing.exe.orig`).
+2. Copy the ORIGINAL aside if you haven't (see tools/recover.md step 1).
+3. Overwrite the live file with ours:
+
+```bat
+:: external-pack game:
+copy build\sk-rework.pck  "D:\...\steamapps\common\Shotgun King\ShotgunKing.pck"
+
+:: embedded-pack game — replace the EXE, keeping the exact same filename:
+copy build\SK-Rework.exe  "D:\...\steamapps\common\Shotgun King\ShotgunKing.exe"
+```
+
 4. Launch from Steam.
 
 ## 3. Warnings
