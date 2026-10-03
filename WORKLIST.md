@@ -20,12 +20,13 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       mods start OFF/black; the belief came from misread text colours.
       Build now pre-enables sk-rework via `mods/modlist.lua`.)*
 - [x] **Step 4 — harvest the log**: ✅ run-1 log uploaded
-      (`live testing result/game-insights/log.txt`) and parsed →
-      `notes/game-map-draft.md` (920 globals / 41 replaceable / 26 forbidden,
-      47 events, object model). **🐛 found on the way:** the parser rejected
-      the good log (game wraps lines in `  . `) — fixed, selftest 23/23.
-      Remaining TBDs (ammo spend/refill entry, offer roll) now have candidate
-      lists in the draft; modlist.lua format awaited (build 4 SKML probe).
+      (since consolidated into `live testing result/SUMMARY.md`) and
+      parsed → `notes/game-map-draft.md` (920 globals / 41 replaceable /
+      26 forbidden, 47 events, object model). **🐛 found on the way:** the
+      parser rejected the good log (game wraps lines in `  . `) — fixed,
+      selftest 23/23. Remaining TBDs (ammo spend/refill entry, offer roll)
+      now have candidate lists in the draft; modlist.lua format awaited
+      (build 4 SKML probe).
 - [x] **Step 5 — 100% save on the copy**: ✅ game ACCEPTED it —
       Achievements 100%, chase unlocked; codex was 96% (6 special cards
       missing) → tool now writes 170 cards. `ACHIEVEMENTS: OFF` title label
@@ -160,6 +161,27 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    scope, decree, grenade, orb, dig).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-04 (session 6 — consolidation + full-diff audit + PR):**
+- ✅ **Live-testing evidence consolidated**: all raw material from runs 1–3
+      (8 screenshots, 3 critique notes, 3 log packs incl. save folders and
+      modlist copies) deleted; every finding had already been recorded in
+      `notes/map.md`, `notes/game-map-draft.md`, `PLANNING.md` §0.7 and the
+      changelog. `live testing result/SUMMARY.md` = the single consolidated
+      log (fixed-vs-open tables + pointers)
+- ✅ Docs updated for the consolidated state: HANDOFF (session 6),
+      IMPROVEMENTS (sessions 5–6 arc, items 17–22), PLANNING §0.7 routing
+      note (specs → this worklist, build 5 first), WORKLIST/README
+      references to deleted paths fixed
+- ✅ Owner's five feature asks fully specified across Q&A rounds
+      (right-click cap removal, card picker, soul deck, bullet crit
+      system, remap menu + Back button) — see PLANNING §0.7.6–.11;
+      standing design rule: nothing hardcoded that can't be confirmed
+- ✅ Full-branch audit before PR: parser selftest 23/23 + run-3/run-2 log
+      parses; smoke test 29/29 both `all()` semantics; codec roundtrip on
+      all real saves; unlock tool E2E; 3/3 `.ps1` tree-sitter clean;
+      modlist generator byte-identical to the game's own file; diff
+      reviewed file-by-file
 
 **2026-10-03 (session 5b — run 3 absorbed; unlock unified into the build):**
 - ✅ **Pre-enable verified live (run 3, owner-confirmed):** build console
@@ -335,11 +357,14 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 👑 Owner to-do
 
-1. ~~Build-4 run + `-GetInsights` upload~~ **DONE (runs 2 & 3)** — all
-      harvest + verification goals met. Nothing left to collect.
-2. Next launch of a rebuilt copy (with the updated repo): build console
-      should show `4/4 applying the 100% unlock...` and the copy should
-      boot with **everything unlocked from the start** (128 achievements,
-      all shotguns, codex 100%) plus sk-rework already ON. That single
-      check closes run 3 completely.
-3. At deployment: flip private; optionally scrub history; or archive repo
+1. ~~Harvest + verification runs~~ **DONE (runs 1–3, consolidated into
+      `live testing result/SUMMARY.md`)** — nothing left to collect.
+2. Next launch of a rebuilt copy (with the updated repo, after this PR
+      merges): build console should show `3b/3` + `4/4 applying the 100%
+      unlock...` and the copy should boot with **everything unlocked from
+      the start** (128 achievements, all shotguns, codex 100%) plus
+      sk-rework already ON.
+3. **Playtest build 5** when it ships (cheat panel + mod-menu legend line +
+      Back button + the §0.7 probes) — that single run's data unblocks
+      implementing every feature ask on real internals.
+4. At deployment: flip private; optionally scrub history; or archive repo

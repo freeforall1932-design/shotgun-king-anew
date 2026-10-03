@@ -14,6 +14,37 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-04 (session 6) — live-testing evidence consolidated; docs finalized; full audit before PR
+
+All raw run-1/2/3 evidence (8 screenshots, 3 critique notes, 3 log packs
+with save folders and modlist copies) is deleted — every finding was
+already recorded in `notes/map.md`, `notes/game-map-draft.md`,
+`PLANNING.md` §0.7 and the changelog entries below. New:
+- `live testing result/SUMMARY.md` — the single consolidated live-testing
+  log: per-run findings tables (fixed vs open), pointers to where each
+  result lives now, and the open feature-ask list
+- `HANDOFF.md` — session 6 state: toolchain complete + live-proven, five
+  owner feature specs locked (PLANNING §0.7.6–.11), next = sk-rework
+  build 5 (Phase 2c panel + legend/Back button + probes)
+- `IMPROVEMENTS.md` — sessions 5–6 arc (items 17–22)
+- `PLANNING.md` §0.7 — routing note: specs → WORKLIST queue, build 5 first
+- `WORKLIST.md` — consolidation sweep entry, stale path references fixed,
+  owner to-do refreshed
+- older changelog entries keep their original `live testing result/…`
+  paths as history — those files no longer exist (see SUMMARY.md)
+- audit findings folded in (no functional bugs): `save_codec.py` docstring
+  now tells the truth about containers — the game's own deflate writer
+  isn't python-zlib-reproducible (FLEVEL 0, sizes between L0/L1), so the
+  byte-exact guarantee is the TEXT layer while our level-9 containers are
+  live-proven readable; `notes/map.md` stale "mods ARE enabled by default"
+  line reworded (mods start OFF; run 2's correction now stated everywhere)
+- why: owner asked to consolidate the evidence, update all four log docs,
+  audit the entire branch diff, then open the PR
+- status: shipped; full test suite re-run green (parser 23/23 + both log
+  parses; smoke 29/29; codec roundtrips; unlock E2E; 3/3 .ps1 parse)
+
+---
+
 ## 2026-10-03 (session 5b) — run 3 absorbed: unlock unified into the build, multi-boot log handling
 
 Owner rebuilt with the updated repo (`-Clean -NoInheritMods`), played without

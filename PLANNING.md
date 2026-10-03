@@ -34,6 +34,14 @@
 
 ## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
 
+> **Where this work happens:** these specs are implemented via the queue in
+> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 5 first**
+> (Phase 2c cheat panel + mod-menu legend/Back button + the §0.7 intel
+> probes — offer roll, full card fields, scepters, soul flow, damage point,
+> input space), then the cap removal + bindings, card picker, soul deck,
+> crit system, and remap menu on top of that panel. Live-test status of
+> every ask: `live testing result/SUMMARY.md`.
+
 6. **Right-click ability cap — REMOVE it** (owner's refined description,
    2026-10-04): right-click is ONE button, so vanilla lets you hold only
    ONE right-click ability — take the scope/snipe card and Seer's Orb (and

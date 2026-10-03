@@ -109,8 +109,15 @@ append("fn_name", nil, "id")    -- unregister a hook
    weapon_unl — the cheat target), stats.sav (per-card played/ignored — the
    card-offer memory; picker phase can edit it), achievements.sav, runs.sav,
    misc.sav (codexitems). No mod-enable state anywhere in saves → **resolved
-   by the live test: mods ARE enabled by default; the enable state lives in
-   `mods/modlist.lua`, which the game writes itself at boot** (see §live).
+   by the live tests: mod support is always active, but each mod's on/off
+   state lives in `mods/modlist.lua` (absent entry/false = OFF — run 2
+   corrected run 1's guess), which the game writes itself at boot** (§live).
+   Zlib note (audit 2026-10-04): the game's own writer emits FLEVEL-0
+   deflate whose exact bytes python-zlib cannot reproduce (game sizes sit
+   between zlib L0 and L1 on every real save). The game READS any valid
+   zlib stream — our tool's level-9 output was read back fine in live
+   runs 2–3 (unlock persisted). Byte-exactness is guaranteed at the TEXT
+   layer (`save_codec.py --selftest`), not the container bytes.
 4. Game internals known from its log: runtime SUGAR **v0.0.8f**, LuaJIT 2.1 /
    Lua 5.1, SDL 3.4.12. Top-level files: exe, data.sgr, `lang/*.txt` (18
    languages, readable string tables — copy in `uploads/game-insights/`),
@@ -130,9 +137,11 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ## Live-verified facts — live tests 1 & 2 (2026-10-03, builds 3–4, v1.623b)
 
-Source: `live testing result/` (run 1: inherited-mods + `-NoInheritMods`
+Source: live runs 1–3, 2026-10-03 (raw evidence since consolidated into
+`live testing result/SUMMARY.md`; run 1: inherited-mods + `-NoInheritMods`
 builds; run 2: full `-GetInsights` pack — log, `mods/modlist.lua`, whole
-`save\` folder) + parsed draft `notes/game-map-draft.md`. These are
+`save\` folder; run 3: pre-enable verification + save-and-reboot path) +
+parsed draft `notes/game-map-draft.md`. These are
 OBSERVED facts — prefer them over anything guessed above.
 
 ### Engine / log

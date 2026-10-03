@@ -90,6 +90,42 @@
     from the Terminal mod; append() on globals is the reliable hook) turned
     guesswork into a design the live log will confirm or refute explicitly.
 
+## 2026-10-03/04 — Sessions 5–6 (live runs 2–3 absorbed → toolchain completed → consolidated)
+
+17. **Evidence beat documentation, twice.** Run 2's harvested
+    `modlist.lua` disproved run 1's "mods are ON by default" claim (they
+    start OFF/black — the owner had been right), and run 3's saves
+    explained "no all-unlock" (the separate tool step was simply never
+    run). Both times the fix followed the evidence, not the previous doc.
+18. **The toolchain finished itself.** Knowing the modlist format turned
+    `build-dist.ps1` into a one-command experience: pre-enable mods (3b,
+    byte-identical to the game's own file), inject 14 mods, **and** apply
+    the 100% unlock automatically (4/4) — the owner's "why isn't it just
+    unlocked from the start" became the default behavior.
+19. **Logs from rebooted sessions parse correctly.** The mod menu's
+    save-and-reboot turned out to soft-reboot inside the same log.txt
+    (mods dump twice; in-flight `_log()` lines can be truncated mid-line —
+    a missing READY line is the collision, not a mod failure). The parser
+    now dedupes multi-boot logs instead of miscounting.
+20. **Analysis bugs are caught by re-verification, not shipped.** A
+    bool-vs-string comparison briefly suggested "modded sessions wipe
+    achievements"; cross-checking against the owner's full console
+    timeline (tool → modded session → fetch; all 128 still True) killed
+    the wrong conclusion before it reached the docs as fact.
+21. **Specs are mined from the owner's words + the vendored mods, not
+    guessed.** The right-click ability system mapped to the `special=`
+    card field (10 cards), the vanilla caps were found documented verbatim
+    in Better Codex's info.lua, and Royal Card Lab / disgraced_justice /
+    glacies collection supplied working blueprints for the picker,
+    summons, and soul effects. Owner's standing design rule recorded:
+    *nothing hardcoded that can't be confirmed — universal, soft-coded,
+    adaptable as I play.*
+22. **Raw evidence is disposable once distilled.** After every finding
+    from runs 1–3 landed in map.md / the draft / PLANNING §0.7 / the
+    changelog, the screenshots, logs and save packs were deleted and
+    replaced by a single `live testing result/SUMMARY.md` — the repo
+    carries knowledge, not baggage.
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)

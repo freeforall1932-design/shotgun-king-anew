@@ -17,6 +17,11 @@ Grammar (line-oriented):
 This module parses that into plain Python dicts (numbers kept as raw strings
 so re-serialization is lossless) and serializes back, byte-identical on all
 six shipped saves (see test at bottom: `python3 save_codec.py --selftest`).
+Container note: that roundtrip guarantee is the TEXT layer (decode ->
+parse -> serialize == original text). Re-ENCODED containers use zlib
+level 9, which the game reads fine (live-proven), but whose bytes differ
+from the game's own writer (an FLEVEL-0 deflate python-zlib can't
+reproduce exactly).
 
 CLI:
     python3 save_codec.py save/reg.sav                 # decode to stdout
@@ -51,6 +56,14 @@ def decode_file(path: str) -> str:
 
 def encode_text(text: str) -> bytes:
     raw = text.encode("utf-8")
+    # NOTE (audit 2026-10-04): the game's own writer emits zlib streams with
+    # FLEVEL=0 whose exact bytes python-zlib cannot reproduce at any level
+    # (measured on all six real saves: game sizes sit between L0 and L1).
+    # Byte-exact container roundtrip of game-written files is therefore not
+    # achievable — but it doesn't need to be: the game reads any valid zlib
+    # stream. Our level-9 output was read back by the game in live runs 2-3
+    # (unlock persisted, achievements stayed unlocked). The TEXT layer is
+    # the byte-exact invariant (see --selftest).
     return struct.pack(">I", len(raw)) + zlib.compress(raw, 9)
 
 

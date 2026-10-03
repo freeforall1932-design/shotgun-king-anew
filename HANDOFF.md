@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-03 (session 5, branch `arena/01a1027e-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-04 (session 6, branch `arena/01a1027e-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -12,10 +12,13 @@ Private, personal-use mod project for **Shotgun King: The Final Checkmate
 v1.623b** (PUNKCAKE Délicieux). The game runs on **SUGAR** — the studio's
 custom Pico-8-style Lua engine (LuaJIT 2.1 / Lua 5.1, SDL3) — **not Godot**.
 Deliverable = a normal SGK mod (`modded/sk-rework/`) plus a toolchain that
-builds a ready-to-play modded **copy** of the game. Goal list: ammo rework
-(A→B→C), card picker, enemy picker, extra shot mechanics, balance knobs,
-in-game dev-cheat panel, 100%-unlock save. The play path never patches game
-files; "injection" = adding folders under `mods/` (the game's own mod system).
+builds a ready-to-play modded **copy** of the game. Goal list: in-game
+dev-cheat panel, ammo rework (A→B→C), free-choice card picker, enemy
+picker, right-click ability cap removal + button remapping, Yu-Gi-Oh soul
+deck + board-cap summons, bullet damage/crit system, balance knobs,
+100%-unlock save (full specs: `PLANNING.md` §0.7). The play path never
+patches game files; "injection" = adding folders under `mods/` (the
+game's own mod system).
 
 ## 2. Where things are
 
@@ -23,9 +26,10 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 |---|---|
 | Working branch | `arena/01a1027e-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
 | Our mod | `modded/sk-rework/` (info.lua with mod-menu legend + script.lua = diagnostics build 4 + cover.png) |
-| Log parser + smoke test | `tools/parse_log.py` (23/23; summary now incl. mods/cards), `tools/mod_smoketest.py` (29/29) |
-| Live-test evidence | `live testing result/` — run 1 (critique + screenshots + logs) and **run 2** (critique + full `-GetInsights` pack: log, `mods/modlist.lua`, whole `save\`) |
-| Parsed live map | `notes/game-map-draft.md` (regenerated from run-2 log; SKM/SKC sections live) |
+| Log parser + smoke test | `tools/parse_log.py` (23/23; summary incl. mods/cards; multi-boot dedup), `tools/mod_smoketest.py` (29/29) |
+| Live-test evidence | `live testing result/SUMMARY.md` — **consolidated** (raw logs/screenshots/saves deleted after absorption; findings live in the docs below) |
+| Parsed live map | `notes/game-map-draft.md` (from run-3 log: SKM/SKC sections live) |
+| Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
 | Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
@@ -122,51 +126,52 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 5b)
+## 5. Current state & immediate next step (session 6)
 
-**Runs 2 AND 3 are absorbed — every verification goal is met and the last
-toolchain gap is closed.** Run 3 (owner: `-Clean -NoInheritMods` rebuild,
-played without touching the mod menu, then toggled one mod on/off and hit
-save-and-reboot) proved live: **pre-enable works** (`3b/3` line in console,
-copy booted with sk-rework ON / 13 workshop mods OFF, harvested modlist.lua
-matches the build's order byte-for-byte) and **the legend text shipped**
-(it's in the SKM desc dump of the run-3 log). Run 3's one gap — the owner
-saw no all-unlock because the separate tool step was easy to miss — is fixed
-by **unification: `build-dist.ps1` step 4/4 now applies `make_100pct_save.py`
-to the copy automatically** (`-NoUnlockAll` skips; python/py auto-detected;
-graceful when no `save\` yet).
+**All live testing is absorbed AND consolidated.** Runs 1–3 are distilled
+into `live testing result/SUMMARY.md` (raw evidence deleted — every
+finding lives in the docs). The toolchain is complete and live-proven:
+`build-dist.ps1` pre-enables sk-rework (3b/3, byte-exact modlist.lua),
+auto-applies the 100% unlock (4/4), and the parser handles multi-boot
+logs. The 100% tool writes the live-verified 195-card set. sk-rework's
+description carries the white/black mod-menu legend.
 
-Run 3 also surfaced a new engine fact (banked in `notes/map.md`): the mod
-menu's **save-and-reboot soft-reboots inside the same log.txt** — mods run
-twice (double dumps) and the reboot can truncate in-flight `_log()` lines
-(run-3 boot 1's card dump cut at card 177, READY line lost — NOT a mod
-failure). `parse_log.py` now dedupes multi-boot logs (cards by id, hooks by
-target+id).
+**The owner's feature requests are fully specified** (five asks, refined
+over several Q&A rounds into `PLANNING.md` §0.7 items 6–11): right-click
+ability cap removal (soft-coded discovery, any number of ability cards,
+bindings RMB + side buttons + optional middle click, scepter cap relaxed
+too), free-choice card picker, the Yu-Gi-Oh soul deck (any soul allowed —
+pawn behavior stays card-driven; summons capped by board capacity only),
+the bullet damage & crit system (configurable damage/crit-chance/crit-damage,
+pierce auto-crits), the button-remap menu, and the mod-menu Back button.
+Design rule throughout: **nothing hardcoded that can't be confirmed —
+universal, soft-coded, adaptable as the owner plays.**
 
-**Next: feature work.** Owner-priority order: Phase 2c dev-cheat panel
+**Next: sk-rework build 5** — Phase 2c dev-cheat panel
 (`mk_menu_but`; read `hero.ammo`/`hero.hp` directly; persist settings via
-`save/mods/sk-rework.sav`) **plus** the two run-3 UI asks that ride the same
-hook route — an always-visible white/black legend line in the mod menu and a
-Back button (the vanilla menu only has reset / save+reboot). Then ammo
-rework A→B→C, card/enemy pickers, and the exclude-rule rework (remove
-auto-ban of un-chosen offered cards; rebindable exclude button — owner mouse
-has 2 side buttons + middle click; needs a mouse4/5 probe).
+`save/mods/sk-rework.sav`) + mod-menu legend line & Back button + the
+probes that pin the last unknowns (see WORKLIST "Next features" for the
+full probe list: offer roll, full card-field dump, scepters, soul flow,
+damage application point, MOUSE/but/btn input space). One short owner run
+after build 5 unblocks implementing every §0.7 feature on real data.
 
-Verified without the game this session: parser selftest 23/23 + run-3 parse
-(`hooks: 5 · cards: 186` post-dedup) + run-2 regression parse; 3/3 `.ps1`
-tree-sitter clean; tool E2E on disposable run-2/run-3 save copies. Safety
-rules unchanged: no `pcall`, nil/boolean-safe `sv()`, capped loops, probe
-code runs AFTER the READY line.
+Verified without the game this session: parser selftest 23/23 + run-3
+parse (`hooks: 5 · cards: 186` post-dedup) + run-2 regression parse;
+smoke test 29/29 (both `all()` semantics); codec roundtrip on all real
+saves; unlock tool E2E; 3/3 `.ps1` tree-sitter clean; modlist generator
+byte-identical to the game's own file. Safety rules unchanged: no
+`pcall`, nil/boolean-safe `sv()`, capped loops, probe code AFTER the
+READY line.
 
 ## 6. Owner (human) intervention points
 
-- ~~Build-4 runs + uploads~~ **DONE (runs 2 & 3)** — nothing left to harvest
+- ~~Harvest + verification runs~~ **DONE (runs 1–3, consolidated)**
 - Next rebuilt copy (updated repo): one glance — console shows
-  `4/4 applying the 100% unlock...`, copy boots with everything unlocked +
-  sk-rework ON. That closes run 3 fully.
-- Playtest each phase build; report crashes (error text = END of log.txt —
-  but remember: in a rebooted session a missing READY line is the log
-  collision, not a failure)
+  `3b/3` + `4/4 applying the 100% unlock...`, copy boots with everything
+  unlocked + sk-rework ON
+- Playtest build 5 (cheat panel + legend + Back button + probes); report
+  crashes (error text = END of log.txt — a missing READY in a rebooted
+  session is the log collision, not a failure)
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning
 
