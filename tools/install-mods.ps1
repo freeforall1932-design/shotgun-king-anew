@@ -28,7 +28,14 @@ if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
 New-Item -ItemType Directory -Path $tmp | Out-Null
 
 $installed = 0
-Get-ChildItem -LiteralPath $ZipsDir -Filter *.zip | ForEach-Object {
+$zips = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.zip)
+$rars = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.rar)
+if ($rars.Count -gt 0) {
+    Write-Host "NOTE: .rar mods are not auto-installed (e.g. $($rars[0].Name))." -ForegroundColor Yellow
+    Write-Host "      Extract them manually (right-click -> Extract with WinRAR/7-Zip),"
+    Write-Host "      then re-run with -ZipsDir pointing at the EXTRACTED folder." -ForegroundColor Yellow
+}
+$zips | ForEach-Object {
     $zip = $_
     $stage = Join-Path $tmp $zip.BaseName
     Write-Host "`n== $($zip.Name)"

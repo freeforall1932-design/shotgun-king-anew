@@ -12,6 +12,8 @@ param(
     [switch]$GetLog   # just copy the game's log.txt into uploads/game-insights/
 )
 
+$ErrorActionPreference = "Stop"
+
 if ($GetLog) {
     if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetLog" }
     $src = Join-Path $GameDir "log.txt"
@@ -22,8 +24,6 @@ if ($GetLog) {
     Write-Host "Fetched log -> uploads/game-insights/log.txt"
     exit 0
 }
-
-$ErrorActionPreference = "Stop"
 
 $ModDir = Join-Path $Modded $ModName
 if (-not (Test-Path -LiteralPath $ModDir)) {

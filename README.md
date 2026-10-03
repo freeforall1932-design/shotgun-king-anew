@@ -91,6 +91,9 @@ Dev loop, SUGAR API notes, hooking patterns: **[`tools/mod-dev.md`](tools/mod-de
 │   ├── data-sgr-filelist.txt  all 278 files inside data.sgr
 │   └── changelog.md           every change, dated, with reasons
 ├── PLANNING.md            📜 the full plan, corrections & owner decisions
+├── HANDOFF.md             🤝 session handoff — current state, resume here
+├── WORKLIST.md            📋 pending tasks, audit log & live-test tracker
+├── IMPROVEMENTS.md        📈 session-level improvement log
 └── uploads/               📦 (gitignored) game archives, extracted mods, tools
 ```
 
