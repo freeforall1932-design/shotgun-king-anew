@@ -16,7 +16,7 @@ PUNKCAKE's own Pico-8-flavored Lua engine (SUGAR v0.0.6b, by Rémy Devaux /
 | Mod (zip name) | Folder (`name=`) | By | What it is / why we care |
 |---|---|---|---|
 | Better Codex | `show exclude` | Glacies | Codex UI rework; documents card-eligibility rules (max 1 right-click ability, 5 soul slots, 3 scepters, can't have 0 max ammo...) |
-| Disgraced Justice | *(rar — not extracted yet, no unrar in sandbox)* | ? | ? |
+| Disgraced Justice | `disgraced_justice` | Lorina Sonetto & Bob Qwerty | **Custom ally**: recruit the Black Bishop via The Red Book; requires Glacies' Collection; ships an alt `sgk extra compatible script.lua` for Etilon's SGK Extra. Modern format (has info.lua) |
 | Fairy Pieces for SGK (Custom) | `some_fairy_pieces` | sub122 | **Custom chess pieces** (Centaur, Archbishop, Amazon, Prince...) + custom mode `Fairy Endless` + a big custom card pack — richest reference for pieces & cards |
 | Glac Terminal | `glac terminal` | Glacies | **Modder debug tool** ("DOESN'T ADD ANY CONTENT") — likely a console/inspector; study this for our debug toolchain (Phase 2) |
 | Glacies' Collection | `glacies collection` | Glacies | Card/content collection |
