@@ -37,8 +37,24 @@ edit modded/sk-rework/*  →  pwsh tools/apply.ps1 -GameDir "<game folder>"
 ```
 
 Debugging inside the mod: `_log()`, `gimme("global")`, crashlogs land next to
-the exe (see `tools/mod-dev.md`). The 13 reference mods + dev's guide live in
+the exe (see `tools/mod-dev.md`). Reference mods + dev's guide live in
 `uploads/` (inventoried in `notes/mods.md`).
+
+## The "injected" ready-to-play build (game genes, per owner request)
+
+```powershell
+pwsh tools/build-dist.ps1 -GameDir "<your game folder>" -Clean
+```
+
+Copies your game → `dist/ShotgunKing-Modded/` and injects everything:
+13 workshop mods (`dist-overlay/mods/`, names verified against `info.lua`)
++ our `sk-rework`. Play by running the exe inside `dist/` — your original
+folder is never touched. (First launch may need one mod-menu toggle; live
+test will confirm whether present mods auto-enable.)
+
+Save editing (cheat-adjacent, format cracked): `tools/save_codec.py` —
+decode any `save/*.sav` to text, edit, pack back. `prog.sav` = progression
+(unlock weapons/badges/ranks), `stats.sav` = per-card played/ignored memory.
 
 ## Status
 

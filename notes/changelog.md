@@ -14,6 +14,27 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 — Save format cracked + dist injector + mods vendored
+
+- **Save codec**: `save/*.sav` = [4-byte BE length][zlib] + PUNKCAKE
+  serializer text. Verified on all 6 saves (decode/encode/decode roundtrip).
+  `tools/save_codec.py` (CLI decode/pack/scan). Key cheat targets identified:
+  prog.sav (weapons/badges/throne), stats.sav (card offer memory).
+  No mod-enable state in saves → mods likely default-enabled (live test
+  will confirm).
+- **dist-overlay/mods/**: all 13 workshop mods vendored into the branch
+  (owner confirmed: freely distributed via official Discord/Workshop;
+  wants them "injected into the game's genes"). Folder names verified
+  against info.lua name= (disgraced_justice needed a rename — would have
+  been another silent load failure).
+- **tools/build-dist.ps1**: builds dist/ShotgunKing-Modded/ = full game copy
+  + all mods injected + sk-rework + PLAY-THIS.txt. Original folder untouched.
+- **Workspace slimmed**: uploads/game/ (part4 rar copy) deleted — full game
+  still recoverable from branch history + user's PC rars. uploads now ~24MB.
+- why: owner wants zero-hassle play (mods pre-injected) + save modification
+  capability; repo carries small payloads only.
+- status: shipped (live test pending)
+
 ## 2026-10-03 — Owner decisions locked + repo slim-down
 
 - **Decisions recorded in PLANNING.md §0.6**: ammo = A→B→C progressive;

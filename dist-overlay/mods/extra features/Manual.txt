@@ -1,0 +1,14 @@
+Write ban={"CardName1","CardName2"} in weapons/ranks
+-> these cards are banned if the weapon/rank is selected
+
+For animated card art:
+
+Put each frame of animation in the slots after the card in card spritesheet,
+and add animated = <number of frames per loop> to the card in script.lua
+
+These frames will be played on the card in a loop.
+
+To control the speed of the animation, add ani_spd = <slowdown rate> to the card (default 1)
+This is effectively equal to making ani_spd copies of each frame in card spritesheet
+
+To make the animation play only when your mouse is over it, add ov_play = true (default false)

@@ -100,22 +100,27 @@ append("fn_name", nil, "id")    -- unregister a hook
    interface for Castle/Love2D, is). **Decision: don't crack it.** We get the
    same intel at runtime via a debug mod (`gimme("global")` + `_log`) — that's
    Phase 2's first deliverable anyway.
-3. Game internals now known from its own log: runtime SUGAR **v0.0.8f**
-   (manual in the guide covers 0.0.6b — close enough), **LuaJIT 2.1 / Lua
-   5.1**, SDL 3.4.12. Top-level game files: `shotgun_king.exe`,
-   `data.sgr`, `lang/*.txt` (18 languages, **readable string tables incl.
-   card descriptions** — copy in `uploads/game-insights/english.txt`),
-   `mods/` (where mods go), `save/` (game saves + `save/mods/` = per-mod save
-   banks), `settings.txt` (PUNKCAKE serializer text format).
-4. `code.lua`, `code/gameplay.lua`, `code/data.lua`, `code/mods.lua`,
+3. **SAVE FORMAT FULLY CRACKED 2026-10-03** (see tools/save_codec.py):
+   `save/*.sav` = `[4-byte BE plaintext length][zlib stream]`; payload is
+   PUNKCAKE serializer text (`PUNKCAKE\nt{ ... }\nFOREVER`; types: t table,
+   s"key"~: (0x1F before colon), n number, bTrue/bFalse, f"file", s"str").
+   Verified decode+encode on all 6 saves. Files: reg.sav (registry: which
+   files exist), prog.sav (progression: throne lvl, best_time, badges,
+   weapon_unl — the cheat target), stats.sav (per-card played/ignored — the
+   card-offer memory; picker phase can edit it), achievements.sav, runs.sav,
+   misc.sav (codexitems). No mod-enable state anywhere in saves → mods in
+   mods/ are probably enabled by default (unconfirmed; live test will tell).
+4. Game internals known from its log: runtime SUGAR **v0.0.8f**, LuaJIT 2.1 /
+   Lua 5.1, SDL 3.4.12. Top-level files: exe, data.sgr, `lang/*.txt` (18
+   languages, readable string tables — copy in `uploads/game-insights/`),
+   `mods/`, `save/`, `settings.txt`.
+5. `code.lua`, `code/gameplay.lua`, `code/data.lua`, `code/mods.lua`,
    `code/modes/*.lua`, `code/codex.lua`, `code/save.lua`, `code/grid.lua`
    exist INSIDE data.sgr (names + paths known; contents not extractable
    without cracking the format — see 2).
-5. This game copy is a Goldberg-emu repack (steam_settings/, steam_api.dll
+6. This game copy is a Goldberg-emu repack (steam_settings/, steam_api.dll
    9 MB) — not a vanilla Steam install. Fine for mod dev; just don't expect
    Steam Workshop features to work in THIS copy (UPLOAD button needs real
    Steam).
-6. `Disgraced Justice.rar` still unexamined (unrar binary now at
-   `uploads/tools/unrar` — next turn: `./uploads/tools/unrar x ...`).
 7. Reference repos spotted, worth mining later: modderongithub/shotgun-king-mods,
    Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod.
