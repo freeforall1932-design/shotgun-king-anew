@@ -39,6 +39,57 @@
    blocked → git-plumbing pulls. The unrecoverable-looking 4-part split
    archive became fully extractable inside the agent workspace.
 
+## 2026-10-03 — Session 2 (review before live testing)
+
+8. **Confidence replaced with evidence.** Instead of adding features on top of
+   unverified docs, the session produced a verification matrix: what is
+   mechanically proven in-sandbox (save tooling E2E, name-matching, Lua
+   syntax, PowerShell parse), what is code-complete but unproven in-game, and
+   what is blocked. Overclaims ("✅ shipped") were removed.
+9. **The README now answers the only question that blocked the owner** —
+   "does this patch my install or build a clone?" — in the first screen, with
+   a per-tool target/undo table. Roadmap noise moved out of the play path.
+10. **Review paid for itself immediately**: two real defects found and fixed
+    (a quick-start ordering bug that would have made the 100% save *look*
+    broken — unlocking the original install while playing the copy — and a
+    latent `throne`-table data loss in the save tool), plus three robustness
+    fixes. All fixes carry tests run in-sandbox.
+11. **Static analysis where execution is impossible.** No PowerShell runtime
+    exists here, so the `.ps1` files are now syntax-parsed with
+    tree-sitter-powershell (available via pip); it caught the one ambiguous
+    construct in `build-dist.ps1`.
+
+12. **One canonical path, alternatives quarantined.** `INSTALL.md` is now the
+    only place with steps; the README summarizes and links instead of
+    repeating (duplicate instructions are how contradictions are born).
+    Variations (different paths, unlocks-only, modding the real install, dev
+    loop) live in a clearly-marked section at the end, so the main flow can't
+    be confused with an edge case. Boundaries are explicit: the owner's job
+    is Steps 1–7; everything else is development that will arrive with its
+    own instructions.
+
+## 2026-10-03 — Session 2b (self-logging diagnostics)
+
+13. **The patch proves itself.** Instead of asking the owner to trust that a
+    silent mod loaded, the diagnostics build now emits its own verdict chain:
+    load banner → API existence check → hook registration lines → heartbeat →
+    `SK-REWORK: READY`. A failed load is now diagnosable from the log alone
+    (and `parse_log.py` says so explicitly, with the log tail).
+14. **Logging designed for a parser, not for humans.** Every line has a stable
+    prefix and `k=v` payload, so `tools/parse_log.py` can rebuild the function
+    map, the live object model and per-TBD candidate lists automatically —
+    the "map fills itself" step, with zero manual grepping.
+15. **A fake game engine in CI.** `mod_smoketest.py` runs the real `script.lua`
+    against a synthetic SUGAR environment (lupa) under **both** possible
+    `all()` semantics, then pipes the output through the parser. It caught a
+    boolean-concatenation crash and a nested-table blind spot before the owner
+    ever ran the game — the class of bug that would otherwise waste a live
+    test cycle.
+16. **Engine facts pinned from usage, not assumption.** Reading how the 13
+    shipped mods actually call things (all() yields values; on_* dispatch comes
+    from the Terminal mod; append() on globals is the reliable hook) turned
+    guesswork into a design the live log will confirm or refute explicitly.
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)

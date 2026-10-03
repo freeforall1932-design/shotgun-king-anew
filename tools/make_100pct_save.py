@@ -19,7 +19,13 @@ Usage (works with stock python.org Python 3, no dependencies):
     python tools/make_100pct_save.py --game-dir ... --dry-run   # show, don't write
     python tools/make_100pct_save.py --game-dir ... --restore   # restore newest backup
 
-Game must NOT be running while you write saves.
+--game-dir points at the game folder whose save/ you want to change. To unlock
+a modded copy built by tools/build-dist.ps1, pass that copy's folder:
+    python tools/make_100pct_save.py --game-dir "dist\\ShotgunKing-Modded"
+
+The game must have been launched (and closed) at least once so its save files
+exist; the tool refuses with instructions otherwise. Game must NOT be running
+while you write.
 Format docs: tools/save_codec.py (parse/serialize verified lossless on all
 six v1.623b saves). Untested against a live game until the first playtest —
 keep the backup.
@@ -35,13 +41,29 @@ CARDS = ['A Piercing Truth', 'Ambush', 'Ammunition Depot', 'Analysis Paralysis',
 WEAPONS = list(range(2, 10))       # 9 shotguns; 1 = default (no unlock key)
 RANKS = 20                         # highest rank shown in game
 ENDLESS_FLOOR = 15                 # chase mode unlocks at floor 15 in endless
+REQUIRED_SAVES = ("achievements.sav", "prog.sav", "stats.sav")
 
 
-def find_save_dir(game_dir: str) -> str:
-    cand = os.path.join(game_dir, "save")
-    if os.path.isdir(cand):
-        return cand
-    raise SystemExit(f"no save/ folder inside {game_dir}")
+def save_dir_for(game_dir: str) -> str:
+    return os.path.join(game_dir, "save")
+
+
+def require_saves(game_dir: str) -> str:
+    """The save dir + the 3 files this tool edits must already exist."""
+    save_dir = save_dir_for(game_dir)
+    if not os.path.isdir(save_dir):
+        raise SystemExit(
+            f"no save/ folder inside {game_dir}\n"
+            "  -> launch the game once and quit normally so it creates its "
+            "saves, then re-run this tool.")
+    missing = [f for f in REQUIRED_SAVES
+               if not os.path.isfile(os.path.join(save_dir, f))]
+    if missing:
+        raise SystemExit(
+            f"missing save file(s) in {save_dir}: {', '.join(missing)}\n"
+            "  -> launch the game once and quit normally so it creates its "
+            "saves, then re-run this tool.")
+    return save_dir
 
 
 def main(argv):
@@ -49,23 +71,28 @@ def main(argv):
         print(__doc__)
         return 1
     game_dir = argv[argv.index("--game-dir") + 1]
-    save_dir = find_save_dir(game_dir)
+    if not os.path.isdir(game_dir):
+        raise SystemExit(f"game folder not found: {game_dir}")
     dry = "--dry-run" in argv
 
     if "--restore" in argv:
-        backups = sorted(d for d in os.listdir(os.path.dirname(save_dir))
+        backups = sorted(d for d in os.listdir(game_dir)
                          if d.startswith("save_backup_"))
         if not backups:
-            raise SystemExit("no backup found")
-        src = os.path.join(os.path.dirname(save_dir), backups[-1])
-        print(f"restoring {src} -> {save_dir}")
-        shutil.rmtree(save_dir)
-        shutil.copytree(src, save_dir)
+            raise SystemExit(f"no save_backup_* folder found in {game_dir}")
+        src = os.path.join(game_dir, backups[-1])
+        dst = save_dir_for(game_dir)
+        print(f"restoring {src} -> {dst}")
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
         return 0
+
+    save_dir = require_saves(game_dir)
 
     # ---- backup ----
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    bak = os.path.join(os.path.dirname(save_dir), f"save_backup_{stamp}")
+    bak = os.path.join(game_dir, f"save_backup_{stamp}")
     if not dry:
         shutil.copytree(save_dir, bak)
         print(f"backup  -> {bak}")
@@ -83,7 +110,7 @@ def main(argv):
     # ---- prog.sav: weapons, ranks, badges, endless floor ----
     p = os.path.join(save_dir, "prog.sav")
     prog = load_save(p)
-    throne = prog.get("throne", {})
+    throne = prog.setdefault("throne", {})   # F2: must exist in prog, not a copy
     unl = throne.setdefault("weapon_unl", {})
     for w in WEAPONS:
         unl[w] = b(True)

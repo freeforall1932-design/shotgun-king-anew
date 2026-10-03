@@ -5,9 +5,10 @@ by="freeforall1932"
 description=[[
 Ammo & gameplay rework (private personal-use project).
 
-Phase 2 stub: dumps the game's global function/variable map to log.txt
-(lines prefixed SKG=, SKR=, SKF=) so we can finish the code map.
-No gameplay changes yet.
+Diagnostics build 3: checks its own load + hooks, dumps the game's function
+map and live game state to log.txt (lines prefixed SK-REWORK:, SKG|, SKA|,
+SKH|, SKE|, SKO|, SKW|). It changes nothing in the game - it just reports
+what it sees so the rework can be built on real data.
 ]]
 
 cover="cover.png"

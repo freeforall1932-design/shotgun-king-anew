@@ -14,6 +14,116 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 2b) — Self-logging diagnostics build + log parser
+
+- **`modded/sk-rework/script.lua` → diagnostics build 3.** Owner asked that
+  the mod "log itself, or the game state during live testing, if the patch was
+  successful". It now:
+  - proves itself: load banner with build id, `MODLIST` self-check,
+    `SK-REWORK: READY build=3 hooks=5 globals=N` marker;
+  - self-checks the API: `SKA|<name>|YES/no` for 38 globals the project
+    plans to use (so we stop coding against names that don't exist);
+  - dumps the function map: `SKG|`/`SKR|`/`SKF|` (as before) + counts;
+  - hooks 5 proven game globals via `append()` (`new_turn`, `new_level`,
+    `setup_piece`, `add_card`, `init_game`) and logs each registration
+    (`SKH|`) — hooks are the proven mechanism for *script.lua*; `on_*`
+    callbacks are only probed (`SKE2|`) because independent workshop mods
+    never rely on them (the "Glacies Module Terminal" mod supplies that
+    dispatch). Comparing `SKE|` vs `SKE2|` counts in the log settles it.
+  - logs live state: `SKW|turn=…|bads=…|bullets=…|hero_px=…|hero_py=…` each
+    turn, `SKO|hero|…` / `SKO|piece|…` / `SKO|card|…` object field dumps,
+    `SKO|disp_stats|…` from `edit_disp_stats` (the fastest route to the real
+    ammo/health field names), plus a 900-frame heartbeat.
+  - safety: no `pcall` exists in this engine (no shipped mod uses it), so
+    every value goes through a nil/boolean/table-safe `sv()`, all loops are
+    capped (first 30 hits then every 25th) and no gameplay logic is touched.
+- **`tools/parse_log.py` (NEW)** — parses those lines into
+  `notes/game-map-draft.md`: mod-load verdict, API availability, hook list,
+  **event-dispatch verdict** (append vs on_*), live state samples, discovered
+  object model, and keyword-grouped candidate names for each `map.md` TBD
+  (ammo/damage/spawn/cards/turn/UI/save/shots). `--print`, `--json`,
+  `--selftest` (16/16). If the log has no SK-REWORK lines it says so and
+  prints the log tail, where the game writes the Lua error.
+- **`tools/mod_smoketest.py` (NEW)** — runs `script.lua` against a **fake
+  SUGAR environment** (lupa), fires the hooks, and feeds the captured lines
+  to the parser: 27/27 checks, run twice (once per possible `all()` semantics,
+  since the engine's iterator is only known from usage in the workshop mods).
+  Caught two real defects before the owner's live test — see below.
+- 🐛 **Fixed (found by the smoke test):** `sv()` would concatenate a boolean
+  (`mod.active`) — a runtime error in Lua 5.1; now booleans/ nil/ tables are
+  handled explicitly. Also `dump_fields` skipped nested tables, which would
+  have hidden the `{id=,name=,value=}` shape of the displayed-stats table —
+  i.e. exactly where the ammo stat name lives; it now expands one level.
+- **Docs**: `tools/mod-dev.md` gained the log-line reference + parser/smoke
+  test usage; `INSTALL.md` step 5 shows what "it worked" looks like (READY
+  line etc.) and step 6 mentions the parser; README tool table + status rows
+  updated.
+- why: owner wanted the patch to prove itself during live testing and log
+  game state, rather than only dumping a name list.
+- status: shipped (fully tested without the game; live run still pending)
+
+## 2026-10-03 (session 2b) — One canonical install path (INSTALL.md)
+
+- **`INSTALL.md` (NEW)** — the owner asked for an unambiguous, step-by-step
+  install and a clear division between live testing and the dev roadmap.
+  Contains: the "whole repo, not one file" answer (mods are folders; nothing
+  patches the exe); the canonical layout `E:\testing\{game, repo,
+  ShotgunKing-Modded}`; Steps 1–7 with a check after each; a success/report
+  checklist; an explicit "your part ends at Step 7 / development is mine"
+  boundary with the phase table; undo table; troubleshooting; and a
+  clearly-marked Variations section (paths, unlocks-only, real-install mods,
+  dev loop) so alternatives can't be mistaken for the main flow.
+- **`README.md`** — top callout points to INSTALL.md; the "First run" section
+  became a 7-row summary + link (two competing checklists was itself a
+  contradiction risk); fixed stale step references; layout section includes
+  INSTALL.md.
+- **`tools/build-dist.ps1`** — usage header documents the canonical
+  `-OutDir "E:\testing"` invocation; `PLAY-THIS.txt` is now generated with
+  the real source path and the exact unlock command for that copy; the end of
+  the run prints the playable exe path, the next action, and the `-GetLog`
+  command; exe auto-detect prefers names matching shotgun/king.
+  **NEW `-NoInheritMods` switch** (closes review F7): drops the source
+  game's `mods\` from the copy so a build contains exactly the 14 known-good
+  mods — the owner's base game demonstrably contains stray mods
+  (King's Court.rar etc.), which would otherwise be inherited silently.
+- why: owner found the README ambiguous about what to download, where to put
+  things, and which steps were theirs.
+- status: shipped (docs + script output; 3/3 ps1 re-parsed clean)
+
+## 2026-10-03 (session 2) — Readiness review + README rewrite + tool fixes
+
+- **`notes/review-2026-10-03.md` (NEW)** — pre-live-test review: per-tool
+  target/undo table, per-artifact verification status, findings F1–F9, risks,
+  risk-ordered test ladder. Written because the owner found the README
+  ambiguous about whether tools patch the install or build a clone.
+- **`README.md` rewritten** — "Does this touch my real game install?" is now
+  the first section (answer: the play path builds a copy; "injection" only
+  ever = adding folders under `mods/`); status table uses honest
+  ✅ verified / 🟡 ready-but-unproven / ⛔ blocked states instead of
+  "shipped"; dev roadmap reduced to a short pointer; safe first-run checklist
+  added (dry run → build copy → launch → -GetLog → optional 100% save).
+- **`tools/make_100pct_save.py`** — F2: `throne` table was dropped when the
+  save lacked the key (`prog.get` → `prog.setdefault`); F3: friendly
+  instructions instead of tracebacks when `save/` or its three `.sav` files
+  don't exist yet; `--restore` now works even if `save/` was deleted;
+  backup path made explicit (`game_dir`, not `dirname(save_dir)`).
+  Regression-tested end-to-end on disposable synthetic saves.
+- **`tools/save_codec.py`** — F4: `--help`/no args prints usage (previously
+  tried to decode a file named "--help").
+- **`tools/build-dist.ps1`** — F5: stray-archive cleanup rewritten with
+  `Where-Object { $_.Extension -in ... }` (the old `-LiteralPath` + `-Include`
+  combination is a PowerShell grey zone and the unquoted wildcard list was the
+  one construct flagged by a tree-sitter parse); `PLAY-THIS.txt` now states
+  the copy semantics and includes the unlock-the-copy recipe; typo `game''s`
+  fixed.
+- **`HANDOFF.md` / `WORKLIST.md`** — branch name corrected to the current
+  session branch; live tests re-cast as the risk-ordered ladder (Step 4 =
+  the only blocker); new "ready now, not blocked" list (log parser first).
+- why: owner asked for a review before live testing, and to have the README
+  reworded so it distinguishes "clone with injected mods" from "modifying my
+  base install".
+- status: shipped (docs + tool fixes verified in sandbox; live run pending)
+
 ## 2026-10-03 — Audit + 100% save generator + main-disposal merge + pro README
 
 - **Audit pass**: purged Godot-era leftovers (tools/repack.md, game-dump/,
