@@ -122,49 +122,51 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 5)
+## 5. Current state & immediate next step (session 5b)
 
-**Live test run 2 is done and absorbed — every harvest goal is met.** Build 4
-ran clean (`READY build=4 hooks=5 globals=920`), the `-GetInsights` pack
-delivered both remaining unknowns: the `mods/modlist.lua` byte format (→
-`build-dist.ps1` now pre-enables `sk-rework`, new `-AllModsOn` switch; closes
-owner critique #2) and the full card set (186 CARDS + 9 special keys = 195 →
-`make_100pct_save.py` card list corrected; the old 170-list missed 25 real
-cards). Run 2 also corrected run 1's biggest mistake: **mods are OFF by
-default** (black text = OFF, white = ON) — all docs rewritten accordingly,
-and sk-rework's info.lua description now carries the white/black legend the
-owner asked to see in-game (an always-visible legend line in the menu itself
-needs a draw hook → queued with Phase 2c).
+**Runs 2 AND 3 are absorbed — every verification goal is met and the last
+toolchain gap is closed.** Run 3 (owner: `-Clean -NoInheritMods` rebuild,
+played without touching the mod menu, then toggled one mod on/off and hit
+save-and-reboot) proved live: **pre-enable works** (`3b/3` line in console,
+copy booted with sk-rework ON / 13 workshop mods OFF, harvested modlist.lua
+matches the build's order byte-for-byte) and **the legend text shipped**
+(it's in the SKM desc dump of the run-3 log). Run 3's one gap — the owner
+saw no all-unlock because the separate tool step was easy to miss — is fixed
+by **unification: `build-dist.ps1` step 4/4 now applies `make_100pct_save.py`
+to the copy automatically** (`-NoUnlockAll` skips; python/py auto-detected;
+graceful when no `save\` yet).
 
-New intel banked in `notes/map.md`: per-mod save system (`save/mods/*.sav`
-plaintext + `reg.sav` registry; `MODSAV`/`save` globals), game-made
-`.sav.bak` snapshots, `loadfile` absent from the mod env, full MODLIST entry
-fields, `special=` mechanic flags on 10 cards. One analysis bug was caught
-and corrected in-session (bool-vs-string compare briefly suggested
-"modded sessions wipe achievements" — false; all 128 stayed True).
+Run 3 also surfaced a new engine fact (banked in `notes/map.md`): the mod
+menu's **save-and-reboot soft-reboots inside the same log.txt** — mods run
+twice (double dumps) and the reboot can truncate in-flight `_log()` lines
+(run-3 boot 1's card dump cut at card 177, READY line lost — NOT a mod
+failure). `parse_log.py` now dedupes multi-boot logs (cards by id, hooks by
+target+id).
 
-**Feature work is now unblocked**, in owner-priority order: Phase 2c
-dev-cheat panel (`mk_menu_but`; read `hero.ammo`/`hero.hp` directly,
-`get_disp_stats` is a global; persist panel settings via the mod's own
-`save/mods/sk-rework.sav` slot), ammo rework A→B→C, card/enemy pickers
-(card.id = display name; `pwe` live-confirmed).
+**Next: feature work.** Owner-priority order: Phase 2c dev-cheat panel
+(`mk_menu_but`; read `hero.ammo`/`hero.hp` directly; persist settings via
+`save/mods/sk-rework.sav`) **plus** the two run-3 UI asks that ride the same
+hook route — an always-visible white/black legend line in the mod menu and a
+Back button (the vanilla menu only has reset / save+reboot). Then ammo
+rework A→B→C, card/enemy pickers, and the exclude-rule rework (remove
+auto-ban of un-chosen offered cards; rebindable exclude button — owner mouse
+has 2 side buttons + middle click; needs a mouse4/5 probe).
 
-Verified without the game this session: `parse_log.py --selftest` 23/23 +
-run-2 re-parse (summary: `mods: 14 · cards: 186`); `mod_smoketest.py` 29/29
-under both `all()` semantics; codec roundtrip byte-identical on run-2's 6
-saves; 100% tool E2E on a disposable copy of the run-2 save (128 True + 195
-cards); 3/3 `.ps1` tree-sitter parse clean; modlist.lua generator verified
-byte-identical to the game's own file. Safety rules unchanged: no `pcall`,
-nil/boolean-safe `sv()`, capped loops, probe code runs AFTER the READY line.
+Verified without the game this session: parser selftest 23/23 + run-3 parse
+(`hooks: 5 · cards: 186` post-dedup) + run-2 regression parse; 3/3 `.ps1`
+tree-sitter clean; tool E2E on disposable run-2/run-3 save copies. Safety
+rules unchanged: no `pcall`, nil/boolean-safe `sv()`, capped loops, probe
+code runs AFTER the READY line.
 
 ## 6. Owner (human) intervention points
 
-- ~~Build-4 run + `-GetInsights` upload~~ **DONE (run 2)** — nothing left to
-  harvest; feature work unblocked
-- Next launch of a rebuilt copy: sanity-check that `sk-rework` boots ON with
-  no manual toggling, and that the legend text shows in its mod-menu
-  description
-- Playtest each phase build; report crashes (error text = END of log.txt)
+- ~~Build-4 runs + uploads~~ **DONE (runs 2 & 3)** — nothing left to harvest
+- Next rebuilt copy (updated repo): one glance — console shows
+  `4/4 applying the 100% unlock...`, copy boots with everything unlocked +
+  sk-rework ON. That closes run 3 fully.
+- Playtest each phase build; report crashes (error text = END of log.txt —
+  but remember: in a rebooted session a missing READY line is the log
+  collision, not a failure)
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning
 

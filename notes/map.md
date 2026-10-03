@@ -140,6 +140,21 @@ OBSERVED facts — prefer them over anything guessed above.
   markers; `_log()` output included. `tools/parse_log.py` strips them now
   (the first live test exposed that missing this = false "mod did not run").
 - Lua errors appear at the END of log.txt (confirmed pattern).
+- **Mod-menu "save and reboot" = soft reboot inside the SAME log.txt**
+  (run 3): subsystems shut down (`Deleting window… main loop exit`), then
+  data.sgr + all mods RELOAD (every mod script runs a second time → all
+  dumps appear twice) — there is no second `Starting log.` line.
+- **Log-write collision on that reboot path** (run 3): the engine's writes
+  landed on top of an in-flight mod `_log()` line (boot 1's SKC dump was
+  truncated mid-line at card 177 and its tail — 9 cards, `SKC count`,
+  `READY`, `loadfile`, `PROBE done` — was lost; line order around the
+  transition is non-chronological). So **a missing READY line in a
+  rebooted session does NOT mean the mod failed** — check the BUILD banner
+  and the post-reboot load. `parse_log.py` now dedupes multi-boot dumps
+  (cards by id, hooks by target+id; last occurrence wins).
+- The engine looks for `save/mods/<mod>.bnk` at each boot
+  (`!! Could not open file … .bnk` warning, benign — the per-mod save slot
+  works without it; related globals: `bank`, `_savbnk`, `MODSAV`).
 
 ### Mod loading & enable state (run 2 corrected run 1's guess)
 - **Mods start OFF by default.** The mod menu shows untouched mods in black

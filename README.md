@@ -55,7 +55,7 @@ Honest status, because "it's written" is not the same as "it's been run":
 | `sk-rework` diagnostics mod (build 4) | ✅ live-proven | build 3 ran twice in the real game (load proof, 920 globals, hooks, live state); build 4 adds the mod-list + card-id harvest and drops the dead `on_*` probes |
 | `tools/parse_log.py` log parser | ✅ live-proven | turned the first real `log.txt` into `notes/game-map-draft.md`; prefix-stripping bug found & fixed by the live test; selftest 23/23 |
 | `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 29/29 checks under both engine semantics |
-| `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (with and without `-NoInheritMods`); copy played fine |
+| `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
 | `tools/save_codec.py` | ✅ verified | byte-identical parse/serialize on all 6 real saves (earlier session); re-tested end-to-end now |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
 | Ammo rework, card/enemy pickers, cheat panel | 🟢 unblocked | the live function map is in (`notes/game-map-draft.md`); feature work can start |
@@ -87,7 +87,7 @@ In 20 seconds, it goes:
 | 4 | `build-dist.ps1` → `E:\testing\ShotgunKing-Modded` | the copy only |
 | 5 | launch the copy, play a couple of turns, note the mod menu, quit | game's own files |
 | 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
-| 7 | *optional:* `make_100pct_save.py` unlock-all, in the copy | copy's `save\` (backed up) |
+| 7 | automatic: the build's 4/4 step unlock-alls the copy (manual only if skipped) | copy's `save\` (backed up) |
 
 Step 6 is what unblocks all feature work: our diagnostics mod writes its own
 load/hook proof plus a live dump of the game's functions, state and objects

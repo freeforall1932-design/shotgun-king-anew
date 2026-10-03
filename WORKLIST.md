@@ -38,17 +38,27 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (+ owner ask from run 2: an always-visible "white = ON / black = OFF"
       legend line in the mod menu itself — needs a draw hook on the mods
       menu; the legend currently lives in sk-rework's description text)
+- [ ] **Mod-menu Back button** (owner ask, run 3): the game's mod menu only
+      offers reset / save+reboot — no way out without rebooting. Add a Back
+      button via the same UI-hook route as the legend (Phase 2c work)
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
+- [ ] **Exclude-rule rework** (owner ask, run 3): vanilla auto-bans the
+      un-chosen offered cards after you pick one — remove that rule, and
+      make the exclude/right-click action rebindable (owner mouse: 2 side
+      buttons + middle click). Needs offer-roll internals (`EXCLUDE`
+      global, live-seen `exclude.N` card lists) + whether SUGAR exposes
+      mouse4/mouse5 to mods (probe needed)
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
       (persist knobs via the mod's own `save/mods/sk-rework.sav` slot —
       run-2-verified per-mod save system)
 - [x] ~~**Pre-enable mods from the toolchain** (owner critique #2)~~ —
-      shipped session 5: `build-dist.ps1` writes `mods/modlist.lua`
-      (byte-format live-verified run 2); `sk-rework` starts ON, workshop
-      mods start OFF, `-AllModsOn` flips everything on
+      shipped session 5, **verified live run 3**
+- [x] ~~**Unify the 100% unlock into the build** (owner run-3 request)~~ —
+      shipped session 5b: `build-dist.ps1` step 4/4 applies it
+      automatically (`-NoUnlockAll` to skip)
 
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
@@ -104,6 +114,34 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    scope, decree, grenade, orb, dig).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 5b — run 3 absorbed; unlock unified into the build):**
+- ✅ **Pre-enable verified live (run 3, owner-confirmed):** build console
+      showed `3b/3 wrote mods/modlist.lua`; the copy booted with sk-rework
+      ON and all 13 workshop mods OFF with zero menu visits; harvested
+      modlist.lua matches the build's written order exactly
+- ✅ **Unlock-all unified into `build-dist.ps1` (owner run-3 request):**
+      new step 4/4 runs `make_100pct_save.py` on the copy automatically
+      (python/py auto-detected; `-NoUnlockAll` skips; friendly fallback if
+      no `save\` yet or no python). Run-3's saves showed why: owner never
+      ran the separate tool (27 achievements / 163 cards / rank 6 = real
+      progress), so "i didnt see the all unlock" — now it can't be missed
+- ✅ **Legend text live:** the mod-menu legend (white=ON/black=OFF) shipped
+      in sk-rework's description — visible in the run-3 log's SKM desc dump
+- 🐛 FOUND + FIXED: **multi-boot logs** — the mod menu's "save and reboot"
+      soft-reboots inside the same log.txt, all mod dumps appear twice, and
+      the reboot can truncate in-flight `_log()` lines (boot 1's SKC dump
+      cut at card 177; READY line lost — NOT a mod failure).
+      `parse_log.py` now dedupes (cards by id, hooks by target+id);
+      documented in map.md so a missing READY is never misread again
+- ⚠️ Owner also toggled one workshop mod ON then OFF before save-and-reboot
+      (their note) — final modlist state stayed sk-rework-only, as expected
+- 📋 NEW asks logged (run-3 critique): exclude-rule rework + rebindable
+      exclude button (Phase 4), mod-menu back button (Phase 2c, the menu
+      only offers reset / save+reboot)
+- ✅ Verified this session: parser selftest 23/23 + run-3 parse
+      (`hooks: 5 · cards: 186` after dedup); 3/3 `.ps1` tree-sitter clean;
+      run-2 regression parse unchanged
 
 **2026-10-03 (session 5 — live test run 2 absorbed; feature work unblocked):**
 - ✅ run-2 `-GetInsights` pack parsed: build 4 all-probes-good
@@ -251,11 +289,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 👑 Owner to-do
 
-1. ~~One short build-4 run + `-GetInsights` upload~~ **DONE (run 2)** — both
-      remaining unknowns delivered (modlist.lua format + full card set).
-      Feature work is unblocked; next owner action = playtest Phase 2c
-      (dev-cheat panel) when that build ships.
-2. Optional quick check next run: confirm the build now boots with sk-rework
-      already ON (no manual toggling) and that the mod-menu legend text
-      shows in sk-rework's description.
+1. ~~Build-4 run + `-GetInsights` upload~~ **DONE (runs 2 & 3)** — all
+      harvest + verification goals met. Nothing left to collect.
+2. Next launch of a rebuilt copy (with the updated repo): build console
+      should show `4/4 applying the 100% unlock...` and the copy should
+      boot with **everything unlocked from the start** (128 achievements,
+      all shotguns, codex 100%) plus sk-rework already ON. That single
+      check closes run 3 completely.
 3. At deployment: flip private; optionally scrub history; or archive repo

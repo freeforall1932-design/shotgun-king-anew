@@ -1,6 +1,6 @@
-# Draft game map — generated from `run-2-log.txt`
+# Draft game map — generated from `log.txt`
 
-> Generated 2026-10-03 16:15 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
+> Generated 2026-10-03 17:16 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
 
 ## 1. Did the mod load?
 
@@ -25,10 +25,10 @@ Registered (append) hooks:
 
 | event | via append() hook | via on_* callback probe |
 |---|---|---|
-| add_card | 3 | — |
-| init_game | 3 | — |
-| new_level | 3 | — |
-| setup_piece | 100 (sampled: 33 lines) | — |
+| add_card | 4 | — |
+| init_game | 4 | — |
+| new_level | 6 | — |
+| setup_piece | 125 (sampled: 34 lines) | — |
 
 - **Verdict:** append() hooks fire, `on_*` probes do not → for plain mods, events must be hooked with `append()` on game globals (the `on_*` dispatch comes from the Glacies Module Terminal mod, matching what the workshop mods show).
 
@@ -36,24 +36,24 @@ Registered (append) hooks:
 
 | turn | bads | bullets | hero_px | hero_py |
 |---|---|---|---|---|
-| 1 | 12 | 0 | 3 | 7 |
-| 2 | 12 | 0 | 2 | 6 |
-| 3 | 12 | 0 | 1 | 5 |
-| 4 | 12 | 0 | 2 | 4 |
-| 5 | 12 | 0 | 2 | 4 |
+| 1 | 11 | 0 | 4 | 7 |
+| 2 | 11 | 0 | 3 | 6 |
+| 3 | 11 | 0 | 2 | 5 |
+| 4 | 11 | 0 | 2 | 5 |
+| 5 | 9 | 0 | 2 | 5 |
 | … | … | … | … | … |
-| 28 | 2 | 0 | 1 | 2 |
-| 29 | 2 | 0 | 1 | 2 |
-| 30 | 2 | 0 | 1 | 2 |
-| 50 | 6 | 0 | 4 | 5 |
-| 75 | 5 | 0 | 2 | 2 |
+| 27 | 4 | 0 | 2 | 5 |
+| 28 | 3 | 0 | 2 | 5 |
+| 29 | 2 | 0 | 2 | 5 |
+| 30 | 2 | 0 | 3 | 5 |
+| 50 | 5 | 0 | 3 | 6 |
 
 ## 5. Object model (real field names from the running game)
 
-- **piece**: `hh=16`, `flx=false`, `hp=4`, `hp_max=5`, `seek=bdist`, `dcx=0`, `dcy=0`, `team=1`, `fields_shown=8`, `reap=1`
-- **hero**: `hh=16`, `flx=false`, `hp=8`, `hp_max=8`, `tracked=1`, `mastermind=1`, `seek=wdist`, `dcx=0`, `dcy=0`, `fields_shown=9`
-- **hero.sq**: `hh=16`, `flx=false`, `dan=0`, `highlight=false`, `px=3`, `dcx=0`, `dcy=0`, `p.hh=16`, `p.flx=false`, `p.hp=8`, `p.hp_max=8`, `p.tracked=1`, `p.mastermind=1`, `dist=0`, `wdist=0`, `we=0`, `fields_shown=16`
-- **card**: `hh=16`, `flx=false`, `tws=30`, `sx=104`, `sy=69`, `ey=141`, `dcx=0`, `dcy=0`, `team=0`, `fields_shown=11`, `ammo_regen=1`, `firerange=1`
+- **piece**: `vy=0`, `frict=1`, `sq.x=128`, `sq.y=30`, `sq.vy=0`, `sq.frict=1`, `sq.fly=false`, `sq.dp=1`, `hdy=0`, `we=0`, `name=bishop`, `cd=0`, `vx=0`, `dcx=0`, `dcy=0`, `fields_shown=15`, `nocarry=1`, `reap=1`
+- **hero**: `vy=0`, `frict=1`, `sq.vy=0`, `sq.frict=1`, `sq.dist=0`, `sq.we=0`, `sq.vx=0`, `sq.dcx=0`, `free_souls=0`, `hdy=0`, `sweaty=false`, `grenade_ready=false`, `we=0`, `name=king`, `cd=3`, `fields_shown=15`
+- **hero.sq**: `vy=0`, `frict=1`, `dist=0`, `p.vy=0`, `p.frict=1`, `p.free_souls=0`, `p.hdy=0`, `p.sweaty=false`, `op.vy=0`, `op.frict=1`, `op.free_souls=0`, `op.hdy=0`, `op.sweaty=false`, `we=0`, `vx=0`, `dcx=0`, `dcy=0`, `fr=0`, `hh=16`, `flx=false`
+- **card**: `vy=0`, `frict=1`, `we=0`, `vx=0`, `dcx=0`, `dcy=0`, `ww=16`, `fields_shown=8`, `gain.1=2`, `gain.2=1`, `gain.3=2`, `gain.4=3`, `hop_dmg=1`, `bishop_orth=1`
 
 ## 6. Function map (candidates for the TBD areas)
 
@@ -252,20 +252,20 @@ xpl_king                    ysort
 
 ## 10. Mod list (live MODLIST dump)
 
-- entry 1: `author=freeforall1932`, `cover=mods/sk-rework/cover.png`, `active=true`, `priority_hint=0`, `desc=Ammo & gameplay rework (private personal-use project).`, `num=1`, `save=sk-rework`, `folder=mods/sk-rework`, `mode_description=tbl`, `here=true`, `name=sk-rework`, `title=SK Rework`
-- entry 2: `author=matheo000`, `cover=mods/the_magnificient_quartz_army/tmqa_cover.png`, `active=false`, `priority_hint=5`, `mode_description=tbl`, `here=true`, `script=mods/the_magnificient_quartz_army/script.lua`, `save=the_magnificient_quartz_army`, `folder=mods/the_magnificient_quartz_army`, `modes=tbl`, `exists=true`, `langs=tbl`
-- entry 3: `id=3342310033`, `save=some_fairy_pieces`, `folder=mods/some_fairy_pieces`, `modes=tbl`, `langs=tbl`, `script=mods/some_fairy_pieces/script.lua`, `author=sub122`, `cover=mods/some_fairy_pieces/cover_sfps.png`, `active=false`, `priority_hint=1`, `mode_description=tbl`, `mode_record=tbl`
-- entry 4: `author=unknown2559`, `cover=mods/Shootout/cover.png`, `active=false`, `priority_hint=0`, `desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'`, `save=Shootout`, `folder=mods/Shootout`, `modes=tbl`, `here=true`, `name=Shootout`, `title=Shootout: the Rifle King Adventure`, `exists=true`
-- entry 5: `author=Lorina Sonetto & Bob Qwerty`, `active=false`, `priority_hint=0`, `desc=Broken oaths and holy corruption.`, `save=disgraced_justice`, `folder=mods/disgraced_justice`, `here=true`, `name=disgraced_justice`, `title=Disgraced Justice`, `script=mods/disgraced_justice/script.lua`, `exists=true`
-- entry 6: `author=Glacies`, `cover=mods/extra features/cover.png`, `active=false`, `priority_hint=0`, `desc=This mod itself doesn't add any content. Only empowers other mods to have additional features.`, `save=extra features`, `folder=mods/extra features`, `id=3145848395`, `mode_description=tbl`, `here=true`, `name=extra features`, `title=Glacies' Extra Features`
-- entry 7: `author=Glacies`, `cover=mods/glacies collection/cover.png`, `active=false`, `priority_hint=0`, `desc=Adds a bunch of ingame mechanics that can be used by other mods,`, `save=glacies collection`, `folder=mods/glacies collection`, `id=3148586988`, `mode_description=tbl`, `here=true`, `name=glacies collection`, `title=Glacies' Collection`
-- entry 8: `author=Glacies`, `cover=mods/grenade predictor/cover.png`, `active=false`, `priority_hint=0`, `desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.`, `mode_record=tbl`, `save=grenade predictor`, `folder=mods/grenade predictor`, `id=3449354474`, `mode_description=tbl`, `here=true`, `name=grenade predictor`
-- entry 9: `author=Glacies`, `cover=mods/nightmare/cover.png`, `active=false`, `priority_hint=0`, `desc=The title is a lie. This mod isn't as hard as a nightmare at all.`, `id=3197738029`, `mode_record=tbl`, `save=nightmare`, `folder=mods/nightmare`, `modes=tbl`, `mode_description=tbl`, `here=true`
-- entry 10: `author=Glacies`, `cover=mods/retry/cover.png`, `active=false`, `priority_hint=0`, `desc=Restarts the current floor after you die.`, `save=retry`, `folder=mods/retry`, `id=3626751996`, `mode_description=tbl`, `here=true`, `name=retry`, `title=Retry after Death`
-- entry 11: `author=Glacies`, `cover=mods/show exclude/cover.png`, `active=false`, `priority_hint=0`, `desc=Features:`, `save=show exclude`, `folder=mods/show exclude`, `id=3145391294`, `mode_description=tbl`, `here=true`, `name=show exclude`, `title=Better Codex`
-- entry 12: `author=Glacies`, `cover=mods/royal card lab/cover.png`, `active=false`, `priority_hint=-1`, `desc=`, `id=3144064207`, `save=royal card lab`, `folder=mods/royal card lab`, `modes=tbl`, `mode_description=tbl`, `here=true`, `name=royal card lab`
-- entry 13: `author=Glacies`, `cover=mods/the art of war/cover.png`, `active=false`, `priority_hint=-1`, `desc=[h2] Content [/h2]`, `save=the art of war`, `folder=mods/the art of war`, `id=3512338449`, `mode_description=tbl`, `here=true`, `name=the art of war`, `title=Military Tactics -The Art of War-`
-- entry 14: `author=Glacies`, `cover=mods/glac terminal/cover.png`, `active=false`, `priority_hint=-3`, `desc=Modder tool. DOESN'T ADD ANY CONTENT.`, `save=glac terminal`, `folder=mods/glac terminal`, `id=3144832438`, `mode_description=tbl`, `here=true`, `name=glac terminal`, `title=Glacies Module Terminal`
+- entry 1: `desc=Ammo & gameplay rework (private personal-use project).`, `name=sk-rework`, `num=1`, `exists=true`, `cover=mods/sk-rework/cover.png`, `folder=mods/sk-rework`, `author=freeforall1932`, `here=true`, `script=mods/sk-rework/script.lua`, `title=SK Rework`, `mode_description=tbl`, `save=sk-rework`, `active=true`, `priority_hint=0`
+- entry 2: `desc=Broken oaths and holy corruption.`, `name=disgraced_justice`, `exists=true`, `folder=mods/disgraced_justice`, `author=Lorina Sonetto & Bob Qwerty`, `here=true`, `script=mods/disgraced_justice/script.lua`, `title=Disgraced Justice`, `save=disgraced_justice`, `active=false`, `priority_hint=0`
+- entry 3: `desc=This mod itself doesn't add any content. Only empowers other mods to have additional features.`, `name=extra features`, `exists=true`, `cover=mods/extra features/cover.png`, `folder=mods/extra features`, `author=Glacies`, `here=true`, `script=mods/extra features/script.lua`, `title=Glacies' Extra Features`, `id=3145848395`, `mode_description=tbl`, `save=extra features`, `active=false`, `priority_hint=0`
+- entry 4: `desc=Modder tool. DOESN'T ADD ANY CONTENT.`, `name=glac terminal`, `exists=true`, `cover=mods/glac terminal/cover.png`, `folder=mods/glac terminal`, `author=Glacies`, `here=true`, `script=mods/glac terminal/script.lua`, `title=Glacies Module Terminal`, `id=3144832438`, `mode_description=tbl`, `save=glac terminal`, `active=false`, `priority_hint=-3`
+- entry 5: `desc=Adds a bunch of ingame mechanics that can be used by other mods,`, `name=glacies collection`, `exists=true`, `cover=mods/glacies collection/cover.png`, `folder=mods/glacies collection`, `author=Glacies`, `here=true`, `script=mods/glacies collection/script.lua`, `title=Glacies' Collection`, `id=3148586988`, `mode_description=tbl`, `save=glacies collection`, `active=false`, `priority_hint=0`
+- entry 6: `desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.`, `name=grenade predictor`, `exists=true`, `cover=mods/grenade predictor/cover.png`, `folder=mods/grenade predictor`, `author=Glacies`, `here=true`, `mode_record=tbl`, `script=mods/grenade predictor/script.lua`, `title=Grenade Predictor`, `id=3449354474`, `mode_description=tbl`, `active=false`, `save=grenade predictor`, `priority_hint=0`
+- entry 7: `desc=The title is a lie. This mod isn't as hard as a nightmare at all.`, `name=nightmare`, `id=3197738029`, `exists=true`, `cover=mods/nightmare/cover.png`, `folder=mods/nightmare`, `author=Glacies`, `here=true`, `mode_record=tbl`, `script=mods/nightmare/script.lua`, `title=Nightmare Mode`, `mode_description=tbl`, `modes=tbl`, `active=false`, `save=nightmare`, `priority_hint=0`
+- entry 8: `desc=Restarts the current floor after you die.`, `name=retry`, `exists=true`, `cover=mods/retry/cover.png`, `folder=mods/retry`, `author=Glacies`, `here=true`, `script=mods/retry/script.lua`, `title=Retry after Death`, `id=3626751996`, `mode_description=tbl`, `save=retry`, `active=false`, `priority_hint=0`
+- entry 9: `desc=`, `name=royal card lab`, `id=3144064207`, `exists=true`, `cover=mods/royal card lab/cover.png`, `folder=mods/royal card lab`, `author=Glacies`, `here=true`, `script=mods/royal card lab/script.lua`, `title=Royal Card Lab`, `mode_description=tbl`, `priority_hint=-1`, `modes=tbl`, `active=false`, `save=royal card lab`
+- entry 10: `desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'`, `name=Shootout`, `exists=true`, `cover=mods/Shootout/cover.png`, `folder=mods/Shootout`, `author=unknown2559`, `here=true`, `script=mods/Shootout/script.lua`, `title=Shootout: the Rifle King Adventure`, `priority_hint=0`, `save=Shootout`, `active=false`, `modes=tbl`
+- entry 11: `desc=Features:`, `name=show exclude`, `exists=true`, `cover=mods/show exclude/cover.png`, `folder=mods/show exclude`, `author=Glacies`, `here=true`, `script=mods/show exclude/script.lua`, `title=Better Codex`, `id=3145391294`, `mode_description=tbl`, `save=show exclude`, `active=false`, `priority_hint=0`
+- entry 12: `desc=Fairy chess piecess for Shotgun King. Contains a few basic fairy pieces.`, `langs=tbl`, `exists=true`, `author=sub122`, `priority_hint=1`, `mode_description=tbl`, `name=some_fairy_pieces`, `folder=mods/some_fairy_pieces`, `here=true`, `mode_record=tbl`, `script=mods/some_fairy_pieces/script.lua`, `title=Fairy Pieces for SGK`, `active=false`, `save=some_fairy_pieces`, `modes=tbl`, `id=3342310033`
+- entry 13: `desc=[h2] Content [/h2]`, `name=the art of war`, `exists=true`, `cover=mods/the art of war/cover.png`, `folder=mods/the art of war`, `author=Glacies`, `here=true`, `script=mods/the art of war/script.lua`, `title=Military Tactics -The Art of War-`, `id=3512338449`, `mode_description=tbl`, `save=the art of war`, `active=false`, `priority_hint=-1`
+- entry 14: `desc=The white army is getting bigger, this mod that adds a whole  lots of new pieces for the white army, as well as a special throne mod where the difficulties all affects these new pieces instead.`, `name=the_magnificient_quartz_army`, `title=The Magnificent Quartz Army`, `exists=true`, `id=3151846036`, `folder=mods/the_magnificient_quartz_army`, `author=matheo000`, `here=true`, `save=the_magnificient_quartz_army`, `script=mods/the_magnificient_quartz_army/script.lua`, `mode_description=tbl`, `langs=tbl`, `modes=tbl`, `active=false`, `cover=mods/the_magnificient_quartz_army/tmqa_cover.png`
 
 ## 11. Card id map (live CARDS dump)
 
@@ -464,4 +464,4 @@ xpl_king                    ysort
 
 - Promote confirmed entries into `notes/map.md` (replace the TBD lines).
 - Pick the dev-cheat panel targets from the ammo/UI candidate lists.
-- Lines from other systems in the log: 957 (ignored; raise an issue if the game seems noisy).
+- Lines from other systems in the log: 1547 (ignored; raise an issue if the game seems noisy).

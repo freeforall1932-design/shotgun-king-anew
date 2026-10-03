@@ -10,6 +10,9 @@
 #   3b. writes mods\modlist.lua so the copy starts with sk-rework ENABLED
 #       (workshop mods start OFF; -AllModsOn starts everything ON) - no
 #       in-game toggling needed
+#   4. applies the 100% unlock (tools\make_100pct_save.py) to the copy's
+#       save - achievements/shotguns/modes/codex all unlocked from the
+#       start (run-3 owner request; -NoUnlockAll skips)
 # The original game folder is only READ, never written.
 #
 # File placement in the repo: E:\testing\repo\tools\build-dist.ps1
@@ -26,6 +29,7 @@
 #                   install only the 14 mods from this repo
 #   -AllModsOn      pre-enable EVERY injected mod in mods\modlist.lua
 #                   (default: only sk-rework is pre-enabled)
+#   -NoUnlockAll    skip the automatic 100%-unlock step (4/4)
 param(
     [Parameter(Mandatory=$true)][string]$GameDir,
     [string]$OutDir  = "",
@@ -37,7 +41,9 @@ param(
     [switch]$NoInheritMods,
     # write mods\modlist.lua with every mod set to true instead of only
     # sk-rework (format live-verified 2026-10-03: return { {'name', bool}, ... })
-    [switch]$AllModsOn
+    [switch]$AllModsOn,
+    # skip the automatic 100%-unlock (step 4/4) - copy keeps its inherited save
+    [switch]$NoUnlockAll
 )
 
 $ErrorActionPreference = "Stop"
@@ -233,6 +239,36 @@ if (-not (Test-Path -LiteralPath $applyScript)) { $applyScript = Join-Path $PSSc
 $saveScript  = Join-Path $RepoRoot "tools\make_100pct_save.py"
 if (-not (Test-Path -LiteralPath $saveScript))  { $saveScript  = Join-Path $PSScriptRoot "make_100pct_save.py" }
 
+# ---- 4/4 apply the 100% unlock to the copy's save --------------------------
+# Run-3 owner request: a modded copy should simply START with everything
+# unlocked instead of running a separate tool step. The tool first backs up
+# the inherited save to save_backup_<timestamp>\ INSIDE the copy (the
+# original game folder's save is never touched).
+if ($NoUnlockAll) {
+    Write-Host "4/4 unlock-all skipped (-NoUnlockAll) - copy keeps its inherited save"
+} elseif (-not (Test-Path -LiteralPath (Join-Path $dest "save"))) {
+    Write-Host "4/4 unlock-all skipped: the copy has no save\ yet (source game never launched)."
+    Write-Host "     launch the copy once, quit, then run:"
+    Write-Host "       python `"$saveScript`" --game-dir `"$dest`""
+} else {
+    Write-Host "4/4 applying the 100% unlock to the copy (achievements/shotguns/modes/codex)"
+    $py = $null
+    foreach ($c in @("python", "py")) {
+        if (Get-Command $c -ErrorAction SilentlyContinue) { $py = $c; break }
+    }
+    if ($py) {
+        & $py $saveScript --game-dir $dest
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "   ! unlock tool exited with code $LASTEXITCODE - finish it manually:"
+            Write-Host "       python `"$saveScript`" --game-dir `"$dest`""
+        }
+    } else {
+        Write-Host "   ! python not found on PATH - the copy is built, apply the unlock manually:"
+        Write-Host "       python `"$saveScript`" --game-dir `"$dest`""
+    }
+}
+
+
 $readme = @"
 SHOTGUN KING - MODDED BUILD (private, personal use)
 ====================================================
@@ -259,12 +295,14 @@ Included: 13 workshop mods (by their authors, from the official Discord /
 Steam Workshop) + sk-rework (this project - currently a debug stub that
 logs the game's function map to log.txt; it changes no gameplay).
 
-UNLOCK EVERYTHING IN THIS COPY (optional):
-  1. launch this copy once, then quit (so the save folder exists)
-  2. open PowerShell and run:
-       cd E:\testing\repo\tools
-       python "$saveScript" --game-dir "$dest"
-  3. play. (Automatic backup; undo with the same command + --restore)
+UNLOCK-ALL: applied automatically at build time (step 4/4) - this copy's
+save starts with EVERYTHING unlocked (all achievements, shotguns, modes and
+cards). Your pre-unlock save is backed up inside this folder at
+save_backup_<timestamp>\. To re-apply or undo:
+  re-apply:  python "$saveScript" --game-dir "$dest"
+  undo:      same command + --restore
+(If the build printed "unlock-all skipped", run the re-apply line once
+after launching the copy for the first time.)
 
 UNDO: delete this whole folder. Your base game and your Steam install are
 untouched either way.

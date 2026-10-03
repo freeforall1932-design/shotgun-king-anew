@@ -14,6 +14,45 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 5b) — run 3 absorbed: unlock unified into the build, multi-boot log handling
+
+Owner rebuilt with the updated repo (`-Clean -NoInheritMods`), played without
+opening the mod menu (as instructed), then toggled one workshop mod on/off and
+used save-and-reboot, and uploaded the run-3 `-GetInsights` pack plus their
+full console log.
+
+- **Pre-enable verified live:** console showed `3b/3 wrote mods/modlist.lua`,
+  the copy booted with sk-rework ON and all 13 workshop mods OFF with zero
+  menu visits, and the harvested `modlist.lua` matches the build's written
+  order exactly. The legend text also shipped (visible in the SKM desc dump).
+- **`tools/build-dist.ps1` — 100% unlock unified (owner run-3 request).** New
+  step 4/4 runs `make_100pct_save.py` on the copy automatically: python/py
+  auto-detected, `-NoUnlockAll` skips, friendly messages when the copy has no
+  `save\` yet or python is missing (manual command printed). Run 3's saves
+  proved the need: 27 achievements / 163 cards / rank 6 — the owner's real
+  progress, because the separate tool step was never run. PLAY-THIS.txt,
+  INSTALL.md (Step 7 now "automatic"), README updated to match.
+- **`tools/parse_log.py` — multi-boot log support.** The mod menu's
+  save-and-reboot soft-reboots the game inside the same log.txt: every mod
+  script runs twice (dumps duplicated) and the reboot truncated boot 1's SKC
+  dump mid-line at card 177 (its tail — 9 cards, count, READY, probe — lost;
+  line order non-chronological at the transition). Parser now dedupes cards
+  by id and hooks by target+id (last occurrence wins): run-3 parse reports
+  `hooks: 5 · cards: 186`. A missing READY line in a rebooted session is the
+  collision, not a mod failure — documented in `notes/map.md`.
+- **New feature asks logged in WORKLIST:** mod-menu Back button (Phase 2c,
+  same UI-hook route as the always-visible legend line) and the exclude-rule
+  rework (remove auto-ban of un-chosen offered cards after a pick + make the
+  exclude action rebindable to extra mouse buttons; needs offer-roll
+  internals + a mouse4/5 probe).
+- why: owner's run-3 critique ("how about unify it since we inject it to
+  modded app already anyway") + the reboot-path log anomaly their run exposed
+- status: shipped — verified: parser selftest 23/23, run-3 + run-2 parses,
+  3/3 `.ps1` tree-sitter clean. Owner's next rebuilt copy should show 4/4
+  and boot fully unlocked (pending that one glance).
+
+---
+
 ## 2026-10-03 (session 5) — live test run 2 absorbed: modlist format, pre-enable, 195-card set
 
 Owner ran build 4 with `apply.ps1 -GetInsights` and uploaded the pack into
