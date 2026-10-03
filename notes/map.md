@@ -128,10 +128,11 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ---
 
-## Live-verified facts — first live test (2026-10-03, build 3, v1.623b)
+## Live-verified facts — live tests 1 & 2 (2026-10-03, builds 3–4, v1.623b)
 
-Source: `live testing result/` (two runs: inherited-mods build and
-`-NoInheritMods` build) + parsed draft `notes/game-map-draft.md`. These are
+Source: `live testing result/` (run 1: inherited-mods + `-NoInheritMods`
+builds; run 2: full `-GetInsights` pack — log, `mods/modlist.lua`, whole
+`save\` folder) + parsed draft `notes/game-map-draft.md`. These are
 OBSERVED facts — prefer them over anything guessed above.
 
 ### Engine / log
@@ -140,22 +141,47 @@ OBSERVED facts — prefer them over anything guessed above.
   (the first live test exposed that missing this = false "mod did not run").
 - Lua errors appear at the END of log.txt (confirmed pattern).
 
-### Mod loading & enable state
-- Mods are **ON by default**: on the copy's FIRST boot (no modlist.lua, no
-  per-mod saves yet) our mod loaded with `active=true`.
-- The game writes `mods/modlist.lua` itself at boot (right after the
-  info.lua scan) and again after mod-menu interaction. On-disk format still
-  unknown — build 4 probes it (`SKML|`) and `apply.ps1 -GetInsights` harvests
-  the file.
-- Per-mod saves exist: `save/mods/<name>.sav` (+ `save/mods/reg.sav`),
-  written by the engine at quit.
-- `MODLIST` entries carry at least `.title`, `.active`, `.env` (env = the
-  mod's script environment; Glac Terminal iterates `mod.env` pairs).
-- In-game mod menu: NOT on the title screen — **Play → top entry**. Click
-  toggles on/off (bright text = ON); up/down arrows = load priority
-  (override order), renumbering is cosmetic.
-- Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam achievement
-  tracking paused while modded; save-side achievements/codex unaffected.
+### Mod loading & enable state (run 2 corrected run 1's guess)
+- **Mods start OFF by default.** The mod menu shows untouched mods in black
+  text; the owner's run-2 `modlist.lua` stores `false` for all 13 workshop
+  mods (only `sk-rework` is `true` — toggled manually by the owner). Run 1's
+  "ON by default" conclusion was wrong.
+- `mods/modlist.lua` **on-disk format (byte-verified)**: a Lua chunk
+  `return {` CRLF `\t{ '<mod name>', <bool> },` … `}` — tab indent, trailing
+  comma on EVERY entry incl. the last, CRLF line endings, closing brace,
+  no trailing newline, no BOM. Order = load priority. The game writes the
+  file itself at boot/after menu interaction; `build-dist.ps1` now writes it
+  too (verified byte-identical to the game's own file for the same states),
+  pre-enabling `sk-rework` (`-AllModsOn` = everything on).
+- `loadfile` does **not exist** in the mod environment (`SKA2|loadfile=no`,
+  run 2) — the build-4 `SKML|` in-log probe could never fire; the harvested
+  file (via `apply.ps1 -GetInsights`) is the way to learn the format.
+- Per-mod saves exist: `save/mods/<mod-save-name>.sav` + `save/mods/reg.sav`
+  (registry mapping save-name → file path, e.g.
+  `s"sk-rework"\x1f: f"save/mods/sk-rework.sav"`). Written by the engine at
+  quit. **Container differs from main saves: raw PUNKCAKE plaintext, no
+  `[u32 len][zlib]` wrapper** (sk-rework.sav = 24 bytes:
+  `PUNKCAKE\nt{\n}\nFOREVER`). An active mod gets its slot automatically
+  (MODLIST entry field `save=`); `MODSAV`/`save` globals exist — candidate
+  API for sk-rework's own persistent config (cheat panel / balance knobs).
+- The game keeps `.sav.bak` snapshots (one generation) next to saves it
+  rewrites (run 2: `achievements.sav.bak` = the owner's original 27; our
+  tools never write `.bak` files, and `apply.ps1 -GetInsights` only copies).
+  Useful as a free extra safety net.
+- `MODLIST` entry fields (build-4 `SKM|` dump): `title, name, folder, save,
+  active, priority_hint, author, cover, desc, num, here, exists, id,
+  script, modes, langs, mode_description, mode_record`. `priority_hint`
+  comes from info.lua; `num` = menu position; `here` = folder present.
+- In-game mod menu: NOT on the title screen — **Play → top entry**. **Black
+  text = OFF, white text = ON** (click toggles; survives restarts);
+  up/down arrows = load priority (override order), renumbering is cosmetic.
+- Title bar with an active mod: `MODDED: ON - ACHIEVEMENTS: OFF` = *Steam*
+  achievement tracking paused. Save-side achievements are **preserved**:
+  run 2's post-session pack shows all 128 still True (run 1 saw the same
+  in-game). ⚠️ Analysis footnote: an early read of run 2's
+  `achievements.sav` claimed a "wipe" — that was a bool-vs-string comparison
+  bug in the analysis script, not the game; `save_codec` parses `bTrue` as
+  Python `True`.
 
 ### Mod API (what actually exists)
 - `append`, `prepend`, `gimme` are **mod-environment functions**: they work
@@ -183,8 +209,19 @@ OBSERVED facts — prefer them over anything guessed above.
 
 ### Cards / codex / saves
 - Codex/stats keys = card display names (same as `card.id`).
-- v1.623b codex = **170 cards**: 164 regular + 6 special
-  (Right-hand, Gatehouse, Catacombs, Onboarding Party, Faithful Steed,
-  Redemption). `tools/make_100pct_save.py` now writes all 170 (was 96% live).
+- **Complete live-verified card set (run 2): the game's CARDS table holds
+  186 cards** (build-4 `SKC|` dump: `id|gid|ext|pwe` per card; gid 0–192,
+  ext 0–3). The game itself writes **195 entries** to `stats.sav` — the 186
+  CARDS names **plus 9 special codex keys tracked outside CARDS**:
+  `bleed, cloak, grenade, jump, leader, line, mission, orb,
+  Unfaithful Steed`. `tools/make_100pct_save.py` now writes exactly those
+  195 (run-2's harvested `stats.sav` key set matches 1:1). The old "170
+  cards" list missed 25 real cards (Anarchy, Stoning, Vendetta, Warhorse,
+  Shovel, Sprint, … mostly the ext=3 block).
+- `SKC|` also exposes a `special=` field on 10 cards: `strafe` (Royal
+  Loafers), `scope` (Engraved Scope), `decree` (Unjust Decree), `grenade`
+  (Kingly Alms, Philanthropy, Indelible Memories, Sacred Light, Guerilla
+  Tactics), `orb` (Seer's Orb), `dig` (Shovel) — these are the special
+  *mechanics* cards (matching several of the lowercase codex keys).
 - Offer events observed through `add_card` append hook; `pwe` present on
   live cards (4 common, 3 seen once) — offer roll candidates in draft §6.

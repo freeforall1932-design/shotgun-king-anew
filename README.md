@@ -57,7 +57,7 @@ Honest status, because "it's written" is not the same as "it's been run":
 | `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 29/29 checks under both engine semantics |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (with and without `-NoInheritMods`); copy played fine |
 | `tools/save_codec.py` | ✅ verified | byte-identical parse/serialize on all 6 real saves (earlier session); re-tested end-to-end now |
-| `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100%, weapons/ranks/chase unlocked; codex was 96% (6 special cards missing) — now writes all 170 cards |
+| `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
 | Ammo rework, card/enemy pickers, cheat panel | 🟢 unblocked | the live function map is in (`notes/game-map-draft.md`); feature work can start |
 
 **The three pre-live unknowns — all resolved on 2026-10-03:**
@@ -66,8 +66,11 @@ Honest status, because "it's written" is not the same as "it's been run":
    (build-dist, apply -GetLog, both parse runs).
 2. 100% save acceptance: **accepted** — achievements/codex/unlocks showed up
    in game; the only gap (6 special cards) is fixed.
-3. Mods enabled by default: **yes, ON by default** — the game writes
-   `mods/modlist.lua` itself at first boot with every mod active.
+3. Mods enabled by default: **no — mods start OFF** (run 2 verified: the mod
+   menu shows black text = OFF until clicked, and the game's own
+   `mods/modlist.lua` stores `false` for untouched mods). Solved instead:
+   `build-dist.ps1` now **writes `mods/modlist.lua` itself**, so a built copy
+   boots with `sk-rework` already ON (`-AllModsOn` for everything on).
 
 ---
 
@@ -103,12 +106,16 @@ ship as folders too.
 
 ## 🎮 Playing & mods
 
-- Mods are **ON by default** (live-verified). The in-game **mod menu** is not
-  on the title screen: click **Play**, it is the top entry there. Clicking a
-  mod flips it (bright text = ON); the up/down arrows only change load
-  priority (which mod overrides which). While any mod is installed the title
-  bar shows `MODDED: ON - ACHIEVEMENTS: OFF` — that just pauses *Steam*
-  achievement tracking; save/codex achievements still work.
+- Mods start **OFF by default** (live-verified run 2) — but `build-dist.ps1`
+  writes `mods/modlist.lua` so a built copy boots with `sk-rework` already ON
+  (`-AllModsOn` flips everything on). The in-game **mod menu** is not on the
+  title screen: click **Play**, it is the top entry there. In it, **black
+  text = OFF, white text = ON**; clicking flips a mod and the change survives
+  restarts; the up/down arrows only change load priority (which mod overrides
+  which). While a mod is active the title bar shows
+  `MODDED: ON - ACHIEVEMENTS: OFF` — that pauses *Steam* achievement tracking
+  only; the achievements written into the copy's save stay unlocked
+  (live-verified run 2).
 - A mod folder **must be unpacked** and its folder name must **equal the
   `name=` field** in its `info.lua`. A `.zip`/`.rar` in `mods\` is silently
   ignored. (`install-mods.ps1` fixes both cases for downloaded mods.)
@@ -176,7 +183,7 @@ times or run history, and the game must be closed while it runs.
 |---|---|
 | Mod doesn't show up in the mod menu | folder name ≠ `name=` in `info.lua`, or still zipped — run `install-mods.ps1` |
 | Game crashes after the intro logos | Lua error — open `log.txt` next to the exe, the error is at the **end** |
-| Everything feels vanilla | mods toggled off — mod menu = Play screen, top entry; bright text = ON |
+| Everything feels vanilla | mods toggled off — mod menu = Play screen, top entry; white text = ON, black = OFF |
 | 100% save didn't apply | game was running while writing, or you pointed at the wrong folder (the copy has its own `save\`) — close it, re-run |
 | `pwsh` not found | use `powershell` instead |
 

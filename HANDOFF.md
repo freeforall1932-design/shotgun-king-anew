@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-03 (session 4, branch `arena/01a10235-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-03 (session 5, branch `arena/01a1027e-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -21,11 +21,11 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a101f3-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
-| Our mod | `modded/sk-rework/` (info.lua + script.lua = diagnostics build 3 + cover.png) |
-| Log parser + smoke test | `tools/parse_log.py` (23/23, live-fixed), `tools/mod_smoketest.py` (29/29) |
-| Live-test evidence | `live testing result/` — critique.txt, 8 screenshots, run-2 log; `live testing result/game-insights/log.txt` = run-1 log (in repo) |
-| Parsed live map | `notes/game-map-draft.md` (from run-1 log) |
+| Working branch | `arena/01a1027e-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
+| Our mod | `modded/sk-rework/` (info.lua with mod-menu legend + script.lua = diagnostics build 4 + cover.png) |
+| Log parser + smoke test | `tools/parse_log.py` (23/23; summary now incl. mods/cards), `tools/mod_smoketest.py` (29/29) |
+| Live-test evidence | `live testing result/` — run 1 (critique + screenshots + logs) and **run 2** (critique + full `-GetInsights` pack: log, `mods/modlist.lua`, whole `save\`) |
+| Parsed live map | `notes/game-map-draft.md` (regenerated from run-2 log; SKM/SKC sections live) |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
 | Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
@@ -49,11 +49,21 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
    on all 6 real v1.623b saves (prior session). `make_100pct_save.py` =
    unlock-all (128 achievements, weapons 1–9, rank 20 + badges, endless
    floor 15 ⇒ chase unlocked, 164-card codex). Backups + `--restore`.
-4. **Mods are ON by default; enable state lives in `mods/modlist.lua`** (the
-   game writes it at boot; not in saves). Mod menu = Play screen's top entry;
-   click = on/off (bright = ON), up/down = load priority only.
+4. **Mods are OFF by default (black text; white = ON); enable state lives in
+   `mods/modlist.lua`** — format (byte-verified run 2):
+   `return {` CRLF `\t{ '<mod name>', <bool> },` … `}` (tab indent, trailing
+   comma on every entry, no trailing newline). The game writes it at boot;
+   `build-dist.ps1` now writes it too → built copies boot with `sk-rework`
+   already ON (`-AllModsOn` for everything). Mod menu = Play screen's top
+   entry; click = on/off, up/down = load priority only.
    Title bar with mods: `MODDED: ON - ACHIEVEMENTS: OFF` = Steam tracking
-   paused, save-side achievements fine.
+   paused, save-side achievements fine (run 2: all 128 stayed True).
+4d. **Per-mod saves**: an active mod gets `save/mods/<name>.sav`
+   automatically (raw PUNKCAKE plaintext — NO zlib container) +
+   `save/mods/reg.sav` registry (`s"name"\x1f: f"save/mods/name.sav"`).
+   `MODSAV`/`save` globals exist = candidate API for sk-rework config
+   persistence. The game also keeps one-generation `.sav.bak` snapshots.
+   `loadfile` does NOT exist in the mod env.
 4b. **Game log wraps every line in `  . ` / ` !! `** — any new parser/grep
    must strip it (session-4 parser bug). Lua errors still at log END.
 4c. **`append()` is the only proven hook.** `on_*`/`upd` globals never fire
@@ -112,38 +122,48 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 4)
+## 5. Current state & immediate next step (session 5)
 
-**Live test #1 is done and absorbed.** Both runs loaded build 3 (the old
-parser's "mod did not run" was its own prefix bug — fixed). Run 1 harvested
-920 globals / 41 replaceable / 26 forbidden, 47 gameplay events and the live
-object model → `notes/game-map-draft.md`; verdicts promoted into
-`notes/map.md` ("Live-verified facts"). The 100% save was game-accepted
-(achievements 100%, chase unlocked; codex 96% → tool now writes 170 cards).
+**Live test run 2 is done and absorbed — every harvest goal is met.** Build 4
+ran clean (`READY build=4 hooks=5 globals=920`), the `-GetInsights` pack
+delivered both remaining unknowns: the `mods/modlist.lua` byte format (→
+`build-dist.ps1` now pre-enables `sk-rework`, new `-AllModsOn` switch; closes
+owner critique #2) and the full card set (186 CARDS + 9 special keys = 195 →
+`make_100pct_save.py` card list corrected; the old 170-list missed 25 real
+cards). Run 2 also corrected run 1's biggest mistake: **mods are OFF by
+default** (black text = OFF, white = ON) — all docs rewritten accordingly,
+and sk-rework's info.lua description now carries the white/black legend the
+owner asked to see in-game (an always-visible legend line in the menu itself
+needs a draw hook → queued with Phase 2c).
 
-**Build 4 is shipped and awaits one short run** (owner, ~5 min):
-`INSTALL.md` steps 4–6 with the updated repo, then
-`apply.ps1 -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights` and upload
-the `uploads/game-insights/` pack. That delivers the two remaining unknowns:
-`mods/modlist.lua` on-disk format (SKML probe + the harvested file) and the
-exact special-card ids (SKC dump). With those: `build-dist.ps1` can
-pre-enable mods (closes owner critique #2), and the save tool's special-card
-keys get re-confirmed.
+New intel banked in `notes/map.md`: per-mod save system (`save/mods/*.sav`
+plaintext + `reg.sav` registry; `MODSAV`/`save` globals), game-made
+`.sav.bak` snapshots, `loadfile` absent from the mod env, full MODLIST entry
+fields, `special=` mechanic flags on 10 cards. One analysis bug was caught
+and corrected in-session (bool-vs-string compare briefly suggested
+"modded sessions wipe achievements" — false; all 128 stayed True).
 
-**Then feature work is unblocked**, in owner-priority order: Phase 2c
+**Feature work is now unblocked**, in owner-priority order: Phase 2c
 dev-cheat panel (`mk_menu_but`; read `hero.ammo`/`hero.hp` directly,
-`get_disp_stats` is a global), ammo rework A→B→C, card/enemy pickers
+`get_disp_stats` is a global; persist panel settings via the mod's own
+`save/mods/sk-rework.sav` slot), ammo rework A→B→C, card/enemy pickers
 (card.id = display name; `pwe` live-confirmed).
 
-Verified without the game this session: `parse_log.py --selftest` 23/23;
-`mod_smoketest.py` 29/29 under both `all()` semantics (venv with lupa).
-Safety rules unchanged: no `pcall`, nil/boolean-safe `sv()`, capped loops,
-probe code runs AFTER the READY line.
+Verified without the game this session: `parse_log.py --selftest` 23/23 +
+run-2 re-parse (summary: `mods: 14 · cards: 186`); `mod_smoketest.py` 29/29
+under both `all()` semantics; codec roundtrip byte-identical on run-2's 6
+saves; 100% tool E2E on a disposable copy of the run-2 save (128 True + 195
+cards); 3/3 `.ps1` tree-sitter parse clean; modlist.lua generator verified
+byte-identical to the game's own file. Safety rules unchanged: no `pcall`,
+nil/boolean-safe `sv()`, capped loops, probe code runs AFTER the READY line.
 
 ## 6. Owner (human) intervention points
 
-- One short build-4 run + `apply.ps1 -GetInsights` upload (modlist format +
-  card ids) ← the only remaining harvest; feature work no longer blocked
+- ~~Build-4 run + `-GetInsights` upload~~ **DONE (run 2)** — nothing left to
+  harvest; feature work unblocked
+- Next launch of a rebuilt copy: sanity-check that `sk-rework` boots ON with
+  no manual toggling, and that the legend text shows in its mod-menu
+  description
 - Playtest each phase build; report crashes (error text = END of log.txt)
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning

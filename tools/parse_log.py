@@ -549,7 +549,9 @@ def main(argv):
           f"hooks: {len(d['hooks'])} · globals: {g} · "
           f"append-events: {sum(d['events'].values())} · "
           f"callback-events: {sum(d['callbacks'].values())} · "
-          f"object tables: {len(d['objects'])}")
+          f"object tables: {len(d['objects'])}"
+          + (f" · mods: {len(d['modlist'])}" if d["modlist"] else "")
+          + (f" · cards: {len(d['cards'])}" if d["cards"] else ""))
     return 0
 
 

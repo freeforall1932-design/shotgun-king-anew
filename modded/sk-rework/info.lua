@@ -5,6 +5,9 @@ by="freeforall1932"
 description=[[
 Ammo & gameplay rework (private personal-use project).
 
+MOD MENU LEGEND: white text = ON, black text = OFF. Click toggles a mod;
+the up/down arrows only change load priority (which mod overrides which).
+
 Diagnostics build 4: same load/hook proof and function-map dump as build 3
 (lines prefixed SK-REWORK:, SKG|, SKA|, SKH|, SKE|, SKO|, SKW|), plus: dumps
 every MODLIST entry (SKM|) and the full card id map (SKC|), and probes

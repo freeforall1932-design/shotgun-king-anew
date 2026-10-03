@@ -164,6 +164,9 @@ itself silently ignores those too.
 - `E:\testing\ShotgunKing-Modded\mods\` contains the **14 mod folders**
   (13 workshop mods + `sk-rework`, plus any extra `info.lua` mods you had in
   `game\mod` or `game\mods`)
+- `E:\testing\ShotgunKing-Modded\mods\modlist.lua` exists — that is the build
+  pre-enabling `sk-rework` for you (add `-AllModsOn` to the command above if
+  you want every mod to start ON)
 - `E:\testing\ShotgunKing-Modded\PLAY-THIS.txt` exists
 - `E:\testing\game` was only read from, never modified
 
@@ -175,12 +178,14 @@ itself silently ignores those too.
    (Step 4 printed its exact path).
 2. The **mod menu is NOT on the title screen**: click **Play** — the mod menu
    is the **top entry** of that screen.
-3. **Look and note:** all 14 mods should be listed and **ON by default**
-   (verified live 2026-10-03). Clicking a mod flips it; the text colour
-   changes (bright/white = ON). The **up/down arrows do not toggle on/off** —
-   they change *load priority* (which mod overrides which), so if the
-   numbering looks disordered after moving something, that is cosmetic.
-   Make sure `SK Rework` / `sk-rework` is ON, then back out.
+3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
+   — in the menu, **black text = OFF, white text = ON**. The build writes
+   `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
+   (ON) and the 13 workshop mods black (OFF) — if so, there is nothing to
+   click. Clicking any entry flips it, and the change survives restarts.
+   The **up/down arrows do not toggle on/off** — they change *load priority*
+   (which mod overrides which when several touch the same thing), so the
+   numbering after moving something is cosmetic, not a bug.
 4. **Start a run and play a couple of turns** — this is what makes the log
    useful. The `sk-rework` mod is a diagnostics build: it watches the game
    and writes what it sees to `log.txt` (it changes nothing in gameplay).
@@ -258,14 +263,14 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 
 **Two things that look wrong but are not:**
 
-- The title screen says `MODDED: ON - ACHIEVEMENTS: OFF`. That only means
-  *Steam* achievement tracking is paused while mods are installed — the codex
-  still shows `Achievements: 100%` because this tool writes them straight into
-  the save. Nothing to fix.
-- The codex should now show **100%**. (An earlier version of this tool left it
-  at 96%: six *special* cards — Right-hand, Gatehouse, Catacombs, Onboarding
-  Party, Faithful Steed, Redemption — were missing. If you ran the old version,
-  just run the new one again; it is idempotent.)
+- The title screen says `MODDED: ON - ACHIEVEMENTS: OFF` while a mod is
+  active. That pauses *Steam* achievement tracking only — the achievements
+  in this copy's save stay unlocked (run-2 live check: all 128 still True
+  after a full modded session). Nothing to fix.
+- The codex should now show **100%**. The tool writes the complete
+  live-verified card set — all 186 real cards plus the 9 special codex keys
+  the game tracks (195 total, exactly what the game itself records). If an
+  older run left it below 100%, just run the new one again; it is idempotent.
 
 ---
 
@@ -275,9 +280,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, ON by default; up/down = priority only |
+| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; up/down = priority only |
 | 4 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `SK-REWORK: READY build=4` |
-| 5 | Step 7 (optional) | achievements/shotguns/codex 100% in the copy; `ACHIEVEMENTS: OFF` title label is normal |
+| 5 | Step 7 (optional) | achievements/shotguns/codex 100% in the copy; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
 the game crashed.
@@ -322,8 +327,8 @@ the game crashed.
 | build script says `No data.sgr in …` | Make sure `E:\testing\game` contains the game `.exe` **and** `data.sgr`. |
 | game crashes after the intro logos | Lua error — the reason is at the **end** of `E:\testing\ShotgunKing-Modded\log.txt`; send it via Step 6. |
 | the 100% save "did nothing" | The game must be closed while running Step 7, and `--game-dir` must point at `E:\testing\ShotgunKing-Modded` (not `E:\testing\game`). |
-| title bar says `ACHIEVEMENTS: OFF` | Normal with mods installed (Steam tracking paused). The codex in the save still shows 100%. |
-| codex stuck at 96% | You used the old save tool before the 6 special cards were added — re-run Step 7 with the updated repo. |
+| title bar says `ACHIEVEMENTS: OFF` | Normal with mods active (Steam tracking paused; the save-side achievements stay unlocked — live-verified). |
+| codex stuck below 100% | Old save tool version — re-run Step 7 with the updated repo (now writes the live-verified 195-card set). |
 | mod menu numbering looks scrambled after moving mods | Up/down = load priority, not on/off; the renumbering is cosmetic. |
 | `parse_log.py` says "no SK-REWORK lines" | You ran an old copy of the parser on a real log — update the repo; the parser now strips the game's `  . ` line prefix. |
 

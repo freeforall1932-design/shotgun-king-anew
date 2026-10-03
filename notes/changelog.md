@@ -14,6 +14,63 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 5) — live test run 2 absorbed: modlist format, pre-enable, 195-card set
+
+Owner ran build 4 with `apply.ps1 -GetInsights` and uploaded the pack into
+`live testing result/run 2/` (log + the game's own `mods/modlist.lua` + the
+whole `save\` folder) plus a critique of the mod-menu documentation. Both
+remaining harvest goals landed; feature work is unblocked.
+
+- **`notes/game-map-draft.md` regenerated from the run-2 log** — build 4
+  confirmed clean (`READY build=4 hooks=5 globals=920`); new sections live:
+  §10 MODLIST dump (all 14 entries with author/save/priority_hint/active…),
+  §11 card id map (186 cards, gid 0–192, ext 0–3, pwe, `special=` flags on
+  10 cards). The `SKML|` in-log probe never fired because `loadfile` does
+  not exist in the mod environment (`SKA2|loadfile=no`) — the harvested file
+  itself supplied the format instead.
+- **`tools/build-dist.ps1` — mods pre-enabled (owner critique #2 closed).**
+  New step 3b writes `mods/modlist.lua` in the game's byte-exact format
+  (CRLF, tab indent, trailing comma every entry, no trailing newline —
+  generator verified byte-identical to the game's own file): `sk-rework`
+  starts ON, workshop mods start OFF, new `-AllModsOn` switch. PLAY-THIS.txt
+  and console output updated to match.
+- **`tools/make_100pct_save.py` — card set corrected 170 → 195.** The run-2
+  SKC dump showed the old list missed 25 real cards (Anarchy, Stoning,
+  Vendetta, Warhorse, Shovel, Sprint, …); the game itself writes exactly 186
+  CARDS names + 9 special keys (bleed, cloak, grenade, jump, leader, line,
+  mission, orb, Unfaithful Steed) to stats.sav — the tool now writes that
+  exact set (E2E-verified on a disposable copy of the run-2 save).
+- **Docs corrected from the run-2 critique:** mods are **OFF by default**
+  (run 1's "ON by default" was wrong — black text = OFF, white = ON; the
+  owner's paradox observation was right). `INSTALL.md` Step 5 rewritten in
+  neutral tone with the correct color facts and the new no-toggling-needed
+  flow; README + PLAY-THIS.txt + success checklist + troubleshooting rows
+  all updated.
+- **`modded/sk-rework/info.lua`** — description now leads with the mod-menu
+  legend the owner asked for ("white text = ON, black text = OFF; up/down =
+  load priority"), visible in the mod menu. (An always-on legend line inside
+  the menu itself needs a draw hook — queued with Phase 2c.)
+- **`tools/parse_log.py`** — summary line now also prints `mods:` and
+  `cards:` counts when SKM/SKC sections are present.
+- **`notes/map.md`** — live-verified section updated: OFF-by-default +
+  modlist.lua byte format, per-mod save system (`save/mods/<name>.sav`
+  plaintext, no zlib wrapper; `reg.sav` registry; `MODSAV`/`save` globals),
+  game-made `.sav.bak` snapshots, `loadfile` absent, full MODLIST entry
+  fields, 195-key codex set with the 10 `special=` mechanics cards, and a
+  footnote about the caught-in-analysis bool-vs-string bug (briefly
+  suggested "modded sessions wipe achievements" — false; run-2 post-session
+  file has all 128 True).
+- why: owner's run-2 critique (mod-menu default state paradox, doc tone,
+  in-game legend request) + the two harvested unknowns (modlist format,
+  card ids) that gated pre-enable and the codex fix
+- status: shipped — verified: parser selftest 23/23; smoke test 29/29 (both
+  `all()` semantics); codec roundtrip byte-identical on run-2's 6 saves;
+  100% tool E2E (128 achievements True, 195/195 cards); 3/3 `.ps1`
+  tree-sitter parse clean. Playtest of the pre-enable behavior pending
+  (owner's next launch of a rebuilt copy).
+
+---
+
 ## 2026-10-03 (session 4) — live test #1 absorbed: parser fix, build 4, codex 100%, docs corrected
 
 Owner ran the whole ladder twice (inherited mods + `-NoInheritMods`) and the

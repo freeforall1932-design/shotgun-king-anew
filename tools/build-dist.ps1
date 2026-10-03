@@ -7,6 +7,9 @@
 #       name=, removes .rars / legacy folders without info.lua)
 #   2. overlays dist-overlay/mods/*  (13 workshop mods, load-ready names)
 #   3. adds our own modded/sk-rework
+#   3b. writes mods\modlist.lua so the copy starts with sk-rework ENABLED
+#       (workshop mods start OFF; -AllModsOn starts everything ON) - no
+#       in-game toggling needed
 # The original game folder is only READ, never written.
 #
 # File placement in the repo: E:\testing\repo\tools\build-dist.ps1
@@ -21,6 +24,8 @@
 #   -Clean          wipe a previous copy in OutDir first
 #   -NoInheritMods  ignore any mod\ or mods\ folder from the source game and
 #                   install only the 14 mods from this repo
+#   -AllModsOn      pre-enable EVERY injected mod in mods\modlist.lua
+#                   (default: only sk-rework is pre-enabled)
 param(
     [Parameter(Mandatory=$true)][string]$GameDir,
     [string]$OutDir  = "",
@@ -29,7 +34,10 @@ param(
     [switch]$Clean,
     # start the copy with an EMPTY mods\ folder instead of inheriting the
     # source game's mods\ (guarantees exactly the 14 known-good mods)
-    [switch]$NoInheritMods
+    [switch]$NoInheritMods,
+    # write mods\modlist.lua with every mod set to true instead of only
+    # sk-rework (format live-verified 2026-10-03: return { {'name', bool}, ... })
+    [switch]$AllModsOn
 )
 
 $ErrorActionPreference = "Stop"
@@ -190,6 +198,36 @@ Get-ChildItem -LiteralPath $modsRoot -Recurse -File -ErrorAction SilentlyContinu
         Remove-Item -LiteralPath $_.FullName -Force
     }
 
+# ---- 3b/3 pre-enable mods: write mods\modlist.lua --------------------------
+# On-disk format live-verified 2026-10-03 (run-2 harvest of the game's own
+# file): a Lua chunk `return { {'<mod name>', <bool>}, ... }` with CRLF line
+# endings, one tab indent, a trailing comma on EVERY entry (including the
+# last) and a closing brace with no trailing newline. Without this file the
+# game starts mods OFF (black text in the mod menu) - writing it means the
+# copy boots with sk-rework already ON, no in-game toggling needed.
+$modNames = @(Get-ChildItem -LiteralPath $modsRoot -Directory |
+    Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "info.lua") } |
+    Sort-Object -Property @{Expression = { if ($_.Name -eq "sk-rework") { "" } else { $_.Name } }} |
+    Select-Object -ExpandProperty Name)
+if ($modNames.Count -gt 0) {
+    $lines = @("return {")
+    foreach ($mn in $modNames) {
+        $on = "false"
+        if ($AllModsOn -or $mn -eq "sk-rework") { $on = "true" }
+        $lines += "`t{ '$mn', $on },"
+    }
+    $lines += "}"
+    $modlistPath = Join-Path $modsRoot "modlist.lua"
+    [System.IO.File]::WriteAllText($modlistPath, ($lines -join "`r`n"))
+    if ($AllModsOn) {
+        Write-Host "3b/3 wrote mods/modlist.lua - ALL $($modNames.Count) mods start ON (-AllModsOn)"
+    } else {
+        $others = $modNames.Count - 1
+        Write-Host "3b/3 wrote mods/modlist.lua - sk-rework starts ON, $others workshop mods start OFF"
+        Write-Host "     (add -AllModsOn to start everything ON; toggle any time in the in-game mod menu)"
+    }
+}
+
 $applyScript = Join-Path $RepoRoot "tools\apply.ps1"
 if (-not (Test-Path -LiteralPath $applyScript)) { $applyScript = Join-Path $PSScriptRoot "apply.ps1" }
 $saveScript  = Join-Path $RepoRoot "tools\make_100pct_save.py"
@@ -204,17 +242,18 @@ That source folder was NOT modified - only this copy has the mods.
 
 PLAY: double-click the game's .exe in this folder.
 
-MOD MENU: injected mods are ON by default (verified live 2026-10-03). The
-menu is NOT on the title screen: click Play - the mod menu is the TOP entry
-of that screen. Clicking a mod flips it on/off (text colour changes; bright
-text = ON). The up/down arrows do NOT toggle on/off - they change load
-priority (which mod overrides which), so odd numbering after sorting is
-cosmetic. If you change anything, restart the game to be safe.
+MOD MENU: this build writes mods\modlist.lua, so sk-rework starts ON and the
+workshop mods start OFF - no in-game toggling needed. The menu is NOT on the
+title screen: click Play - the mod menu is the TOP entry of that screen.
+There, BLACK text = OFF and WHITE text = ON; clicking a mod flips it, and the
+change survives restarts. The up/down arrows do NOT toggle on/off - they
+change load priority (which mod overrides which), so odd numbering after
+sorting is cosmetic. If you change anything, restart the game to be safe.
 
-TITLE BAR: "MODDED: ON - ACHIEVEMENTS: OFF" is NORMAL with mods installed -
-the game pauses Steam achievement tracking while modded. The optional
-unlock-all step below writes achievements/codex straight into this copy's
-save files, so the codex still shows 100%.
+TITLE BAR: "MODDED: ON - ACHIEVEMENTS: OFF" appears while a mod is ACTIVE -
+that pauses Steam achievement tracking only. The achievements written into
+this copy's save stay unlocked (live-verified: all 128 still unlocked after
+a full modded session). Your original install is never touched.
 
 Included: 13 workshop mods (by their authors, from the official Discord /
 Steam Workshop) + sk-rework (this project - currently a debug stub that
@@ -238,7 +277,7 @@ if (-not $exe) { $exe = $exes | Select-Object -First 1 }
 
 Write-Host "`nDone -> $dest"
 if ($exe) { Write-Host "PLAY -> $($exe.FullName)" }
-Write-Host "NEXT -> launch that .exe, open the in-game MOD MENU, play a couple of turns, then quit."
+Write-Host "NEXT -> launch that .exe (sk-rework is pre-enabled), play a couple of turns, then quit."
 Write-Host "LOG  -> to collect log.txt afterwards, run in PowerShell:"
 Write-Host "        cd E:\testing\repo\tools"
 Write-Host "        powershell -ExecutionPolicy Bypass -File `"$applyScript`" -GameDir `"$dest`" -GetLog"

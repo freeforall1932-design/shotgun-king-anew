@@ -14,9 +14,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - [x] **Step 2 — build the copy**: ✅ ran twice (with and without
       `-NoInheritMods -Clean`); 14 mod folders injected; inherited zips
       unpacked & renamed; `King's Court.rar` removed as designed.
-- [x] **Step 3 — launch the copy**: ✅ 14 mods listed, **ON by default**;
-      menu lives under Play (top entry); click = on/off (bright text = ON);
-      up/down = load priority (cosmetic renumbering).
+- [x] **Step 3 — launch the copy**: ✅ 14 mods listed; menu lives under Play
+      (top entry); click = on/off; up/down = load priority (cosmetic
+      renumbering). *(Run 1 recorded "ON by default" — run 2 disproved it:
+      mods start OFF/black; the belief came from misread text colours.
+      Build now pre-enables sk-rework via `mods/modlist.lua`.)*
 - [x] **Step 4 — harvest the log**: ✅ run-1 log uploaded
       (`live testing result/game-insights/log.txt`) and parsed →
       `notes/game-map-draft.md` (920 globals / 41 replaceable / 26 forbidden,
@@ -33,14 +35,20 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 - [ ] Phase 2c — in-game **dev-cheat panel** (native `mk_menu_but` UI):
       give ammo/cards, god mode, spawn pieces, damage multipliers
+      (+ owner ask from run 2: an always-visible "white = ON / black = OFF"
+      legend line in the mod menu itself — needs a draw hook on the mods
+      menu; the legend currently lives in sk-rework's description text)
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
-- [ ] **Pre-enable mods from the toolchain** (owner critique #2): once the
-      harvested `modlist.lua` format is known, `build-dist.ps1` writes it so
-      no in-game toggling is ever needed (today: ON by default anyway)
+      (persist knobs via the mod's own `save/mods/sk-rework.sav` slot —
+      run-2-verified per-mod save system)
+- [x] ~~**Pre-enable mods from the toolchain** (owner critique #2)~~ —
+      shipped session 5: `build-dist.ps1` writes `mods/modlist.lua`
+      (byte-format live-verified run 2); `sk-rework` starts ON, workshop
+      mods start OFF, `-AllModsOn` flips everything on
 
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
@@ -54,9 +62,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       fires hooks, feeds the output to the parser; 29/29 checks (build 4)
 - [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
       game (load proof, 920 globals, hooks, 47 events, object dumps)
-- [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4: MODLIST
-      dump (`SKM|`), card id map (`SKC|`), `mods/modlist.lua` probe (`SKML|`);
-      dead `on_*`/`upd` probes removed; awaits one live run
+- [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4, **live-proven
+      run 2**: MODLIST dump (`SKM|` 14 entries), card id map (`SKC|` 186 cards);
+      the `SKML|` in-log probe never fired (`loadfile` absent from the mod env)
+      but `-GetInsights` harvested the real `mods/modlist.lua` instead
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
@@ -77,15 +86,57 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 1. ~~Do plain mods receive `on_*` callbacks?~~ **No.** `on_*`/`upd` never
    fired during real gameplay; `append()` is the only proven hook. (Build 4
    removed the probes; defining those globals can shadow the Terminal.)
-2. ~~Are mods enabled by default?~~ **Yes, ON by default**; enable state lives
-   in `mods/modlist.lua`, written by the game at boot. On-disk format still
-   unknown → build 4 `SKML|` probe + `apply.ps1 -GetInsights` will capture it.
+2. ~~Are mods enabled by default? What is modlist.lua's format?~~ **Mods
+   start OFF by default** (run 2 corrected run 1's wrong "ON by default" —
+   black text = OFF until clicked). Format (byte-verified):
+   `return {` CRLF `\t{ '<mod name>', <bool> },` … `}` — tab indent,
+   trailing comma on every entry, no trailing newline. The game writes it
+   at boot; `build-dist.ps1` now writes it too (pre-enable).
 3. ~~Real field names for ammo/hp?~~ Partially: `hero.hp`, `hero.ammo`
    confirmed live; the displayed-stats table (nested ammo/health names) is a
    Terminal callback, not a global — cheat panel should read `hero.ammo`
    directly or dump `get_disp_stats()` (it IS a global).
+4. ~~Exact special-card ids for the codex?~~ **Answered run 2 (build-4
+   `SKC|` dump):** the game's CARDS table = 186 cards; stats.sav codex =
+   those 186 + 9 special keys (bleed, cloak, grenade, jump, leader, line,
+   mission, orb, Unfaithful Steed) = 195. `make_100pct_save.py` now writes
+   exactly that set. 10 cards carry a `special=` mechanic field (strafe,
+   scope, decree, grenade, orb, dig).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 5 — live test run 2 absorbed; feature work unblocked):**
+- ✅ run-2 `-GetInsights` pack parsed: build 4 all-probes-good
+      (`READY build=4 hooks=5 globals=920`; SKM 14 entries, SKC 186 cards);
+      draft regenerated (`notes/game-map-draft.md`), parser summary now also
+      prints `mods:` / `cards:` counts
+- 🐛 CORRECTED (run 2 evidence): mods are **OFF by default** (black text) —
+      run 1's "ON by default" was wrong; all docs fixed (INSTALL, README,
+      PLAY-THIS.txt); `modlist.lua` byte-format documented in `notes/map.md`
+- ✅ **Pre-enable shipped:** `build-dist.ps1` writes `mods/modlist.lua`
+      (verified byte-identical to the game's own file for the same states);
+      `sk-rework` ON, workshop mods OFF, new `-AllModsOn` switch
+- ✅ **100% tool card set corrected:** old list missed 25 real cards
+      (Anarchy, Stoning, Vendetta, …) — now writes the live-verified 195
+      (186 CARDS + 9 special keys), exactly matching the game's own
+      stats.sav key set
+- ✅ New intel logged in `notes/map.md`: per-mod saves
+      (`save/mods/<name>.sav` plaintext, no zlib wrapper + `reg.sav`
+      registry; `MODSAV`/`save` globals = candidate config-persistence API),
+      game-made `.sav.bak` snapshots, `loadfile` absent from mod env,
+      full MODLIST entry field list
+- ⚠️ CAUGHT IN ANALYSIS (fixed before shipping): a bool-vs-string comparison
+      bug in an ad-hoc script briefly suggested "modded sessions wipe
+      achievements" — false; post-run achievements.sav = all 128 True
+      (save-side achievements survive modded play, as run 1 showed)
+- ✅ owner's run-2 asks: mod-menu doc rewritten (neutral tone, correct
+      black=OFF/white=ON facts); legend text added to sk-rework's
+      description (visible in the mod menu); in-menu always-visible legend
+      queued for Phase 2c
+- ✅ Verified this session: parser selftest 23/23; smoke test 29/29 (both
+      `all()` semantics); codec roundtrip byte-identical on run-2's 6 saves;
+      100% tool E2E on the run-2 save copy (128 True + 195 cards); 3/3
+      `.ps1` tree-sitter parse clean
 
 **2026-10-03 (session 4 — live test #1 absorbed; see changelog for detail):**
 - ✅ live ladder steps 1–5 all ran (twice); run-1 log parsed into
@@ -96,9 +147,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - ✅ `make_100pct_save.py` codex 96%→100% (6 special cards) + achievements-off
       explanation; `apply.ps1 -GetInsights`; `build-dist.ps1` PLAY-THIS.txt,
       `INSTALL.md`, `README.md` corrected from the owner's critique
-- ⏳ NEW (owner, ~5 min): run build 4 once + `-GetInsights`, upload the pack →
-      modlist.lua format + exact special-card ids → then build-dist can
-      pre-enable mods (critique #2 fully closed)
+- ⏳ ~~NEW (owner, ~5 min): run build 4 once + `-GetInsights`, upload the pack~~
+      → **done in run 2** (see session-5 entry above): modlist.lua format +
+      full card set delivered; build-dist pre-enable shipped (critique #2
+      fully closed)
 
 **2026-10-03 (session 3 — placement-aware INSTALL.md + `mod`/`mods` normalization):**
 - ✅ **`INSTALL.md` rewritten for manual setup + `E:\testing\repo\tools` copy-paste**:
@@ -190,5 +242,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 👑 Owner to-do
 
-1. Live-test ladder Steps 1–5 above (Step 4 is the only true blocker)
-2. At deployment: flip private; optionally scrub history; or archive repo
+1. ~~One short build-4 run + `-GetInsights` upload~~ **DONE (run 2)** — both
+      remaining unknowns delivered (modlist.lua format + full card set).
+      Feature work is unblocked; next owner action = playtest Phase 2c
+      (dev-cheat panel) when that build ships.
+2. Optional quick check next run: confirm the build now boots with sk-rework
+      already ON (no manual toggling) and that the mod-menu legend text
+      shows in sk-rework's description.
+3. At deployment: flip private; optionally scrub history; or archive repo

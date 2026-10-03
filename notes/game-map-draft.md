@@ -1,12 +1,12 @@
-# Draft game map — generated from `log.txt`
+# Draft game map — generated from `run-2-log.txt`
 
-> Generated 2026-10-03 14:55 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
+> Generated 2026-10-03 16:15 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
 
 ## 1. Did the mod load?
 
-- ✅ mod loaded — build 3, mod_index 9
+- ✅ mod loaded — build 4, mod_index 1
 - ✅ found itself in MODLIST; active=True
-- ✅ READY line: build 3, 5 hooks registered, 920 globals visible
+- ✅ READY line: build 4, 5 hooks registered, 920 globals visible
 
 ## 2. API availability (planned functions)
 
@@ -25,9 +25,9 @@ Registered (append) hooks:
 
 | event | via append() hook | via on_* callback probe |
 |---|---|---|
-| add_card | 4 | — |
-| init_game | 4 | — |
-| new_level | 6 | — |
+| add_card | 3 | — |
+| init_game | 3 | — |
+| new_level | 3 | — |
 | setup_piece | 100 (sampled: 33 lines) | — |
 
 - **Verdict:** append() hooks fire, `on_*` probes do not → for plain mods, events must be hooked with `append()` on game globals (the `on_*` dispatch comes from the Glacies Module Terminal mod, matching what the workshop mods show).
@@ -36,24 +36,24 @@ Registered (append) hooks:
 
 | turn | bads | bullets | hero_px | hero_py |
 |---|---|---|---|---|
-| 1 | 11 | 0 | 4 | 7 |
-| 2 | 11 | 0 | 3 | 6 |
-| 3 | 11 | 0 | 2 | 5 |
-| 4 | 11 | 0 | 2 | 5 |
-| 5 | 9 | 0 | 2 | 5 |
+| 1 | 12 | 0 | 3 | 7 |
+| 2 | 12 | 0 | 2 | 6 |
+| 3 | 12 | 0 | 1 | 5 |
+| 4 | 12 | 0 | 2 | 4 |
+| 5 | 12 | 0 | 2 | 4 |
 | … | … | … | … | … |
-| 27 | 11 | 0 | 1 | 5 |
-| 28 | 6 | 0 | 3 | 7 |
-| 29 | 6 | 0 | 2 | 6 |
-| 30 | 6 | 0 | 1 | 5 |
-| 50 | 8 | 0 | 3 | 6 |
+| 28 | 2 | 0 | 1 | 2 |
+| 29 | 2 | 0 | 1 | 2 |
+| 30 | 2 | 0 | 1 | 2 |
+| 50 | 6 | 0 | 4 | 5 |
+| 75 | 5 | 0 | 2 | 2 |
 
 ## 5. Object model (real field names from the running game)
 
-- **piece**: `vy=0`, `hp_max=9`, `ysort_dy=15`, `x=128`, `y=30`, `piece=1`, `bad=true`, `still=true`, `prison_bar=0`, `sq.vy=0`, `sq.dp=1`, `sq.cl=1`, `sq.frict=1`, `sq.dcx=0`, `sq.fr=0`, `sq.x=128`, `vx=0`, `fields_shown=16`, `danger=6`, `hdy=1`
-- **hero**: `vy=0`, `hp_max=8`, `ysort_dy=15`, `sweaty=false`, `y=142`, `piece=1`, `seek=wdist`, `still=true`, `prison_bar=0`, `fields_shown=9`
-- **hero.sq**: `vy=0`, `dp=1`, `gdist=99`, `risk=0`, `x=160`, `y=142`, `t=424`, `wdist=0`, `seed=501`, `fields_shown=9`
-- **card**: `vy=0`, `dp=5`, `n=1`, `x=162`, `y=51`, `chosen=true`, `t=258`, `twc=0`, `ext=1`, `fields_shown=18`, `pawn_assault=1`, `turn_count=0`, `index=128`, `id=Assault`, `vx=0`, `exclude.1=Guillotine`, `pawn_hp=-1`, `knight_bishop_rook_rep=0`, `sl.village=1`, `sl.dp=3`
+- **piece**: `hh=16`, `flx=false`, `hp=4`, `hp_max=5`, `seek=bdist`, `dcx=0`, `dcy=0`, `team=1`, `fields_shown=8`, `reap=1`
+- **hero**: `hh=16`, `flx=false`, `hp=8`, `hp_max=8`, `tracked=1`, `mastermind=1`, `seek=wdist`, `dcx=0`, `dcy=0`, `fields_shown=9`
+- **hero.sq**: `hh=16`, `flx=false`, `dan=0`, `highlight=false`, `px=3`, `dcx=0`, `dcy=0`, `p.hh=16`, `p.flx=false`, `p.hp=8`, `p.hp_max=8`, `p.tracked=1`, `p.mastermind=1`, `dist=0`, `wdist=0`, `we=0`, `fields_shown=16`
+- **card**: `hh=16`, `flx=false`, `tws=30`, `sx=104`, `sy=69`, `ey=141`, `dcx=0`, `dcy=0`, `team=0`, `fields_shown=11`, `ammo_regen=1`, `firerange=1`
 
 ## 6. Function map (candidates for the TBD areas)
 
@@ -250,8 +250,218 @@ write                       write_big_at                write_mod_list          
 xpl_king                    ysort
 ```
 
+## 10. Mod list (live MODLIST dump)
+
+- entry 1: `author=freeforall1932`, `cover=mods/sk-rework/cover.png`, `active=true`, `priority_hint=0`, `desc=Ammo & gameplay rework (private personal-use project).`, `num=1`, `save=sk-rework`, `folder=mods/sk-rework`, `mode_description=tbl`, `here=true`, `name=sk-rework`, `title=SK Rework`
+- entry 2: `author=matheo000`, `cover=mods/the_magnificient_quartz_army/tmqa_cover.png`, `active=false`, `priority_hint=5`, `mode_description=tbl`, `here=true`, `script=mods/the_magnificient_quartz_army/script.lua`, `save=the_magnificient_quartz_army`, `folder=mods/the_magnificient_quartz_army`, `modes=tbl`, `exists=true`, `langs=tbl`
+- entry 3: `id=3342310033`, `save=some_fairy_pieces`, `folder=mods/some_fairy_pieces`, `modes=tbl`, `langs=tbl`, `script=mods/some_fairy_pieces/script.lua`, `author=sub122`, `cover=mods/some_fairy_pieces/cover_sfps.png`, `active=false`, `priority_hint=1`, `mode_description=tbl`, `mode_record=tbl`
+- entry 4: `author=unknown2559`, `cover=mods/Shootout/cover.png`, `active=false`, `priority_hint=0`, `desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'`, `save=Shootout`, `folder=mods/Shootout`, `modes=tbl`, `here=true`, `name=Shootout`, `title=Shootout: the Rifle King Adventure`, `exists=true`
+- entry 5: `author=Lorina Sonetto & Bob Qwerty`, `active=false`, `priority_hint=0`, `desc=Broken oaths and holy corruption.`, `save=disgraced_justice`, `folder=mods/disgraced_justice`, `here=true`, `name=disgraced_justice`, `title=Disgraced Justice`, `script=mods/disgraced_justice/script.lua`, `exists=true`
+- entry 6: `author=Glacies`, `cover=mods/extra features/cover.png`, `active=false`, `priority_hint=0`, `desc=This mod itself doesn't add any content. Only empowers other mods to have additional features.`, `save=extra features`, `folder=mods/extra features`, `id=3145848395`, `mode_description=tbl`, `here=true`, `name=extra features`, `title=Glacies' Extra Features`
+- entry 7: `author=Glacies`, `cover=mods/glacies collection/cover.png`, `active=false`, `priority_hint=0`, `desc=Adds a bunch of ingame mechanics that can be used by other mods,`, `save=glacies collection`, `folder=mods/glacies collection`, `id=3148586988`, `mode_description=tbl`, `here=true`, `name=glacies collection`, `title=Glacies' Collection`
+- entry 8: `author=Glacies`, `cover=mods/grenade predictor/cover.png`, `active=false`, `priority_hint=0`, `desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.`, `mode_record=tbl`, `save=grenade predictor`, `folder=mods/grenade predictor`, `id=3449354474`, `mode_description=tbl`, `here=true`, `name=grenade predictor`
+- entry 9: `author=Glacies`, `cover=mods/nightmare/cover.png`, `active=false`, `priority_hint=0`, `desc=The title is a lie. This mod isn't as hard as a nightmare at all.`, `id=3197738029`, `mode_record=tbl`, `save=nightmare`, `folder=mods/nightmare`, `modes=tbl`, `mode_description=tbl`, `here=true`
+- entry 10: `author=Glacies`, `cover=mods/retry/cover.png`, `active=false`, `priority_hint=0`, `desc=Restarts the current floor after you die.`, `save=retry`, `folder=mods/retry`, `id=3626751996`, `mode_description=tbl`, `here=true`, `name=retry`, `title=Retry after Death`
+- entry 11: `author=Glacies`, `cover=mods/show exclude/cover.png`, `active=false`, `priority_hint=0`, `desc=Features:`, `save=show exclude`, `folder=mods/show exclude`, `id=3145391294`, `mode_description=tbl`, `here=true`, `name=show exclude`, `title=Better Codex`
+- entry 12: `author=Glacies`, `cover=mods/royal card lab/cover.png`, `active=false`, `priority_hint=-1`, `desc=`, `id=3144064207`, `save=royal card lab`, `folder=mods/royal card lab`, `modes=tbl`, `mode_description=tbl`, `here=true`, `name=royal card lab`
+- entry 13: `author=Glacies`, `cover=mods/the art of war/cover.png`, `active=false`, `priority_hint=-1`, `desc=[h2] Content [/h2]`, `save=the art of war`, `folder=mods/the art of war`, `id=3512338449`, `mode_description=tbl`, `here=true`, `name=the art of war`, `title=Military Tactics -The Art of War-`
+- entry 14: `author=Glacies`, `cover=mods/glac terminal/cover.png`, `active=false`, `priority_hint=-3`, `desc=Modder tool. DOESN'T ADD ANY CONTENT.`, `save=glac terminal`, `folder=mods/glac terminal`, `id=3144832438`, `mode_description=tbl`, `here=true`, `name=glac terminal`, `title=Glacies Module Terminal`
+
+## 11. Card id map (live CARDS dump)
+
+186 cards. `id` is the display name (confirmed live: `SKE|add_card|id=A Piercing Truth`); stats.sav codex keys use the same names.
+
+| id | gid | ext | pwe |
+|---|---|---|---|
+| Ermine Belt | 0 | 0 | 4 |
+| Rightful Curtsy | 1 | 0 | 4 |
+| Elite Gem | 2 | 0 | 4 |
+| Extra Barrel | 3 | 0 | 6 |
+| Royal Loafers | 4 | 0 | 2 |
+| Majestic Censer | 5 | 0 | 4 |
+| Sacred Crown | 6 | 0 | 4 |
+| Blunderbuss | 7 | 0 | 4 |
+| Engraved Scope | 8 | 0 | 4 |
+| Holy Gunpowder | 9 | 0 | 4 |
+| Ritual Dagger | 10 | 0 | 4 |
+| August Presence | 11 | 0 | 4 |
+| Crow's Blessing | 12 | 0 | 4 |
+| Wand of Downpour | 13 | 0 | 1 |
+| Wand of Frenzy | 14 | 0 | 1 |
+| Wand of Wrath | 15 | 0 | 1 |
+| Wand of Wings | 16 | 0 | 1 |
+| The Moat | 17 | 0 | 4 |
+| Gradual Absolution | 18 | 0 | 2 |
+| Taunting Hop | 19 | 0 | 4 |
+| Wand of Gust | 20 | 0 | 1 |
+| Faithful Steed | 21 | 0 | 4 |
+| Unjust Decree | 22 | 0 | 2 |
+| Kingly Alms | 23 | 0 | 4 |
+| Subtle Poison | 24 | 0 | 2 |
+| Kingdom Wealth | 25 | 0 | 3 |
+| Small Fry Harvest | 26 | 0 | 2 |
+| A Piercing Truth | 27 | 0 | 4 |
+| Black Mist | 28 | 0 | 4 |
+| King's Shoulders | 29 | 0 | 2 |
+| High Focus | 30 | 0 | 4 |
+| Courteous Jousting | 31 | 0 | 4 |
+| Cornered Despot | 32 | 0 | 4 |
+| Sawed-off Justice | 33 | 1 | 4 |
+| Welcome Gift | 34 | 1 | 4 |
+| Cannon Fodder | 35 | 1 | 4 |
+| Possessed | 36 | 1 | 4 |
+| Philanthropy | 37 | 1 | 4 |
+| Imperial Shot Put | 38 | 1 | 4 |
+| Egotic Maelstrom | 39 | 1 | 4 |
+| Church Organ | 40 | 1 | 4 |
+| Black Plague | 41 | 1 | 4 |
+| Ravenous Rats | 42 | 1 | 4 |
+| Deep Water | 43 | 1 | 4 |
+| Unholy Call | 44 | 1 | 4 |
+| Undercover Mission | 45 | 1 | 4 |
+| Caltrops | 46 | 1 | 4 |
+| Nightbane | 47 | 1 | 4 |
+| Bushido | 48 | 1 | 4 |
+| Bloodless Coups | 49 | 1 | 4 |
+| Wand of Hypnosis | 50 | 1 | 1 |
+| Presbyopia | 51 | 1 | 4 |
+| Golden Aging | 52 | 1 | 4 |
+| Fool Companion | 53 | 1 | 4 |
+| Force-feeding | 54 | 1 | 4 |
+| Seer's Orb | 55 | 2 | 4 |
+| Fearsome | 56 | 2 | 4 |
+| Human Shield | 57 | 2 | 4 |
+| Reign of Terror | 58 | 2 | 4 |
+| Selective Listening | 59 | 2 | 4 |
+| Monarch's Confidence | 60 | 2 | 4 |
+| The Mole | 61 | 2 | 4 |
+| Elusive | 62 | 2 | 4 |
+| Holoking | 63 | 2 | 4 |
+| Cloaking Device | 64 | 2 | 4 |
+| Low-Cost Disguise | 65 | 2 | 4 |
+| Wand of Souls | 66 | 2 | 1 |
+| Wand of Execution | 67 | 2 | 1 |
+| Patience | 68 | 2 | 4 |
+| Bold Plan | 69 | 2 | 4 |
+| Silencer | 70 | 2 | 4 |
+| Ambush | 71 | 2 | 4 |
+| Ancient Flagstone | 72 | 2 | 2 |
+| Tearing Bullets | 73 | 2 | 4 |
+| Indelible Memories | 74 | 2 | 4 |
+| Mystic Shackles | 75 | 2 | 4 |
+| Secret Move | 76 | 2 | 4 |
+| Sacred Light | 77 | 2 | 4 |
+| Workshop | 78 | 2 | 4 |
+| Right-hand | 79 | 3 | 4 |
+| Warhorse | 80 | 3 | 4 |
+| Bastion | 81 | 3 | 4 |
+| Sprint | 82 | 3 | 4 |
+| Soul Projection | 83 | 3 | 4 |
+| Onboarding Party | 84 | 3 | 4 |
+| Small Key | 85 | 3 | 4 |
+| Rapunzel | 86 | 3 | 4 |
+| Wand of Treachery | 87 | 3 | 1 |
+| Guerilla Tactics | 88 | 3 | 4 |
+| Shovel | 89 | 3 | 2 |
+| Grindstone | 90 | 3 | 2 |
+| Death Mark | 91 | 3 | 4 |
+| Shrapnel | 92 | 3 | 4 |
+| Backups | 100 | 0 | 4 |
+| Cavalry | 101 | 0 | 4 |
+| Conclave | 102 | 0 | 4 |
+| Entitle | 103 | 0 | 4 |
+| Cardinal | 104 | 0 | 4 |
+| Remparts | 105 | 0 | 4 |
+| Pillage | 106 | 0 | 4 |
+| Crusades | 107 | 0 | 4 |
+| Peace | 108 | 0 | 4 |
+| King's Mistress | 109 | 0 | 4 |
+| Revolution | 110 | 0 | 4 |
+| Bodyguard | 111 | 0 | 4 |
+| Ruins | 112 | 0 | 4 |
+| Assault | 113 | 0 | 4 |
+| Kite Shield | 114 | 0 | 4 |
+| Zealots | 115 | 0 | 4 |
+| Militia | 116 | 0 | 4 |
+| Ammunition Depot | 117 | 0 | 4 |
+| Scouting | 118 | 0 | 4 |
+| Pikemen | 119 | 0 | 4 |
+| Ascension | 120 | 0 | 4 |
+| Castle | 121 | 0 | 4 |
+| Conscription | 122 | 0 | 4 |
+| Theocracy | 123 | 0 | 4 |
+| Fallen Dynasty | 124 | 0 | 0 |
+| Iron Maiden | 125 | 0 | 4 |
+| Court of the King | 126 | 0 | 4 |
+| The Red Book | 127 | 0 | 4 |
+| Saboteur | 128 | 0 | 4 |
+| Homecoming | 129 | 0 | 0 |
+| Lookout Tower | 130 | 0 | 4 |
+| Throne Room | 131 | 0 | 4 |
+| The Secret Heir | 132 | 0 | 4 |
+| Genderqueer | 133 | 0 | 4 |
+| Karma | 134 | 1 | 4 |
+| Undead Armies | 135 | 1 | 4 |
+| Shortage | 136 | 1 | 4 |
+| Succubus | 137 | 1 | 4 |
+| Bunker | 138 | 1 | 4 |
+| Sanctity | 139 | 1 | 4 |
+| Knightmare | 140 | 1 | 4 |
+| Highest Dungeon | 141 | 1 | 2 |
+| Cathedral | 142 | 1 | 4 |
+| The Bridge | 143 | 1 | 4 |
+| Divine Healing | 144 | 1 | 4 |
+| Last Guardian | 145 | 1 | 4 |
+| Trowel | 146 | 1 | 4 |
+| Full Plate Armor | 147 | 1 | 4 |
+| Military Academy | 148 | 1 | 4 |
+| Witch's Curse | 149 | 1 | 4 |
+| Saddle | 150 | 1 | 4 |
+| The Jester | 151 | 1 | 4 |
+| Guillotine | 152 | 1 | 4 |
+| Analysis Paralysis | 153 | 1 | 4 |
+| Plumed Knight | 154 | 2 | 4 |
+| Emergency Call | 155 | 2 | 4 |
+| Mangonel | 156 | 2 | 4 |
+| Governess | 157 | 2 | 4 |
+| Mausoleum | 158 | 2 | 4 |
+| Reverend Mother | 159 | 2 | 4 |
+| Sokoban | 160 | 2 | 4 |
+| Tag Team | 161 | 2 | 4 |
+| Unicorn | 162 | 2 | 4 |
+| Lady in the Tower | 163 | 2 | 4 |
+| Final Countdown | 164 | 2 | 4 |
+| Nomad Life | 165 | 2 | 4 |
+| Prison | 166 | 2 | 4 |
+| Inquisition | 167 | 2 | 4 |
+| King's Look-alike | 168 | 2 | 4 |
+| The Royal Hunt | 169 | 2 | 4 |
+| Tragic Homecoming | 170 | 2 | 0 |
+| Buckler of Limos | 171 | 2 | 4 |
+| Vampirism | 172 | 2 | 4 |
+| Commoner's Reign | 173 | 2 | 0 |
+| Bouncy Castle | 174 | 2 | 4 |
+| Self-Defense | 175 | 2 | 0 |
+| Unsettled Throne | 176 | 2 | 4 |
+| Vendetta | 177 | 3 | 8 |
+| Stoning | 178 | 3 | 4 |
+| Anarchy | 179 | 3 | 2 |
+| Auto-da-fe | 180 | 3 | 4 |
+| Late for dinner | 181 | 3 | 4 |
+| Excommunication | 182 | 3 | 4 |
+| Pyre of Lust | 183 | 3 | 2 |
+| Gatehouse | 184 | 3 | 4 |
+| Lightfoot | 185 | 3 | 4 |
+| Loyalist March | 186 | 3 | 2 |
+| Trench War | 187 | 3 | 2 |
+| Catacombs | 188 | 3 | 4 |
+| Flesh Wall | 189 | 3 | 2 |
+| Hired Blade | 190 | 3 | 4 |
+| Oathkeeper | 191 | 3 | 2 |
+| Redemption | 192 | 3 | 4 |
+
 ## 13. Next step
 
 - Promote confirmed entries into `notes/map.md` (replace the TBD lines).
 - Pick the dev-cheat panel targets from the ammo/UI candidate lists.
-- Lines from other systems in the log: 1291 (ignored; raise an issue if the game seems noisy).
+- Lines from other systems in the log: 957 (ignored; raise an issue if the game seems noisy).

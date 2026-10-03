@@ -28,9 +28,10 @@ That copies `modded/sk-rework/` → `<game>/mods/sk-rework/` (idempotent).
 Then:
 
 1. Launch the game (Steam).
-2. Mods are **ON by default**; if you toggled one off: mod menu = **Play
-   screen, top entry**; click = on/off (bright text = ON); up/down = load
-   priority only.
+2. Mods start **OFF by default** (black text). To enable: mod menu = **Play
+   screen, top entry**; click = on/off (white text = ON, black = OFF);
+   up/down = load priority only. (A `build-dist.ps1` copy skips this — it
+   pre-enables sk-rework via `mods/modlist.lua`.)
 3. Play / trigger the feature.
 4. On crash or weirdness: read `<game folder>/log.txt` and the crashlog
    (SUGAR writes crashlogs; the error is at the END of the log).
