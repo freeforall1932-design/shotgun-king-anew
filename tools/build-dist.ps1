@@ -62,11 +62,16 @@ SHOTGUN KING - MODDED BUILD (private, personal use)
 ====================================================
 Play:  run shotgun_king.exe  (or "play Shotgun King.bat")
 
-Included mods (workshop mods by their authors + sk-rework by us).
-If a mod is not active, check the in-game mod menu once.
+TOGGLES: mods are NOT forced on. Open the in-game MOD MENU (from the
+main menu) to switch each mod ON or OFF individually - injected mods
+appear there like any other mod. Changes apply on your next run.
 
-Restore vanilla: delete the mods/ folder, or run the game from your
-original install folder. Your original game folder was NOT modified.
+Included: 13 workshop mods (by their authors, from the official Discord /
+Steam Workshop) + sk-rework (this project - currently a debug stub that
+logs the game''s function map to log.txt).
+
+Restore vanilla: turn mods off in the mod menu, or delete the mods/
+folder. Your original game folder was NOT modified by this build.
 '@
 Set-Content -LiteralPath (Join-Path $dest "PLAY-THIS.txt") -Value $readme
 

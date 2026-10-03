@@ -1,98 +1,176 @@
-# Shotgun King — Ammo & Gameplay Rework
+# 🔫👑 Shotgun King: Reworked
 
-A private, personal-use mod project for **Shotgun King: The Final Checkmate**
-(PUNKCAKE Délicieux, engine: **SUGAR** — custom Lua, NOT Godot; see
-PLANNING.md §0.5). The game has an official mod system, so **our deliverable
-is a mod**, not a patched exe.
+> A private, personal-use **mod project** for *Shotgun King: The Final Checkmate*
+> (PUNKCAKE Délicieux) — ammo rework, pick-anything tools, built-in dev cheats,
+> and a ready-to-play modded build of the game.
+>
+> Engine: **SUGAR** (the studio's custom Lua engine) · Game version: **v1.623b** ·
+> Mod system: official (`info.lua` format)
 
-**⚠️ This repo must be PRIVATE.** It currently contains ripped game archives
-(creator's IP) on `main` + the arena branch. Flip it: *GitHub → repo →
-Settings → General → Danger Zone → Change visibility → Private.* (The agent
-token lacks admin; owner must click it.)
+---
 
-## What the mod will do (full plan: `PLANNING.md`)
+## ✨ What this gives you
 
-1. Reworked ammo system (design A/B/C pending owner's pick — §5)
-2. Card picker: manually pick any card / random from ALL cards
-3. Enemy picker: manually pick or randomize spawns
-4. New shot mechanics: knockback, pierce, bleed, … (many exist as vanilla
-   card fields already — mostly exposing + combining)
-5. Balance knobs: `damage_taken_mult`, `damage_dealt_mult`
+| Feature | Status |
+|---|---|
+| 🎮 Ready-to-play game build with 13 workshop mods pre-installed | ✅ shipped (`tools/build-dist.ps1`) |
+| 🔓 100% casual save — all achievements, all 9 shotguns, all modes, full codex | ✅ shipped (`tools/make_100pct_save.py`) |
+| 🧩 Mods toggle on/off in the in-game mod menu (nothing is forced) | ✅ by design |
+| 💾 Save file codec — read/edit/write any `.sav` | ✅ shipped, roundtrip-verified |
+| 🛠️ Dev/cheat panel inside the game (give ammo/cards, god mode, spawners) | 🔜 next phase |
+| 🧪 Ammo rework — A: simple scale → B: shell economy → C: shell types | 🔜 phased |
+| 🃏 Card picker (pick ANY card / random from all / ban list) | 🔜 planned |
+| ♟️ Enemy picker (choose or randomize spawns) | 🔜 planned |
+| ⚖️ Balance knobs (`damage_taken_mult`, `damage_dealt_mult`) | 🔜 planned |
 
-## Layout
+---
 
-```
-PLANNING.md     the plan + 2026-10-03 engine correction (§0.5) — read first
-tools/          recover.md · mod-dev.md · apply.ps1 — the pipeline
-uploads/        owner's archives + modding-guide + insights (IGNORED BY GIT)
-modded/sk-rework/   OUR MOD: info.lua, script.lua, modes/…  (the deliverable)
-notes/          map.md · mods.md · changelog.md · data-sgr-filelist.txt
-```
+## 🚀 Quick Start
 
-## The pipeline (no repacking — mods are the product)
+You need: Windows, PowerShell, Python 3 (for the save tools), and your own
+copy of the game. Pick the path that matches your mood:
 
-```
-edit modded/sk-rework/*  →  pwsh tools/apply.ps1 -GameDir "<game folder>"
-→  launch game, enable "sk-rework" in mod menu  →  play; check log.txt
-```
-
-Debugging inside the mod: `_log()`, `gimme("global")`, crashlogs land next to
-the exe (see `tools/mod-dev.md`). Reference mods + dev's guide live in
-`uploads/` (inventoried in `notes/mods.md`).
-
-## The "injected" ready-to-play build (game genes, per owner request)
+### "I just want to play with everything unlocked"
 
 ```powershell
-pwsh tools/build-dist.ps1 -GameDir "<your game folder>" -Clean
+# 1. build a modded copy of the game (original folder untouched)
+pwsh tools/build-dist.ps1 -GameDir "E:\games\Shotgun.King.The.Final.Checkmate.v1.623b" -Clean
+
+# 2. unlock everything in YOUR save (auto-backs up first)
+python tools/make_100pct_save.py --game-dir "E:\games\Shotgun.King.The.Final.Checkmate.v1.623b"
+
+# 3. play!
+dist\ShotgunKing-Modded\shotgun_king.exe
 ```
 
-Copies your game → `dist/ShotgunKing-Modded/` and injects everything:
-13 workshop mods (`dist-overlay/mods/`, names verified against `info.lua`)
-+ our `sk-rework`. Play by running the exe inside `dist/` — your original
-folder is never touched. (First launch may need one mod-menu toggle; live
-test will confirm whether present mods auto-enable.)
+Mods not active? Open the **mod menu** in-game and flip them on — every
+injected mod appears there individually and can be toggled any time.
 
-Save editing (cheat-adjacent, format cracked): `tools/save_codec.py` —
-decode any `save/*.sav` to text, edit, pack back. `prog.sav` = progression
-(unlock weapons/badges/ranks), `stats.sav` = per-card played/ignored memory.
+Just want the unlocks, no mods? Skip step 1 — the save tool works on a
+vanilla install too.
 
-## Status
+### "A workshop mod I downloaded won't load"
 
-| Phase | What | State |
-|---|---|---|
-| 0 | Game obtained, analyzed, engine identified | **done** (2026-10-03) |
-| 1 | Recon — code map (`notes/map.md`) | **mostly done pre-source** (guide + mods); runtime dump pending |
-| 2 | Debug toolchain mod (F-keys + `gimme()` dump) | next up |
-| 3 | Ammo rework (owner picks design §5) | pending |
-| 4 | Card + enemy pickers | pending |
-| 5 | New shot mechanics | pending (vanilla `knockback`/`pierce` fields confirmed) |
-| 6 | Balance knobs + packaging | pending |
+```powershell
+pwsh tools/install-mods.ps1 -GameDir "<game folder>" -ZipsDir "<folder with the mod zips>"
+```
 
-## Owner's to-do
+It unzips each mod into `mods/` and renames the folder to the `name=` field
+inside its `info.lua` — the #1 reason mods silently fail to load (plus: mods
+must be *unpacked folders*, never `.zip`/`.rar`).
 
-1. **Test mission (NOW, before more features get built)** — the Phase 2 stub
-   is already pushed:
-   ```
-   pwsh tools/apply.ps1 -GameDir "<your game folder>"
-   ```
-   → launch game → mod menu → enable **SK Rework** → quit → upload the game's
-   `log.txt` to the repo (like the rar parts). The log contains the full
-   function map (`SKG|…` lines) that the real features get built on.
-2. *(Optional, fixes "boring game")* install the 13 workshop mods properly:
-   ```
-   pwsh tools/install-mods.ps1 -GameDir "<game folder>" -ZipsDir "<folder with the mod zips>"
-   ```
-3. Delete `Shotgun...part4.rar` + the 13 mod zips from **main** via web UI
-   (each file → trash icon) — or just flip the repo private at deployment.
-4. Pick nothing else for now — ammo design is decided (A→B→C progressive,
-   PLANNING.md §0.6); playtest each phase build and report back.
+### "I'm developing the mod"
 
-## Warnings
+```powershell
+git clone <this repo>; cd shotgun-king-anew
+pwsh tools/apply.ps1 -GameDir "<game folder>"     # deploy modded/sk-rework/ only
+# play, then fetch the game's log for analysis:
+pwsh tools/apply.ps1 -GameDir "<game folder>" -GetLog
+```
 
-- The analyzed game copy is a Goldberg-emu repack, not a vanilla Steam
-  install — fine for mod dev, but the in-game Steam Workshop UPLOAD button
-  won't work there. Modding itself is unaffected.
-- A **game update** may change internals — mods keep working (that's the
-  point), but re-check `notes/map.md` TBDs against a fresh runtime dump.
-- Crash with no log or right after intros = Lua error; the error text is at
-  the END of `log.txt` next to the exe.
+Dev loop, SUGAR API notes, hooking patterns: **[`tools/mod-dev.md`](tools/mod-dev.md)**
+
+---
+
+## 📁 Repository layout
+
+```
+├── modded/sk-rework/      🔧 our mod (the deliverable — info.lua, script.lua, …)
+├── dist-overlay/mods/     🧩 13 workshop mods, vendored (folder names verified)
+├── tools/
+│   ├── build-dist.ps1         build the ready-to-play modded game copy
+│   ├── install-mods.ps1       fix-and-install workshop mod zips
+│   ├── apply.ps1              deploy our mod only (+ fetch game log)
+│   ├── save_codec.py          .sav container + PUNKCAKE serializer (lossless)
+│   ├── make_100pct_save.py    unlock-all save generator (backup/dry-run/restore)
+│   ├── mod-dev.md             the mod dev loop + SUGAR API cheat-sheet
+│   └── recover.md             game archive handling & intel notes
+├── notes/
+│   ├── map.md                 code map: what we know about the game's internals
+│   ├── mods.md                the 13 workshop mods + the mod format they prove
+│   ├── data-sgr-filelist.txt  all 278 files inside data.sgr
+│   └── changelog.md           every change, dated, with reasons
+├── PLANNING.md            📜 the full plan, corrections & owner decisions
+└── uploads/               📦 (gitignored) game archives, extracted mods, tools
+```
+
+---
+
+## 🎮 How mods work here (and why they can't "break" your game)
+
+Shotgun King loads mods from `<game folder>/mods/<mod name>/`. Each mod is a
+plain folder with an `info.lua`. The game's own **mod menu** lists every mod
+found — you switch each one on or off there, per playthrough. Our build
+*injects* mods into a **copy** of the game; your original install is never
+modified, and deleting the `mods/` folder returns the copy to vanilla.
+
+Mod facts worth knowing (details in [`notes/mods.md`](notes/mods.md)):
+
+- the folder name **must** equal the `name=` field inside `info.lua`
+- mods must be unpacked — a `.zip`/`.rar` in `mods/` is silently ignored
+- load order is controlled by `priority_hint` in `info.lua`
+
+## 💾 Save tools
+
+Saves (`save/*.sav`) are `[4-byte length][zlib][PUNKCAKE text]` — fully
+readable and writable:
+
+```powershell
+# inspect any save as text
+python tools/save_codec.py "save/prog.sav"
+
+# what's inside (v1.623b):
+#   prog.sav         progression: weapons, ranks, badges, endless floor
+#   achievements.sav achievement flags          stats.sav  per-card history
+#   reg.sav          file registry             misc.sav / runs.sav  misc+runs
+```
+
+`make_100pct_save.py` sets: all achievements · weapons 1–9 · throne rank 20 ·
+rank-20 badge per weapon · endless floor 15 (unlocks Chase) · every vanilla
+card marked played (codex 100%). It **never** touches best times or run
+history, backs up your save first, and `--restore` undoes it.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] **Phase 0** — game analyzed; engine identified (SUGAR, not Godot!)
+- [x] **Phase 1** — pre-source recon: vanilla card data, mod API, save format
+- [x] **Phase 2a** — tooling shipped (dist builder, mod installer, save tools)
+- [ ] **Phase 2b** — runtime recon: run the stub mod once, harvest the game's
+      full function map from `log.txt`
+- [ ] **Phase 2c** — in-game dev/cheat panel (native-feel, mod-menu toggleable)
+- [ ] **Phase 3** — ammo rework, staged: **A** simple scale → **B** shell
+      economy → **C** shell types
+- [ ] **Phase 4** — card picker + enemy picker
+- [ ] **Phase 5** — extra shot mechanics (vanilla `knockback`/`pierce` fields
+      already confirmed — this is mostly exposure + UI)
+- [ ] **Phase 6** — balance knobs + final packaging (repo goes private here)
+
+Full detail & decision log: [`PLANNING.md`](PLANNING.md)
+
+---
+
+## 🩺 Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| Mod doesn't show up in the mod menu | folder name ≠ `name=` in `info.lua`, or it's still zipped — run `install-mods.ps1` |
+| Game crashes after the intro logos | Lua error — open `log.txt` next to the exe, the error is at the **end** |
+| Everything feels vanilla | mods are toggled off — check the in-game mod menu |
+| 100% save didn't apply | game was running while writing; close it and re-run |
+| `pwsh` not found | use `powershell` (Windows built-in) instead |
+| Want my old save back | `python tools/make_100pct_save.py --game-dir <path> --restore` |
+
+---
+
+## ⚖️ Legal & credits
+
+- *Shotgun King: The Final Checkmate* is by **PUNKCAKE Délicieux** (Benjamin
+  Soulé & Rémy Devaux). This repo is a **private, personal-use** mod project —
+  no game assets are redistributed in the tracked repository, and nothing here
+  is for public release.
+- Vendored workshop mods in `dist-overlay/mods/` belong to their authors
+  (Glacies, sub122, Lorina Sonetto & Bob Qwerty, Willhart, …) and are mirrored
+  here only to assemble the owner's personal build. Removed on author request.
+- Modding guide & SUGAR manual: `TRASEVOL-DOG/Shotgun-King-Modding-Guide`.

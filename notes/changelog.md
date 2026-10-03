@@ -14,6 +14,32 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 — Audit + 100% save generator + main-disposal merge + pro README
+
+- **Audit pass**: purged Godot-era leftovers (tools/repack.md, game-dump/,
+  stale modded/README.md, .gitignore rebuilt), dropped accidentally
+  committed tools/__pycache__, verified tracked-file consistency.
+- **save_codec.py upgraded to full parser/serializer** — PUNKCAKE text
+  <-> Python dicts, byte-identical roundtrip on all 6 saves (`--selftest`).
+  Bugs found & fixed by the selftest: empty tables, string-value 0x1F
+  suffix, no indentation in the real format.
+- **NEW tools/make_100pct_save.py** ("casual Sunday player" unlock-all):
+  128 achievements bTrue, weapons 2-9 unlocked, throne rank 20 + rank-20
+  badge per weapon, endless floor 15 (chase unlocked), 164 vanilla cards
+  marked played (codex 100%). Preserves best times/runs/reg/misc.
+  Auto-backup + --dry-run + --restore. Verified on real save copies.
+- **Mod menu on/off documented** (owner request): injected mods are NOT
+  forced — PLAY-THIS.txt + README explain per-mod toggling in-game.
+- **Merge commit disposes main's archives**: merged origin/main (unrelated
+  histories) into the branch, then removed part4.rar + 13 mod zips + stale
+  plan doc. A PR branch->main now carries the cleanup (merging it cleans
+  main without 14 manual web-UI deletions).
+- **README rewritten** professional-style: feature table, three quick-start
+  paths, layout map, troubleshooting, credits.
+- why: owner asked for 100% unlock save, PR-based main cleanup, full patch
+  audit, and a polished README.
+- status: shipped (live playtest still pending)
+
 ## 2026-10-03 — Save format cracked + dist injector + mods vendored
 
 - **Save codec**: `save/*.sav` = [4-byte BE length][zlib] + PUNKCAKE
