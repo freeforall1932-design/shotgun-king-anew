@@ -1,24 +1,54 @@
-# SK-REWORK mod installer — makes workshop-mod zips actually load.
+# SK-REWORK mod installer — makes workshop-mod zips or unpacked folders load.
 #
 # Failure modes it fixes (see notes/mods.md):
 #   1. zip left unextracted in mods/            -> extracts properly
 #   2. folder name != name= in info.lua         -> RENAMES folder to match
 #   3. double-nested folders                    -> finds the real mod folder
 #
-# Usage (from repo root):
-#   pwsh tools/install-mods.ps1 -GameDir "E:\...\Shotgun.King.The.Final.Checkmate.v1.623b" `
-#                               -ZipsDir "C:\Users\you\Downloads"
-#   (any folder containing the mod .zips works; uploads/mods also has copies
-#    if you have the full workspace, not just the git clone)
+# File placement in the repo: E:\testing\repo\tools\install-mods.ps1
+#
+# Usage:
+#   cd E:\testing\repo\tools
+#   powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\install-mods.ps1" `
+#       -GameDir "E:\testing\game" -ZipsDir "E:\testing\game\mods"
 param(
     [Parameter(Mandatory=$true)][string]$GameDir,
-    [string]$ZipsDir = (Join-Path $PSScriptRoot "..\uploads\mods")
+    [string]$ZipsDir = ""
 )
 
 $ErrorActionPreference = "Stop"
 
+function Resolve-RepoRoot {
+    $candidates = @(
+        $PSScriptRoot,
+        (Join-Path $PSScriptRoot ".."),
+        (Get-Location).Path,
+        (Join-Path (Get-Location).Path ".."),
+        "E:\testing\repo",
+        "E:\testing\repo\shotgun-king-anew-main",
+        "E:\testing\shotgun-king-anew-main"
+    )
+    foreach ($base in $candidates) {
+        if (-not $base) { continue }
+        try { $full = [System.IO.Path]::GetFullPath($base) } catch { continue }
+        if (Test-Path -LiteralPath (Join-Path $full "modded\sk-rework")) {
+            return $full
+        }
+        if (Test-Path -LiteralPath $full) {
+            $nested = Get-ChildItem -LiteralPath $full -Directory -Filter "shotgun-king-anew*" -ErrorAction SilentlyContinue |
+                Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "modded\sk-rework") } |
+                Select-Object -First 1
+            if ($nested) { return $nested.FullName }
+        }
+    }
+    return [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
+}
+
+$RepoRoot = Resolve-RepoRoot
+if (-not $ZipsDir) { $ZipsDir = Join-Path $RepoRoot "uploads\mods" }
+
 if (-not (Test-Path -LiteralPath $GameDir)) { Write-Error "Game folder not found: $GameDir" }
-if (-not (Test-Path -LiteralPath $ZipsDir)) { Write-Error "Zips folder not found: $ZipsDir" }
+if (-not (Test-Path -LiteralPath $ZipsDir)) { Write-Error "Source mods folder not found: $ZipsDir" }
 
 $modsRoot = Join-Path $GameDir "mods"
 New-Item -ItemType Directory -Path $modsRoot -Force | Out-Null
@@ -28,8 +58,8 @@ if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
 New-Item -ItemType Directory -Path $tmp | Out-Null
 
 $installed = 0
-$zips = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.zip)
-$rars = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.rar)
+$zips = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.zip -File -ErrorAction SilentlyContinue)
+$rars = @(Get-ChildItem -LiteralPath $ZipsDir -Filter *.rar -File -ErrorAction SilentlyContinue)
 if ($rars.Count -gt 0) {
     Write-Host "NOTE: .rar mods are not auto-installed (e.g. $($rars[0].Name))." -ForegroundColor Yellow
     Write-Host "      Extract them manually (right-click -> Extract with WinRAR/7-Zip),"
@@ -73,6 +103,36 @@ $zips | ForEach-Object {
     $installed++
 }
 
+# Also process any already-unpacked mod folders inside ZipsDir
+$dirs = @(Get-ChildItem -LiteralPath $ZipsDir -Directory -ErrorAction SilentlyContinue)
+$dirs | ForEach-Object {
+    $d = $_
+    $info = Get-ChildItem -LiteralPath $d.FullName -Recurse -Filter info.lua -File -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $info) {
+        Write-Host "`n== $($d.Name)/ (SKIP: no info.lua inside)" -ForegroundColor Yellow
+        return
+    }
+    $infoText = Get-Content -Raw -LiteralPath $info.FullName
+    if ($infoText -notmatch '(?m)^\s*name\s*=\s*"([^"]+)"') {
+        Write-Host "`n== $($d.Name)/ (SKIP: no name= field in info.lua)" -ForegroundColor Yellow
+        return
+    }
+    $modName = $Matches[1]
+    $srcDir  = $info.Directory.FullName
+    $dest    = Join-Path $modsRoot $modName
+    if ($srcDir -eq $dest) {
+        Write-Host "`n== $($d.Name)/ (already named '$modName')"
+        $installed++
+        return
+    }
+    Write-Host "`n== $($d.Name)/ -> mods/$modName"
+    $tmpCopy = Join-Path $tmp ("dir-" + [guid]::NewGuid().ToString("N"))
+    Copy-Item -LiteralPath $srcDir -Destination $tmpCopy -Recurse -Force
+    if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+    Move-Item -LiteralPath $tmpCopy -Destination $dest -Force
+    $installed++
+}
+
 Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
-Write-Host "`nDone: $installed mod(s) in $modsRoot"
+Write-Host "`nDone: $installed mod(s) ready in $modsRoot"
 Write-Host "Launch the game -> mod menu -> enable them. If one still fails, check the END of log.txt next to the exe."
