@@ -1,68 +1,47 @@
-# recover.md — turn the shipped .pck back into source
+# recover.md — get the game + (optional) its source
 
-One-time setup per game version (and again after any game update).
+> Engine correction (2026-10-03): the game is **SUGAR** (custom Lua engine),
+> not Godot — see PLANNING.md §0.5. No gdre_tools, no .pck, ever.
 
-## 0. Get the tool
+## 0. What we have / what's missing
 
-Download **gdre_tools** (gdsdecomp) from the releases page:
+- Owner uploaded the game to the GitHub repo as a **split RAR**:
+  `Shotgun.King.The.Final.Checkmate.v1.623b.part4.rar` — **parts 1–3 are
+  missing**, and a split RAR needs ALL parts to extract anything.
+- 13 workshop mods + the dev's modding guide are already secured in
+  `uploads/` (inventoried in `notes/mods.md`).
 
-    https://github.com/GDRETools/gdsdecomp/releases
+**Owner action needed:** upload the remaining parts (or a single zip of the
+game folder) — GitHub **Release** attachments are best (no 25 MB web-UI cap);
+see README "Owner's to-do".
 
-Grab the build for your OS (e.g. `gdre_tools-windows.zip`), unpack it somewhere
-outside this repo. Supports Godot 2.x–4.x; Shotgun King is Godot 3/4 — the tool
-detects the version from the pck.
+## 1. Once we have all parts
 
-## 1. Locate the game files & BACK UP
+1. Extract the split RAR (any machine with WinRAR/7-Zip:
+   right-click part1 → Extract Here).
+2. Locate the game folder (exe + whatever data ships alongside).
+3. **Back the whole thing up** (`ShotgunKing-backup/` — stays out of git).
+4. Run the game once — confirms v1.623b boots and creates its save/log dirs.
 
-Steam → right-click *Shotgun King* → **Manage → Browse local files**, e.g.
+## 2. Install mods (the 13 downloads)
 
-    D:\SteamLibrary\steamapps\common\Shotgun King\
+Mods go in `<game folder>/mods/<mod folder>/` — the folder name MUST equal the
+`name=` field inside that mod's `info.lua` (e.g. `show exclude`, NOT
+"Better Codex"). Enable in the in-game mod menu. Full details + pitfalls:
+`notes/mods.md`.
 
-**Two possible layouts — both fine:**
+## 3. (Optional) source extraction for recon
 
-| You see | Meaning | Recovery target | Back this up |
-|---|---|---|---|
-| `ShotgunKing.pck` + exe | external pack | the `.pck` | `copy ShotgunKing.pck ShotgunKing.pck.orig` |
-| only a big `.exe` (no .pck) | **pack embedded in the exe** (Godot "Embed Pck") | the `.exe` itself | `copy ShotgunKing.exe ShotgunKing.exe.orig` |
+The game's Lua scripts ship inside the distribution (exact packaging TBD from
+the full archive — likely embedded in/near the exe). When we have it:
 
-**Before anything else, make that backup** and keep it forever. It is the
-"verify integrity" escape hatch and the clean baseline to re-diff against.
-(`*.pck` / `*.orig` are gitignored — backups stay on disk, never in the repo.)
+- Try `7z l` / `unzip -l` on the exe and any data files — an appended zip is
+  the common pattern.
+- Whatever we extract goes to `uploads/game-src/` (gitignored) and is
+  **reference only** — our deliverable is a mod, not a patched game.
+- Re-check `notes/map.md` "TBD" entries against the real source.
 
-## 2. Run recovery (from the repo root)
+## 4. If a game update lands
 
-Point `--recover` at whichever you have — a `.pck` OR the exe with the embedded
-pack:
-
-    # external pack:
-    gdre_tools --headless --recover="C:\path\to\ShotgunKing.pck" --output-dir=game-dump
-
-    # embedded pack (no .pck in the folder — this is the normal case):
-    gdre_tools --headless --recover="C:\path\to\ShotgunKing.exe" --output-dir=game-dump
-
-This decompiles all GDScript to readable source, restores resources (.tres,
-scenes) and recovers `project.godot`. Wait for `Recovery complete` / similar.
-
-## 3. Prove the loop works
-
-1. Open the Godot editor (a Godot version matching the game's — check the
-   recovered `project.godot` header; the editor will warn on mismatch).
-2. **Import** → select `game-dump/project.godot`.
-3. Press **F5** (Run Project). The game should boot to the intro screens.
-
-If it crashes right after the Sugar intro but before the PUNKCAKE intro →
-script syntax error in the recovery; re-run recovery and report.
-
-## 4. Then
-
-- Phase 1 (recon) works entirely inside `game-dump/` — findings go to
-  `notes/map.md`.
-- To apply our changes on top: `tools/apply.ps1`.
-- To ship: `tools/repack.md`.
-
-## Re-recovery after a game update
-
-Steam "verify integrity" or an update overwrites the .pck. If the game version
-changes: re-backup the new .pck, wipe `game-dump/`, re-run recovery, re-apply
-`modded/`, then check `notes/map.md` against the new files for anything that
-moved.
+Mods keep working (that's the point of mod-first). Re-do step 3 only if we
+need fresh recon; note the new version in `notes/map.md`.

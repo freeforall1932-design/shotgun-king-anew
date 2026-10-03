@@ -1,3 +1,6 @@
+# ── Owner uploads / reference material (never commit; re-downloadable) ───────
+uploads/
+
 # ── Recovered game & build outputs — NEVER commit game assets ────────────────
 # The recovered PUNKCAKE project lives here (creator's IP, personal use only).
 game-dump/*

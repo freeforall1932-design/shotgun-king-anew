@@ -7,12 +7,41 @@ file lives in `modded/` at that path).
 
 ```
 ## YYYY-MM-DD — Phase N: <short title>
-- `res://path/to/file.gd` — what changed (with `# SK-REWORK:` markers inside)
+- `modded/sk-rework/<file>` — what changed (with `-- SK-REWORK:` markers inside)
 - why: <reason / which design option from PLANNING.md §5>
 - status: <shipped / playtest-pending / reverted>
 ```
 
 ---
+
+## 2026-10-03 — Phase 0 complete: game obtained + ENGINE CORRECTION + strategy pivot
+
+**Findings (owner uploaded the game in 4 rar parts + 13 workshop mods to
+GitHub; all parts recovered, extracted, analyzed):**
+
+- **Engine is SUGAR, not Godot** (custom Pico-8-style Lua engine by Rémy
+  Devaux; runtime v0.0.8f, LuaJIT 2.1/Lua 5.1, SDL3). No .pck, no gdre_tools,
+  no repacking — ever. PLANNING.md §0.5 correction added; §2/§8 updated.
+- **Strategy pivot: build the rework AS A MOD.** The game has a first-class
+  mod system (official guide by the dev, `append`/`prepend` any function,
+  `on_*` events, custom cards/pieces/modes, save banks, `gimme()` runtime
+  introspection). `tools/repack.md` deleted → `tools/mod-dev.md` created;
+  `tools/apply.ps1` rewritten to deploy `modded/sk-rework/` → `<game>/mods/`.
+- **13 workshop mods inventoried** (`notes/mods.md`) incl. Royal Card Lab
+  (≈ our card picker) and Glac Terminal (modder debug tool). Dev's modding
+  guide cloned to `uploads/modding-guide/` (has SUGAR_manual.txt +
+  vanilla `CARDS` table in vanilla_stuff/).
+- **Game copy analyzed**: v1.623b, Goldberg-emu repack. `data.sgr` = 79 MB
+  compressed package holding all 278 game files (full list:
+  `notes/data-sgr-filelist.txt`); contents not plaintext — decision: don't
+  crack it, introspect at runtime via debug mod instead. Loose `lang/*.txt`
+  = readable string tables (saved to uploads/game-insights/).
+- **"Mod won't load" mystery SOLVED**: owner's `King's Court.rar` sat
+  unextracted in mods/, AND it's a pre-info.lua 2022 mod (see notes/mods.md).
+- Sandbox tooling: compiled unrar 7.20 from source (kept at
+  `uploads/tools/unrar`); GitHub raw/release URLs blocked but git+api work.
+- why: the entire Phase 0/1 premise changed once real files were examined.
+- status: shipped (docs + tooling; no game files modified)
 
 ## 2026-10-03 — Phase 0 prep: embedded-pack handling
 

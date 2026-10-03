@@ -1,71 +1,88 @@
 # SK-REWORK apply script
-# Dumb-copies modded/ over the recovered project in game-dump/.
-# modded/ mirrors res:// exactly: modded\scripts\foo.gd -> game-dump\scripts\foo.gd
+# Deploys our mod folder (modded/sk-rework/) into the game's mods/ directory.
 #
 # Usage (from repo root):
-#   pwsh tools/apply.ps1          # apply everything
-#   pwsh tools/apply.ps1 -List    # dry-run: just show what would be copied
-#   pwsh tools/apply.ps1 -GameDump D:\other\recovery   # alternate target
+#   pwsh tools/apply.ps1 -GameDir "D:\SteamLibrary\steamapps\common\Shotgun King"
+#   pwsh tools/apply.ps1 -List    # dry-run (still needs -GameDir to make sense)
 param(
-    [string]$GameDump = (Join-Path $PSScriptRoot "..\game-dump"),
-    [string]$Modded   = (Join-Path $PSScriptRoot "..\modded"),
-    [switch]$List
+    [string]$GameDir = "",
+    [string]$ModName = "sk-rework",
+    [string]$Modded  = (Join-Path $PSScriptRoot "..\modded"),
+    [switch]$List,
+    [switch]$GetLog   # just copy the game's log.txt into uploads/game-insights/
 )
 
-$ErrorActionPreference = "Stop"
-
-# Normalize to absolute paths so -Relative math stays honest
-$GameDump = [System.IO.Path]::GetFullPath($GameDump)
-$Modded   = [System.IO.Path]::GetFullPath($Modded)
-
-if (-not (Test-Path -LiteralPath $Modded)) {
-    Write-Error "modded/ folder not found: $Modded"
-}
-if (-not (Test-Path -LiteralPath $GameDump)) {
-    Write-Error "game-dump/ not found: $GameDump - run recovery first (see tools/recover.md)"
-}
-if (-not (Test-Path -LiteralPath (Join-Path $GameDump "project.godot"))) {
-    Write-Warning "$GameDump has no project.godot - is this really a recovered project root?"
-}
-
-$files = Get-ChildItem -LiteralPath $Modded -Recurse -File
-if (-not $files) {
-    Write-Warning "modded/ is empty - nothing to apply."
+if ($GetLog) {
+    if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetLog" }
+    $src = Join-Path $GameDir "log.txt"
+    if (-not (Test-Path -LiteralPath $src)) { Write-Error "No log.txt in $GameDir" }
+    $dst = Join-Path $PSScriptRoot "..\uploads\game-insights"
+    New-Item -ItemType Directory -Path $dst -Force | Out-Null
+    Copy-Item -LiteralPath $src -Destination (Join-Path $dst "log.txt") -Force
+    Write-Host "Fetched log -> uploads/game-insights/log.txt"
     exit 0
 }
 
-$applied = 0
-$newFiles = 0
-foreach ($f in $files) {
-    # Path relative to modded\  ==  path relative to res://
-    $rel  = $f.FullName.Substring($Modded.Length).TrimStart('\', '/')
-    $dest = Join-Path $GameDump $rel
+$ErrorActionPreference = "Stop"
 
-    if ($List) {
-        Write-Host "[dry-run] $rel"
-        continue
-    }
-
-    $destDir = Split-Path -Parent $dest
-    if (-not (Test-Path -LiteralPath $destDir)) {
-        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
-    }
-
-    if (-not (Test-Path -LiteralPath $dest)) {
-        # Not an error: brand-new files (new autoload, new scenes) are legit.
-        Write-Host "  NEW      $rel"
-        $newFiles++
-    } else {
-        Write-Host "  patched  $rel"
-    }
-
-    Copy-Item -LiteralPath $f.FullName -Destination $dest -Force
-    $applied++
+$ModDir = Join-Path $Modded $ModName
+if (-not (Test-Path -LiteralPath $ModDir)) {
+    Write-Error "Mod folder not found: $ModDir (create it per tools/mod-dev.md)"
 }
+
+if (-not $GameDir) {
+    # Try to auto-locate a Steam library with the game installed
+    $roots = @(
+        "C:\Program Files (x86)\Steam\steamapps\common\Shotgun King",
+        "D:\SteamLibrary\steamapps\common\Shotgun King"
+        # add your library path here or pass -GameDir
+    )
+    $GameDir = $roots | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if (-not $GameDir) {
+        Write-Error "Game folder not found. Pass -GameDir `"...path...\Shotgun King`""
+    }
+}
+
+if (-not (Test-Path -LiteralPath $GameDir)) {
+    Write-Error "Game folder does not exist: $GameDir"
+}
+
+# Sanity: game folder should contain the game exe (any name) — warn if not.
+if (-not (Get-ChildItem -LiteralPath $GameDir -Filter *.exe -ErrorAction SilentlyContinue)) {
+    Write-Warning "No .exe found in $GameDir - is this really the game install folder?"
+}
+
+$modsRoot = Join-Path $GameDir "mods"
+$dest     = Join-Path $modsRoot $ModName
 
 if ($List) {
-    Write-Host "`n(dry run - $($files.Count) file(s) would be touched; nothing copied)"
-} else {
-    Write-Host "`nDone: $applied file(s) copied ($newFiles new)."
-    Write-Host "Repack next? See tools/repack.md - or press F5 in the Godot editor to test."
+    Write-Host "[dry-run] would copy $ModDir -> $dest"
+    Get-ChildItem -LiteralPath $ModDir -Recurse -File |
+        ForEach-Object { Write-Host ("  " + $_.FullName.Substring($ModDir.Length + 1)) }
+    exit 0
 }
+
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
+
+# Mirror-copy: remove stale files, then copy everything (idempotent deploy)
+if (Test-Path -LiteralPath $dest) {
+    Get-ChildItem -LiteralPath $dest -Recurse -File |
+        Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModDir $_.FullName.Substring($dest.Length + 1))) } |
+        ForEach-Object {
+            Write-Host "  del (stale) $($_.FullName.Substring($dest.Length + 1))"
+            Remove-Item -LiteralPath $_.FullName -Force
+        }
+}
+
+$count = 0
+Get-ChildItem -LiteralPath $ModDir -Recurse -File | ForEach-Object {
+    $rel  = $_.FullName.Substring($ModDir.Length + 1)
+    $to   = Join-Path $dest $rel
+    $dir  = Split-Path -Parent $to
+    if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+    Copy-Item -LiteralPath $_.FullName -Destination $to -Force
+    $count++
+}
+
+Write-Host "Done: deployed $count file(s) to $dest"
+Write-Host "Launch the game, enable '$ModName' in the mod menu, then check log.txt if anything misbehaves (tools/mod-dev.md)."

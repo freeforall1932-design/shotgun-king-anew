@@ -58,23 +58,24 @@ SkyCraft fork's business (see §7). This is a standalone single-player game mod.
 
 ```
 shotgun-king-rework/          (private; never publish game assets)
-├── .gitignore                # game-dump/, build/, *.pck, .godot/
+├── .gitignore                # uploads/, game-dump/, repacks/, *.pck, *.rar
 ├── PLANNING.md               # this file
 ├── README.md                 # how to build/install (written in Phase 0)
 ├── tools/
-│   ├── recover.md            # exact gdre_tools command + download link
-│   ├── apply.ps1             # copy modded/ over a fresh recovery
-│   └── repack.md             # godot --headless --export-pack command
-├── game-dump/                # IGNORED BY GIT — recovered project lives here
-├── modded/                   # ONLY files we changed, mirroring res:// paths
+│   ├── recover.md            # get the game running + (optional) source extraction
+│   ├── mod-dev.md            # the mod build/test loop (NEW — replaces repack)
+│   └── apply.ps1             # copy modded/sk-rework/ into <game>/mods/
+├── uploads/                  # IGNORED BY GIT — owner's game+mods archives, modding-guide clone
+├── modded/sk-rework/         # OUR MOD — info.lua, script.lua, modes/ (the deliverable)
 └── notes/
-    ├── map.md                # code map: which script owns ammo/cards/spawns
+    ├── map.md                # code map: which globals/functions own ammo/cards/spawns
+    ├── mods.md               # the 13 workshop mods inventory + API knowledge
     └── changelog.md          # what we changed and why
 ```
 
-Rules: **game files never get committed** (creator's IP + updates invalidate
-them). Every change we intend to keep goes in `modded/` at its exact `res://`
-path so `apply.ps1` is a dumb copy.
+Rules: **game files and other people's mods never get committed** (creator's
+IP + updates invalidate them). Everything we build lives in `modded/sk-rework/`
+as a normal SGK mod, so installing = copying one folder.
 
 ## 3. Agent instructions
 
@@ -189,18 +190,17 @@ pending) and notes: repo-map, integration-menu, ps2-route, side-projects
 ## 8. Command cheat sheet
 
 ```bash
-# Recover (tools: github.com/GDRETools/gdsdecomp releases)
-# --recover accepts a .pck, .apk, OR an exe with the pack embedded in it
-# (Shotgun King ships with the pack embedded in the exe — no loose .pck).
-gdre_tools --headless --recover="path/to/game.exe" --output-dir=game-dump
+# 2026-10-03: gdre/godot commands below are OBSOLETE (engine is SUGAR, not
+# Godot — see §0.5). Kept for history only.
 
-# Run from source (in Godot editor: import game-dump/project.godot, press F5)
+# OLD (void): gdre_tools --headless --recover=... ; godot --export-pack ...
 
-# Repack a modded pck (needs a Godot editor binary + export preset)
-godot --headless --path game-dump --export-pack "SK-Rework" build/sk-rework.pck
-
-# Validate scripts without running the game
-godot --headless --path game-dump --check-only --script <file>.gd
+# NEW pipeline:
+#   1. install game, put owner mods in <game>/mods/<folder>   (tools/recover.md)
+#   2. develop: edit modded/sk-rework/* → pwsh tools/apply.ps1 → run game
+#      (tools/mod-dev.md)
+#   3. debug: read <game>/log.txt + crashlog; use _log() and gimme() in-mod
+#   4. share (optional): in-game mod menu → type UPLOAD → Steam Workshop
 ```
 
 *Written 2026-10-02. Delete from the SkyCraft fork once copied to its own repo.*
