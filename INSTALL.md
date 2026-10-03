@@ -73,6 +73,12 @@ E:\testing\
 
 ## 3. Steps (do them in order)
 
+> **Re-running this after a repo update (e.g. the second live test)?**
+> First bring `E:\testing\repo` up to date with the newest code (re-download
+> the ZIP and overwrite, or `git pull`), then simply redo Steps 4 → 5 → 6 → 7.
+> Every command here is safe to re-run; Step 7 is idempotent (running it again
+> only adds what is missing).
+
 ### Step 1 (Manual in File Explorer) — put your game files in `E:\testing\game`
 
 1. In File Explorer, create `E:\testing\game` (if you haven't already).
@@ -182,31 +188,26 @@ If the game crashes after the intro logos, don't worry — the reason is at the
 
 ---
 
-### Step 6 (PowerShell) — collect & send `log.txt` (the one blocker for feature work)
+### Step 6 (PowerShell) — collect & send the insight pack
 
 Copy-paste into PowerShell:
-
-```powershell
-cd E:\testing\repo\tools
-powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetLog
-```
-
-This copies `E:\testing\ShotgunKing-Modded\log.txt` to
-`E:\testing\repo\uploads\game-insights\log.txt`.
-**Attach that `log.txt` file in chat** (or attach
-`E:\testing\ShotgunKing-Modded\log.txt` directly — they are identical).
-
-**Even better — the full insight pack** (log + the game's `modlist.lua` + the
-copy's whole `save\` folder; lets the dev side learn the mod-enable format and
-the exact codex key names):
 
 ```powershell
 cd E:\testing\repo\tools
 powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -GameDir "E:\testing\ShotgunKing-Modded" -GetInsights
 ```
 
-then attach everything from `E:\testing\repo\uploads\game-insights\` in chat
-(or upload the folder to the repo, like last time).
+This copies into `E:\testing\repo\uploads\game-insights\`:
+
+- `log.txt` — the game log (same thing `-GetLog` fetches),
+- `modlist.lua` — the game's own "which mods are on, in which order" notepad,
+- the copy's whole `save\` folder.
+
+**Attach everything from that folder in chat** (or upload the folder to the
+repo, like last time).
+
+*(Only need the log? `-GetLog` instead of `-GetInsights` copies just
+`log.txt`.)*
 
 **Optional preview (needs Python):** to generate `E:\testing\repo\notes\game-map-draft.md`
 on your own PC right away:
@@ -259,7 +260,7 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
 | 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, ON by default; up/down = priority only |
-| 4 | Step 6 log | `log.txt` collected and attached, containing `SK-REWORK: READY build=4` |
+| 4 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `SK-REWORK: READY build=4` |
 | 5 | Step 7 (optional) | achievements/shotguns/codex 100% in the copy; `ACHIEVEMENTS: OFF` title label is normal |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
