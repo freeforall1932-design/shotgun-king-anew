@@ -149,6 +149,17 @@ normalizes any compressed or unpacked mods that were in `game\mod` or
 only install the 14 mods from `repo`, add `-NoInheritMods` to the end of the
 command.)*
 
+**Which to pick:**
+
+| Flag | Copy contains | Use when |
+|---|---|---|
+| `-NoInheritMods` | exactly the 14 repo mods — a sanitized run | testing whether *this repo's* mods/tools work (fewest variables) — **use for the harvest run** |
+| *(no flag)* | the 14 repo mods **plus** your `game\mod`/`game\mods` mods (zips unpacked, names fixed, legacy/`.rar` removed) | everyday play, once everything is proven |
+
+Both only read `E:\testing\game`, never modify it. Note: `.rar`-packed mods
+and mods without a readable `info.lua` are removed from the copy — the game
+itself silently ignores those too.
+
 **Check:**
 - `E:\testing\ShotgunKing-Modded\mods\` contains the **14 mod folders**
   (13 workshop mods + `sk-rework`, plus any extra `info.lua` mods you had in
