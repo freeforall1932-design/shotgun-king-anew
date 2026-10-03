@@ -137,6 +137,15 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       `all()` semantics); codec roundtrip byte-identical on run-2's 6 saves;
       100% tool E2E on the run-2 save copy (128 True + 195 cards); 3/3
       `.ps1` tree-sitter parse clean
+- ✅ Owner's full PowerShell console log (sent for verification) confirms
+      the run-2 timeline end-to-end: `-Clean -NoInheritMods` build →
+      unlock-all 22:49:38 (old tool: "170/170 cards") → modded session →
+      `-GetInsights` fetch → parse. It also proves achievements survive a
+      modded session (tool ran BEFORE, fetch AFTER, all 128 True), and that
+      run 2 used the pre-session-5 tools — expected; the updated repo's
+      outputs will differ next run (195/195 cards, new `3b/3` modlist
+      pre-enable line, pre-enabled sk-rework, `mods:`/`cards:` in the
+      parser summary)
 
 **2026-10-03 (session 4 — live test #1 absorbed; see changelog for detail):**
 - ✅ live ladder steps 1–5 all ran (twice); run-1 log parsed into

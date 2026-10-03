@@ -176,12 +176,14 @@ OBSERVED facts — prefer them over anything guessed above.
   text = OFF, white text = ON** (click toggles; survives restarts);
   up/down arrows = load priority (override order), renumbering is cosmetic.
 - Title bar with an active mod: `MODDED: ON - ACHIEVEMENTS: OFF` = *Steam*
-  achievement tracking paused. Save-side achievements are **preserved**:
-  run 2's post-session pack shows all 128 still True (run 1 saw the same
-  in-game). ⚠️ Analysis footnote: an early read of run 2's
-  `achievements.sav` claimed a "wipe" — that was a bool-vs-string comparison
-  bug in the analysis script, not the game; `save_codec` parses `bTrue` as
-  Python `True`.
+  achievement tracking paused. Save-side achievements are **preserved** —
+  proven end-to-end by the owner's full console log: unlock-all ran
+  22:49:38 (128 set True) → modded session (sk-rework active, build 4) →
+  quit → `-GetInsights` fetched the save AFTER all that, and the fetched
+  `achievements.sav` still has all 128 True. ⚠️ Analysis footnote: an early
+  read of run 2's `achievements.sav` claimed a "wipe" — that was a
+  bool-vs-string comparison bug in the analysis script, not the game;
+  `save_codec` parses `bTrue` as Python `True`.
 
 ### Mod API (what actually exists)
 - `append`, `prepend`, `gimme` are **mod-environment functions**: they work
