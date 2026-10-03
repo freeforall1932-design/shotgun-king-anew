@@ -1,0 +1,16 @@
+return {
+	{ 'sk-rework', true },
+	{ 'the_magnificient_quartz_army', false },
+	{ 'some_fairy_pieces', false },
+	{ 'Shootout', false },
+	{ 'disgraced_justice', false },
+	{ 'extra features', false },
+	{ 'glacies collection', false },
+	{ 'grenade predictor', false },
+	{ 'nightmare', false },
+	{ 'retry', false },
+	{ 'show exclude', false },
+	{ 'royal card lab', false },
+	{ 'the art of war', false },
+	{ 'glac terminal', false },
+}

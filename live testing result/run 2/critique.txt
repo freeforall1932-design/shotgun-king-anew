@@ -1,0 +1,15 @@
+> Look and note: all 14 mods should be listed and ON by default (verified live 2026-10-03). Clicking a mod flips it; the text colour changes (bright/white = ON). The up/down arrows do not toggle on/off — they change load priority (which mod overrides which), so if the numbering looks disordered after moving something, that is cosmetic. Make sure SK Rework / sk-rework is ON, then back out.
+
+i told you that when i click it the text turn into white if its on by default and i click it and it become white then its a paradox to what it say it will flip to on if the text turn white because the correct default is off since the text is black when i first go in
+
+also > The mod menu is NOT on the title screen: click Play — the mod menu is the top entry of that screen.
+
+you say it like copy pasting my critique as if criticizing me on install md file
+
+also i appreciate that you change the state to on after it reboot but atleast add text white mean on and black mean off in game and i see that the word modded on achievement off text appear after i turn on sk mod for debug
+
+PS E:\testing\repo\tools> python "E:\testing\repo\tools\parse_log.py" "E:\testing\repo\uploads\game-insights\log.txt"
+>> cd E:\testing\repo\tools
+draft   -> E:\testing\repo\notes\game-map-draft.md
+loaded: yes · hooks: 5 · globals: 920 · append-events: 42 · callback-events: 0 · object tables: 4
+PS E:\testing\repo\tools>

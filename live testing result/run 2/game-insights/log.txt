@@ -1,0 +1,2510 @@
+  . Starting log.
+  . Writing to log.txt
+  . Successfully loaded data.sgr.
+  . Shotgun King - The Final Checkmate :: by PUNKCAKE Delicieux
+  . Found 278 files: assets/music/title_B.ogg, assets/music/title_A.ogg, assets/music/gameover_w_fx.ogg, assets/music/final_countdown.ogg, assets/music/endless.ogg, assets/music/ending_B.ogg, assets/music/ending_A.ogg, assets/music/codex.ogg, assets/music/level_up_A.ogg, assets/music/charnier_shop_2_B.ogg, assets/music/charnier_shop_2_A.ogg, assets/music/charnier_B.ogg, assets/music/charnier_A.ogg, assets/sfx/disrupt.wav, assets/sfx/detected.wav, assets/sfx/vampire_suck.wav, assets/sfx/decay_jingle.wav, assets/sfx/death_mark.wav, assets/sfx/missile.wav, assets/sfx/convert.wav, assets/sfx/codex_sel.wav, assets/sfx/codex_cycle_item.wav, assets/gfx/gfx.png, assets/sfx/jester.wav, assets/sfx/throw_impact.wav, assets/sfx/charnier_xpl.wav, assets/music/charnier_shop_A.ogg, assets/sfx/cinder_new.wav, assets/sfx/execute_disruption.wav, assets/sfx/charnier_will_xpl.wav, assets/sfx/unused_unknown.wav, assets/gfx/weapons.png, assets/sfx/apo_jump.wav, assets/sfx/inc_countdown.wav, assets/sfx/cloak_out.wav, assets/sfx/censorship.wav, code/gamepad.lua, assets/sfx/grenade_bounce.wav, assets/sfx/shoot.wav, assets/sfx/catch.wav, assets/sfx/dmg_cap.wav, assets/sfx/sokoban_push.wav, assets/sfx/charnier_buy.wav, assets/sfx/castle.wav, assets/sfx/soul.wav, assets/sfx/burden_new.wav, assets/sfx/hero_spawn.wav, assets/sfx/apo_sing_1.wav, assets/sfx/lost_king.wav, assets/sfx/breakout.wav, assets/sfx/call_guards.wav, assets/sfx/boulder_launch.wav, assets/sfx/codex_unsel.wav, assets/sfx/boss_land.wav, assets/sfx/boss_jump.wav, assets/sfx/execute.wav, assets/gfx/codex.png, assets/music/boss_B.ogg, assets/sfx/boss_crumble.wav, assets/sfx/blade.wav, assets/music/fireplace.ogg, assets/sfx/black_mist.wav, ../../punkcake/punkcake_intro.lua, assets/sfx/grab_done.wav, assets/sfx/swap.wav, assets/sfx/bishop_resist.wav, code/modes/charnier.lua, assets/fonts/pico_font.png, assets/sfx/ascend.wav, assets/sfx/arrow.wav, assets/sfx/hurt_boss.wav, assets/sfx/cinder_red.wav, assets/sfx/drop_piece.wav, assets/sfx/apo_talk.wav, code/modes/tutorial.lua, assets/sfx/soul_wand.wav, assets/sfx/eat.wav, assets/sfx/apo_sing_2.wav, assets/sfx/charge.wav, assets/sfx/exclude_card.wav, assets/sfx/backup_land.wav, assets/sfx/swap_init.wav, assets/gfx/title.png, assets/sfx/cloak_in.wav, assets/sfx/cinder_vanish.wav, assets/gfx/intro.png, ../../punkcake/chomp.wav, assets/sfx/grenade_beep.wav, assets/crt_calmos.shader, lang/safe_english.txt, assets/music/boss_riders_B.ogg, assets/sfx/charnier_orb_out.wav, assets/gfx/console_NX.png, ../../libs/gifkey.lua, assets/sfx/disarm.wav, assets/sfx/apo_sit.wav, code.lua, assets/gfx/tutorial.png, ../../libs/remy_systems.lua, code/serializer.lua, ../../punkcake/slap.wav, assets/sfx/abort_mission.wav, assets/sfx/boost.wav, assets/gfx/console_PS5.png, ../../libs/autosnaps.lua, assets/fonts/Galmuri11.ttf, assets/fonts/Determination.ttf, assets/gfx/crumble.png, assets/sfx/charnier_orb_in.wav, code/modes/throne.lua, assets/gfx/*.png, assets/gfx/console_PC.png, assets/gfx/console_Xbox.png, assets/fonts/Terminus.ttf, assets/sfx/start.wav, code/lang.lua, code/modes/endless.lua, ../../libs/toolkit.lua, assets/sfx/crown_fly.wav, assets/sfx/holo_vanish.wav, code/gameplay.lua, code/achievements.lua, assets/sfx/pause.wav, assets/sfx/shoot_2.wav, assets/sfx/wrong_shield.wav, assets/sfx/boulder_xpl.wav, code/modes/chase.lua, assets/sfx/ammo.wav, assets/sfx/grab_cancel.wav, assets/fonts/TerminusThai.ttf, assets/sfx/card_land.wav, assets/sfx/level_up_sel.wav, code/menu.lua, assets/music/gameover.ogg, ../../libs/hoard.lua, code/mods.lua, assets/gfx/cards.png, assets/sfx/*.wav, assets/gfx/icon.png, code/save.lua, code/codex.lua, assets/sfx/shell_land.wav, assets/music/boss_queen_B.ogg, assets/sfx/censor_card.wav, ../../punkcake/delicieux.wav, assets/sfx/twinkle.wav, ../../punkcake/punkcake_sheet.png, assets/sfx/apo_sing_0.wav, assets/music/ingame.ogg, assets/gfx/achievements.png, assets/sfx/hurt.wav, assets/sfx/grenade_xpl.wav, assets/sfx/dig.wav, assets/sfx/crystal_xpl.wav, ../../libs/hdtext.lua, assets/sfx/disguise.wav, assets/gfx/console_SteamDeck-export.png, assets/sfx/pile_bounce.wav, assets/sfx/xpl.wav, assets/sfx/wand.wav, ../../punkcake/punkcake.wav, code/data.lua, assets/fonts/LanaPixel.ttf, assets/sfx/refill_wand.wav, assets/sfx/shoot_4.wav, code/grid.lua, assets/gfx/console_PS4.png, assets/gfx/console_SteamDeck.png, assets/gfx/charnier.png, assets/sfx/show_book.wav, ../../libs/ents.lua, assets/sfx/exile.wav, assets/sfx/fall.wav, assets/sfx/grenade_fall.wav, assets/sfx/hypno_execute.wav, assets/sfx/unused_xpl.wav, assets/sfx/next_vig.wav, assets/sfx/flip_back.wav, assets/sfx/shoot_0.wav, assets/sfx/penta.wav, assets/sfx/give_cinder.wav, assets/sfx/reap_soul.wav, assets/sfx/cancel.wav, assets/sfx/alleluia.wav, assets/sfx/glue.wav, assets/sfx/head_bump.wav, assets/sfx/healing.wav, assets/sfx/help.wav, assets/sfx/menu_in.wav, assets/fonts/indienovaBC.ttf, assets/sfx/hero_leave.wav, ../../libs/dirload.lua, assets/sfx/hippocracy.wav, assets/sfx/shield.wav, assets/sfx/hero_spawn_boom.wav, assets/sfx/hypnosys.wav, assets/sfx/incantation.wav, assets/sfx/jingle_theme.wav, assets/sfx/extra_turn.wav, assets/sfx/jump.wav, assets/sfx/king_talk.wav, assets/sfx/level_up_zoom.wav, assets/sfx/lift.wav, assets/music/chase.ogg, assets/sfx/mark_card.wav, assets/sfx/menu_out.wav, assets/sfx/wrong.wav, assets/sfx/mission.wav, assets/stretch.shader, assets/sfx/move_piece.wav, assets/sfx/conscription.wav, assets/music/boss_queen_A.ogg, assets/sfx/next_vig_2.wav, assets/sfx/gust.wav, assets/sfx/show.wav, assets/sfx/penta_full.wav, assets/sfx/penta_reset.wav, assets/sfx/piece_fall.wav, assets/sfx/plague.wav, assets/sfx/promote.wav, assets/sfx/raid_won.wav, assets/sfx/spawn.wav, assets/music/level_up_B.ogg, assets/sfx/raise.wav, assets/sfx/rat.wav, assets/sfx/recycle_cards.wav, assets/sfx/regal_ascent.wav, assets/sfx/regal_light.wav, assets/sfx/reload.wav, assets/sfx/spawner.wav, assets/sfx/replace_card.wav, assets/sfx/retire.wav, assets/sfx/legacy.wav, assets/sfx/reverse_karma.wav, assets/sfx/scope.wav, assets/sfx/land.wav, assets/sfx/sel_disruption.wav, assets/sfx/sel_opt.wav, assets/music/charnier_shop_B.ogg, assets/sfx/shell_ground.wav, assets/sfx/shell_spark.wav, assets/music/*.ogg, assets/sfx/shoot_1.wav, assets/sfx/backup_call.wav, assets/sfx/shoot_3.wav, assets/sfx/shoot_silencer.wav, assets/sfx/show_card.wav, assets/sfx/apo_sing_3.wav, assets/sfx/book_float.wav, assets/sfx/tile_move.wav, assets/sfx/sky_dust.wav, assets/sfx/soul_proj.wav, assets/sfx/spawn_final.wav, assets/sfx/tunnel.wav, assets/sfx/splash.wav, assets/sfx/start_detune.wav, assets/sfx/tear_up.wav, assets/sfx/throw.wav, assets/sfx/tic.wav, assets/sfx/tile_out.wav, assets/sfx/trainer.wav, assets/sfx/trampoline.wav, assets/sfx/trg_in.wav, assets/sfx/trg_out.wav, code/achievements_data.lua, assets/sfx/hero_light.wav, assets/sfx/turn_card.wav, assets/sfx/seer.wav, assets/sfx/unlock.wav, assets/sfx/unsoul.wav, assets/sfx/recycle_new.wav, assets/sfx/use_card.wav, assets/sfx/vampire_eat.wav, assets/sfx/water_poison.wav, assets/sfx/will_explode.wav, assets/sfx/flash_boss.wav, assets/music/boss_A.ogg, assets/music/boss_riders_A.ogg
+  . Initializing SUGAR v0.0.8f.
+  . E:\testing\ShotgunKing-Modded\shotgun_king.exe
+  . Running from: E:\testing\ShotgunKing-Modded\
+  . Running on Windows.
+  . Using SDL 3.4.12
+  . Using LuaJIT 2.1.1784580905
+  . Using Lua 5.1.4
+  . OpenGL initialized.
+  . Created new memory chunk '_sugar_'.
+  . FreeType library was initialized.
+  . Using FreeType 2.12.1
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x013A bytes to fit new 'thin_font' req.
+  . Correctly requested 'thin_font' 0x013A bytes at 0x00 in chunk '_sugar_'.
+  . The 106 glyphs font 'thin' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x032F bytes to fit new 'old_console_font' req.
+  . Correctly requested 'old_console_font' 0x01F5 bytes at 0x013A in chunk '_sugar_'.
+  . The 106 glyphs font 'old_console' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x05A8 bytes to fit new 'icons_font' req.
+  . Correctly requested 'icons_font' 0x0279 bytes at 0x032F in chunk '_sugar_'.
+  . The 106 glyphs font 'icons' was created.
+  . Resized '_sugar_' to 0x078F bytes to fit new 'console_font' req.
+  . Correctly requested 'console_font' 0x01E7 bytes at 0x05A8 in chunk '_sugar_'.
+  . The 106 glyphs font 'console' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0A14 bytes to fit new 'big_font' req.
+  . Correctly requested 'big_font' 0x0285 bytes at 0x078F in chunk '_sugar_'.
+  . The 106 glyphs font 'big' was created.
+  . GFX system initialized.
+  . Time system initialized.
+  . Input system initialized.
+  . Successfully opened audio device 'Speaker/HP (Realtek High Definition Audio)'.
+  . Audio system initialized.
+  . All systems initialized.
+  . 
+ !! You need an existing window for mouse('lock') to do anything.
+  . Running...
+  . Loading code.lua
+  . Loading ../../libs/hdtext.lua
+  . Loading ../../libs/hoard.lua
+  . Loading ../../libs/toolkit.lua
+  . Loading ../../libs/ents.lua
+  . Loading ../../libs/dirload.lua
+  . Loading ../../libs/gifkey.lua
+  . Loading ../../libs/remy_systems.lua
+  . Loading code/codex.lua
+  . Loading code/serializer.lua
+  . Loading code/menu.lua
+  . Loading code/mods.lua
+  . Loading code/grid.lua
+  . Loading code/data.lua
+  . Playing Shotgun King v1.623b
+  . found english
+  . found french
+  . found spanish
+  . found latam
+  . found portuguese
+  . found german
+  . found dutch
+  . found italian
+  . found romanian
+  . found catalan
+  . found polish
+  . found ukrainian
+  . found russian
+  . found japanese
+  . found korean
+  . found simplified_chinese
+  . found vietnamese
+  . Loading code/save.lua
+  . Loading code/gameplay.lua
+  . Loading code/gamepad.lua
+  . 0 controllers detected.
+  . Using controller nil
+  . Loading code/lang.lua
+  . Loading code/achievements.lua
+  . Loading code/achievements_data.lua
+  . Loading ../../punkcake/punkcake_intro.lua
+  . Steam API initialized.
+  . Loading assets/gfx/gfx.png
+  . Loading assets/sfx/*.wav
+  . Loading assets/sfx/abort_mission.wav
+  . Loaded 'sfx abort_mission' from file 'assets/sfx/abort_mission.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/alleluia.wav
+  . Loaded 'sfx alleluia' from file 'assets/sfx/alleluia.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/ammo.wav
+  . Loaded 'sfx ammo' from file 'assets/sfx/ammo.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_jump.wav
+  . Loaded 'sfx apo_jump' from file 'assets/sfx/apo_jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_0.wav
+  . Loaded 'sfx apo_sing_0' from file 'assets/sfx/apo_sing_0.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_1.wav
+  . Loaded 'sfx apo_sing_1' from file 'assets/sfx/apo_sing_1.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_2.wav
+  . Loaded 'sfx apo_sing_2' from file 'assets/sfx/apo_sing_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_3.wav
+  . Loaded 'sfx apo_sing_3' from file 'assets/sfx/apo_sing_3.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sit.wav
+  . Loaded 'sfx apo_sit' from file 'assets/sfx/apo_sit.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_talk.wav
+  . Loaded 'sfx apo_talk' from file 'assets/sfx/apo_talk.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/arrow.wav
+  . Loaded 'sfx arrow' from file 'assets/sfx/arrow.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/ascend.wav
+  . Loaded 'sfx ascend' from file 'assets/sfx/ascend.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/backup_call.wav
+  . Loaded 'sfx backup_call' from file 'assets/sfx/backup_call.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/backup_land.wav
+  . Loaded 'sfx backup_land' from file 'assets/sfx/backup_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/bishop_resist.wav
+  . Loaded 'sfx bishop_resist' from file 'assets/sfx/bishop_resist.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/black_mist.wav
+  . Loaded 'sfx black_mist' from file 'assets/sfx/black_mist.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/blade.wav
+  . Loaded 'sfx blade' from file 'assets/sfx/blade.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/book_float.wav
+  . Loaded 'sfx book_float' from file 'assets/sfx/book_float.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boost.wav
+  . Loaded 'sfx boost' from file 'assets/sfx/boost.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_crumble.wav
+  . Loaded 'sfx boss_crumble' from file 'assets/sfx/boss_crumble.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_jump.wav
+  . Loaded 'sfx boss_jump' from file 'assets/sfx/boss_jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_land.wav
+  . Loaded 'sfx boss_land' from file 'assets/sfx/boss_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boulder_launch.wav
+  . Loaded 'sfx boulder_launch' from file 'assets/sfx/boulder_launch.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boulder_xpl.wav
+  . Loaded 'sfx boulder_xpl' from file 'assets/sfx/boulder_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/breakout.wav
+  . Loaded 'sfx breakout' from file 'assets/sfx/breakout.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/burden_new.wav
+  . Loaded 'sfx burden_new' from file 'assets/sfx/burden_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/call_guards.wav
+  . Loaded 'sfx call_guards' from file 'assets/sfx/call_guards.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cancel.wav
+  . Loaded 'sfx cancel' from file 'assets/sfx/cancel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/card_land.wav
+  . Loaded 'sfx card_land' from file 'assets/sfx/card_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/castle.wav
+  . Loaded 'sfx castle' from file 'assets/sfx/castle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/catch.wav
+  . Loaded 'sfx catch' from file 'assets/sfx/catch.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/censorship.wav
+  . Loaded 'sfx censorship' from file 'assets/sfx/censorship.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/censor_card.wav
+  . Loaded 'sfx censor_card' from file 'assets/sfx/censor_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charge.wav
+  . Loaded 'sfx charge' from file 'assets/sfx/charge.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_buy.wav
+  . Loaded 'sfx charnier_buy' from file 'assets/sfx/charnier_buy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_orb_in.wav
+  . Loaded 'sfx charnier_orb_in' from file 'assets/sfx/charnier_orb_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_orb_out.wav
+  . Loaded 'sfx charnier_orb_out' from file 'assets/sfx/charnier_orb_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_will_xpl.wav
+  . Loaded 'sfx charnier_will_xpl' from file 'assets/sfx/charnier_will_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_xpl.wav
+  . Loaded 'sfx charnier_xpl' from file 'assets/sfx/charnier_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_new.wav
+  . Loaded 'sfx cinder_new' from file 'assets/sfx/cinder_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_red.wav
+  . Loaded 'sfx cinder_red' from file 'assets/sfx/cinder_red.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_vanish.wav
+  . Loaded 'sfx cinder_vanish' from file 'assets/sfx/cinder_vanish.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cloak_in.wav
+  . Loaded 'sfx cloak_in' from file 'assets/sfx/cloak_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cloak_out.wav
+  . Loaded 'sfx cloak_out' from file 'assets/sfx/cloak_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_cycle_item.wav
+  . Loaded 'sfx codex_cycle_item' from file 'assets/sfx/codex_cycle_item.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_sel.wav
+  . Loaded 'sfx codex_sel' from file 'assets/sfx/codex_sel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_unsel.wav
+  . Loaded 'sfx codex_unsel' from file 'assets/sfx/codex_unsel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/conscription.wav
+  . Loaded 'sfx conscription' from file 'assets/sfx/conscription.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/convert.wav
+  . Loaded 'sfx convert' from file 'assets/sfx/convert.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/crown_fly.wav
+  . Loaded 'sfx crown_fly' from file 'assets/sfx/crown_fly.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/crystal_xpl.wav
+  . Loaded 'sfx crystal_xpl' from file 'assets/sfx/crystal_xpl.wav'
+  . Loading assets/sfx/death_mark.wav
+  . Loaded 'sfx death_mark' from file 'assets/sfx/death_mark.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/decay_jingle.wav
+  . Loaded 'sfx decay_jingle' from file 'assets/sfx/decay_jingle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/detected.wav
+  . Loaded 'sfx detected' from file 'assets/sfx/detected.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/dig.wav
+  . Loaded 'sfx dig' from file 'assets/sfx/dig.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disarm.wav
+  . Loaded 'sfx disarm' from file 'assets/sfx/disarm.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disguise.wav
+  . Loaded 'sfx disguise' from file 'assets/sfx/disguise.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disrupt.wav
+  . Loaded 'sfx disrupt' from file 'assets/sfx/disrupt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/dmg_cap.wav
+  . Loaded 'sfx dmg_cap' from file 'assets/sfx/dmg_cap.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/drop_piece.wav
+  . Loaded 'sfx drop_piece' from file 'assets/sfx/drop_piece.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/eat.wav
+  . Loaded 'sfx eat' from file 'assets/sfx/eat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/exclude_card.wav
+  . Loaded 'sfx exclude_card' from file 'assets/sfx/exclude_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/execute.wav
+  . Loaded 'sfx execute' from file 'assets/sfx/execute.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/execute_disruption.wav
+  . Loaded 'sfx execute_disruption' from file 'assets/sfx/execute_disruption.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/exile.wav
+  . Loaded 'sfx exile' from file 'assets/sfx/exile.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/extra_turn.wav
+  . Loaded 'sfx extra_turn' from file 'assets/sfx/extra_turn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/fall.wav
+  . Loaded 'sfx fall' from file 'assets/sfx/fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/flash_boss.wav
+  . Loaded 'sfx flash_boss' from file 'assets/sfx/flash_boss.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/flip_back.wav
+  . Loaded 'sfx flip_back' from file 'assets/sfx/flip_back.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/give_cinder.wav
+  . Loaded 'sfx give_cinder' from file 'assets/sfx/give_cinder.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/glue.wav
+  . Loaded 'sfx glue' from file 'assets/sfx/glue.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grab_cancel.wav
+  . Loaded 'sfx grab_cancel' from file 'assets/sfx/grab_cancel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grab_done.wav
+  . Loaded 'sfx grab_done' from file 'assets/sfx/grab_done.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_beep.wav
+  . Loaded 'sfx grenade_beep' from file 'assets/sfx/grenade_beep.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_bounce.wav
+  . Loaded 'sfx grenade_bounce' from file 'assets/sfx/grenade_bounce.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_fall.wav
+  . Loaded 'sfx grenade_fall' from file 'assets/sfx/grenade_fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_xpl.wav
+  . Loaded 'sfx grenade_xpl' from file 'assets/sfx/grenade_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/gust.wav
+  . Loaded 'sfx gust' from file 'assets/sfx/gust.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/head_bump.wav
+  . Loaded 'sfx head_bump' from file 'assets/sfx/head_bump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/healing.wav
+  . Loaded 'sfx healing' from file 'assets/sfx/healing.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/help.wav
+  . Loaded 'sfx help' from file 'assets/sfx/help.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_leave.wav
+  . Loaded 'sfx hero_leave' from file 'assets/sfx/hero_leave.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_light.wav
+  . Loaded 'sfx hero_light' from file 'assets/sfx/hero_light.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_spawn.wav
+  . Loaded 'sfx hero_spawn' from file 'assets/sfx/hero_spawn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_spawn_boom.wav
+  . Loaded 'sfx hero_spawn_boom' from file 'assets/sfx/hero_spawn_boom.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hippocracy.wav
+  . Loaded 'sfx hippocracy' from file 'assets/sfx/hippocracy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/holo_vanish.wav
+  . Loaded 'sfx holo_vanish' from file 'assets/sfx/holo_vanish.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hurt.wav
+  . Loaded 'sfx hurt' from file 'assets/sfx/hurt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hurt_boss.wav
+  . Loaded 'sfx hurt_boss' from file 'assets/sfx/hurt_boss.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hypnosys.wav
+  . Loaded 'sfx hypnosys' from file 'assets/sfx/hypnosys.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hypno_execute.wav
+  . Loaded 'sfx hypno_execute' from file 'assets/sfx/hypno_execute.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/incantation.wav
+  . Loaded 'sfx incantation' from file 'assets/sfx/incantation.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/inc_countdown.wav
+  . Loaded 'sfx inc_countdown' from file 'assets/sfx/inc_countdown.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jester.wav
+  . Loaded 'sfx jester' from file 'assets/sfx/jester.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jingle_theme.wav
+  . Loaded 'sfx jingle_theme' from file 'assets/sfx/jingle_theme.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jump.wav
+  . Loaded 'sfx jump' from file 'assets/sfx/jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/king_talk.wav
+  . Loaded 'sfx king_talk' from file 'assets/sfx/king_talk.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/land.wav
+  . Loaded 'sfx land' from file 'assets/sfx/land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/legacy.wav
+  . Loaded 'sfx legacy' from file 'assets/sfx/legacy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/level_up_sel.wav
+  . Loaded 'sfx level_up_sel' from file 'assets/sfx/level_up_sel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/level_up_zoom.wav
+  . Loaded 'sfx level_up_zoom' from file 'assets/sfx/level_up_zoom.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/lift.wav
+  . Loaded 'sfx lift' from file 'assets/sfx/lift.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/lost_king.wav
+  . Loaded 'sfx lost_king' from file 'assets/sfx/lost_king.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/mark_card.wav
+  . Loaded 'sfx mark_card' from file 'assets/sfx/mark_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/menu_in.wav
+  . Loaded 'sfx menu_in' from file 'assets/sfx/menu_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/menu_out.wav
+  . Loaded 'sfx menu_out' from file 'assets/sfx/menu_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/missile.wav
+  . Loaded 'sfx missile' from file 'assets/sfx/missile.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/mission.wav
+  . Loaded 'sfx mission' from file 'assets/sfx/mission.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/move_piece.wav
+  . Loaded 'sfx move_piece' from file 'assets/sfx/move_piece.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/next_vig.wav
+  . Loaded 'sfx next_vig' from file 'assets/sfx/next_vig.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/next_vig_2.wav
+  . Loaded 'sfx next_vig_2' from file 'assets/sfx/next_vig_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/pause.wav
+  . Loaded 'sfx pause' from file 'assets/sfx/pause.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta.wav
+  . Loaded 'sfx penta' from file 'assets/sfx/penta.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta_full.wav
+  . Loaded 'sfx penta_full' from file 'assets/sfx/penta_full.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta_reset.wav
+  . Loaded 'sfx penta_reset' from file 'assets/sfx/penta_reset.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/piece_fall.wav
+  . Loaded 'sfx piece_fall' from file 'assets/sfx/piece_fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/pile_bounce.wav
+  . Loaded 'sfx pile_bounce' from file 'assets/sfx/pile_bounce.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/plague.wav
+  . Loaded 'sfx plague' from file 'assets/sfx/plague.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/promote.wav
+  . Loaded 'sfx promote' from file 'assets/sfx/promote.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/raid_won.wav
+  . Loaded 'sfx raid_won' from file 'assets/sfx/raid_won.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/raise.wav
+  . Loaded 'sfx raise' from file 'assets/sfx/raise.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/rat.wav
+  . Loaded 'sfx rat' from file 'assets/sfx/rat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reap_soul.wav
+  . Loaded 'sfx reap_soul' from file 'assets/sfx/reap_soul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/recycle_cards.wav
+  . Loaded 'sfx recycle_cards' from file 'assets/sfx/recycle_cards.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/recycle_new.wav
+  . Loaded 'sfx recycle_new' from file 'assets/sfx/recycle_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/refill_wand.wav
+  . Loaded 'sfx refill_wand' from file 'assets/sfx/refill_wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/regal_ascent.wav
+  . Loaded 'sfx regal_ascent' from file 'assets/sfx/regal_ascent.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/regal_light.wav
+  . Loaded 'sfx regal_light' from file 'assets/sfx/regal_light.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reload.wav
+  . Loaded 'sfx reload' from file 'assets/sfx/reload.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/replace_card.wav
+  . Loaded 'sfx replace_card' from file 'assets/sfx/replace_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/retire.wav
+  . Loaded 'sfx retire' from file 'assets/sfx/retire.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reverse_karma.wav
+  . Loaded 'sfx reverse_karma' from file 'assets/sfx/reverse_karma.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/scope.wav
+  . Loaded 'sfx scope' from file 'assets/sfx/scope.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/seer.wav
+  . Loaded 'sfx seer' from file 'assets/sfx/seer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sel_disruption.wav
+  . Loaded 'sfx sel_disruption' from file 'assets/sfx/sel_disruption.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sel_opt.wav
+  . Loaded 'sfx sel_opt' from file 'assets/sfx/sel_opt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_ground.wav
+  . Loaded 'sfx shell_ground' from file 'assets/sfx/shell_ground.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_land.wav
+  . Loaded 'sfx shell_land' from file 'assets/sfx/shell_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_spark.wav
+  . Loaded 'sfx shell_spark' from file 'assets/sfx/shell_spark.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shield.wav
+  . Loaded 'sfx shield' from file 'assets/sfx/shield.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot.wav
+  . Loaded 'sfx shoot' from file 'assets/sfx/shoot.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_0.wav
+  . Loaded 'sfx shoot_0' from file 'assets/sfx/shoot_0.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_1.wav
+  . Loaded 'sfx shoot_1' from file 'assets/sfx/shoot_1.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_2.wav
+  . Loaded 'sfx shoot_2' from file 'assets/sfx/shoot_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_3.wav
+  . Loaded 'sfx shoot_3' from file 'assets/sfx/shoot_3.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_4.wav
+  . Loaded 'sfx shoot_4' from file 'assets/sfx/shoot_4.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_silencer.wav
+  . Loaded 'sfx shoot_silencer' from file 'assets/sfx/shoot_silencer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show.wav
+  . Loaded 'sfx show' from file 'assets/sfx/show.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show_book.wav
+  . Loaded 'sfx show_book' from file 'assets/sfx/show_book.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show_card.wav
+  . Loaded 'sfx show_card' from file 'assets/sfx/show_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sky_dust.wav
+  . Loaded 'sfx sky_dust' from file 'assets/sfx/sky_dust.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sokoban_push.wav
+  . Loaded 'sfx sokoban_push' from file 'assets/sfx/sokoban_push.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul.wav
+  . Loaded 'sfx soul' from file 'assets/sfx/soul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul_proj.wav
+  . Loaded 'sfx soul_proj' from file 'assets/sfx/soul_proj.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul_wand.wav
+  . Loaded 'sfx soul_wand' from file 'assets/sfx/soul_wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawn.wav
+  . Loaded 'sfx spawn' from file 'assets/sfx/spawn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawner.wav
+  . Loaded 'sfx spawner' from file 'assets/sfx/spawner.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawn_final.wav
+  . Loaded 'sfx spawn_final' from file 'assets/sfx/spawn_final.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/splash.wav
+  . Loaded 'sfx splash' from file 'assets/sfx/splash.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/start.wav
+  . Loaded 'sfx start' from file 'assets/sfx/start.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/start_detune.wav
+  . Loaded 'sfx start_detune' from file 'assets/sfx/start_detune.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/swap.wav
+  . Loaded 'sfx swap' from file 'assets/sfx/swap.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/swap_init.wav
+  . Loaded 'sfx swap_init' from file 'assets/sfx/swap_init.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tear_up.wav
+  . Loaded 'sfx tear_up' from file 'assets/sfx/tear_up.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/throw.wav
+  . Loaded 'sfx throw' from file 'assets/sfx/throw.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/throw_impact.wav
+  . Loaded 'sfx throw_impact' from file 'assets/sfx/throw_impact.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tic.wav
+  . Loaded 'sfx tic' from file 'assets/sfx/tic.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tile_move.wav
+  . Loaded 'sfx tile_move' from file 'assets/sfx/tile_move.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tile_out.wav
+  . Loaded 'sfx tile_out' from file 'assets/sfx/tile_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trainer.wav
+  . Loaded 'sfx trainer' from file 'assets/sfx/trainer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trampoline.wav
+  . Loaded 'sfx trampoline' from file 'assets/sfx/trampoline.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trg_in.wav
+  . Loaded 'sfx trg_in' from file 'assets/sfx/trg_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trg_out.wav
+  . Loaded 'sfx trg_out' from file 'assets/sfx/trg_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tunnel.wav
+  . Loaded 'sfx tunnel' from file 'assets/sfx/tunnel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/turn_card.wav
+  . Loaded 'sfx turn_card' from file 'assets/sfx/turn_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/twinkle.wav
+  . Loaded 'sfx twinkle' from file 'assets/sfx/twinkle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unlock.wav
+  . Loaded 'sfx unlock' from file 'assets/sfx/unlock.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unsoul.wav
+  . Loaded 'sfx unsoul' from file 'assets/sfx/unsoul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unused_unknown.wav
+  . Loaded 'sfx unused_unknown' from file 'assets/sfx/unused_unknown.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unused_xpl.wav
+  . Loaded 'sfx unused_xpl' from file 'assets/sfx/unused_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/use_card.wav
+  . Loaded 'sfx use_card' from file 'assets/sfx/use_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/vampire_eat.wav
+  . Loaded 'sfx vampire_eat' from file 'assets/sfx/vampire_eat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/vampire_suck.wav
+  . Loaded 'sfx vampire_suck' from file 'assets/sfx/vampire_suck.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wand.wav
+  . Loaded 'sfx wand' from file 'assets/sfx/wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/water_poison.wav
+  . Loaded 'sfx water_poison' from file 'assets/sfx/water_poison.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/will_explode.wav
+  . Loaded 'sfx will_explode' from file 'assets/sfx/will_explode.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wrong.wav
+  . Loaded 'sfx wrong' from file 'assets/sfx/wrong.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wrong_shield.wav
+  . Loaded 'sfx wrong_shield' from file 'assets/sfx/wrong_shield.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/xpl.wav
+  . Loaded 'sfx xpl' from file 'assets/sfx/xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/music/*.ogg
+  . Loading assets/music/boss_A.ogg
+  . Loaded 'music boss_A' from file 'assets/music/boss_A.ogg'
+  . Loading assets/music/boss_B.ogg
+  . Loaded 'music boss_B' from file 'assets/music/boss_B.ogg'
+  . Loading assets/music/boss_queen_A.ogg
+  . Loaded 'music boss_queen_A' from file 'assets/music/boss_queen_A.ogg'
+  . Loading assets/music/boss_queen_B.ogg
+  . Loaded 'music boss_queen_B' from file 'assets/music/boss_queen_B.ogg'
+  . Loading assets/music/boss_riders_A.ogg
+  . Loaded 'music boss_riders_A' from file 'assets/music/boss_riders_A.ogg'
+  . Loading assets/music/boss_riders_B.ogg
+  . Loaded 'music boss_riders_B' from file 'assets/music/boss_riders_B.ogg'
+  . Loading assets/music/charnier_A.ogg
+  . Loaded 'music charnier_A' from file 'assets/music/charnier_A.ogg'
+  . Loading assets/music/charnier_B.ogg
+  . Loaded 'music charnier_B' from file 'assets/music/charnier_B.ogg'
+  . Loading assets/music/charnier_shop_2_A.ogg
+  . Loaded 'music charnier_shop_2_A' from file 'assets/music/charnier_shop_2_A.ogg'
+  . Loading assets/music/charnier_shop_2_B.ogg
+  . Loaded 'music charnier_shop_2_B' from file 'assets/music/charnier_shop_2_B.ogg'
+  . Loading assets/music/charnier_shop_A.ogg
+  . Loaded 'music charnier_shop_A' from file 'assets/music/charnier_shop_A.ogg'
+  . Loading assets/music/charnier_shop_B.ogg
+  . Loaded 'music charnier_shop_B' from file 'assets/music/charnier_shop_B.ogg'
+  . Loading assets/music/chase.ogg
+  . Loaded 'music chase' from file 'assets/music/chase.ogg'
+  . Loading assets/music/codex.ogg
+  . Loaded 'music codex' from file 'assets/music/codex.ogg'
+  . Loading assets/music/ending_A.ogg
+  . Loaded 'music ending_A' from file 'assets/music/ending_A.ogg'
+  . Loading assets/music/ending_B.ogg
+  . Loaded 'music ending_B' from file 'assets/music/ending_B.ogg'
+  . Loading assets/music/endless.ogg
+  . Loaded 'music endless' from file 'assets/music/endless.ogg'
+  . Loading assets/music/final_countdown.ogg
+  . Loaded 'music final_countdown' from file 'assets/music/final_countdown.ogg'
+  . Loading assets/music/fireplace.ogg
+  . Loaded 'music fireplace' from file 'assets/music/fireplace.ogg'
+  . Loading assets/music/gameover.ogg
+  . Loaded 'music gameover' from file 'assets/music/gameover.ogg'
+  . Loading assets/music/gameover_w_fx.ogg
+  . Loaded 'music gameover_w_fx' from file 'assets/music/gameover_w_fx.ogg'
+  . Loading assets/music/ingame.ogg
+  . Loaded 'music ingame' from file 'assets/music/ingame.ogg'
+  . Loading assets/music/level_up_A.ogg
+  . Loaded 'music level_up_A' from file 'assets/music/level_up_A.ogg'
+  . Loading assets/music/level_up_B.ogg
+  . Loaded 'music level_up_B' from file 'assets/music/level_up_B.ogg'
+  . Loading assets/music/title_A.ogg
+  . Loaded 'music title_A' from file 'assets/music/title_A.ogg'
+  . Loading assets/music/title_B.ogg
+  . Loaded 'music title_B' from file 'assets/music/title_B.ogg'
+  . Loading assets/gfx/*.png
+  . Loading assets/gfx/achievements.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x048A14 bytes to fit new 'achievements_srf' req.
+  . Correctly requested 'achievements_srf' 0x048000 bytes at 0x0A14 in chunk '_sugar_'.
+  . Created the 1024 x 288 surface 'achievements'.
+  . Correctly loaded 'assets/gfx/achievements.png' into 'achievements' surface.
+  . Loading assets/gfx/cards.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x071E14 bytes to fit new 'cards_srf' req.
+  . Correctly requested 'cards_srf' 0x029400 bytes at 0x048A14 in chunk '_sugar_'.
+  . Created the 264 x 640 surface 'cards'.
+  . Correctly loaded 'assets/gfx/cards.png' into 'cards' surface.
+  . Loading assets/gfx/charnier.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x097614 bytes to fit new 'charnier_srf' req.
+  . Correctly requested 'charnier_srf' 0x025800 bytes at 0x071E14 in chunk '_sugar_'.
+  . Created the 320 x 480 surface 'charnier'.
+  . Correctly loaded 'assets/gfx/charnier.png' into 'charnier' surface.
+  . Loading assets/gfx/codex.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B5614 bytes to fit new 'codex_srf' req.
+  . Correctly requested 'codex_srf' 0x01E000 bytes at 0x097614 in chunk '_sugar_'.
+  . Created the 640 x 192 surface 'codex'.
+  . Correctly loaded 'assets/gfx/codex.png' into 'codex' surface.
+  . Loading assets/gfx/console_NX.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B6E14 bytes to fit new 'console_NX_srf' req.
+  . Correctly requested 'console_NX_srf' 0x1800 bytes at 0x0B5614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_NX'.
+  . Correctly loaded 'assets/gfx/console_NX.png' into 'console_NX' surface.
+  . Loading assets/gfx/console_PC.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B8614 bytes to fit new 'console_PC_srf' req.
+  . Correctly requested 'console_PC_srf' 0x1800 bytes at 0x0B6E14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PC'.
+  . Correctly loaded 'assets/gfx/console_PC.png' into 'console_PC' surface.
+  . Loading assets/gfx/console_PS4.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B9E14 bytes to fit new 'console_PS4_srf' req.
+  . Correctly requested 'console_PS4_srf' 0x1800 bytes at 0x0B8614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PS4'.
+  . Correctly loaded 'assets/gfx/console_PS4.png' into 'console_PS4' surface.
+  . Loading assets/gfx/console_PS5.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BB614 bytes to fit new 'console_PS5_srf' req.
+  . Correctly requested 'console_PS5_srf' 0x1800 bytes at 0x0B9E14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PS5'.
+  . Correctly loaded 'assets/gfx/console_PS5.png' into 'console_PS5' surface.
+  . Loading assets/gfx/console_SteamDeck-export.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BCE14 bytes to fit new 'console_SteamDeck-export_srf' req.
+  . Correctly requested 'console_SteamDeck-export_srf' 0x1800 bytes at 0x0BB614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_SteamDeck-export'.
+  . Correctly loaded 'assets/gfx/console_SteamDeck-export.png' into 'console_SteamDeck-export' surface.
+  . Loading assets/gfx/console_SteamDeck.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BE614 bytes to fit new 'console_SteamDeck_srf' req.
+  . Correctly requested 'console_SteamDeck_srf' 0x1800 bytes at 0x0BCE14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_SteamDeck'.
+  . Correctly loaded 'assets/gfx/console_SteamDeck.png' into 'console_SteamDeck' surface.
+  . Loading assets/gfx/console_Xbox.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BFE14 bytes to fit new 'console_Xbox_srf' req.
+  . Correctly requested 'console_Xbox_srf' 0x1800 bytes at 0x0BE614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_Xbox'.
+  . Correctly loaded 'assets/gfx/console_Xbox.png' into 'console_Xbox' surface.
+  . Loading assets/gfx/crumble.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0C7614 bytes to fit new 'crumble_srf' req.
+  . Correctly requested 'crumble_srf' 0x7800 bytes at 0x0BFE14 in chunk '_sugar_'.
+  . Created the 320 x 96 surface 'crumble'.
+  . Correctly loaded 'assets/gfx/crumble.png' into 'crumble' surface.
+  . Loading assets/gfx/gfx.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0E4614 bytes to fit new 'gfx_srf' req.
+  . Correctly requested 'gfx_srf' 0x01D000 bytes at 0x0C7614 in chunk '_sugar_'.
+  . Created the 256 x 464 surface 'gfx'.
+  . Correctly loaded 'assets/gfx/gfx.png' into 'gfx' surface.
+  . Loading assets/gfx/icon.png
+  . Resized '_sugar_' to 0x0E4714 bytes to fit new 'icon_srf' req.
+  . Correctly requested 'icon_srf' 0x0100 bytes at 0x0E4614 in chunk '_sugar_'.
+  . Created the 16 x 16 surface 'icon'.
+  . Correctly loaded 'assets/gfx/icon.png' into 'icon' surface.
+  . Loading assets/gfx/intro.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x104714 bytes to fit new 'intro_srf' req.
+  . Correctly requested 'intro_srf' 0x020000 bytes at 0x0E4714 in chunk '_sugar_'.
+  . Created the 128 x 1024 surface 'intro'.
+  . Correctly loaded 'assets/gfx/intro.png' into 'intro' surface.
+  . Loading assets/gfx/title.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x130714 bytes to fit new 'title_srf' req.
+  . Correctly requested 'title_srf' 0x02C000 bytes at 0x104714 in chunk '_sugar_'.
+  . Created the 512 x 352 surface 'title'.
+  . Correctly loaded 'assets/gfx/title.png' into 'title' surface.
+  . Loading assets/gfx/tutorial.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x147E74 bytes to fit new 'tutorial_srf' req.
+  . Correctly requested 'tutorial_srf' 0x017760 bytes at 0x130714 in chunk '_sugar_'.
+  . Created the 528 x 182 surface 'tutorial'.
+  . Correctly loaded 'assets/gfx/tutorial.png' into 'tutorial' surface.
+  . Loading assets/gfx/weapons.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x14F7F4 bytes to fit new 'weapons_srf' req.
+  . Correctly requested 'weapons_srf' 0x7980 bytes at 0x147E74 in chunk '_sugar_'.
+  . Created the 144 x 216 surface 'weapons'.
+  . Correctly loaded 'assets/gfx/weapons.png' into 'weapons' surface.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x15D8F4 bytes to fit new 'playground_srf' req.
+  . Correctly requested 'playground_srf' 0xE100 bytes at 0x14F7F4 in chunk '_sugar_'.
+  . Created the 320 x 180 surface 'playground'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18B57E bytes to fit new 'achievements_pane_srf' req.
+  . Correctly requested 'achievements_pane_srf' 0x02DC8A bytes at 0x15D8F4 in chunk '_sugar_'.
+  . Created the 190 x 987 surface 'achievements_pane'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18C57E bytes to fit new 'big_achievement_srf' req.
+  . Correctly requested 'big_achievement_srf' 0x1000 bytes at 0x18B57E in chunk '_sugar_'.
+  . Created the 64 x 64 surface 'big_achievement'.
+  . Loading assets/fonts/pico_font.png
+  . Resized '_sugar_' to 0x18C656 bytes to fit new 'pico_font' req.
+  . Correctly requested 'pico_font' 0xD8 bytes at 0x18C57E in chunk '_sugar_'.
+  . The 104 glyphs font 'pico' was loaded from assets/fonts/pico_font.png
+  . Loading assets/fonts/Terminus.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18FB4E bytes to fit new 'Terminus_font' req.
+  . Correctly requested 'Terminus_font' 0x34F8 bytes at 0x18C656 in chunk '_sugar_'.
+  . The 1356 glyphs font 'Terminus' was loaded from assets/fonts/Terminus.ttf
+  . Loading assets/fonts/TerminusThai.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x19333E bytes to fit new 'TerminusThai_font' req.
+  . Correctly requested 'TerminusThai_font' 0x37F0 bytes at 0x18FB4E in chunk '_sugar_'.
+  . The 1432 glyphs font 'TerminusThai' was loaded from assets/fonts/TerminusThai.ttf
+  . Loading lang/safe_english.txt
+  . Loading lang/safe_english.txt
+  . Found 902 keys in lang/safe_english.txt
+  . Found 902 keys in lang/safe_english.txt
+  . Loading mods/modlist.lua
+  . Loading mods/Shootout/info.lua
+  . Loading mods/disgraced_justice/info.lua
+  . Loading mods/extra features/info.lua
+  . Loading mods/glac terminal/info.lua
+  . Loading mods/glacies collection/info.lua
+  . Loading mods/grenade predictor/info.lua
+  . Loading mods/nightmare/info.lua
+  . Loading mods/retry/info.lua
+  . Loading mods/royal card lab/info.lua
+  . Loading mods/show exclude/info.lua
+  . Loading mods/some_fairy_pieces/info.lua
+  . Loading mods/the art of war/info.lua
+  . Loading mods/the_magnificient_quartz_army/info.lua
+  . Loading mods/sk-rework/info.lua
+  . Loading ./settings.txt
+  . Successfully loaded save at: ./settings.txt
+  . Loading save/reg.sav
+  . Loading save/stats.sav
+  . Successfully loaded save at: save/stats.sav
+  . Loading save/prog.sav
+  . Successfully loaded save at: save/prog.sav
+  . Loading save/achievements.sav
+  . Successfully loaded save at: save/achievements.sav
+  . Loading save/misc.sav
+  . Successfully loaded save at: save/misc.sav
+  . Loading save/runs.sav
+  . Successfully loaded save at: save/runs.sav
+  . Successfully loaded save at: save/reg.sav
+  . Loading save/mods/reg.sav
+  . Loading save/mods/sk-rework.sav
+  . Successfully loaded save at: save/mods/sk-rework.sav
+  . Successfully loaded save at: save/mods/reg.sav
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1A143E bytes to fit new 'Shotgun King_screen_srf' req.
+  . Correctly requested 'Shotgun King_screen_srf' 0xE100 bytes at 0x19333E in chunk '_sugar_'.
+  . Loading assets/stretch.shader
+  . Created OpenGL window with version 3.0.
+  . Got Core profile as requested.
+  . Hardware rendering is on.
+  . Created new window 'Shotgun King'.
+  . Resized '_sugar_' to 0x1A1D3E bytes to fit new '__boot_sheet___srf' req.
+  . Correctly requested '__boot_sheet___srf' 0x0900 bytes at 0x1A143E in chunk '_sugar_'.
+  . Created the 96 x 24 surface '__boot_sheet__'.
+ !! Couldn't find 'time' uniform in   . Deleted surface '__boot_sheet__'.
+ !! Cou  . Deleted surface '__boot_sheet__'.
+ !! Couldn't find 'curve' uniform in shader.
+ !! Couldn't find 'chroma' uniform in shader.
+  . 'assets/stretch.shader' was already loaded.
+  . Loading assets/stretch.shader
+ !! Couldn't find 'curve' uniform in shader.
+  . Correctly requested '__tmp_screen_resize__' 0xE100 bytes at 0x19333E in chunk '_sugar_'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1D983E bytes to fit new 'Shotgun King_screen_srf' req.
+  . Correctly requested 'Shotgun King_screen_srf' 0x038400 bytes at 0x1A143E in chunk '_sugar_'.
+ !! Couldn't find 'time' uniform in shader.
+  . Loading ../../punkcake/punkcake_sheet.png
+  . Correctly requested 'pcd_sheet_srf' 0x4000 bytes at 0x19333E in chunk '_sugar_'.
+  . Created the 128 x 128 surface 'pcd_sheet'.
+  . Correctly loaded '../../punkcake/punkcake_sheet.png' into 'pcd_sheet' surface.
+  . Loading ../../punkcake/slap.wav
+  . Loaded 'sfx pcd_slap' from file '../../punkcake/slap.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/chomp.wav
+  . Loaded 'sfx pcd_chomp' from file '../../punkcake/chomp.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/punkcake.wav
+  . Loaded 'sfx pcd_punkcake' from file '../../punkcake/punkcake.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/delicieux.wav
+  . Loaded 'sfx pcd_delicieux' from file '../../punkcake/delicieux.wav  . Correctly requested '__tmp_screen_resize__' 0x038400 bytes at 0x1A143E in chunk '_sugar_'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '  . Correctly requested 'grenade_srf' 0x6C00 bytes at 0x19733E in chunk '_sugar_'.
+  . Created the 576 x 48 surface 'grenade'.
+  . Correctly requested 'mini_xpl_srf' 0x0C00 bytes at 0x19DF3E in chunk '_sugar_'.
+  . Created the 192 x 16 surface 'mini_xpl'.
+  . Correctly requested 'spiral_srf' 0x1000 bytes at 0x19EB3E in chunk '_sugar_'.
+  . Created the 64 x 64 surface 'spiral'.
+  . Loading lang/english.txt
+  . Watching lang/english.txt
+  . Loading lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . No available controller for player 0
+  . Defined 43 buttons for player 0.
+  . Loading 'sk-rework' mod.
+  . Loading save/mods/sk-rework.bnk
+ !! Could not open file 'save/mods/sk-rework.bnk': No such file or directory'.
+  . Correctly requested 'sk-rework_bnk' 0x01 bytes at 0x19FB3E in chunk '_sugar_'.
+  . Loading mods/sk-rework/script.lua
+  . SK-REWORK: BUILD=4 loaded (mod_index=1)
+  . SKA2|mod_found=yes|active=true
+  . SKM|1|author=freeforall1932
+  . SKM|1|cover=mods/sk-rework/cover.png
+  . SKM|1|active=true
+  . SKM|1|priority_hint=0
+  . SKM|1|desc=Ammo & gameplay rework (private personal-use project).
+
+Diagnostics build 4: same load/hook proof and function-map dump as build 3
+(lines prefixed SK-REWORK:, SKG|, SKA|, SKH|, SKE|, SKO|, SKW|), plus: dumps
+every MODLIST entry (SKM|) and the full card id map (SKC|), and probes
+mods/modlist.lua (SKML|). The on_*/upd probes of build 3 are gone — the first
+live run proved they never fire for plain mods. Changes nothing in the game.
+
+  . SKM|1|num=1
+  . SKM|1|save=sk-rework
+  . SKM|1|folder=mods/sk-rework
+  . SKM|1|mode_description=tbl
+  . SKM|1|here=true
+  . SKM|1|name=sk-rework
+  . SKM|1|title=SK Rework
+  . SKM|2|author=matheo000
+  . SKM|2|cover=mods/the_magnificient_quartz_army/tmqa_cover.png
+  . SKM|2|active=false
+  . SKM|2|priority_hint=5
+  . SKM|2|mode_description=tbl
+  . SKM|2|here=true
+  . SKM|2|script=mods/the_magnificient_quartz_army/script.lua
+  . SKM|2|save=the_magnificient_quartz_army
+  . SKM|2|folder=mods/the_magnificient_quartz_army
+  . SKM|2|modes=tbl
+  . SKM|2|exists=true
+  . SKM|2|langs=tbl
+  . SKM|3|id=3342310033
+  . SKM|3|save=some_fairy_pieces
+  . SKM|3|folder=mods/some_fairy_pieces
+  . SKM|3|modes=tbl
+  . SKM|3|langs=tbl
+  . SKM|3|script=mods/some_fairy_pieces/script.lua
+  . SKM|3|author=sub122
+  . SKM|3|cover=mods/some_fairy_pieces/cover_sfps.png
+  . SKM|3|active=false
+  . SKM|3|priority_hint=1
+  . SKM|3|mode_description=tbl
+  . SKM|3|mode_record=tbl
+  . SKM|4|author=unknown2559
+  . SKM|4|cover=mods/Shootout/cover.png
+  . SKM|4|active=false
+  . SKM|4|priority_hint=0
+  . SKM|4|desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'
+
+  . SKM|4|save=Shootout
+  . SKM|4|folder=mods/Shootout
+  . SKM|4|modes=tbl
+  . SKM|4|here=true
+  . SKM|4|name=Shootout
+  . SKM|4|title=Shootout: the Rifle King Adventure
+  . SKM|4|exists=true
+  . SKM|5|author=Lorina Sonetto & Bob Qwerty
+  . SKM|5|active=false
+  . SKM|5|priority_hint=0
+  . SKM|5|desc=Broken oaths and holy corruption.
+Allows you to have the Black Bishop as your ally with the power of the Red Book.
+He will join your side if you find the Red Book and his old Vow...
+
+Use the alternative script in the mod folder if you want this mod to be compatible with Etilon's SGK Extra
+
+- Art by Bob Qwerty
+- Requires Glacies' Collection
+- Lightning strike effect by Glacies
+
+  . SKM|5|save=disgraced_justice
+  . SKM|5|folder=mods/disgraced_justice
+  . SKM|5|here=true
+  . SKM|5|name=disgraced_justice
+  . SKM|5|title=Disgraced Justice
+  . SKM|5|script=mods/disgraced_justice/script.lua
+  . SKM|5|exists=true
+  . SKM|6|author=Glacies
+  . SKM|6|cover=mods/extra features/cover.png
+  . SKM|6|active=false
+  . SKM|6|priority_hint=0
+  . SKM|6|desc=This mod itself doesn't add any content. Only empowers other mods to have additional features. 
+
+Requires Glac Terminal to work. 
+
+List of features added: 
+- ban cards depending on selected weapon/rank
+- animated card art 
+
+For modders: 
+check the manual
+
+  . SKM|6|save=extra features
+  . SKM|6|folder=mods/extra features
+  . SKM|6|id=3145848395
+  . SKM|6|mode_description=tbl
+  . SKM|6|here=true
+  . SKM|6|name=extra features
+  . SKM|6|title=Glacies' Extra Features
+  . SKM|7|author=Glacies
+  . SKM|7|cover=mods/glacies collection/cover.png
+  . SKM|7|active=false
+  . SKM|7|priority_hint=0
+  . SKM|7|desc=Adds a bunch of ingame mechanics that can be used by other mods,
+such as the grappling hook, floor restarting and clickable cards. 
+
+Any report of bugs is appreciated. 
+
+Requires Glac Terminal to work. 
+
+To modders: check the mod manual and mode_settings for available features. 
+
+  . SKM|7|save=glacies collection
+  . SKM|7|folder=mods/glacies collection
+  . SKM|7|id=3148586988
+  . SKM|7|mode_description=tbl
+  . SKM|7|here=true
+  . SKM|7|name=glacies collection
+  . SKM|7|title=Glacies' Collection
+  . SKM|8|author=Glacies
+  . SKM|8|cover=mods/grenade predictor/cover.png
+  . SKM|8|active=false
+  . SKM|8|priority_hint=0
+  . SKM|8|desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.
+Probabilities and damages alternate when you press it.
+
+Requires Glac Terminal
+
+  . SKM|8|mode_record=tbl
+  . SKM|8|save=grenade predictor
+  . SKM|8|folder=mods/grenade predictor
+  . SKM|8|id=3449354474
+  . SKM|8|mode_description=tbl
+  . SKM|8|here=true
+  . SKM|8|name=grenade predictor
+  . SKM|9|author=Glacies
+  . SKM|9|cover=mods/nightmare/cover.png
+  . SKM|9|active=false
+  . SKM|9|priority_hint=0
+  . SKM|9|desc=The title is a lie. This mod isn't as hard as a nightmare at all.
+
+[h2] New Gamemode: [b]Nightmare[/b] [/h2]
+Chill for the first 5 floors, because the nightmare is coming... 
+You have up to 15 floors to prepare your cards, but you will also end up having a total of 15 white cards. 
+Try to complete your perfect card build before your enemy becomes too powerful! 
+
+  . SKM|9|id=3197738029
+  . SKM|9|mode_record=tbl
+  . SKM|9|save=nightmare
+  . SKM|9|folder=mods/nightmare
+  . SKM|9|modes=tbl
+  . SKM|9|mode_description=tbl
+  . SKM|9|here=true
+  . SKM|10|author=Glacies
+  . SKM|10|cover=mods/retry/cover.png
+  . SKM|10|active=false
+  . SKM|10|priority_hint=0
+  . SKM|10|desc=Restarts the current floor after you die.
+
+[h2] Caution [/h2]
+Only works in the following gamemodes: Throne, Endless, Card Lab and Endless Lab.
+
+[h2] Mod Dependency [/h2]
+Glac Terminal must be loaded below this mod.
+
+[h2] For Other Modders [/h2]
+It's possible to make this mod work in your gamemodes.
+
+  . SKM|10|save=retry
+  . SKM|10|folder=mods/retry
+  . SKM|10|id=3626751996
+  . SKM|10|mode_description=tbl
+  . SKM|10|here=true
+  . SKM|10|name=retry
+  . SKM|10|title=Retry after Death
+  . SKM|11|author=Glacies
+  . SKM|11|cover=mods/show exclude/cover.png
+  . SKM|11|active=false
+  . SKM|11|priority_hint=0
+  . SKM|11|desc=Features:
+- More details on how to get a card are displayed. Needed pieces, stats, and card exclusions.
+- Existing labels are changed to white for more readability, and new labels are colored with my signature blue.
+- For modded cards: "Played" and "Love" are hidden, and boxes are made larger.
+
+Pressing left shift to view the original codex.
+
+Note that the requirements in the codex are still not the only factors controlling what cards you can pick.
+For example, there are some general rules:
+- You can't have more than: 1 right-click ability, or 5 soul slots. or 3 scepters
+- You can't have 0 max ammo
+- You can't remove too many pieces such that the requirements of some cards in your hand aren't met
+- You can't have grabbing ability and blade at the same time
+etc
+
+I don't know why but the game might crash for no reason and leave no crash log...?
+Not sure if it's caused by this mod so just keep it in mind. If that happens to you please report.
+
+  . SKM|11|save=show exclude
+  . SKM|11|folder=mods/show exclude
+  . SKM|11|id=3145391294
+  . SKM|11|mode_description=tbl
+  . SKM|11|here=true
+  . SKM|11|name=show exclude
+  . SKM|11|title=Better Codex
+  . SKM|12|author=Glacies
+  . SKM|12|cover=mods/royal card lab/cover.png
+  . SKM|12|active=false
+  . SKM|12|priority_hint=-1
+  . SKM|12|desc=||INTRO||
+Sandbox Mode! Ever felt frustrated because you couldn't get an ideal build? Not sure how powerful a card combo in mind is? Test them here! 
+
+||CAUTIONS||
+Put this mod below other mods with cards that can be clicked
+
+Requires Glac Terminal
+
+||NOTES||
+Shift-click to avoid triggering wild cards
+
+Endless lab mode is now available - but no unlimited mode there
+
+For unlimited mode: click twice to confirm selection,
+and certain card combi (eg: 2 pentagrams) can cause a crash.
+
+Wild cards can be imported to other mods - add wild=1 to your card
+They might be quite OP tho
+
+Any report of bugs is appreciated!
+
+  . SKM|12|id=3144064207
+  . SKM|12|save=royal card lab
+  . SKM|12|folder=mods/royal card lab
+  . SKM|12|modes=tbl
+  . SKM|12|mode_description=tbl
+  . SKM|12|here=true
+  . SKM|12|name=royal card lab
+  . SKM|13|author=Glacies
+  . SKM|13|cover=mods/the art of war/cover.png
+  . SKM|13|active=false
+  . SKM|13|priority_hint=-1
+  . SKM|13|desc=[h2] Content [/h2]
+This mod adds 7 black cards and 4 white cards, each of which comes from a well-known Chinese idiom about military tactics,
+originating from ancient Chinese classics (mostly the Art of War by Sun Tsu, or the 36 Stratagems)
+If you are interested in the stories behind them, you can google the card names (or ask me in discord channels)
+
+[h2] Balance [/h2]
+I tried to be conservative when designing these cards so that they roughly match the power of vanilla cards.
+They shouldn't be too strong; instead I expect them to be interesting in a way so that
+they can bring great advantages if used in the right manner and/or with the right combo.
+
+[h2] Weighting [/h2]
+The weight of all cards in this mod is raised to 1.5x. Might add an option to control that in future updates.
+
+[h2] Mod Dependencies [/h2]
+Requires [u] Glacies' Collection[/u] (above this mod) and [u] Glac Terminal[/u] (below this mod).
+[u] Better Codex[/u] is highly recommended.
+
+[h2] Achievements [/h2]
+This mod adds a total of 13 achievements. All achievements of this mod must be unlocked in vanilla gamemodes.
+The unlock condition of many achievements is hidden, but their title serves as a hint. Google them.
+[b] To see and unlock the achievements, [u] Achievement Centre[/u] is required. [/b]
+
+  . SKM|13|save=the art of war
+  . SKM|13|folder=mods/the art of war
+  . SKM|13|id=3512338449
+  . SKM|13|mode_description=tbl
+  . SKM|13|here=true
+  . SKM|13|name=the art of war
+  . SKM|13|title=Military Tactics -The Art of War-
+  . SKM|14|author=Glacies
+  . SKM|14|cover=mods/glac terminal/cover.png
+  . SKM|14|active=false
+  . SKM|14|priority_hint=-3
+  . SKM|14|desc=Modder tool. DOESN'T ADD ANY CONTENT.
+
+Current features: 
+- function shortcuts
+- additional useful functions (eg summon lightning)
+
+Should be loaded last.
+
+  . SKM|14|save=glac terminal
+  . SKM|14|folder=mods/glac terminal
+  . SKM|14|id=3144832438
+  . SKM|14|mode_description=tbl
+  . SKM|14|here=true
+  . SKM|14|name=glac terminal
+  . SKM|14|title=Glacies Module Terminal
+  . SK-REWORK: SKM entries=14
+  . SK-REWORK: globals visible = 920
+  . SKA|append|no
+  . SKA|prepend|no
+  . SKA|gimme|no
+  . SKA|_log|YES
+  . SKA|concat|YES
+  . SKA|add|YES
+  . SKA|del|YES
+  . SKA|all|YES
+  . SKA|get_slot_cards|YES
+  . SKA|gsq|YES
+  . SKA|mk_menu_but|YES
+  . SKA|init_menu|YES
+  . SKA|spawn_pieces|YES
+  . SKA|new_piece|YES
+  . SKA|setup_piece|YES
+  . SKA|new_turn|YES
+  . SKA|new_level|YES
+  . SKA|add_card|YES
+  . SKA|new_card|YES
+  . SKA|CARDS|YES
+  . SKA|get_disp_stats|YES
+  . SKA|edit_disp_stats|no
+  . SKA|draw_mode|YES
+  . SKA|goto_sq|YES
+  . SKA|get_range|YES
+  . SKA|throw_grenade|YES
+  . SKA|spend_hop|YES
+  . SKA|uplift|YES
+  . SKA|check_cards_auto_flip|YES
+  . SKA|flip_card|YES
+  . SKA|unflip_card|YES
+  . SKA|mk_hint_but|YES
+  . SKA|set_mode|YES
+  . SKA|init_game|YES
+  . SKA|init_codex|YES
+  . SKA|opp_turn|YES
+  . SKA|wait|YES
+  . SKG|ev_death
+  . SKG|move_hero
+  . SKG|set_holoking
+  . SKG|mk_sq_but
+  . SKG|scan_cancel
+  . SKG|get_soul_range
+  . SKG|fx_magic_star
+  . SKG|fbrd
+  . SKG|activate_scepter
+  . SKG|spawn_dark_bishop
+  . SKG|hit
+  . SKG|ask_piece
+  . SKG|get_slot_card
+  . SKG|set_instructions
+  . SKG|ysort
+  . SKG|spawn_mother_queen
+  . SKG|goto_sq
+  . SKG|spawn_horsemen
+  . SKG|rectfill
+  . SKG|TEMPO
+  . SKG|circfill
+  . SKG|circ
+  . SKG|rrectfill
+  . SKG|rrect
+  . SKG|ovalfill
+  . SKG|oval
+  . SKG|trifill
+  . SKG|tri
+  . SKG|PIECES_NAMES
+  . SKG|pset
+  . SKG|AUTO_REPLACE
+  . SKG|spritesheet
+  . SKG|sprgrid
+  . SKG|palt
+  . SKG|sfillp
+  . SKG|spr
+  . SKG|aspr
+  . SKG|asspr
+  . SKG|sspr
+  . SKG|sset
+  . SKG|sget
+  . SKG|newfnt
+  . SKG|delfnt
+  . SKG|fntalias
+  . SKG|font
+  . SKG|expfnt
+  . SKG|fntspec
+  . SKG|psyms
+  . SKG|strwidth
+  . SKG|strheight
+  . SKG|get_all_cards
+  . SKG|get_free_squares
+  . SKG|bprint
+  . SKG|fx_ascend
+  . SKG|DIR
+  . SKG|close_menu
+  . SKG|ITEMS
+  . SKG|get_sq_danger
+  . SKG|show_danger
+  . SKG|cprint
+  . SKG|shader
+  . SKG|shdrf
+  . SKG|shdrf2
+  . SKG|shdrf3
+  . SKG|btnrp
+  . SKG|grab_item
+  . SKG|get_prediction
+  . SKG|get_all_buts
+  . SKG|storm_all_but
+  . SKG|list
+  . SKG|storm
+  . SKG|stringify_table
+  . SKG|table_from_string
+  . SKG|bright
+  . SKG|get_nearest_piece
+  . SKG|carry_nearby_pieces
+  . SKG|is_async
+  . SKG|get_hero_sq
+  . SKG|trace_hdist
+  . SKG|VERSION
+  . SKG|KNIGHT_MOVES
+  . SKG|hide_title
+  . SKG|trace_cover
+  . SKG|bres_2
+  . SKG|rank_select
+  . SKG|GAME_MODES
+  . SKG|fx_trg
+  . SKG|fx_cart
+  . SKG|MODLIST
+  . SKG|mk_menu_but
+  . SKG|gameover
+  . SKG|fx_frame_drop
+  . SKG|fx_twinkle
+  . SKG|fx_unlock
+  . SKG|txtwidth
+  . SKG|pop_child
+  . SKG|fx_white_flash
+  . SKG|fx_talk
+  . SKG|fx_show_piece
+  . SKG|DP_INTER
+  . SKG|hdclear
+  . SKG|fx_show_sq
+  . SKG|ev_vampire
+  . SKG|DIRS
+  . SKG|init_safe_mode
+  . SKG|pick
+  . SKG|_savbnk
+  . SKG|pat
+  . SKG|ny
+  . SKG|execute_piece
+  . SKG|get_piece_next_action
+  . SKG|custom_sort
+  . SKG|MODSAV
+  . SKG|DEN
+  . SKG|SET
+  . SKG|MODS
+  . SKG|__steamws_install
+  . SKG|add_child
+  . SKG|score_grid
+  . SKG|write_mod_list
+  . SKG|curve
+  . SKG|current_lang
+  . SKG|dre
+  . SKG|i
+  . SKG|get_time_string
+  . SKG|uplift
+  . SKG|end_game
+  . SKG|play_events
+  . SKG|check_auto_replace
+  . SKG|perma_checks
+  . SKG|allinputs
+  . SKG|mk_square_but
+  . SKG|fnt_params
+  . SKG|fnt_size
+  . SKG|reveal_spy
+  . SKG|fnt
+  . SKG|lang_sum
+  . SKG|logs
+  . SKG|get_firepower
+  . SKG|STEAM
+  . SKG|get_firerange
+  . SKG|can_reload
+  . SKG|get_spread
+  . SKG|get_sq_di
+  . SKG|assert
+  . SKG|is_king
+  . SKG|_music
+  . SKG|_sfx
+  . SKG|fast_tracker
+  . SKG|ev_talk
+  . SKG|ev_hit
+  . SKG|slicer
+  . SKG|write_big_at
+  . SKG|fade_to
+  . SKG|blend_light
+  . SKG|rectshade_dither
+  . SKG|ask_disrupt
+  . SKG|rectshadeopti
+  . SKG|rectshade
+  . SKG|shpr
+  . SKG|pal_rst
+  . SKG|start_lvl_music
+  . SKG|pal_inc
+  . SKG|check_fatality
+  . SKG|blade_hit
+  . SKG|merge_funcs
+  . SKG|move_black_piece
+  . SKG|resume
+  . SKG|lowercase
+  . SKG|reverse
+  . SKG|listord
+  . SKG|get_patterns
+  . SKG|start_music
+  . SKG|new_level
+  . SKG|ach_count
+  . SKG|brd
+  . SKG|get_leader_type
+  . SKG|format
+  . SKG|_update
+  . SKG|remove_buts
+  . SKG|mk_hint_but
+  . SKG|mk_but
+  . SKG|EXCLUDE
+  . SKG|DP_BOARD
+  . SKG|end_msg
+  . SKG|show_regret
+  . SKG|throw_piece
+  . SKG|fx_ground_poison
+  . SKG|isfile
+  . SKG|draw_stick
+  . SKG|ease_out_back
+  . SKG|morph_to
+  . SKG|toggle_target
+  . SKG|throw_grenade
+  . SKG|reload
+  . SKG|watch_me
+  . SKG|ev_usurper
+  . SKG|ev_ask_for_help
+  . SKG|ev_abort_mission
+  . SKG|OVERLAY_SURF
+  . SKG|seer_target
+  . SKG|dig
+  . SKG|HERO_INIT
+  . SKG|dev_right_click_sq
+  . SKG|dev_right_click_piece
+  . SKG|get_range
+  . SKG|need_reload
+  . SKG|ev_spawn_item
+  . SKG|MOD_GRAPHICS_KEYS
+  . SKG|MOD_GAMEPLAY_KEYS
+  . SKG|TAGS
+  . SKG|ev_side_spawn
+  . SKG|MOD_HERO_INIT_KEYS
+  . SKG|quarantine_req
+  . SKG|fx_dust
+  . SKG|is_locked
+  . SKG|spawn_pieces
+  . SKG|show_catapult
+  . SKG|quarantine_req_env
+  . SKG|ev_rat_atk
+  . SKG|progress
+  . SKG|ev_raise_dead
+  . SKG|reset_save
+  . SKG|xpl_anyone
+  . SKG|act_menu
+  . SKG|steal
+  . SKG|get_zone
+  . SKG|build_stack
+  . SKG|check_folly_shields
+  . SKG|fx_shield
+  . SKG|unflip_card
+  . SKG|fx_dmg
+  . SKG|init_intro
+  . SKG|new_piece
+  . SKG|ask_card
+  . SKG|fx_spawn
+  . SKG|spawn_hero
+  . SKG|impulse
+  . SKG|cheat_unlock_all
+  . SKG|PIECES
+  . SKG|save_achievements
+  . SKG|save_run
+  . SKG|add_event
+  . SKG|restore_run
+  . SKG|forget_run
+  . SKG|map
+  . SKG|LANGUAGES
+  . SKG|dr_dark_bishop
+  . SKG|bind
+  . SKG|get_menu_desc
+  . SKG|VOL_MAX
+  . SKG|get_carry_list
+  . SKG|RUMBLE
+  . SKG|survive_sheath
+  . SKG|mv
+  . SKG|kl
+  . SKG|is_type
+  . SKG|ease_in_back
+  . SKG|is_hero_close
+  . SKG|is_piece
+  . SKG|is_free
+  . SKG|get_piece_squares
+  . SKG|init_new_turn
+  . SKG|get_square_at
+  . SKG|fx_detect
+  . SKG|decay_up
+  . SKG|all_pieces
+  . SKG|reset_move_cursor
+  . SKG|uadd
+  . SKG|refill_ammo
+  . SKG|get_real_bads
+  . SKG|SAVE_RUNS
+  . SKG|ease_in
+  . SKG|all_bads
+  . SKG|init_credits
+  . SKG|show_title
+  . SKG|get_zone_targets
+  . SKG|air
+  . SKG|fwait
+  . SKG|pprint
+  . SKG|is_orth_view
+  . SKG|white_king_up
+  . SKG|dr_rotated_piece
+  . SKG|orth
+  . SKG|CONFIRM_BUTTON
+  . SKG|init_vig
+  . SKG|get_index_table
+  . SKG|black_mist_check
+  . SKG|get_card
+  . SKG|xpl_king
+  . SKG|is_action_valid
+  . SKG|sfillp_dissolve
+  . SKG|execute_action
+  . SKG|move_piece
+  . SKG|get_allies
+  . SKG|get_piece_tempo
+  . SKG|sfillp_rst
+  . SKG|choose_piece_move
+  . SKG|get_free_card_slot
+  . SKG|opp_move
+  . SKG|is_bow_ready
+  . SKG|opp_turn
+  . SKG|goto_heaven
+  . SKG|plur
+  . SKG|get_slot_card_with
+  . SKG|bset
+  . SKG|exhaust_card_with
+  . SKG|ssspr
+  . SKG|has
+  . SKG|fillp_dissolve
+  . SKG|ease_bounce_out
+  . SKG|retire
+  . SKG|demote
+  . SKG|check_cards_auto_flip
+  . SKG|load_lang
+  . SKG|get_card_with
+  . SKG|format_gameplay_datas
+  . SKG|ev_reveal_heir
+  . SKG|unpause
+  . SKG|NEW_CARDS
+  . SKG|HALF_POOL
+  . SKG|tbl_has
+  . SKG|ev_surrender
+  . SKG|fx_wrong
+  . SKG|PIECES_TYPES
+  . SKG|add_indexes
+  . SKG|reverse_card
+  . SKG|give_ammo
+  . SKG|inc_army
+  . SKG|paint_danger
+  . SKG|disrupt
+  . SKG|expose
+  . SKG|cloak_hero
+  . SKG|mk_bullet
+  . SKG|ev_reload
+  . SKG|pside
+  . SKG|recal_scepters
+  . SKG|inc_ammo
+  . SKG|ev_piece_drop
+  . SKG|increase_card_turns
+  . SKG|new_turn
+  . SKG|get_center
+  . SKG|dev_log_grids_time
+  . SKG|ev_backup
+  . SKG|fx_miss
+  . SKG|fx_zoom_panel
+  . SKG|DP_PIECES
+  . SKG|BUILD_TYPE
+  . SKG|fx_red_flash
+  . SKG|GAMEPAD_LAYOUT
+  . SKG|fx_vanish
+  . SKG|ev_trampoline
+  . SKG|fx_screen_flash
+  . SKG|fx_emote
+  . SKG|pal_z
+  . SKG|trace_piece_dist
+  . SKG|trace_all_piece_dist
+  . SKG|tbl_import
+  . SKG|get_nei_with
+  . SKG|replace_card
+  . SKG|mid
+  . SKG|tear_apart
+  . SKG|get_nb_cards
+  . SKG|has_card
+  . SKG|twv
+  . SKG|warp
+  . SKG|get_pieces
+  . SKG|sqrdist
+  . SKG|dr_boss_target
+  . SKG|dark_bishop_up
+  . SKG|xpl_boss
+  . SKG|gsq_zone
+  . SKG|get_piece_targets
+  . SKG|dist
+  . SKG|lerp
+  . SKG|sqr
+  . SKG|cub
+  . SKG|direct_event
+  . SKG|round
+  . SKG|sgn
+  . SKG|save
+  . SKG|dark_bishop_turn
+  . SKG|man
+  . SKG|colorize_piece
+  . SKG|pal_piece
+  . SKG|inflict
+  . SKG|is_imprisoned
+  . SKG|is_reapable
+  . SKG|goto_fall
+  . SKG|seek_role
+  . SKG|rawtime
+  . SKG|srand
+  . SKG|shdri2
+  . SKG|on_death
+  . SKG|dr_skin
+  . SKG|dr_piece
+  . SKG|bad_shoot
+  . SKG|rnd
+  . SKG|draw_arms
+  . SKG|irnd
+  . SKG|_lib_init
+  . SKG|_lib_update
+  . SKG|_lib_draw
+  . SKG|_lib_window_resize
+  . SKG|_lib_window_focus
+  . SKG|lib_call
+  . SKG|time
+  . SKG|SUPPORTED_LANG
+  . SKG|chk_shield
+  . SKG|IN_EXPORT
+  . SKG|chk_castle
+  . SKG|chk_bodyguard
+  . SKG|sub
+  . SKG|fpslimit
+  . SKG|dt
+  . SKG|delta
+  . SKG|fst
+  . SKG|sleep
+  . SKG|find
+  . SKG|match
+  . SKG|aft
+  . SKG|ltime
+  . SKG|gtime
+  . SKG|perf
+  . SKG|wlog
+  . SKG|rlog
+  . SKG|logdupe
+  . SKG|hex
+  . SKG|abort
+  . SKG|abort_brutal
+  . SKG|clipboard
+  . SKG|newchk
+  . SKG|delchk
+  . SKG|modchk
+  . SKG|OVERLAY_TKEY
+  . SKG|chkinfo
+  . SKG|wipe
+  . SKG|transfer
+  . SKG|memcpy
+  . SKG|memset
+  . SKG|memsbs
+  . SKG|peek
+  . SKG|peek2
+  . SKG|peek4
+  . SKG|poke
+  . SKG|poke2
+  . SKG|poke4
+  . SKG|camera
+  . SKG|tcamera
+  . SKG|clip
+  . SKG|color
+  . SKG|pal
+  . SKG|blend
+  . SKG|palette
+  . SKG|rgb
+  . SKG|hsv
+  . SKG|newsrf
+  . SKG|delsrf
+  . SKG|expsrf
+  . SKG|target
+  . SKG|srfname
+  . SKG|srfmem
+  . SKG|srfsize
+  . SKG|srfshot
+  . SKG|newwin
+  . SKG|delwin
+  . SKG|window
+  . SKG|flip
+  . SKG|winspec
+  . SKG|fillp
+  . SKG|cls
+  . SKG|rep
+  . SKG|boost
+  . SKG|hrnd
+  . SKG|exhaust
+  . SKG|xpl
+  . SKG|leave_sq
+  . SKG|btnlbls
+  . SKG|spend_hop
+  . SKG|screen_shake
+  . SKG|dr_dot_line
+  . SKG|earn_extra_turn
+  . SKG|console_ver
+  . SKG|msg
+  . SKG|get_scepter
+  . SKG|cyc
+  . SKG|add_scepter
+  . SKG|exhaust_soul
+  . SKG|SAVE_FILE
+  . SKG|console_sheet
+  . SKG|STAT_FILE
+  . SKG|sig
+  . SKG|ACH_FILE
+  . SKG|sum_el
+  . SKG|SAVE_VERSION
+  . SKG|remove_soul_slot
+  . SKG|get_slot_cards
+  . SKG|is_free_for
+  . SKG|sqp
+  . SKG|load_legacy_save
+  . SKG|reset_settings
+  . SKG|locale
+  . SKG|dsq
+  . SKG|gsq
+  . SKG|hide_hint
+  . SKG|export_steam_loc
+  . SKG|DP_TOP
+  . SKG|show_hint
+  . SKG|get_recoil_square
+  . SKG|ach_desc
+  . SKG|set_army
+  . SKG|check_collections
+  . SKG|export_localized_strings
+  . SKG|chk_achievement
+  . SKG|is_square_clean
+  . SKG|add_soul_slot
+  . SKG|inc_black_army
+  . SKG|DP_FX
+  . SKG|dr_crosshair
+  . SKG|check_condition
+  . SKG|flip_card
+  . SKG|set_mode
+  . SKG|show_card
+  . SKG|tri_angle
+  . SKG|abs
+  . SKG|add_card
+  . SKG|ceil
+  . SKG|sqrt
+  . SKG|new_card
+  . SKG|is_card_available
+  . SKG|sin
+  . SKG|cos
+  . SKG|prev_mode
+  . SKG|asin
+  . SKG|acos
+  . SKG|is_valid_target
+  . SKG|ctrlr
+  . SKG|get_pieces_list
+  . SKG|get_group_name
+  . SKG|CARDS
+  . SKG|get_delay
+  . SKG|log
+  . SKG|get_inventory
+  . SKG|clone
+  . SKG|atan2
+  . SKG|pow
+  . SKG|get_piece_name
+  . SKG|RELOAD_BUTTON
+  . SKG|min
+  . SKG|max
+  . SKG|TRANSLATORS
+  . SKG|TEST_CARDS
+  . SKG|id_tbl
+  . SKG|delbnk
+  . SKG|TEST_SOULS
+  . SKG|add_soul
+  . SKG|freeze
+  . SKG|cheatcode
+  . SKG|add_any_card
+  . SKG|use_gamepad_layout
+  . SKG|one_time
+  . SKG|level_up
+  . SKG|adjust_to_gamepad
+  . SKG|end_level
+  . SKG|get_dodge
+  . SKG|get_boost
+  . SKG|clean_up
+  . SKG|traceback
+  . SKG|jesterize
+  . SKG|get_disp_stats
+  . SKG|bnot
+  . SKG|draw_game
+  . SKG|dr_movemap
+  . SKG|init_game
+  . SKG|init_test
+  . SKG|boot
+  . SKG|gen_gfx
+  . SKG|band
+  . SKG|bor
+  . SKG|bxor
+  . SKG|_init
+  . SKG|jit
+  . SKG|punkcake_wait
+  . SKG|punkcake_gif
+  . SKG|shdri4
+  . SKG|export_trophy_desc_file
+  . SKG|locale_ps
+  . SKG|get_ach_count
+  . SKG|cd
+  . SKG|init_banks
+  . SKG|set_default_lang
+  . SKG|spawn_popup
+  . SKG|ach_unlock
+  . SKG|no_popup
+  . SKG|ach_popup_list
+  . SKG|ents_ach
+  . SKG|ach_event
+  . SKG|shdri3
+  . SKG|export_icon_png
+  . SKG|init_achievements
+  . SKG|hmod
+  . SKG|format_lang
+  . SKG|corout
+  . SKG|add
+  . SKG|deli
+  . SKG|chr
+  . SKG|tostr
+  . SKG|tonum
+  . SKG|sbs
+  . SKG|shl
+  . SKG|shr
+  . SKG|lshr
+  . SKG|rotl
+  . SKG|rotr
+  . SKG|flr
+  . SKG|expn
+  . SKG|loga
+  . SKG|restype
+  . SKG|mode_setup
+  . SKG|argtype
+  . SKG|get_plural
+  . SKG|get_lang
+  . SKG|mk_text_but
+  . SKG|pop_mode
+  . SKG|check_corrupt
+  . SKG|load_lang_nofont
+  . SKG|load_all_fonts
+  . SKG|reg_add
+  . SKG|numbered
+  . SKG|get_square_coef
+  . SKG|lang
+  . SKG|CLM
+  . SKG|btnsil
+  . SKG|exe
+  . SKG|shoot_ctrl
+  . SKG|ingame_ui_ctrl
+  . SKG|del
+  . SKG|smoothAim
+  . SKG|all
+  . SKG|chunk
+  . SKG|_window_resize
+  . SKG|dig_ctrl
+  . SKG|draw_mode
+  . SKG|tbz
+  . SKG|SHOOT_BUTTON
+  . SKG|split
+  . SKG|any_card_ctrl
+  . SKG|decilim
+  . SKG|crop_to
+  . SKG|smoothDir
+  . SKG|menu_ctrl
+  . SKG|track_but_ctrl
+  . SKG|t
+  . SKG|grenade_ctrl
+  . SKG|ord
+  . SKG|select_unit_ctrl
+  . SKG|move_ctrl
+  . SKG|disrupt_menu_ctrl
+  . SKG|console_init
+  . SKG|is_basic_mode
+  . SKG|getfenv
+  . SKG|rect_col
+  . SKG|reset_mode
+  . SKG|bump_all
+  . SKG|aim_ctrl
+  . SKG|rect_round_col
+  . SKG|rect_dist
+  . SKG|GIF_END
+  . SKG|draw_on_board
+  . SKG|SNAP_KEY
+  . SKG|get_nearest_free_square
+  . SKG|grid_rect
+  . SKG|draw_button
+  . SKG|grid_line
+  . SKG|serialize
+  . SKG|quitting
+  . SKG|CTRLR_LIST
+  . SKG|remysys_set_glob
+  . SKG|_load
+  . SKG|nwinspec
+  . SKG|load_params
+  . SKG|gamepad_ctrl
+  . SKG|manhattan_dist
+  . SKG|_flr
+  . SKG|get_square_pos
+  . SKG|safesize
+  . SKG|safe_require
+  . SKG|OPTIONS
+  . SKG|FIRST_ARMY
+  . SKG|safesub
+  . SKG|success_msg
+  . SKG|pget
+  . SKG|BACKERS
+  . SKG|apal
+  . SKG|open_menu
+  . SKG|_draw
+  . SKG|__REMY_SYSTEMS__
+  . SKG|FORCE_MEDIUM
+  . SKG|FORCE_BRIGHT
+  . SKG|mv_speed
+  . SKG|track_mouse
+  . SKG|lprint
+  . SKG|rect
+  . SKG|mk_grid
+  . SKG|get_desc
+  . SKG|remysys_timestamp
+  . SKG|OVERWEIGHT
+  . SKG|fps
+  . SKG|EXE_ARGS
+  . SKG|bres
+  . SKG|_log
+  . SKG|PC
+  . SKG|get_mouse_target
+  . SKG|uppercase
+  . SKG|min_digits
+  . SKG|ease_atk
+  . SKG|upe
+  . SKG|loop
+  . SKG|init_cards_hint
+  . SKG|inc_stats
+  . SKG|btnrst
+  . SKG|GIF_SCALE
+  . SKG|GIF_LENGTH
+  . SKG|GIF_SNAP_SCALE
+  . SKG|FONTS_DATA
+  . SKG|convert
+  . SKG|_G
+  . SKG|ospr
+  . SKG|afile
+  . SKG|plural
+  . SKG|read_gameplay_file
+  . SKG|get_global_pos
+  . SKG|namefind
+  . SKG|FORCE_DARK
+  . SKG|dr_flip_card
+  . SKG|dirload
+  . SKG|setmetatable
+  . SKG|push_mode
+  . SKG|format_list
+  . SKG|OVERLAY_SCALE
+  . SKG|type
+  . SKG|trig_achievement
+  . SKG|pairs
+  . SKG|ipairs
+  . SKG|getmetatable
+  . SKG|DO_GIFKEY
+  . SKG|GIF_FOLDER
+  . SKG|setfenv
+  . SKG|rawget
+  . SKG|rawset
+  . SKG|MCW
+  . SKG|MCH
+  . SKG|unpack
+  . SKG|ACHIEVEMENTS
+  . SKG|GIF_START
+  . SKG|addfont
+  . SKG|error
+  . SKG|shuffle
+  . SKG|check_save
+  . SKG|load_hd_font
+  . SKG|load
+  . SKG|load_safe_lang
+  . SKG|fx_crumb
+  . SKG|load_mods
+  . SKG|get_stats
+  . SKG|first_upper
+  . SKG|print
+  . SKG|init_hoard
+  . SKG|PDY
+  . SKG|confirm
+  . SKG|gifstream
+  . SKG|dr_boss
+  . SKG|askfile
+  . SKG|boss_turn
+  . SKG|wait
+  . SKG|fire
+  . SKG|MSC
+  . SKG|apply_option
+  . SKG|ROLES
+  . SKG|reset_stats
+  . SKG|apply_options
+  . SKG|txtheight
+  . SKG|mk_part
+  . SKG|draw_icon
+  . SKG|punkcake_intro
+  . SKG|url
+  . SKG|get_leader_name
+  . SKG|bnksize
+  . SKG|get_hero_trg
+  . SKG|console_alt
+  . SKG|mvt
+  . SKG|config
+  . SKG|ease_in_out
+  . SKG|INPUT_ASSIGNEMENT
+  . SKG|MOUSE
+  . SKG|btnr
+  . SKG|require
+  . SKG|parse_effect
+  . SKG|foreach
+  . SKG|effect_order
+  . SKG|butInfo
+  . SKG|setup_piece
+  . SKG|shdrf4
+  . SKG|shdri
+  . SKG|concat
+  . SKG|sort
+  . SKG|run_mods
+  . SKG|shdrsrf
+  . SKG|newbnk
+  . SKG|SQ
+  . SKG|expbnk
+  . SKG|bank
+  . SKG|read
+  . SKG|write
+  . SKG|bget
+  . SKG|quit
+  . SKG|SPECIAL_BUTTON
+  . SKG|controls
+  . SKG|defbtn
+  . SKG|inpnum
+  . SKG|btn
+  . SKG|btnp
+  . SKG|PI
+  . SKG|btnv
+  . SKG|btnclr
+  . SKG|BOOT
+  . SKG|usingctrlr
+  . SKG|btnlbl
+  . SKG|execute
+  . SKG|txtinp
+  . SKG|catchtxt
+  . SKG|catchinput
+  . SKG|mouse
+  . SKG|init_menu
+  . SKG|rumble
+  . SKG|sugar_step
+  . SKG|export
+  . SKG|TEST_STACK
+  . SKG|reset
+  . SKG|sysbat
+  . SKG|syslang
+  . SKG|init_codex
+  . SKG|run
+  . SKG|stop
+  . SKG|step
+  . SKG|mem
+  . SKG|newsfx
+  . SKG|newmus
+  . SKG|delsfx
+  . SKG|delmus
+  . SKG|sfxvol
+  . SKG|musvol
+  . SKG|sfxlen
+  . SKG|muslen
+  . SKG|sfx
+  . SKG|music
+  . SKG|nxtmusic
+  . SKG|lockaudio
+  . SKG|unlockaudio
+  . SKG|chnlfx
+  . SKG|chnlprog
+  . SKG|ADI
+  . SKG|ls
+  . SKG|mkdir
+  . SKG|folder
+  . SKG|desktop_path
+  . SKG|pref_path
+  . SKG|arand
+  . SKG|file
+  . SKG|encfile
+  . SKG|ease_out_in
+  . SKG|rm
+  . SKG|ease_flat
+  . SKG|isfolder
+  . SKG|watch
+  . SKG|gco
+  . SKG|rotate
+  . SKG|unwatch
+  . SKG|save_stats
+  . SKG|shuffle_old
+  . SKG|shuffle_copy
+  . SKG|ev_promote
+  . SKG|tbl_index
+  . SKG|map_tbl
+  . SKG|trace_heros_dists
+  . SKG|join_tbl
+  . SKG|tbl_inv
+  . SKG|tbl_key
+  . SKG|transp
+  . SKG|mpal
+  . SKG|inv_kin
+  . SKG|DP_BG
+  . SKG|force_HD
+  . SKG|mke
+  . SKG|DP_SHADES
+  . SKG|ease_uturn
+  . SKG|get_empty_soul_slot
+  . SKG|escape
+  . SKG|join
+  . SKG|stun_piece
+  . SKG|chk_iron
+  . SKG|bleed_dmg
+  . SKG|activate_soul
+  . SKG|line
+  . SKG|newgif
+  . SKG|gifframe
+  . SKG|endgif
+  . SKG|giflen
+  . SKG|ease_out
+  . SKG|help
+  . SKG|play
+  . SKG|changelog
+  . SKG|mantxt
+  . SKG|steam
+  . SKG|steamws
+  . SKG|steamlb
+  . SKG|discord
+  . SKG|ctrl_mode
+  . SKG|_S
+  . SKG|_O
+  . SK-REWORK: SKG count=920
+  . SKR|DEV
+  . SKR|START_LVL
+  . SKR|FORCE_WHITE_ARMY
+  . SKR|DUMMY
+  . SKR|FRAGILE
+  . SKR|SHOW_BUTS
+  . SKR|TEST_CARDS
+  . SKR|TEST_SOULS
+  . SKR|OVERWEIGHT
+  . SKR|BOOT
+  . SKR|game_mode
+  . SKR|CARDS
+  . SKR|PIECES
+  . SKR|EXCLUDE
+  . SKR|AUTO_REPLACE
+  . SKR|FIRST_ARMY
+  . SKR|HERO_INIT
+  . SKR|TAGS
+  . SKR|hero
+  . SKR|heir
+  . SKR|leader
+  . SKR|pentasquares
+  . SKR|waypoint
+  . SKR|ammo
+  . SKR|chamber
+  . SKR|grenades
+  . SKR|stack
+  . SKR|scepters
+  . SKR|menu
+  . SKR|bg
+  . SKR|white_army
+  . SKR|perm
+  . SKR|mode
+  . SKR|cards
+  . SKR|mx
+  . SKR|my
+  . SKR|mcl
+  . SKR|mlb
+  . SKR|mcr
+  . SKR|mMenu
+  . SKR|VISION
+  . SK-REWORK: SKR count=41
+  . SKF|safe_require
+  . SKF|rm
+  . SKF|cd
+  . SKF|delsfx
+  . SKF|delmus
+  . SKF|delsrf
+  . SKF|logdupe
+  . SKF|setfenv
+  . SKF|getfenv
+  . SKF|steam
+  . SKF|steamws
+  . SKF|discord
+  . SKF|load
+  . SKF|stop
+  . SKF|execute
+  . SKF|export
+  . SKF|help
+  . SKF|man
+  . SKF|changelog
+  . SKF|mantxt
+  . SKF|url
+  . SKF|progress
+  . SKF|_G
+  . SKF|_S
+  . SKF|DEN
+  . SKF|MODSAV
+  . SK-REWORK: SKF count=26
+  . SKH|new_turn|sk-rework:turn
+  . SKH|new_level|sk-rework:level
+  . SKH|setup_piece|sk-rework:setup_piece
+  . SKH|add_card|sk-rework:add_card
+  . SKH|init_game|sk-rework:init_game
+  . SKC|Ermine Belt|gid=0|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Rightful Curtsy|gid=1|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Elite Gem|gid=2|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Extra Barrel|gid=3|ext=0|pwe=6|name=nil|special=nil
+  . SKC|Royal Loafers|gid=4|ext=0|pwe=2|name=nil|special=strafe
+  . SKC|Majestic Censer|gid=5|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Sacred Crown|gid=6|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Blunderbuss|gid=7|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Engraved Scope|gid=8|ext=0|pwe=4|name=nil|special=scope
+  . SKC|Holy Gunpowder|gid=9|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Ritual Dagger|gid=10|ext=0|pwe=4|name=nil|special=nil
+  . SKC|August Presence|gid=11|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Crow's Blessing|gid=12|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Wand of Downpour|gid=13|ext=0|pwe=1|name=nil|special=nil
+  . SKC|Wand of Frenzy|gid=14|ext=0|pwe=1|name=nil|special=nil
+  . SKC|Wand of Wrath|gid=15|ext=0|pwe=1|name=nil|special=nil
+  . SKC|Wand of Wings|gid=16|ext=0|pwe=1|name=nil|special=nil
+  . SKC|The Moat|gid=17|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Gradual Absolution|gid=18|ext=0|pwe=2|name=nil|special=nil
+  . SKC|Taunting Hop|gid=19|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Wand of Gust|gid=20|ext=0|pwe=1|name=nil|special=nil
+  . SKC|Faithful Steed|gid=21|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Unjust Decree|gid=22|ext=0|pwe=2|name=nil|special=decree
+  . SKC|Kingly Alms|gid=23|ext=0|pwe=4|name=nil|special=grenade
+  . SKC|Subtle Poison|gid=24|ext=0|pwe=2|name=nil|special=nil
+  . SKC|Kingdom Wealth|gid=25|ext=0|pwe=3|name=nil|special=nil
+  . SKC|Small Fry Harvest|gid=26|ext=0|pwe=2|name=nil|special=nil
+  . SKC|A Piercing Truth|gid=27|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Black Mist|gid=28|ext=0|pwe=4|name=nil|special=nil
+  . SKC|King's Shoulders|gid=29|ext=0|pwe=2|name=nil|special=nil
+  . SKC|High Focus|gid=30|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Courteous Jousting|gid=31|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Cornered Despot|gid=32|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Sawed-off Justice|gid=33|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Welcome Gift|gid=34|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Cannon Fodder|gid=35|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Possessed|gid=36|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Philanthropy|gid=37|ext=1|pwe=4|name=nil|special=grenade
+  . SKC|Imperial Shot Put|gid=38|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Egotic Maelstrom|gid=39|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Church Organ|gid=40|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Black Plague|gid=41|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Ravenous Rats|gid=42|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Deep Water|gid=43|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Unholy Call|gid=44|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Undercover Mission|gid=45|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Caltrops|gid=46|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Nightbane|gid=47|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Bushido|gid=48|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Bloodless Coups|gid=49|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Wand of Hypnosis|gid=50|ext=1|pwe=1|name=nil|special=nil
+  . SKC|Presbyopia|gid=51|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Golden Aging|gid=52|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Fool Companion|gid=53|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Force-feeding|gid=54|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Seer's Orb|gid=55|ext=2|pwe=4|name=nil|special=orb
+  . SKC|Fearsome|gid=56|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Human Shield|gid=57|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Reign of Terror|gid=58|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Selective Listening|gid=59|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Monarch's Confidence|gid=60|ext=2|pwe=4|name=nil|special=nil
+  . SKC|The Mole|gid=61|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Elusive|gid=62|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Holoking|gid=63|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Cloaking Device|gid=64|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Low-Cost Disguise|gid=65|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Wand of Souls|gid=66|ext=2|pwe=1|name=nil|special=nil
+  . SKC|Wand of Execution|gid=67|ext=2|pwe=1|name=nil|special=nil
+  . SKC|Patience|gid=68|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Bold Plan|gid=69|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Silencer|gid=70|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Ambush|gid=71|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Ancient Flagstone|gid=72|ext=2|pwe=2|name=nil|special=nil
+  . SKC|Tearing Bullets|gid=73|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Indelible Memories|gid=74|ext=2|pwe=4|name=nil|special=grenade
+  . SKC|Mystic Shackles|gid=75|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Secret Move|gid=76|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Sacred Light|gid=77|ext=2|pwe=4|name=nil|special=grenade
+  . SKC|Workshop|gid=78|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Right-hand|gid=79|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Warhorse|gid=80|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Bastion|gid=81|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Sprint|gid=82|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Soul Projection|gid=83|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Onboarding Party|gid=84|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Small Key|gid=85|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Rapunzel|gid=86|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Wand of Treachery|gid=87|ext=3|pwe=1|name=nil|special=nil
+  . SKC|Guerilla Tactics|gid=88|ext=3|pwe=4|name=nil|special=grenade
+  . SKC|Shovel|gid=89|ext=3|pwe=2|name=nil|special=dig
+  . SKC|Grindstone|gid=90|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Death Mark|gid=91|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Shrapnel|gid=92|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Backups|gid=100|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Cavalry|gid=101|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Conclave|gid=102|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Entitle|gid=103|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Cardinal|gid=104|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Remparts|gid=105|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Pillage|gid=106|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Crusades|gid=107|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Peace|gid=108|ext=0|pwe=4|name=nil|special=nil
+  . SKC|King's Mistress|gid=109|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Revolution|gid=110|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Bodyguard|gid=111|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Ruins|gid=112|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Assault|gid=113|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Kite Shield|gid=114|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Zealots|gid=115|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Militia|gid=116|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Ammunition Depot|gid=117|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Scouting|gid=118|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Pikemen|gid=119|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Ascension|gid=120|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Castle|gid=121|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Conscription|gid=122|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Theocracy|gid=123|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Fallen Dynasty|gid=124|ext=0|pwe=0|name=nil|special=nil
+  . SKC|Iron Maiden|gid=125|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Court of the King|gid=126|ext=0|pwe=4|name=nil|special=nil
+  . SKC|The Red Book|gid=127|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Saboteur|gid=128|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Homecoming|gid=129|ext=0|pwe=0|name=nil|special=nil
+  . SKC|Lookout Tower|gid=130|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Throne Room|gid=131|ext=0|pwe=4|name=nil|special=nil
+  . SKC|The Secret Heir|gid=132|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Genderqueer|gid=133|ext=0|pwe=4|name=nil|special=nil
+  . SKC|Karma|gid=134|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Undead Armies|gid=135|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Shortage|gid=136|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Succubus|gid=137|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Bunker|gid=138|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Sanctity|gid=139|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Knightmare|gid=140|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Highest Dungeon|gid=141|ext=1|pwe=2|name=nil|special=nil
+  . SKC|Cathedral|gid=142|ext=1|pwe=4|name=nil|special=nil
+  . SKC|The Bridge|gid=143|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Divine Healing|gid=144|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Last Guardian|gid=145|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Trowel|gid=146|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Full Plate Armor|gid=147|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Military Academy|gid=148|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Witch's Curse|gid=149|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Saddle|gid=150|ext=1|pwe=4|name=nil|special=nil
+  . SKC|The Jester|gid=151|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Guillotine|gid=152|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Analysis Paralysis|gid=153|ext=1|pwe=4|name=nil|special=nil
+  . SKC|Plumed Knight|gid=154|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Emergency Call|gid=155|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Mangonel|gid=156|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Governess|gid=157|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Mausoleum|gid=158|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Reverend Mother|gid=159|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Sokoban|gid=160|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Tag Team|gid=161|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Unicorn|gid=162|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Lady in the Tower|gid=163|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Final Countdown|gid=164|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Nomad Life|gid=165|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Prison|gid=166|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Inquisition|gid=167|ext=2|pwe=4|name=nil|special=nil
+  . SKC|King's Look-alike|gid=168|ext=2|pwe=4|name=nil|special=nil
+  . SKC|The Royal Hunt|gid=169|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Tragic Homecoming|gid=170|ext=2|pwe=0|name=nil|special=nil
+  . SKC|Buckler of Limos|gid=171|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Vampirism|gid=172|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Commoner's Reign|gid=173|ext=2|pwe=0|name=nil|special=nil
+  . SKC|Bouncy Castle|gid=174|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Self-Defense|gid=175|ext=2|pwe=0|name=nil|special=nil
+  . SKC|Unsettled Throne|gid=176|ext=2|pwe=4|name=nil|special=nil
+  . SKC|Vendetta|gid=177|ext=3|pwe=8|name=nil|special=nil
+  . SKC|Stoning|gid=178|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Anarchy|gid=179|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Auto-da-fe|gid=180|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Late for dinner|gid=181|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Excommunication|gid=182|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Pyre of Lust|gid=183|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Gatehouse|gid=184|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Lightfoot|gid=185|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Loyalist March|gid=186|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Trench War|gid=187|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Catacombs|gid=188|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Flesh Wall|gid=189|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Hired Blade|gid=190|ext=3|pwe=4|name=nil|special=nil
+  . SKC|Oathkeeper|gid=191|ext=3|pwe=2|name=nil|special=nil
+  . SKC|Redemption|gid=192|ext=3|pwe=4|name=nil|special=nil
+  . SK-REWORK: SKC count=186
+  . SK-REWORK: READY build=4 hooks=5 globals=920
+  . SKA2|loadfile=no
+  . SK-REWORK: PROBE done build=4
+  . Correctly requested 'hdtext_srf' 0x038400 bytes at 0x19FB3F in chunk '_sugar_'.
+  . Created the 640 x 360 surface 'hdtext'.
+ !! Setting overlay...
+  . main loop exit
+  . 
+  . Initiating shutdown.
+  . Steam API shut down.
+  . Deleted font 'TerminusThai'.
+  . Deleted font 'pico'.
+  . Deleted font 'big'.
+  . Deleted font 'console'.
+  . Deleted font 'Terminus'.
+  . Deleted font 'icons'.
+  . Deleted font 'old_console'.
+  . Deleted font 'thin'.
+  . Deleted surface 'spiral'.
+  . Deleted surface 'mini_xpl'.
+  . Deleted surface 'big_achieveme  . Loading code/modes/throne.lua
+ !! Surface 'weapons' already exists, deleting it.
+  . Loading assets/gfx/weapons.png
+  . Correctly requested 'weapons_srf' 0x7980 bytes at 0x147E74 in chunk '_sugar_'.
+  . Created the 144 x 216 surface 'weapons'.
+  . Correctly loaded 'assets/gfx/weapons.png' into 'weapons' surface.
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . SKE|init_game|n=1
+  . SKE|new_level|n=1
+  . SKE|setup_piece|n=1|type=5|hp=8
+  . SKO|piece|hh=16
+  . SKO|piece|flx=false
+  . SKO|piece|hp=8
+  . SKO|piece|hp_max=11
+  . SKO|piece|seek=wdist
+  . SKO|piece|dcx=0
+  . SKO|piece|dcy=0
+  . SKO|piece|team=1
+  . SKO|piece|fields_shown=8
+  . SKE|setup_piece|n=2|type=3|hp=5
+  . SKO|piece|hh=16
+  . SKO|piece|flx=false
+  . SKO|piece|hp=5
+  . SKO|piece|hp_max=8
+  . SKO|piece|reap=1
+  . SKO|piece|seek=rdist
+  . SKO|piece|dcx=0
+  . SKO|piece|dcy=0
+  . SKO|piece|fields_shown=8
+  . SKE|setup_piece|n=3|type=2|hp=4
+  . SKO|piece|hh=16
+  . SKO|piece|flx=false
+  . SKO|piece|hp=4
+  . SKO|piece|hp_max=5
+  . SKO|piece|reap=1
+  . SKO|piece|seek=bdist
+  . SKO|piece|dcx=0
+  . SKO|piece|dcy=0
+  . SKO|piece|fields_shown=8
+  . SKE|setup_piece|n=4|type=2|hp=4
+  . SKE|setup_piece|n=5|type=1|hp=3
+  . SKE|setup_piece|n=6|type=1|hp=3
+  . SKE|setup_piece|n=7|type=0|hp=3
+  . SKE|setup_piece|n=8|type=0|hp=3
+  . SKE|setup_piece|n=9|type=0|hp=3
+  . SKE|setup_piece|n=10|type=0|hp=3
+  . SKE|setup_piece|n=11|type=0|hp=3
+  . SKE|setup_piece|n=12|type=0|hp=3
+  . SKE|setup_piece|n=13|type=5|hp=8
+  . SKE|setup_piece|n=14|type=5|hp=11
+  . SKE|setup_piece|n=15|type=3|hp=8
+  . SKE|setup_piece|n=16|type=2|hp=5
+  . SKE|setup_piece|n=17|type=2|hp=5
+  . SKE|setup_piece|n=18|type=1|hp=4
+  . SKE|setup_piece|n=19|type=1|hp=4
+  . SKE|setup_piece|n=20|type=0|hp=4
+  . SKE|setup_piece|n=21|type=0|hp=4
+  . SKE|setup_piece|n=22|type=0|hp=4
+  . SKE|setup_piece|n=23|type=0|hp=4
+  . SKE|setup_piece|n=24|type=0|hp=4
+  . SKE|setup_piece|n=25|type=0|hp=4
+  . SKE|setup_piece|n=26|type=5|hp=8
+  . SKW|turn=1|bads=12|bullets=0|hero_px=3|hero_py=7
+  . SKO|hero|hh=16
+  . SKO|hero|flx=false
+  . SKO|hero|hp=8
+  . SKO|hero|hp_max=8
+  . SKO|hero|tracked=1
+  . SKO|hero|mastermind=1
+  . SKO|hero|seek=wdist
+  . SKO|hero|dcx=0
+  . SKO|hero|dcy=0
+  . SKO|hero|fields_shown=9
+  . SKO|hero.sq|hh=16
+  . SKO|hero.sq|flx=false
+  . SKO|hero.sq|dan=0
+  . SKO|hero.sq|highlight=false
+  . SKO|hero.sq|px=3
+  . SKO|hero.sq|dcx=0
+  . SKO|hero.sq|dcy=0
+  . SKO|hero.sq|p.hh=16
+  . SKO|hero.sq|p.flx=false
+  . SKO|hero.sq|p.hp=8
+  . SKO|hero.sq|p.hp_max=8
+  . SKO|hero.sq|p.tracked=1
+  . SKO|hero.sq|p.mastermind=1
+  . SKO|hero.sq|dist=0
+  . SKO|hero.sq|wdist=0
+  . SKO|hero.sq|we=0
+  . SKO|hero.sq|fields_shown=16
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . SKW|turn=2|bads=12|bullets=0|hero_px=2|hero_py=6
+  . SKW|turn=3|bads=12|bullets=0|hero_px=1|hero_py=5
+  . SKW|turn=4|bads=12|bullets=0|hero_px=2|hero_py=4
+  . SKW|turn=5|bads=12|bullets=0|hero_px=2|hero_py=4
+  . SKW|turn=6|bads=12|bullets=0|hero_px=2|hero_py=4
+  . SKW|turn=7|bads=12|bullets=0|hero_px=1|hero_py=5
+  . SKW|turn=8|bads=12|bullets=0|hero_px=0|hero_py=5
+  . SKW|turn=9|bads=12|bullets=0|hero_px=1|hero_py=6
+  . SKW|turn=10|bads=12|bullets=0|hero_px=0|hero_py=7
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . SKE|init_game|n=2
+  . SKE|new_level|n=2
+  . SKE|setup_piece|n=27|type=5|hp=8
+  . SKE|setup_piece|n=28|type=3|hp=5
+  . SKE|setup_piece|n=29|type=2|hp=4
+  . SKE|setup_piece|n=30|type=2|hp=4
+  . SKE|setup_piece|n=50|type=0|hp=4
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . SKW|turn=11|bads=12|bullets=0|hero_px=3|hero_py=7
+  . SKW|turn=12|bads=12|bullets=0|hero_px=3|hero_py=7
+  . SKW|turn=13|bads=12|bullets=0|hero_px=3|hero_py=6
+  . SKW|turn=14|bads=12|bullets=0|hero_px=3|hero_py=5
+  . SKW|turn=15|bads=12|bullets=0|hero_px=3|hero_py=5
+  . SKW|turn=16|bads=12|bullets=0|hero_px=3|hero_py=5
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\./settings.txt' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . Loading code/modes/chase.lua
+  . SKE|init_game|n=3
+  . SKE|new_level|n=3
+  . SKW|turn=17|bads=4|bullets=0|hero_px=4|hero_py=3
+  . SKW|turn=18|bads=4|bullets=0|hero_px=3|hero_py=4
+  . SKW|turn=19|bads=4|bullets=0|hero_px=2|hero_py=5
+  . SKW|turn=20|bads=3|bullets=0|hero_px=2|hero_py=5
+  . SKW|turn=21|bads=3|bullets=0|hero_px=1|hero_py=4
+  . SKW|turn=22|bads=4|bullets=0|hero_px=1|hero_py=3
+  . SKW|turn=23|bads=4|bullets=0|hero_px=1|hero_py=2
+  . SKW|turn=24|bads=3|bullets=0|hero_px=1|hero_py=2
+  . SKW|turn=25|bads=3|bullets=0|hero_px=2|hero_py=2
+  . SKW|turn=26|bads=3|bullets=0|hero_px=2|hero_py=2
+  . SKW|turn=27|bads=3|bullets=0|hero_px=1|hero_py=2
+  . SKW|turn=28|bads=2|bullets=0|hero_px=1|hero_py=2
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav' over 1 frame(s).
+  . SKE|add_card|n=1|id=Wand of Downpour|pwe=1
+  . SKO|card|hh=16
+  . SKO|card|flx=false
+  . SKO|card|tws=30
+  . SKO|card|sx=192
+  . SKO|card|sy=69
+  . SKO|card|ey=141
+  . SKO|card|dcx=0
+  . SKO|card|dcy=0
+  . SKO|card|team=0
+  . SKO|card|fields_shown=9
+  . SKW|turn=29|bads=2|bullets=0|hero_px=1|hero_py=2
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav.bak' over 1 frame(s).
+  . SKW|turn=30|bads=2|bullets=0|hero_px=1|hero_py=2
+  . SKW|turn=50|bads=6|bullets=0|hero_px=4|hero_py=5
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav' over 1 frame(s).
+  . SKE|setup_piece|n=75|type=0|hp=3
+  . SKE|add_card|n=2|id=Wand of Frenzy|pwe=1
+  . SKO|card|hh=16
+  . SKO|card|flx=false
+  . SKO|card|tws=30
+  . SKO|card|sx=148
+  . SKO|card|sy=69
+  . SKO|card|ey=141
+  . SKO|card|dcx=0
+  . SKO|card|dcy=0
+  . SKO|card|team=0
+  . SKO|card|fields_shown=9
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav.bak' over 1 frame(s).
+  . SKW|turn=75|bads=5|bullets=0|hero_px=2|hero_py=2
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav' over 1 frame(s).
+  . SKE|add_card|n=3|id=Elite Gem|pwe=4
+  . SKO|card|hh=16
+  . SKO|card|flx=false
+  . SKO|card|tws=30
+  . SKO|card|sx=104
+  . SKO|card|sy=69
+  . SKO|card|ey=141
+  . SKO|card|ammo_regen=1
+  . SKO|card|firerange=1
+  . SKO|card|dcx=0
+  . SKO|card|dcy=0
+  . SKO|card|team=0
+  . SKO|card|fields_shown=11
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/stats.sav.bak' over 1 frame(s).
+  . SKE|setup_piece|n=100|type=1|hp=3
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\testing\ShotgunKing-Modded\save/prog.sav.bak' over 1 frame(s).
+  . Quitting required.
+  . main loop exit
+  . 
+  . Initiating shutdown.
+  . Steam API shut down.
+  . Deleted font 'TerminusThai'.
+  . Deleted font 'pico'.
+  . Deleted font 'big'.
+  . Deleted font 'console'.
+  . Deleted font 'Terminus'.
+  . Deleted font 'icons'.
+  . Deleted font 'old_console'.
+  . Deleted font 'thin'.
+  . Deleting window 'Shotgun King'.
+  . Deleted surface 'spiral'.
+  . Deleted surface 'mini_xpl'.
+  . Deleted surface 'big_achievement'.
+  . Deleted surface 'playground'.
+  . Deleted surface 'weapons'.
+  . Deleted surface 'intro'.
+  . Deleted surface 'tutorial'.
+  . Deleted surface 'achievements'.
+  . Deleted surface 'achievements_pane'.
+  . Deleted surface 'icon'.
+  . Deleted surface 'cards'.
+  . Deleted surface 'pcd_sheet'.
+  . Deleted surface 'charnier'.
+  . Deleted surface 'codex'.
+  . Deleted surface 'console_SteamDeck-export'.
+  . Deleted surface 'console_Xbox'.
+  . Deleted surface 'grenade'.
+  . Deleted surface 'title'.
+  . Deleted surface 'gfx'.
+  . Deleted surface 'console_PS5'.
+  . Deleted surface 'hdtext'.
+  . Deleted surface 'console_PS4'.
+  . Deleted surface 'console_SteamDeck'.
+  . Deleted surface 'console_NX'.
+  . Deleted surface 'console_PC'.
+  . Deleted surface 'crumble'.
+  . GFX system shut down.
+  . Input system shut down.
+  . Replacing music currently playing.
+  . Audio system shut down.
+  . Deleted memory chunk '_sugar_'.
+  . Application ran for 365.794000 seconds.
+  . All systems shut down.
+  . Ending Log.
