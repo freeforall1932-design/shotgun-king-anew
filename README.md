@@ -54,14 +54,22 @@ the exe (see `tools/mod-dev.md`). The 13 reference mods + dev's guide live in
 
 ## Owner's to-do
 
-1. **Flip the repo to private** (see warning above) — 1 minute.
-2. Pick the ammo design (A simple scale / B shell economy / C shell types).
-3. Playtest each phase build and report back ("repack crashed after intro" /
-   "feels right").
-
-*(Game files no longer needed from you — all 4 rar parts are in the repo and
-were extracted & analyzed. Keep them or delete them from GitHub after going
-private; the agent works from `uploads/`.)*
+1. **Test mission (NOW, before more features get built)** — the Phase 2 stub
+   is already pushed:
+   ```
+   pwsh tools/apply.ps1 -GameDir "<your game folder>"
+   ```
+   → launch game → mod menu → enable **SK Rework** → quit → upload the game's
+   `log.txt` to the repo (like the rar parts). The log contains the full
+   function map (`SKG|…` lines) that the real features get built on.
+2. *(Optional, fixes "boring game")* install the 13 workshop mods properly:
+   ```
+   pwsh tools/install-mods.ps1 -GameDir "<game folder>" -ZipsDir "<folder with the mod zips>"
+   ```
+3. Delete `Shotgun...part4.rar` + the 13 mod zips from **main** via web UI
+   (each file → trash icon) — or just flip the repo private at deployment.
+4. Pick nothing else for now — ammo design is decided (A→B→C progressive,
+   PLANNING.md §0.6); playtest each phase build and report back.
 
 ## Warnings
 

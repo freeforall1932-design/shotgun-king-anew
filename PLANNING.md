@@ -8,6 +8,30 @@
 
 ---
 
+## 0.6 Owner decisions (2026-10-03, Q&A)
+
+1. **Ammo rework: ALL designs, progressive** — ship **A** (simple scale)
+   first as the safe quick win, layer **B** (shell economy) on top once A is
+   playtested, experiment with **C** (shell types) + future content after.
+2. **UI principle: native-feel.** Any mod UI (buttons, pickers, cheat panel)
+   must reuse the game's own button/menu code (`mk_menu_but`, `on_menu_but_init`,
+   `init_menu` patterns from the reference mods) so it feels like part of the
+   game, not an overlay.
+3. **Built-in dev/cheat mode** (owner request): in-game cheats "as if the dev
+   was playing" — give ammo/cards, god mode, spawn pieces — plus **save
+   modification** tooling (save/*.sav are PUNKCAKE-serializer text; samples
+   kept in uploads/game-extracted-lite/save/). Phase 2 scope now includes a
+   dev panel; save tools may be a python script (tools/) and/or in-game.
+4. **Motivation context:** stock game feels boring without working mods — so
+   the 13 workshop mods must load reliably (`tools/install-mods.ps1`) and the
+   dev-cheat panel is high priority, not a luxury.
+5. **Visibility:** repo stays public while in development; flips to private
+   at deployment (or gets archived if abandoned). Game rars were removed from
+   the branch 2026-10-03 (they remain in git *history* until scrubbed — do a
+   history rewrite or delete the repo at deployment if concerned; `main`
+   still holds part4 + the 13 mod zips until the owner deletes them via web
+   UI or the private flip happens).
+
 ## 0. What this project is
 
 **Game:** Shotgun King: The Final Checkmate (PUNKCAKE Délicieux) — a 2D roguelike

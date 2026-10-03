@@ -14,6 +14,26 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 — Owner decisions locked + repo slim-down
+
+- **Decisions recorded in PLANNING.md §0.6**: ammo = A→B→C progressive;
+  native-feel UI principle (reuse game's own button code); built-in
+  dev/cheat mode + save-modification tools (Phase 2 scope expanded);
+  repo public during dev, private at deployment.
+- **Removed the 3 game rar parts from the branch** (git rm) — extracted
+  keep-list instead into `uploads/game-extracted-lite/` (exe, lang/ 18
+  string tables, save/ samples for the save tools, mods/, settings, bats —
+  no dlls/steam_settings/data.sgr). `main` still holds part4 + mod zips
+  (owner to delete via web UI or covered by private flip). Rars remain in
+  git history until a deployment-time scrub.
+- **NEW tools/install-mods.ps1**: unzips workshop-mod zips into
+  `<game>/mods/`, auto-renames each folder to its `name=` field (the #1
+  "mod won't load" cause), skips old-format mods without info.lua.
+- why: owner confirmed strategy; repo slimming requested ("remove the rar
+  and zip if its already unpacked"); mod-loading failures were killing
+  motivation to play.
+- status: shipped
+
 ## 2026-10-03 — Phase 0 complete: game obtained + ENGINE CORRECTION + strategy pivot
 
 **Findings (owner uploaded the game in 4 rar parts + 13 workshop mods to
