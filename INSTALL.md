@@ -126,6 +126,11 @@ powershell -ExecutionPolicy Bypass -File "E:\testing\repo\tools\apply.ps1" -Game
 **Check:** it prints `[dry-run] would copy ...` and lists `cover.png`,
 `info.lua`, `script.lua`. Nothing on disk changes.
 
+*Which folder goes where:* `-GameDir` is your **base game folder** — it is
+only the *destination* the dry run prints. The mod files it "would copy"
+come from the repo itself (`repo\modded\sk-rework`, found automatically next
+to the script). The game folder needs no mods for this step.
+
 ---
 
 ### Step 4 (PowerShell) — build the modded copy (`E:\testing\ShotgunKing-Modded`)
