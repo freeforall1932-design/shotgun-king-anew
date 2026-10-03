@@ -6,8 +6,9 @@
 
 ## 🔴 Critical path (blocks all features)
 
-**Live-test ladder** — risk-ordered, each step reversible. Full instructions:
-README §"First run" · rationale: `notes/review-2026-10-03.md` §5.
+**Live-test ladder** — risk-ordered, each step reversible.
+**Canonical instructions: `INSTALL.md`** (owner layout `E:\testing\{game, repo,
+ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 - [ ] **Step 1 — dry run** (owner, 1 min): `pwsh tools/apply.ps1 -GameDir
       "<game>" -List`. Writes nothing; prints exactly what would be copied.
@@ -42,9 +43,8 @@ README §"First run" · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] **log.txt parser** (Python): ingest `SKG|/SKR|/SKF|` lines + `SK-REWORK`
       markers, emit a draft function map for `notes/map.md`. Fully testable in
       sandbox with synthetic log input. ← proposed next task
-- [ ] `-NoInheritMods` switch for `build-dist.ps1` (review F7): exclude the
-      original install's `mods\` when copying, so a broken half-extracted mod
-      can't poison a fresh build
+- [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
+      2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
 - [ ] `install-mods.ps1`: no .rar support (prints manual-extract hint now);
       rar mods are already vendored so low priority
@@ -55,6 +55,20 @@ README §"First run" · rationale: `notes/review-2026-10-03.md` §5.
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-03 (session 2b — single canonical install path):**
+- ✅ **`INSTALL.md` added** — the one click-by-click guide: whole-repo
+      download answer, `E:\testing\{game, repo, ShotgunKing-Modded}` layout,
+      steps 1–7 with per-step checks, success checklist, live-testing vs
+      roadmap boundary, undo table, troubleshooting, clearly-marked
+      variations
+- ✅ README points to INSTALL.md; its own step list reduced to a summary so
+      there are no competing/contradicting instructions
+- ✅ `build-dist.ps1`: header documents the canonical `-OutDir` usage;
+      `PLAY-THIS.txt` now names the source folder + exact unlock command;
+      end of run prints the playable exe path and the -GetLog command
+      (exe auto-detect prefers a name matching shotgun/king)
+- ✅ 3/3 `.ps1` re-parsed clean after the edits
 
 **2026-10-03 (session 2 — review + README + fixes):**
 - ✅ README rewritten: clone-vs-install answered up front, honest

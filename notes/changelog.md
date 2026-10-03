@@ -14,6 +14,34 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-03 (session 2b) — One canonical install path (INSTALL.md)
+
+- **`INSTALL.md` (NEW)** — the owner asked for an unambiguous, step-by-step
+  install and a clear division between live testing and the dev roadmap.
+  Contains: the "whole repo, not one file" answer (mods are folders; nothing
+  patches the exe); the canonical layout `E:\testing\{game, repo,
+  ShotgunKing-Modded}`; Steps 1–7 with a check after each; a success/report
+  checklist; an explicit "your part ends at Step 7 / development is mine"
+  boundary with the phase table; undo table; troubleshooting; and a
+  clearly-marked Variations section (paths, unlocks-only, real-install mods,
+  dev loop) so alternatives can't be mistaken for the main flow.
+- **`README.md`** — top callout points to INSTALL.md; the "First run" section
+  became a 7-row summary + link (two competing checklists was itself a
+  contradiction risk); fixed stale step references; layout section includes
+  INSTALL.md.
+- **`tools/build-dist.ps1`** — usage header documents the canonical
+  `-OutDir "E:\testing"` invocation; `PLAY-THIS.txt` is now generated with
+  the real source path and the exact unlock command for that copy; the end of
+  the run prints the playable exe path, the next action, and the `-GetLog`
+  command; exe auto-detect prefers names matching shotgun/king.
+  **NEW `-NoInheritMods` switch** (closes review F7): drops the source
+  game's `mods\` from the copy so a build contains exactly the 14 known-good
+  mods — the owner's base game demonstrably contains stray mods
+  (King's Court.rar etc.), which would otherwise be inherited silently.
+- why: owner found the README ambiguous about what to download, where to put
+  things, and which steps were theirs.
+- status: shipped (docs + script output; 3/3 ps1 re-parsed clean)
+
 ## 2026-10-03 (session 2) — Readiness review + README rewrite + tool fixes
 
 - **`notes/review-2026-10-03.md` (NEW)** — pre-live-test review: per-tool

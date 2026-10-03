@@ -59,6 +59,15 @@
     tree-sitter-powershell (available via pip); it caught the one ambiguous
     construct in `build-dist.ps1`.
 
+12. **One canonical path, alternatives quarantined.** `INSTALL.md` is now the
+    only place with steps; the README summarizes and links instead of
+    repeating (duplicate instructions are how contradictions are born).
+    Variations (different paths, unlocks-only, modding the real install, dev
+    loop) live in a clearly-marked section at the end, so the main flow can't
+    be confused with an edge case. Boundaries are explicit: the owner's job
+    is Steps 1–7; everything else is development that will arrive with its
+    own instructions.
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)

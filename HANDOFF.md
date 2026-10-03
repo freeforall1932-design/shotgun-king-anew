@@ -60,6 +60,13 @@ files; "injection" = adding folders under `mods/` (the game's own mod system).
 Owner asked: review before live testing (clone-vs-install ambiguity, low
 confidence). Done in this session:
 
+- **`INSTALL.md` (NEW) — the single canonical setup + live-test guide** for
+  the owner's layout `E:\testing\{game, repo, ShotgunKing-Modded}`: steps 1–7
+  with per-step checks, whole-repo download answer (there is no single-file
+  patch), success checklist, live-testing vs roadmap boundary, undo table,
+  troubleshooting, clearly-marked variations. README's step list is now only
+  a summary that points here (no competing instructions).
+
 - **`notes/review-2026-10-03.md`** — full readiness review: what each tool
   writes and how to undo it, verification status per artifact, risks, and the
   risk-ordered live-test ladder (now also the README quick-start).

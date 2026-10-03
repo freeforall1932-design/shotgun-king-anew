@@ -1,5 +1,9 @@
 # 🔫👑 Shotgun King: Reworked
 
+> **👉 Installing or testing for the first time? Follow [`INSTALL.md`](INSTALL.md).**
+> It is the one canonical, click-by-click path (folder layout, exact commands,
+> what to report back). This README explains *what the project is* and *why*.
+
 A private, personal-use **mod project** for *Shotgun King: The Final
 Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
 
@@ -24,15 +28,16 @@ what it writes, and how to undo it:
 
 | Tool | Where it writes | Undo |
 |---|---|---|
-| `tools/build-dist.ps1` | **A copy**: `dist\ShotgunKing-Modded\` (full game copy + `mods\`) | delete `dist\` — your install was never touched |
+| `tools/build-dist.ps1` | **A copy**: `<OutDir>\ShotgunKing-Modded\` (default `dist\`, `INSTALL.md` uses `E:\testing\`) | delete that folder — your install was never touched |
 | `tools/apply.ps1` | Your real install: adds **one folder**, `<game>\mods\sk-rework\` | delete that one folder |
 | `tools/install-mods.ps1` | Your real install: adds mod folders under `<game>\mods\` | delete those folders |
 | `tools/make_100pct_save.py` | `save\*.sav` **in the game folder you point it at** (auto-backup first) | `--restore` (or the `save_backup_*` folder it creates) |
 
 So, concretely:
 
-- **"I just want to play"** → `build-dist.ps1` copies the game to `dist\` and
-  puts the mods inside that copy. Play the copy. Your install stays clean.
+- **"I just want to play"** → `build-dist.ps1` copies the game to a new folder
+  (`E:\testing\ShotgunKing-Modded` in `INSTALL.md`) and puts the mods inside
+  that copy. Play the copy. Your install stays clean.
 - **"I'm developing the mod"** → `apply.ps1` copies only our mod folder into
   your real install's `mods\` so you can iterate in place.
 - The save tool is the only thing that *edits* something — and only the save
@@ -57,42 +62,39 @@ Honest status, because "it's written" is not the same as "it's been run":
 [`notes/review-2026-10-03.md`](notes/review-2026-10-03.md)):
 
 1. The PowerShell scripts have never been executed anywhere — syntax is
-   checked, behaviour is not. That's why step 1 below is a no-write dry run.
+   checked, behaviour is not. That's why `INSTALL.md` starts with a no-write
+   dry run.
 2. Whether the game accepts the edited 100% save is unproven — it's reversible.
 3. Whether mods are enabled by default is unproven — if not, it's one toggle
    in the in-game mod menu.
 
 ---
 
-## 🚦 First run: a safe, ordered checklist
+## 🚦 Setup & live testing
 
-Do these in order; each step only gets riskier than the last, and all of them
-are reversible.
+**Follow [`INSTALL.md`](INSTALL.md)** — one canonical path, no choices to make.
+In 20 seconds, it goes:
 
-```powershell
-# 1. dry run — prints what would be copied, writes nothing
-pwsh tools/apply.ps1 -GameDir "E:\games\Shotgun.King.The.Final.Checkmate.v1.623b" -List
+| Step | What happens | Writes |
+|---|---|---|
+| 1 | copy the base game to `E:\testing\game` | your copy only |
+| 2 | put this repo at `E:\testing\repo` | — |
+| 3 | dry run (`apply.ps1 -List`) | nothing |
+| 4 | `build-dist.ps1` → `E:\testing\ShotgunKing-Modded` | the copy only |
+| 5 | launch the copy, check the mod menu, quit | game's own files |
+| 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
+| 7 | *optional:* `make_100pct_save.py` unlock-all, in the copy | copy's `save\` (backed up) |
 
-# 2. build the modded COPY (your install is only read, never written)
-pwsh tools/build-dist.ps1 -GameDir "E:\games\Shotgun.King.The.Final.Checkmate.v1.623b" -Clean
-#    then check: dist\ShotgunKing-Modded\mods\ should contain 14 folders
-
-# 3. launch dist\ShotgunKing-Modded\shotgun_king.exe
-#    → mod menu: the mods should be listed and toggleable → quit the game
-
-# 4. collect the log the project needs (this is the current blocker)
-pwsh tools/apply.ps1 -GameDir "dist\ShotgunKing-Modded" -GetLog
-#    → uploads/game-insights/log.txt  (gitignored; attach it in chat / upload to the repo)
-
-# 5. optional: unlock everything, in the COPY (needs one launch first, so save\ exists)
-python tools/make_100pct_save.py --game-dir "dist\ShotgunKing-Modded"
-```
-
-Step 4 is what unblocks all feature work: our stub mod writes the game's
+Step 6 is what unblocks all feature work: our stub mod writes the game's
 function map into `log.txt` (`SKG|`/`SKR|`/`SKF|` lines), which can't be
-obtained any other way. Step 5 is the "casual Sunday" unlock.
+obtained any other way.
 
-`pwsh` not found? Use `powershell` (Windows built-in) instead.
+### What to download
+
+The **whole repository** (~8.5 MB, no game files inside) — there is no
+single-file patch, and nothing here patches or modifies the game's `.exe` or
+`data.sgr`. Mods are folders; the tools need each other; the 13 workshop mods
+ship as folders too.
 
 ---
 
@@ -138,6 +140,7 @@ and the game must be closed while it runs.
 ## 🧰 Repository layout
 
 ```
+├── INSTALL.md             👉 setup + live testing, start to finish
 ├── modded/sk-rework/      🔧 our mod — the deliverable
 ├── dist-overlay/mods/     🧩 the 13 workshop mods, vendored, name-verified
 ├── tools/                 · build-dist.ps1   build the modded copy
@@ -171,10 +174,14 @@ and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-The mod's gameplay features — ammo rework, card picker, enemy picker, extra
-shot mechanics, balance knobs, dev/cheat panel — are **not started**: they
-need the function map from step 4's `log.txt`. The stub mod currently only
-logs that map; it changes nothing in the game.
+**Live testing (yours, now):** `INSTALL.md` steps 1–7. Nothing else is asked
+of you, and nothing below needs you to run or configure anything.
+
+**Development (mine, after your `log.txt` arrives):** the mod's gameplay
+features — ammo rework, card picker, enemy picker, extra shot mechanics,
+balance knobs, dev/cheat panel — are **not started**: they need the function
+map that only a live run can produce. The stub mod currently only logs that
+map; it changes nothing in the game.
 
 Full plan and phase checkboxes: [`PLANNING.md`](PLANNING.md) ·
 current tasks: [`WORKLIST.md`](WORKLIST.md) · what changed when:
