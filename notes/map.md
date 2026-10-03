@@ -256,6 +256,16 @@ OBSERVED facts — prefer them over anything guessed above.
   `stack.pierce`, `stack.knockback`, `stack.blade`, `stack.fearsome`,
   `stack.special`, `stack.replace_soul`) — read it to know what the player
   owns without scanning cards.
+- **Shot-modifier pipeline** (glac terminal's `get_disp_stats`
+  interception): the next-shot stat id is picked by priority
+  `jump > fearsome > blade > pierce > knock > f_arc`; `pierce` and
+  `knockback` are PERCENTAGES (card fields: A Piercing Truth `pierce=30`,
+  Rightful Curtsy `knockback=50`), `blade` a count (Ritual Dagger 1,
+  Nightbane 3, Bushido 2), `firepower` = per-bullet damage stat
+  (`firepower=-1` on several cards). Interception pattern for the stats
+  display: `prepend("get_disp_stats", …)` + `append("add", …)` +
+  `edit_disp_stats` callback list. Damage-related globals awaiting a probe:
+  `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`.
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain

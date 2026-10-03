@@ -42,9 +42,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (right-click/soul/scepter cap filtering), **full card-field dump**
       (every field of every CARDS entry — to find all active-ability
       implementations incl. the magazine-dump card), soul system
-      (`add_soul`/`activate_soul`/`TEST_SOULS`/`hero.free_souls`), input
-      (`MOUSE` global, `but` fields, `btn()` args — remap-menu feasibility),
-      mods-menu draw hook (legend + Back button)
+      (`add_soul`/`activate_soul`/`TEST_SOULS`/`hero.free_souls`),
+      **damage application point** (`ev_hit`/`damage`/`damages`/`fx_dmg`
+      for the bullet-crit system), input (`MOUSE` global, `but` fields,
+      `btn()` args — remap-menu feasibility), mods-menu draw hook
+      (legend + Back button)
 - [ ] **Mod-menu Back button** (owner ask run 3, **confirmed 2026-10-04**):
       the game's mod menu only offers reset / save+reboot — no way out
       without rebooting. Add a Back button via the same UI-hook route as
@@ -68,15 +70,25 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       ALL card fields + `scepters` global + offer roll
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
-      freely use/exchange any stored soul mid-stage (pawn excluded —
-      pawn = power/ammo); summon the held soul's piece as a per-floor
-      temporary ally — **no summon cap beyond board capacity ("as much
-      as the board can hold, like a normal game of chess")**. Vanilla
+      freely use/exchange any stored soul mid-stage — **any soul allowed,
+      NO hardcoded pawn exception (owner correction: pawn-as-power comes
+      from cards — pawn souls = bullets at 1 damage each — behavior stays
+      card-driven)**; summon the held soul's piece as a per-floor
+      temporary ally — no summon cap beyond board capacity. Vanilla
       summon-family: Right-hand, Warhorse, Onboarding Party, Rapunzel,
       Small Key; holograms: Holoking, Soul Projection. API mapped
       (add_soul/activate_soul/stack.replace_soul/hero.free_souls/
       soul_slot fields/dj_summon pattern) — needs a live probe of soul
       activation flow + slot internals
+- [ ] **Bullet damage & crit system** (owner, 2026-10-04 — PLANNING.md
+      §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
+      the damage stat), configurable crit chance + crit damage (crits may
+      exceed 2), **pierce auto-crits by default** (`pierce` is a % status,
+      `stack.pierce`, A Piercing Truth = 30). All knobs in the cheat
+      panel / balance config, persisted in the mod save — nothing
+      hardcoded. Pipeline partly mapped (shot-modifier priority
+      jump>fearsome>blade>pierce>knock>f_arc); build-5 probe pins the
+      damage application point (`ev_hit`/`damage`/`damages`/`fx_dmg`)
 - [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
       settings panel to assign any action to any extra mouse button
       (owner mouse: 2 side buttons + middle click; right-click exclude

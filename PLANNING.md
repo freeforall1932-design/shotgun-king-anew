@@ -71,13 +71,31 @@
    hologram cards: Holoking, Soul Projection). **Owner's modded vision
    ("like a Yu-Gi-Oh deck"): 2–3 soul slots where ONE slot holds MANY
    souls — freely use or exchange any stored soul at any time during the
-   stage (pawn excluded — pawn = power/ammo).** API: `add_soul(type, p,
-   sanctity, replace)`, `activate_soul`, `stack.replace_soul`,
-   `PIECES_NAMES[x].type`; summon blueprint = disgraced_justice's
-   `dj_summon` (`new_piece(typ, false, sq)` + `fx_spawn(p)` + a hero cost
-   field). **Summon cap (owner, 2026-10-04): none beyond board capacity —
-   "as much as the board game can hold, like a normal game of chess"**
-   (free squares are the limit; still per-floor temporary).
+   stage. NO hardcoded pawn exclusion (owner correction 2026-10-04:
+   pawn-as-power comes from skill cards — pawn souls become bullets that
+   each deal 1 damage — so the behavior must stay CARD-DRIVEN, not a
+   baked-in exception; any soul is allowed in the deck).** API:
+   `add_soul(type, p, sanctity, replace)`, `activate_soul`,
+   `stack.replace_soul`, `PIECES_NAMES[x].type`; summon blueprint =
+   disgraced_justice's `dj_summon` (`new_piece(typ, false, sq)` +
+   `fx_spawn(p)` + a hero cost field). **Summon cap (owner, 2026-10-04):
+   none beyond board capacity — "as much as the board game can hold, like
+   a normal game of chess"** (free squares are the limit; still per-floor
+   temporary).
+11. **Bullet damage & crit system** (owner, 2026-10-04): per-bullet damage
+   configurable (vanilla = 1 per bullet; `firepower` is the damage stat on
+   cards); **crits** — a crit probability and a crit damage value, both
+   configurable (crit may exceed 2 damage); **pierce auto-crits by
+   default** — `pierce` is a percentage status (`stack.pierce`, e.g.
+   A Piercing Truth `pierce=30`), and piercing shots crit unless the
+   player changes the rule. All knobs live in the cheat panel / balance
+   config (persisted via the mod's own save slot) — nothing hardcoded.
+   Known pipeline: shot modifiers are `stack.pierce` / `stack.blade` /
+   `stack.knockback` / `stack.fearsome` with display priority
+   `jump > fearsome > blade > pierce > knock > f_arc` (glac terminal's
+   `get_disp_stats` interception); damage globals to probe: `ev_hit`,
+   `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg` → build-5 probe
+   pins the exact hit/damage application point.
 7. **Card picker — free choice instead of the 2-card offer** (already
    Phase 4; owner re-confirmed). Reference implementation exists in the
    vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer
