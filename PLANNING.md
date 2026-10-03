@@ -43,10 +43,18 @@
    (vendored `show exclude` mod) documents the vanilla caps verbatim:
    *"You can't have more than: 1 right-click ability, or 5 soul slots, or
    3 scepters"* (plus other offer rules: no 0 max ammo, no grabbing+blade
-   together, …). Goal: own MULTIPLE right-click abilities + a way to pick
-   which one right-click triggers (swap key / remap-menu binding /
-   SPECIAL_BUTTON interception). `special=` field = the ability slot
-   (10 vanilla cards: scope, grenade×5, strafe, orb, dig, decree).
+   together, …). **Owner clarification #2 (2026-10-04): the right-click
+   skill cards are NOT just snipe + orb — e.g. a card that fires the whole
+   magazine in 1 turn is also a right-click skill. The design must be
+   DYNAMIC: discover every active-ability card at runtime — `special=`
+   cards AND other implementations (scepters etc.), including cards other
+   mods add via `concat(CARDS, …)` — no hardcoded list, no fixed count.**
+   Note: the magazine-dump card is NOT among the 10 dumped `special=`
+   cards → at least one more implementation exists (scepter-type or an
+   undumped field); the build-5 probe must dump ALL card fields + the
+   `scepters` global so every active-ability route is caught. Goal: own
+   MULTIPLE right-click abilities + a way to pick which one right-click
+   triggers (swap key / remap-menu binding / SPECIAL_BUTTON interception).
 8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a
    piece and let him move like it for 1 turn. Vanilla slots: max 5, grown
    via `soul_slot=N` cards (Majestic Censer +1, Possessed +2 w/

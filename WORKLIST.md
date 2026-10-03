@@ -39,9 +39,12 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       legend line in the mod menu itself — needs a draw hook on the mods
       menu; the legend currently lives in sk-rework's description text).
       Build 5 should carry the intel probes for §0.7 asks: offer roll
-      (right-click-slot filtering), soul system (`add_soul`/`activate_soul`/
-      `TEST_SOULS`), input (`MOUSE` global, `but` fields, `btn()` args —
-      remap-menu feasibility), mods-menu draw hook (legend + Back button)
+      (right-click/soul/scepter cap filtering), **full card-field dump**
+      (every field of every CARDS entry — to find all active-ability
+      implementations incl. the magazine-dump card), soul system
+      (`add_soul`/`activate_soul`/`TEST_SOULS`/`hero.free_souls`), input
+      (`MOUSE` global, `but` fields, `btn()` args — remap-menu feasibility),
+      mods-menu draw hook (legend + Back button)
 - [ ] **Mod-menu Back button** (owner ask run 3, **confirmed 2026-10-04**):
       the game's mod menu only offers reset / save+reboot — no way out
       without rebooting. Add a Back button via the same UI-hook route as
@@ -50,15 +53,17 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
-      refinement — see PLANNING.md §0.7.6): vanilla caps right-click
+      refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
       5 soul slots, 3 scepters") — owning one removes all others from
       offers. Goal: own multiple + pick which one right-click triggers
       (swap key / remap-menu binding / SPECIAL_BUTTON interception).
-      Affected: the 10 `special=` cards (scope, grenade×5, strafe, orb,
-      dig, decree). Blocked on the offer roll (TBD in map.md) → next
-      build probes it. Scepter cap (3) could be relaxed the same way if
-      wanted
+      **Dynamic by design (owner clarification): discover ALL active-ability
+      cards at runtime — `special=` (10 known) AND scepter-type/other
+      implementations (the magazine-dump card is not `special=`), including
+      cards added by other mods. No hardcoded list, no fixed count.**
+      Build-5 probe: dump ALL card fields (not just special=) + the
+      `scepters` global + offer roll
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
       freely use/exchange any stored soul mid-stage (pawn excluded —
