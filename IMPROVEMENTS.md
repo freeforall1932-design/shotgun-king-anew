@@ -126,6 +126,31 @@
     replaced by a single `live testing result/SUMMARY.md` — the repo
     carries knowledge, not baggage.
 
+## 2026-10-04 — Session 7 (Build 5 + map/tooling improvements)
+
+23. **Build 5 is probe-first, not guess-first.** The Phase-2c panel uses only
+    live/reference-backed UI and game APIs; uncertain damage multipliers stay
+    gated until the new `SKD|` live trace. Offer, card-field, soul/scepter,
+    input, and menu behavior are harvested without modifying those systems.
+24. **The fake engine now tests behavior, not just load.** `mod_smoketest.py`
+    models Lua function types, both `all()` semantics, hook calls, button
+    callbacks, cheat actions, and parser handoff (33/33 per `all()` mode on
+    default Lua and LuaJIT 2.1). It also intentionally hides `loadfile`,
+    matching the live mod sandbox.
+25. **`notes/map.md` distinguishes confirmed, reference-derived, owner-reported,
+    and still-unknown facts.** It now promotes the best vendor patterns while
+    preventing static guesses (e.g. exact scepter semantics / universal hit
+    point) from becoming false runtime claims.
+26. **Save-codec selftest no longer needs real game files.** Two built-in
+    synthetic saves exercise nested tables, empty tables, strings/booleans,
+    decimal numbers, and container encode/decode; an optional save directory
+    retains the real-file roundtrip check.
+27. **The placeholder cover became a project-matched pixel-art asset** (320×180,
+    custom crown and shells; no game art copied).
+28. **Warning-prefixed game log lines are now tested too.** The parser stripped
+    the common `. ` info prefix but missed the actual `!! ` warning prefix; a
+    regression case now requires warning-wrapped `SKG|` lines to parse (31/31).
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)

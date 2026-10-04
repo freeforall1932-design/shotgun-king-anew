@@ -15,8 +15,10 @@ Grammar (line-oriented):
     every entry line ends with a comma, including the last one in a table.
 
 This module parses that into plain Python dicts (numbers kept as raw strings
-so re-serialization is lossless) and serializes back, byte-identical on all
-six shipped saves (see test at bottom: `python3 save_codec.py --selftest`).
+so re-serialization is lossless) and serializes back. `--selftest` always runs
+synthetic parser/container roundtrips; optionally pass a directory of real
+saves to also verify their text layer. The six shipped v1.623b saves were
+verified byte-identical in an earlier live-data audit.
 Container note: that roundtrip guarantee is the TEXT layer (decode ->
 parse -> serialize == original text). Re-ENCODED containers use zlib
 level 9, which the game reads fine (live-proven), but whose bytes differ
@@ -28,8 +30,8 @@ CLI:
     python3 save_codec.py save/reg.sav --out reg.txt   # decode to file
     python3 save_codec.py reg.txt --pack reg.sav       # encode text back
     python3 save_codec.py save --scan                  # decode a whole dir
-    python3 save_codec.py --selftest savedir           # parse->serialize
-                                                     # roundtrip on every .sav
+    python3 save_codec.py --selftest [savedir]         # built-in + optional
+                                                     # savedir roundtrip check
 """
 import sys, os, re, zlib, struct
 
@@ -178,6 +180,81 @@ def s(x: str) -> tuple:
     return ("s", x)
 
 
+# ── selftest ───────────────────────────────────────────────────────────────
+
+SYNTHETIC_SAVES = {
+    "reg.sav": (
+        'PUNKCAKE\n'
+        't{\n'
+        's"achievements"\x1f: f"save/achievements.sav",\n'
+        's"prog"\x1f: f"save/prog.sav",\n'
+        '}\n'
+        'FOREVER'
+    ),
+    "prog.sav": (
+        'PUNKCAKE\n'
+        't{\n'
+        's"throne"\x1f: t{\n'
+        's"rank"\x1f: n20,\n'
+        's"lvl"\x1f: t{\n'
+        'n1: n13,\n'
+        '},\n'
+        's"empty_tbl"\x1f: t{\n'
+        '},\n'
+        '},\n'
+        's"weapon_unl"\x1f: t{\n'
+        'n2: bTrue,\n'
+        'n3: bFalse,\n'
+        '},\n'
+        's"name"\x1f: s"Shotgun King"\x1f,\n'
+        's"best_time"\x1f: n99.623,\n'
+        '}\n'
+        'FOREVER'
+    ),
+}
+
+
+def run_selftest(savedir=None) -> int:
+    import tempfile
+    if savedir and not os.path.isdir(savedir):
+        print(f"save directory not found: {savedir}")
+        return 1
+    ok = 0
+    total = 0
+    for label, text in SYNTHETIC_SAVES.items():
+        total += 1
+        rt = serialize(parse(text))
+        if rt != text:
+            print(f"SYNTHETIC ROUNDTRIP MISMATCH: {label}")
+            continue
+        with tempfile.NamedTemporaryFile(suffix=".sav", delete=False) as tf:
+            tmp_path = tf.name
+        try:
+            save_save(tmp_path, parse(text))
+            loaded = serialize(load_save(tmp_path))
+            if loaded == text:
+                ok += 1
+            else:
+                print(f"CONTAINER ROUNDTRIP MISMATCH: {label}")
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    if savedir:
+        for f in sorted(os.listdir(savedir)):
+            if not f.endswith(".sav"):
+                continue
+            total += 1
+            text = decode_file(os.path.join(savedir, f))
+            if serialize(parse(text)) == text:
+                ok += 1
+            else:
+                print(f"ROUNDTRIP MISMATCH: {f}")
+
+    print(f"selftest: {ok}/{total} save roundtrip checks passed")
+    return 0 if (ok == total and total > 0) else 1
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────
 
 def main(argv):
@@ -186,18 +263,9 @@ def main(argv):
         return 0
 
     if "--selftest" in argv:
-        d = argv[argv.index("--selftest") + 1]
-        ok = 0
-        for f in sorted(os.listdir(d)):
-            if not f.endswith(".sav"):
-                continue
-            text = decode_file(os.path.join(d, f))
-            if serialize(parse(text)) == text:
-                ok += 1
-            else:
-                print(f"ROUNDTRIP MISMATCH: {f}")
-        print(f"parse->serialize byte-identical on {ok} save(s)")
-        return 0 if ok else 1
+        idx = argv.index("--selftest")
+        d = argv[idx + 1] if (idx + 1 < len(argv) and not argv[idx + 1].startswith("-")) else None
+        return run_selftest(d)
 
     path, flags = argv[1], argv[2:]
 

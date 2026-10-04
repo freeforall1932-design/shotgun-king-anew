@@ -9,8 +9,10 @@ Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
 
 1. **A ready-to-play modded copy of the game** — 13 workshop mods plus our own
    mod, assembled for you by a script.
-2. **Our own mod** (`sk-rework`) — currently a debug stub; the actual ammo
-   rework / pickers / cheat panel are future work.
+2. **Our own mod** (`sk-rework`) — Build 5 adds a native-button dev panel,
+   in-menu legend/Back affordance, and probes for the remaining gameplay APIs.
+   The advanced ammo rework, pickers, crit tuning, soul deck, and remapping
+   remain planned follow-up work.
 
 Engine: **SUGAR** (the studio's custom Lua engine) · Mod system: the game's
 official `info.lua` folder format.
@@ -52,13 +54,14 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
-| `sk-rework` diagnostics mod (build 4) | ✅ live-proven | build 3 ran twice in the real game (load proof, 920 globals, hooks, live state); build 4 adds the mod-list + card-id harvest and drops the dead `on_*` probes |
-| `tools/parse_log.py` log parser | ✅ live-proven | turned the first real `log.txt` into `notes/game-map-draft.md`; prefix-stripping bug found & fixed by the live test; selftest 23/23 |
-| `tools/mod_smoketest.py` | ✅ tested | runs the mod without the game (needs `lupa`); 29/29 checks under both engine semantics |
+| `sk-rework` Build 5 (dev panel + diagnostics) | 🟡 sandbox-tested; live run pending | builds 3–4 were live-proven; build 5 adds native cheat buttons, mod-menu helpers, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes |
+| `tools/parse_log.py` log parser | ✅ live-proven + Build-5 extensions tested | parses runs 1–3 with multi-boot dedup; now parses new Build-5 prefixes too; selftest 31/31 |
+| `tools/mod_smoketest.py` | ✅ tested | runs Build 5 without the game (needs `lupa`); 33/33 checks under each `all()` semantics on default Lua + LuaJIT 2.1 |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
-| `tools/save_codec.py` | ✅ verified | byte-identical parse/serialize on all 6 real saves (earlier session); re-tested end-to-end now |
+| `tools/save_codec.py` | ✅ verified | real-save text roundtrip was previously checked on all 6 saves; `--selftest` now also runs 2 built-in parse/container checks without needing a save directory |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
-| Ammo rework, card/enemy pickers, cheat panel | 🟢 unblocked | the live function map is in (`notes/game-map-draft.md`); feature work can start |
+| Dev-cheat panel | 🟡 Build 5 sandbox-tested; live run pending | native controls are in; damage-multiplier action is intentionally gated until the new damage probe is confirmed |
+| Ammo rework, card/enemy pickers, crit system, soul deck, remapping | 🟢 scoped; queued | Build 5 probes now target the unknown engine paths; advanced modules wait on owner live data/playtest |
 
 **The three pre-live unknowns — all resolved on 2026-10-03:**
 
@@ -89,11 +92,12 @@ In 20 seconds, it goes:
 | 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
 | 7 | automatic: the build's 4/4 step unlock-alls the copy (manual only if skipped) | copy's `save\` (backed up) |
 
-Step 6 is what unblocks all feature work: our diagnostics mod writes its own
-load/hook proof plus a live dump of the game's functions, state and objects
-into `log.txt` (`SKG|`, `SKA|`, `SKH|`, `SKW|`… lines). `tools/parse_log.py`
-then turns that into `notes/game-map-draft.md` — the raw material for the
-cheat panel, ammo rework and pickers.
+Step 6 collects the live validation for Build 5: the mod writes its load/hook
+proof plus the game API, state, object, card-field, offer, soul/scepter,
+damage, input, and UI probes into `log.txt` (`SKG|`, `SKCF|`, `SKOF|`, `SKS|`,
+`SKD|`, `SKI|`, `SKUI|`…). `tools/parse_log.py` turns that into
+`notes/game-map-draft.md`; the new live data will validate the panel and unblock
+the queued ammo rework and pickers.
 
 ### What to download
 
@@ -191,14 +195,16 @@ times or run history, and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-**Live testing (yours, now):** `INSTALL.md` steps 1–7. Nothing else is asked
-of you, and nothing below needs you to run or configure anything.
+**Live testing (yours, next):** apply Build 5, open the mod menu and in-run
+Dev panel, play a few turns, then collect `log.txt` with `-GetInsights` as in
+`INSTALL.md`. Builds 3–4 were already live-tested; this run validates the new
+menu hooks and fills the card/offer/soul/damage/input probes.
 
-**Development (mine, after your `log.txt` arrives):** the mod's gameplay
-features — ammo rework, card picker, enemy picker, extra shot mechanics,
-balance knobs, dev/cheat panel — are **not started**: they need the function
-map that only a live run can produce. The stub mod currently only logs that
-map; it changes nothing in the game.
+**Development (current):** Build 5 has a native-button Dev panel and runtime
+probes; its smoke test passes under both `all()` semantics. That is not a
+replacement for the game run. The advanced ammo modes, card/enemy pickers,
+crit system, soul deck, and button remapping remain queued until the new data
+and playtest feedback arrive.
 
 Full plan and phase checkboxes: [`PLANNING.md`](PLANNING.md) ·
 current tasks: [`WORKLIST.md`](WORKLIST.md) · what changed when:

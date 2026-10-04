@@ -14,6 +14,34 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-04 (session 7) — Build 5 code + map/tooling refresh (live test pending)
+
+- `modded/sk-rework/script.lua` — Build 5: native `mk_text_but` Dev panel
+  (+ammo, random eligible card, dynamically chosen ally summon, God Mode),
+  MODLIST-ID-gated mod-menu Back/legend, plus post-READY `SKCF/SKOF/SKS/SKD/
+  SKI/SKUI` probes. The damage-multiplier button is intentionally gated until
+  the live damage route is confirmed. Build 5 has **not** been run in-game yet.
+- `tools/parse_log.py` — added parsers and markdown sections for full card
+  fields/EXCLUDE, offer flow, souls/scepters, damage, input, and UI/config.
+  Selftest now 31/31, including a `!!` warning-prefix regression check.
+- `tools/mod_smoketest.py` — models Lua-function wrappers, no `loadfile`, both
+  `all()` semantics, additive hooks, fake native buttons, Dev actions, and
+  parser handoff. Result: 33/33 checks per mode on default Lua and LuaJIT 2.1.
+- `notes/map.md` — promoted static, source-grounded engine patterns and
+  labeled owner-reported/unknown details; Build-5 probes remain unverified
+  until the live log.
+- `tools/save_codec.py` — fixed the no-directory `--selftest` `IndexError`;
+  built-in synthetic parse/container roundtrips pass 2/2, optional `[savedir]`
+  checks real `.sav` files. Earlier six-save verification remains in history.
+- `modded/sk-rework/info.lua`, `cover.png`, `README.md`, `WORKLIST.md`,
+  `HANDOFF.md`, `IMPROVEMENTS.md`, `tools/mod-dev.md` — Build-5 status/docs
+  synced; new custom cover is 320×180 pixel art.
+- why: owner said proceed with schedule steps 1 & 2 (Build 5 + code-map/tool
+  reliability/doc promotion).
+- status: sandbox-tested; **owner Build-5 live run still required**.
+
+---
+
 ## 2026-10-04 (session 6) — live-testing evidence consolidated; docs finalized; full audit before PR
 
 All raw run-1/2/3 evidence (8 screenshots, 3 critique notes, 3 log packs
