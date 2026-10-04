@@ -28,8 +28,8 @@ That copies `modded/sk-rework/` → `<game>/mods/sk-rework/` (idempotent).
 Then:
 
 1. Launch the game (Steam).
-2. Mods start **OFF by default** (black text). To enable: mod menu = **Play
-   screen, top entry**; click = on/off (white text = ON, black = OFF);
+2. Mods start **OFF by default** (black text). To enable: click **Play**
+   (top entry); click = on/off (white text = ON, black = OFF);
    up/down = load priority only. (A `build-dist.ps1` copy skips this — it
    pre-enables sk-rework via `mods/modlist.lua`.)
 3. Play / trigger the feature.
@@ -57,12 +57,23 @@ and harvests the §0.7 unknowns after its `READY` line. It does not yet ship the
 later gameplay modules (ammo rework A/B, crit tuning, ability rebinding, soul
 deck, or free-choice picker); those remain queued behind the live probes.
 
-Build 5 controls: `+3 AMMO`, random eligible card, spawn an ally using a live
+Build 6 controls: `+3 AMMO`, random eligible card, spawn an ally using a live
 `PIECES` entry/free adjacent square, God Mode toggle (best-effort through the
 confirmed `hit(p,dmg,tags)` helper + HP refill), and a clearly gated damage
 control placeholder until the hit pipeline is live-confirmed. Buttons use the
 game's native text-button API; no custom draw overlay or global `upd`/`on_*`
 dispatcher is defined. God Mode and menu behavior still need game validation.
+
+> 🛑 **Never call `btn()`/`btnp()`/`btnr()`/`defbtn()` with an unconfirmed
+> string.** Build 5 called `btn("left")` at load and the game quit with
+> `ERR Button left for player 0 doesn't exist.` — unknown names fall through to
+> the input-id parser, a malformed id is fatal, and the mod sandbox has no
+> `pcall` to catch it. Only ids the live game published may be used:
+> `INPUT_ASSIGNEMENT` actions (`validate`, `cancel`, `shoot`, `special`,
+> `reload`, `unsafe`), `unsafe`/`cancel`/`ctrl`, and the bound mouse codes
+> `m:lb`, `m:rb`, `m:mb`. Probe blocks are ordered safe-first and each logs an
+> `SKA2|probe|<name>=done` checkpoint; the fake engine in `mod_smoketest.py`
+> raises on unconfirmed ids so the smoke test reproduces that fatal.
 
 | Prefix | Meaning |
 |---|---|
@@ -79,8 +90,9 @@ dispatcher is defined. God Mode and menu behavior still need game validation.
 | `SKOF\|<kind>\|…` | offer inputs, `level_up` choices, eligibility calls |
 | `SKS\|<tag>\|…` | `PIECES`, `TEST_SOULS`, scepters, soul/scepter calls |
 | `SKD\|<tag>\|…` | bullet fields and candidate damage function arguments |
-| `SKI\|<tag>\|…` | mouse/buttons, `btn()` candidates, menu-button IDs |
+| `SKI\|<tag>\|…` | mouse/buttons, confirmed `btn()`/`btncode` probes, menu-button IDs |
 | `SKUI\|<tag>\|…` | panel/menu actions and mod-bank persistence state |
+| `SKA2\|probe\|<block>=done` | probe-block checkpoint (cards/exclude/souls/bank/input) |
 | `SKA2\|loadfile=no` | confirms the old file probe cannot run in the mod sandbox |
 
 Note: the game wraps every log line in `  . ` / ` !! ` — the parser strips

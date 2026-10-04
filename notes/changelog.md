@@ -14,6 +14,58 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-04 (session 8) — Run 4 crash fixed as Build 6; run-4 harvest promoted
+
+- `modded/sk-rework/script.lua` — BUILD 5 → 6. **Crash fix:** the input probe
+  no longer blind-calls `btn()`; it only probes ids the live game published
+  (`validate/cancel/shoot/special/reload/unsafe`, `ctrl`, `m:lb/m:rb/m:mb`),
+  with the fatal path documented in a comment block. Probe blocks reordered
+  safe-first (cards → exclude → souls → bank → input) and each ends with an
+  `SKA2|probe|<name>=done` checkpoint; the persistence block (which run 4 never
+  reached) now runs before the input probe. why: run 4 crashed the game at
+  boot with `ERR Button left for player 0 doesn't exist.` (script.lua:817) —
+  unknown `btn()` ids fall through to the engine's input parser and a malformed
+  id is fatal, with no `pcall` available to catch it. status: shipped;
+  playtest-pending (owner live run of build 6).
+- `modded/sk-rework/info.lua` — description updated to Build 6 with the crash
+  note and the checkpoint contract.
+- `tools/mod_smoketest.py` — the fake engine is now faithful where it mattered:
+  `INPUT_ASSIGNEMENT` is a formatted string, `MOUSE` is a boolean, `scepters`
+  is not a global, and `btn()/btnp()/btnr()` **raise** on unconfirmed ids with
+  the engine's own `!!` warning lines. Added a model self-check (`btn("left")`
+  must raise) and new expectations (`SKI|btn|validate=false`,
+  `SKI|btncode|m:lb=false`, `SKI|input|probed=10…`, no unsafe names, all five
+  checkpoints, `SKS|scepters|available=false`). 36/36 per mode on default Lua
+  and LuaJIT 2.1; re-injecting the run-4 bug now fails the harness with the
+  exact live error string. why: the old fake returned `false` for every
+  `btn()` call, which is why 33/33 passed while the real game died.
+- `tools/parse_log.py` — new `SKA2|probe|<name>=done` checkpoint capture and
+  rendering (with a warning when the chain stopped before the input block),
+  plus **crash detection**: `ERR` message, tab-indented `Stack traceback`
+  frames, `Quitting required`, and a "crash inside a mod" highlight. Selftest
+  31/31 → 37/37 (crashed-chain + crash-render cases). why: a draft generated
+  from a crashed run previously looked like a clean harvest.
+- `notes/game-map-draft.md` — regenerated from the run-4 log; its verdict
+  section now reports the boot crash and the failing frame.
+- `notes/map.md` — new run-4 section (63-name live API surface incl. the soul/
+  scepter family, 186 cards fully fielded, the 10 `special=` cards, 14 piece
+  schemas, 25 offer candidates, `savbnk`/`scepters` absent); input section
+  rewritten around the 🛑 `btn()` contract, the live `INPUT_ASSIGNEMENT` text,
+  and the fact that mouse ids stop at `m:lb/m:rb/m:mb`.
+- `live testing result/SUMMARY.md` — run 4 section (crash + root cause + what
+  was harvested before it) and session-8 follow-up status.
+- `WORKLIST.md` — build 5 live run marked crashed; build 6 fix item added;
+  "extra-mouse-button binding" queued as an isolated, crash-tolerant
+  experiment; run-4 answers and build-6 questions added; audit log entry.
+- `HANDOFF.md` — session 8 state; fact 2b (the `btn()` landmine + "engine
+  calls take only confirmed arguments"); intervention point updated to build 6
+  in-play testing.
+- `IMPROVEMENTS.md` — session-8 arc (items 29–34).
+- `README.md`, `INSTALL.md`, `tools/mod-dev.md`, `notes/map.md`, `HANDOFF.md`
+  — Build 5 → 6 references, test counts, and the owner's wording fix: the
+  mod-menu location now reads "click **Play** (top entry)" everywhere, with no
+  title-screen/main-menu contrast.
+
 ## 2026-10-04 (session 7) — Build 5 code + map/tooling refresh (live test pending)
 
 - `modded/sk-rework/script.lua` — Build 5: native `mk_text_but` Dev panel

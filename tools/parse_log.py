@@ -89,6 +89,8 @@ def parse_text(text: str) -> dict:
         "card_fields": collections.OrderedDict(), "exclude_pairs": [],
         "offers": [], "souls": [], "damage": [], "input": [], "ui": [],
 
+        "checkpoints": [],
+        "crash": {"error": None, "frames": [], "quitting": False, "trace_seen": False},
         "objects": collections.defaultdict(dict), "object_order": [],
         "world": [], "counts_reported": {}, "other_lines": 0, "tail": [],
     }
@@ -126,6 +128,14 @@ def parse_text(text: str) -> dict:
                 continue
             continue
         if s.startswith("SKA2|"):
+            # SKA2|probe|<name>=done — one marker per probe block, so a run
+            # that dies mid-chain still shows how far it got (run 4 lost the
+            # bank/persistence data because nothing marked the earlier blocks).
+            m = re.match(r"SKA2\|probe\|([A-Za-z_]+)=done$", s)
+            if m:
+                if m.group(1) not in d["checkpoints"]:
+                    d["checkpoints"].append(m.group(1))
+                continue
             for part in s.split("|")[1:]:
                 if "=" in part:
                     k, v = part.split("=", 1)
@@ -245,6 +255,25 @@ def parse_text(text: str) -> dict:
         if s.startswith("SKUI|"):
             d["ui"].append(s[5:])
             continue
+        # Crash detection (run 4): a fatal engine error prints "ERR <msg>",
+        # a tab-indented Stack traceback, then "Quitting required.". Without
+        # this, a crashed run's draft looked like a successful harvest.
+        if s.startswith("ERR "):
+            d["crash"]["error"] = s[4:].strip()
+            d["crash"]["frames"] = []
+            continue
+        if s.startswith("Stack traceback"):
+            d["crash"]["trace_seen"] = True
+            continue
+        if s.startswith("Quitting required"):
+            d["crash"]["quitting"] = True
+            continue
+        if (d["crash"]["trace_seen"] and ln.startswith("\t")
+                and ": in " in s and len(d["crash"]["frames"]) < 12):
+            # Tab-indented Lua traceback frame; stop at 12 or on any other
+            # line so unrelated indented output is not swallowed.
+            d["crash"]["frames"].append(s)
+            continue
         d["other_lines"] += 1
     # Multi-boot logs: the mod-menu's "save and reboot" reloads every mod in
     # the SAME log.txt, so all dumps appear twice (run-3 live finding; the
@@ -303,6 +332,21 @@ def render_markdown(d: dict, src: str) -> str:
         r = d["ready"]
         w(f"- ✅ READY line: build {r['build']}, {r['hooks']} hooks registered, "
           f"{r['globals']} globals visible")
+    if d["crash"]["error"]:
+        w(f"- ⛔ **the game CRASHED during this run:** `{d['crash']['error']}`"
+          + (" (Quitting required)" if d["crash"]["quitting"] else ""))
+        mod_frames = [f for f in d["crash"]["frames"] if "mods/" in f]
+        if mod_frames:
+            w(f"- ⛔ crash inside a mod — `{mod_frames[-1]}`")
+        for frame in d["crash"]["frames"][:8]:
+            w(f"    - `{frame}`")
+        w("- A crashed run can still contain a full harvest (run 4 did): read the "
+          "sections below, but treat runtime traces as absent.")
+    if d["checkpoints"]:
+        w(f"- ✅ probe blocks completed: " + ", ".join(f"`{c}`" for c in d["checkpoints"]))
+        if "input" not in d["checkpoints"] and "cards" in d["checkpoints"]:
+            w("- ⚠️ the chain stopped before the input block — a crash there is "
+              "the run-4 failure mode; check the log tail for `ERR`/`Quitting required`")
     for warn in d["warnings"]:
         w(f"- ⚠️ {warn}")
     w("")
@@ -602,6 +646,8 @@ def selftest() -> int:
         "  . SKI|btn|unsafe=false\r\n"
         "  . SKUI|bank|ready=true|magic=505\r\n"
         "  . SKML|load|function\r\n"
+        "  . SKA2|probe|cards=done\r\n"
+        "  . SKA2|probe|bank=done\r\n"
         "  . SK-REWORK: READY build=5 hooks=15 globals=1\r\n")
     checks.append(("prefixed banner", d3["banner"] is not None))
     checks.append(("prefixed api-no", d3["api"].get("append") is False))
@@ -619,6 +665,31 @@ def selftest() -> int:
     checks.append(("damage SKD", len(d3["damage"]) == 1))
     checks.append(("input SKI", len(d3["input"]) == 1))
     checks.append(("ui SKUI", len(d3["ui"]) == 1))
+    checks.append(("probe checkpoints SKA2", d3["checkpoints"] == ["cards", "bank"]))
+    d4 = parse_text(
+        "  . SK-REWORK: BUILD=5 loaded (mod_index=1)\r\n"
+        "  . SK-REWORK: READY build=5 hooks=30 globals=920\r\n"
+        "  . SKI|btn|unsafe=false\r\n"
+        " !! Not recognizing button 'left', attempting to parse it as input code.\r\n"
+        " !! Malformed input id 'left': must be '[k/m/c]:[key/button/[axis:direction]]'.\r\n"
+        "ERR Button left for player 0 doesn't exist.\r\n"
+        "\r\n"
+        "Stack traceback: \r\n"
+        "\t[string \"code.lua\"]:197: in function <[string \"code.lua\"]:45>\r\n"
+        "\tmods/sk-rework/script.lua:817: in main chunk\r\n"
+        "\r\n"
+        "  . Quitting required.\r\n")
+    checks.append(("crash detected", d4["crash"]["error"] == "Button left for player 0 doesn't exist."))
+    checks.append(("crash traceback captured", len(d4["crash"]["frames"]) == 2
+                   and d4["crash"]["quitting"] is True))
+    md4 = render_markdown(d4, "<selftest-crash>")
+    checks.append(("crash rendered in verdict", "the game CRASHED during this run" in md4
+                   and "crash inside a mod" in md4 and "script.lua:817" in md4))
+    md3 = render_markdown(d3, "<selftest-checkpoints>")
+    checks.append(("checkpoints in markdown", "probe blocks completed" in md3
+                   and "`cards`" in md3 and "`bank`" in md3))
+    checks.append(("crashed-chain warning for run-4 pattern",
+                   "stopped before the input block" in md3))
 
     bad = [name for name, ok in checks if not ok]
     print(f"selftest: {len(checks) - len(bad)}/{len(checks)} checks passed")

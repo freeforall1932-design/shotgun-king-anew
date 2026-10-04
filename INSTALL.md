@@ -174,38 +174,48 @@ itself silently ignores those too.
 
 ---
 
-### Step 5 — launch the copy and play a minute (Build-5 live test)
+### Step 5 — launch the copy and play a minute (Build-6 live test)
 
 1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
    (Step 4 printed its exact path).
-2. The **mod menu is NOT on the title screen**: click **Play** — the mod menu
-   is the **top entry** of that screen.
+2. To open the **mod menu**, click **Play** — it is the **top entry** of
+   that screen.
 3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
    — **black text = OFF, white text = ON**. The build writes
    `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
    (ON) and the 13 workshop mods black (OFF). The **up/down arrows only
-   change load priority**. Build 5 also attempts a Back button and white/black
+   change load priority**. Build 6 also attempts a Back button and white/black
    legend inside the mod list; note whether they appear and whether Back exits
    without save-and-reboot.
 4. Start a run and play a couple of turns. Find the native **SK DEV** text
    button near the bottom of the board; click it to reveal the controls.
-   Try `+3 AMMO`, `RANDOM CARD`, `SPAWN ALLY`, and `GOD MODE` if convenient.
+   Try `+3 AMMO`, `RANDOM CARD`, `SPAWN ALLY`, and `GOD MODE` if convenient
+   — one at a time, and note which one you clicked if the game dies. (The
+   diagnostic probes all run at load, so a crash after a click still leaves
+   a complete harvest in `log.txt`.)
    The `DMG GATED` button is intentionally a no-op placeholder until the live
    damage trace confirms a safe implementation. The cheats only run if clicked;
    otherwise the mod is diagnostic. Note crashes, UI overlap, or incorrect
    actions. Then quit normally.
 
-Build 5 writes its load/hook proof plus the new card/offer/soul/damage/input/UI
+Build 6 writes its load/hook proof plus the card/offer/soul/damage/input/UI
 probes to `log.txt`. The game prefixes every line with `  . ` — that is normal.
+
+> **Build 5 crashed at boot (run 4)** — it probed an input name the engine did
+> not know, and SUGAR treats that as fatal. Build 6 only probes inputs the game
+> itself published, so that crash cannot repeat; if the game ever quits at boot
+> again, send me `log.txt` **and** the newest `crash_log_*.txt` — the last
+> `ERR`/`Stack traceback` block names the exact line.
 
 | Line/prefix in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=5 loaded (mod_index=…)` | the mod loaded |
+| `SK-REWORK: BUILD=6 loaded (mod_index=…)` | the mod loaded |
 | `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
 | `SKH\|…` | additive hook registrations |
 | `SKW\|turn=1\|…` | first per-turn state sample |
+| `SKA2\|probe\|<block>=done` | a probe block finished (cards/exclude/souls/bank/input) |
 | `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | §0.7 card, offer, soul/scepter, damage, input, and UI probes (static dumps follow READY) |
-| `SK-REWORK: READY build=5 hooks=…` | load and registrations reached the marker |
+| `SK-REWORK: READY build=6 hooks=…` | load and registrations reached the marker |
 
 ---
 
@@ -289,9 +299,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-5 Back/legend if shown |
+| 3 | Step 5 launch & mod menu | click Play → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-6 Back/legend if shown |
 | 4 | Step 5 in-run panel | `SK DEV` opens native controls; note ammo/card/spawn/God Mode results, Back behavior, UI overlap, or crashes (`DMG GATED` is intentionally inactive) |
-| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=5` and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
+| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=6`, `SK-REWORK: PROBE done build=6`, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
 | 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
@@ -306,11 +316,11 @@ the game crashed.
 | Phase | What | Status |
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
-| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted; Build-5 probes target the remaining unknowns |
-| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 5 sandbox-tested; owner live run pending; damage control gated until hit path is confirmed |
-| 3 | ammo rework, staged A → B → C | ⛔ queued after Build-5 live probes/playtest |
-| 4 | card picker + enemy picker | ⛔ queued after Build-5 live probes/playtest |
-| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-5 live probes/playtest |
+| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted (runs 1–4); Build-6 probes target the remaining unknowns |
+| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 5 crashed at boot (run 4); build 6 sandbox-tested and regression-guarded; owner live run pending; damage control gated until the hit path is confirmed in play |
+| 3 | ammo rework, staged A → B → C | ⛔ queued after Build-6 live probes/playtest |
+| 4 | card picker + enemy picker | ⛔ queued after Build-6 live probes/playtest |
+| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-6 live probes/playtest |
 | 6 | balance knobs + final packaging (+ zero-arg auto-discovery on waitlist) | ⛔ queued
 
 ---

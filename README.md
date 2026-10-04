@@ -9,7 +9,7 @@ Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
 
 1. **A ready-to-play modded copy of the game** — 13 workshop mods plus our own
    mod, assembled for you by a script.
-2. **Our own mod** (`sk-rework`) — Build 5 adds a native-button dev panel,
+2. **Our own mod** (`sk-rework`) — Build 6 adds a native-button dev panel,
    in-menu legend/Back affordance, and probes for the remaining gameplay APIs.
    The advanced ammo rework, pickers, crit tuning, soul deck, and remapping
    remain planned follow-up work.
@@ -54,14 +54,14 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
-| `sk-rework` Build 5 (dev panel + diagnostics) | 🟡 sandbox-tested; live run pending | builds 3–4 were live-proven; build 5 adds native cheat buttons, mod-menu helpers, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes |
-| `tools/parse_log.py` log parser | ✅ live-proven + Build-5 extensions tested | parses runs 1–3 with multi-boot dedup; now parses new Build-5 prefixes too; selftest 31/31 |
-| `tools/mod_smoketest.py` | ✅ tested | runs Build 5 without the game (needs `lupa`); 33/33 checks under each `all()` semantics on default Lua + LuaJIT 2.1 |
+| `sk-rework` Build 6 (dev panel + diagnostics) | 🟡 sandbox-tested; live run pending | build 5 crashed at boot in its input probe (run 4) — build 6 only probes engine inputs the game itself published, and reorders the chain with per-block checkpoints |
+| `tools/parse_log.py` log parser | ✅ live-proven + Build-6 extensions tested | parses runs 1–4 with multi-boot dedup, crashed logs, and `SKA2\|probe\|<block>=done` checkpoints (plus crash detection with the failing frame); selftest 37/37 |
+| `tools/mod_smoketest.py` | ✅ tested | runs Build 6 without the game (needs `lupa`); 36/36 checks under each `all()` semantics on default Lua + LuaJIT 2.1 — the fake engine now re-raises the fatal `btn()` error, so the run-4 crash cannot pass tests again |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
 | `tools/save_codec.py` | ✅ verified | real-save text roundtrip was previously checked on all 6 saves; `--selftest` now also runs 2 built-in parse/container checks without needing a save directory |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
-| Dev-cheat panel | 🟡 Build 5 sandbox-tested; live run pending | native controls are in; damage-multiplier action is intentionally gated until the new damage probe is confirmed |
-| Ammo rework, card/enemy pickers, crit system, soul deck, remapping | 🟢 scoped; queued | Build 5 probes now target the unknown engine paths; advanced modules wait on owner live data/playtest |
+| Dev-cheat panel | 🟡 Build 6 sandbox-tested; live run pending | native controls are in; damage-multiplier action is intentionally gated until the new damage probe is confirmed |
+| Ammo rework, card/enemy pickers, crit system, soul deck, remapping | 🟢 scoped; queued | Build 6 probes target the remaining unknown engine paths; advanced modules wait on owner live data/playtest |
 
 **The three pre-live unknowns — all resolved on 2026-10-03:**
 
@@ -92,7 +92,7 @@ In 20 seconds, it goes:
 | 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
 | 7 | automatic: the build's 4/4 step unlock-alls the copy (manual only if skipped) | copy's `save\` (backed up) |
 
-Step 6 collects the live validation for Build 5: the mod writes its load/hook
+Step 6 collects the live validation for Build 6: the mod writes its load/hook
 proof plus the game API, state, object, card-field, offer, soul/scepter,
 damage, input, and UI probes into `log.txt` (`SKG|`, `SKCF|`, `SKOF|`, `SKS|`,
 `SKD|`, `SKI|`, `SKUI|`…). `tools/parse_log.py` turns that into
@@ -112,9 +112,9 @@ ship as folders too.
 
 - Mods start **OFF by default** (live-verified run 2) — but `build-dist.ps1`
   writes `mods/modlist.lua` so a built copy boots with `sk-rework` already ON
-  (`-AllModsOn` flips everything on). The in-game **mod menu** is not on the
-  title screen: click **Play**, it is the top entry there. In it, **black
-  text = OFF, white text = ON**; clicking flips a mod and the change survives
+  (`-AllModsOn` flips everything on). To open the in-game **mod menu**,
+  click **Play** (top entry). In it, **black text = OFF, white text = ON**;
+  clicking flips a mod and the change survives
   restarts; the up/down arrows only change load priority (which mod overrides
   which). While a mod is active the title bar shows
   `MODDED: ON - ACHIEVEMENTS: OFF` — that pauses *Steam* achievement tracking
@@ -187,7 +187,7 @@ times or run history, and the game must be closed while it runs.
 |---|---|
 | Mod doesn't show up in the mod menu | folder name ≠ `name=` in `info.lua`, or still zipped — run `install-mods.ps1` |
 | Game crashes after the intro logos | Lua error — open `log.txt` next to the exe, the error is at the **end** |
-| Everything feels vanilla | mods toggled off — mod menu = Play screen, top entry; white text = ON, black = OFF |
+| Everything feels vanilla | mods toggled off — mod menu: click **Play**, top entry; white text = ON, black = OFF |
 | 100% save didn't apply | game was running while writing, or you pointed at the wrong folder (the copy has its own `save\`) — close it, re-run |
 | `pwsh` not found | use `powershell` instead |
 
@@ -195,12 +195,13 @@ times or run history, and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-**Live testing (yours, next):** apply Build 5, open the mod menu and in-run
+**Live testing (yours, next):** apply Build 6, open the mod menu and in-run
 Dev panel, play a few turns, then collect `log.txt` with `-GetInsights` as in
-`INSTALL.md`. Builds 3–4 were already live-tested; this run validates the new
-menu hooks and fills the card/offer/soul/damage/input probes.
+`INSTALL.md`. Build 5's attempt (run 4) crashed at boot — that crash is fixed
+and regression-tested; this run validates the menu hooks, finishes the probe
+chain (bank/input), and fills the runtime card/offer/soul/damage traces.
 
-**Development (current):** Build 5 has a native-button Dev panel and runtime
+**Development (current):** Build 6 has a native-button Dev panel and runtime
 probes; its smoke test passes under both `all()` semantics. That is not a
 replacement for the game run. The advanced ammo modes, card/enemy pickers,
 crit system, soul deck, and button remapping remain queued until the new data

@@ -91,9 +91,29 @@ def build_env(L, all_mode="value"):
         {"type": 2, "name": "bishop", "hp": 4, "tempo": 3, "danger": 3, "behavior": [{"id": "line"}]},
     ])
     g.TEST_SOULS = to_lua(L, [{"type": 1, "sanctity": 0}, {"type": 2, "sanctity": 1}])
-    g.scepters = to_lua(L, [{"id": "Wand of Frenzy", "active": False}])
-    g.MOUSE = to_lua(L, {"left": 0, "right": 1, "middle": 2, "side1": 3, "side2": 4})
-    g.INPUT_ASSIGNEMENT = to_lua(L, {"shoot": "left", "reload": "right"})
+    # Live run 4 (2026-10-04): `scepters` is NOT in gimme("global") (only in
+    # gimme("replaceable")), MOUSE is a boolean and INPUT_ASSIGNEMENT is a
+    # formatted *string* dump. Keep the fake env faithful to that evidence.
+    g.MOUSE = True
+    g.INPUT_ASSIGNEMENT = ("\t\t\tvalidate> c:a, m:lb\n"
+                           "\t\t\tcancel> c:b, k:escape\n"
+                           "\t\t\tshoot> c:rtrigger\n"
+                           "\t\t\tspecial> c:x, m:rb\n"
+                           "\t\t\treload> c:y, k:space\n"
+                           "\t\t\tunsafe> c:ltrigger, k:lshift\n"
+                           "\t\t\tmx> m:x\n"
+                           "\t\t\tmy> m:y\n"
+                           "\t\t\tlb> m:lb\n"
+                           "\t\t\trb> m:rb\n"
+                           "\t\t\tmouse_move> m:x, m:y\n"
+                           "\t\t\tmouse> m:lb, m:rb, m:mb, k:escape, k:return, "
+                           "k:space, k:lshift, k:lalt, k:ralt\n"
+                           "\t\t\tctrlr> c:lstick:left, c:lstick:right, c:lstick:up, "
+                           "c:lstick:down, c:rstick:left, c:rstick:right, c:rstick:up, "
+                           "c:rstick:down, c:a, c:b, c:x, c:dpad:left, c:dpad:right, "
+                           "c:dpad:up, c:dpad:down, c:start, c:back, c:touchpad, "
+                           "c:rshoulder, c:lshoulder\n"
+                           "\t\t")
     g.loadfile = None  # the real mod sandbox does not expose loadfile
     g.SHOOT_BUTTON = "left"
     g.RELOAD_BUTTON = "right"
@@ -114,7 +134,7 @@ def build_env(L, all_mode="value"):
         "fx_dmg", "bleed_dmg", "hop_dmg", "xpl", "xpl_king", "add_soul",
         "activate_soul", "add_soul_slot", "remove_soul_slot", "exhaust_soul",
         "add_scepter", "activate_scepter", "recal_scepters", "get_scepter",
-        "TEST_SOULS", "MOUSE", "PIECES_NAMES", "scepters", "get_free_squares", "is_free",
+        "TEST_SOULS", "MOUSE", "PIECES_NAMES", "get_free_squares", "is_free",
     ]
     replaceable_names = ["hero", "stack", "ammo", "chamber", "scepters"]
 
@@ -185,9 +205,26 @@ def build_env(L, all_mode="value"):
     bind("bset", lambda x, y, v: bank_store.__setitem__((x, y), int(v)))
     bind("savbnk", lambda: None)
     bind("defbtn", lambda name, idx, spec: None)
-    bind("btn", lambda name: False)
-    bind("btnp", lambda name: False)
-    bind("btnr", lambda name: False)
+
+    # The real engine's btn() is FATAL on ids it cannot resolve: an unknown
+    # name falls through to the input-id parser and a malformed id quits the
+    # game (live run 4: btn("left") -> "ERR Button left for player 0 doesn't
+    # exist"). The fake engine reproduces that contract so the smoke test
+    # fails loudly if the mod ever blind-probes an unconfirmed button again.
+    confirmed_buttons = {"validate", "cancel", "shoot", "special", "reload",
+                         "unsafe", "ctrl", "m:lb", "m:rb", "m:mb"}
+
+    def engine_btn(name):
+        s = "" if name is None else str(name)
+        if s in confirmed_buttons:
+            return False
+        captured.append(f"!! Not recognizing button '{s}', attempting to parse it as input code.")
+        captured.append(f"!! Malformed input id '{s}': must be '[k/m/c]:[key/button/[axis:direction]]'.")
+        raise RuntimeError(f"Button {s} for player 0 doesn't exist.")
+
+    bind("btn", engine_btn)
+    bind("btnp", engine_btn)
+    bind("btnr", engine_btn)
     bind("fx_spawn", lambda p: None)
 
     def engine_pick(filters):
@@ -386,11 +423,21 @@ def run_scenario(L, env, mode, dump=False):
         return any(fragment in line for line in captured)
 
     # Ensure the promised marker precedes every static §0.7 dump.
-    ready_idx = next((i for i, line in enumerate(captured) if "READY build=5" in line), -1)
+    ready_idx = next((i for i, line in enumerate(captured) if "READY build=6" in line), -1)
     probe_idx = next((i for i, line in enumerate(captured) if line.startswith("SKCF|")), -1)
 
+    # Model self-check: the fake engine MUST reject unconfirmed buttons the
+    # same fatal way the real engine does, otherwise the regression check
+    # below is meaningless. btn("left") is exactly what killed run 4.
+    try:
+        g.btn("left")
+        fatal_button_model = False
+    except Exception:
+        fatal_button_model = True
+
     checks = [
-        ("build-5 load banner", has("SK-REWORK: BUILD=5 loaded (mod_index=2)")),
+        ("fake engine models the fatal btn() contract", fatal_button_model),
+        ("build-6 load banner", has("SK-REWORK: BUILD=6 loaded (mod_index=2)")),
         ("MODLIST self-check", has("SKA2|mod_found=yes|active=true")),
         ("MODLIST entry dump", has("SKM|2|title=SK Rework")),
         ("Lua function wrappers/API checks", has("SKA|append|no") and has("SKA|_log|YES")
@@ -402,11 +449,19 @@ def run_scenario(L, env, mode, dump=False):
                                        and has("SKCF|__EXCLUDE__|pair=Royal Loafers<>Sawed-off Justice")),
         ("soul/scepter schema + runtime", has("SKS|piece|type=1|name=knight")
                                          and has("SKS|add_soul|n=1|a1=1")
-                                         and has("SKS|add_scepter|n=1|a1=1")),
+                                         and has("SKS|add_scepter|n=1|a1=1")
+                                         and has("SKS|scepters|available=false")),
         ("damage/bullet probes", has("SKD|bullet|shot_n=1|idx=1|dmg=1|pierce=30")
                                   and has("SKD|fx_dmg|n=1") and has("SKD|ev_hit|n=1")),
-        ("input/menu probe", has("SKI|btn|mouse4=false") and has("SKI|menu_button|n=1|id=SK Rework")
-                             and has("SKI|menu_but|n=1|id=SK Rework")),
+        ("input probe uses only confirmed ids", has("SKI|btn|validate=false")
+                                               and has("SKI|btn|ctrl=false")
+                                               and has("SKI|btncode|m:lb=false")
+                                               and has("SKI|input|probed=10|source=confirmed_list|status=done")
+                                               and not has("SKI|btn|left=")
+                                               and not has("SKI|btn|mouse4=")
+                                               and not has("SKI|btn|wheel=")),
+        ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")
+                                 and has("SKI|menu_but|n=1|id=SK Rework")),
         ("native panel controls", has("SKUI|panel|available=true|native=mk_text_but")
                                   and has("SKE|cheat_ammo|amount=3")
                                   and has("SKE|cheat_card|id=Peace")
@@ -423,7 +478,10 @@ def run_scenario(L, env, mode, dump=False):
         ("damage control clearly gated", has("SKUI|panel|damage_controls=deferred_until_live_damage_probe")),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
-        ("probe done marker", has("SK-REWORK: PROBE done build=5")),
+        ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
+                                    and has("SKA2|probe|souls=done") and has("SKA2|probe|bank=done")
+                                    and has("SKA2|probe|input=done")),
+        ("probe done marker", has("SK-REWORK: PROBE done build=6")),
         ("ammo cheat changes state", ammo_after == before_ammo + 3),
     ]
     bad = [name for name, ok in checks if not ok]
@@ -432,8 +490,8 @@ def run_scenario(L, env, mode, dump=False):
     import parse_log
     d = parse_log.parse_text(text)
     parser_checks = [
-        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 5
-                              and d["ready"] is not None and d["ready"]["build"] == 5),
+        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 6
+                              and d["ready"] is not None and d["ready"]["build"] == 6),
         ("parser hooks", len(d["hooks"]) >= 15),
         ("parser world samples", len(d["world"]) == 2),
         ("parser cards", len(d["cards"]) == 4),
@@ -451,13 +509,13 @@ def run_scenario(L, env, mode, dump=False):
     ]
     bad += [name for name, ok in parser_checks if not ok]
 
-    md = parse_log.render_markdown(d, "<smoketest-build-5>")
+    md = parse_log.render_markdown(d, "<smoketest-build-6>")
     if ("Did the mod load?" not in md or "Full card fields & EXCLUDE pairs" not in md
             or "Offer-roll choices & filters" not in md):
-        bad.append("parser Build-5 markdown rendering")
+        bad.append("parser Build-6 markdown rendering")
 
     if dump:
-        print("--- Build-5 captured mod log lines ---")
+        print("--- Build-6 captured mod log lines ---")
         for line in captured:
             print(line)
         print("--- end ---")

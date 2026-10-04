@@ -32,27 +32,54 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (Build 5 live validation first)
+## 🟠 Next features (Build 6 live validation first)
 
 - [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
       are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
-      harness were updated. Sandbox checks pass (parser 31/31; smoke 33/33
-      under both `all()` semantics on default Lua and LuaJIT 2.1). Panel controls currently cover +ammo,
+      harness were updated. Panel controls currently cover +ammo,
       random eligible card, a dynamically selected ally summon, and a
       best-effort God Mode toggle. Damage-multiplier action is explicitly
       gated until the live hit path is confirmed. Mod-menu Back/legend attach
       when a native menu-button ID matches a live MODLIST entry.
-- [ ] **Owner live-run Build 5** — confirm no crash; verify Dev panel actions,
-      mod-menu button-ID detection/Back/legend, bank persistence, and collect
-      the `SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`, `SKUI|` probes. Fake-SUGAR
-      results are not game evidence. Update `notes/map.md` from that log.
+- [x] ~~**Owner live-run Build 5**~~ — **RAN 2026-10-04 (run 4) and CRASHED
+      AT BOOT**: the input probe called `btn("left")`; unknown SUGAR input
+      names fall through to the id parser and a malformed id is FATAL (game
+      quits, no pcall available). Root cause + evidence: `live testing
+      result/SUMMARY.md` run 4, `notes/map.md` input section.
+- [x] **Build 6 crash fix** — `btn*()` is now only called with ids the live
+      game published (`INPUT_ASSIGNEMENT` actions + bound mouse codes), the
+      probe chain is reordered (safe blocks first: cards → exclude → souls →
+      bank → input) with `SKA2|probe|<name>=done` checkpoints, and the fake
+      engine in `mod_smoketest.py` now **raises** on unconfirmed ids exactly
+      like the game (the old fake returned `false`, which is why 33/33 passed
+      while the game died). Verified by re-injecting the run-4 bug: the
+      harness fails with the live error. Parser 37/37 (crash detection included), smoke 36/36.
+- [ ] **Owner live-run Build 6** — confirm the game boots and plays; verify
+      Dev panel actions, mod-menu button-ID detection/Back/legend, bank
+      persistence, and collect the `SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`,
+      `SKUI|` probes **in play** (run 4 proved the load-time harvest works;
+      the runtime traces were never reached). Update `notes/map.md` from that
+      log. Fake-SUGAR results are not game evidence.
+- [ ] **Panel cheat actions are still unverified engine calls** — `pick({team=0})`
+      + `add_card`, `inc_ammo(3)`, `new_piece(type,false,sq)`, `hit`-based God
+      Mode. They are click-gated, run only on owner action, and the probe chain
+      completes at load, so a bad one costs a run but never the harvest. Ask
+      the owner to click them one at a time (see INSTALL step 5) so the failing
+      control is identifiable; fold the real signatures back in afterwards.
 - [ ] **Finish Phase 2c after probes** — implement damage multipliers only
       after the `SKD|` trace proves a safe hook; fix any mod-menu false
       positives/false negatives found in the live run.
+- [ ] **Extra-mouse-button binding — isolated experiment (run-4 finding).**
+      The only mouse ids the engine publishes are `m:lb`, `m:rb`, `m:mb`
+      (+ `m:x`/`m:y` axes); mouse4/mouse5/wheel appear nowhere, and a wrong
+      `defbtn`/`btn` id may be fatal. Do NOT blind-probe. Design: a separate
+      opt-in build that tries ONE candidate binding per boot (config-bank
+      switched), documented as crash-tolerant, so a failure costs one run
+      instead of a whole feature cycle.
 - [x] **Mod-menu Back + white/black legend code added** (owner ask run 3,
       confirmed 2026-10-04) — native `mk_text_but` widgets are attached by
       the `mk_menu_but` additive hook when a MODLIST-entry ID is recognized;
-      still needs the Build-5 live run to verify actual IDs and navigation.
+      still needs the Build-6 live run to verify actual IDs and navigation.
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
@@ -108,30 +135,34 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
 - [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — strips the game's
-      `  . `/` !! ` prefix; parses legacy build-4 and Build-5 prefixes
-      (`SKCF|/SKOF|/SKS|/SKD|/SKI|/SKUI|`) into the draft; selftest 31/31,
-      including a `!! ` warning-prefix regression.
-- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 5
+      `  . `/` !! ` prefix; parses legacy build-4 and Build-6 prefixes
+      (`SKCF|/SKOF|/SKS|/SKD|/SKI|/SKUI|`) into the draft, plus crashed logs
+      and `SKA2|probe|<name>=done` checkpoints (`probe blocks completed` +
+      a crash-location warning); selftest 37/37, including a `!! `
+      warning-prefix regression and a crashed-chain case.
+- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 6
       in a fake SUGAR env under BOTH `all()` semantics, fires hooks and native
-      button callbacks, then checks parser output; 33/33 per mode on default
-      Lua and LuaJIT 2.1.
+      button callbacks, then checks parser output; 36/36 per mode on default
+      Lua and LuaJIT 2.1. The fake `btn()` now models the engine's fatal
+      unknown-id path (and self-checks that it does).
 - [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
       game (load proof, 920 globals, hooks, 47 events, object dumps)
 - [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4, **live-proven
       run 2**: MODLIST dump (`SKM|` 14 entries), card id map (`SKC|` 186 cards);
       the `SKML|` in-log probe never fired (`loadfile` absent from the mod env)
       but `-GetInsights` harvested the real `mods/modlist.lua` instead
-- [x] **Build 5 script + tool support** — native-button dev controls, menu
-      helper hook, post-READY `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes; sandbox
-      tested only, explicitly pending the owner's live run.
-- [x] **Promoted code map** — `notes/map.md` now folds in live runs 1–3 and
-      vendored mod patterns, with unknown/owner-reported facts labeled and
-      Build-5 probe gaps called out.
+- [x] **Build 5/6 script + tool support** — native-button dev controls, menu
+      helper hook, post-READY `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes; build 5
+      ran live and crashed (run 4), build 6 is the evidence-gated fix.
+- [x] **Promoted code map** — `notes/map.md` now folds in live runs 1–4 and
+      vendored mod patterns, with unknown/owner-reported facts labeled, the
+      `btn()` fatal contract documented, and the remaining runtime gaps called
+      out.
 - [x] **Save codec no-argument selftest** — `python tools/save_codec.py
       --selftest` now runs two built-in parser+container roundtrips; optional
       `[savedir]` adds real `.sav` text roundtrips; current result 2/2.
 - [x] **sk-rework cover art** — replaced the gray placeholder with custom
-      320×180 pixel-art crown/shells/Build-5 title.
+      320×180 pixel-art crown/shells "DEV PANEL + INTEL" title.
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
 - [ ] **Waitlist (after core features work first):** zero-argument auto-file
@@ -146,7 +177,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
-## ❓ Live-test answers (runs 1–3) + Build-5 questions (2026-10-04)
+## ❓ Live-test answers (runs 1–4) + Build-6 questions (2026-10-04)
 
 1. ~~Do plain mods receive `on_*` callbacks?~~ **No.** `on_*`/`upd` never
    fired during real gameplay; `append()` is the only proven hook. (Build 4
@@ -166,9 +197,50 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    those 186 + 9 special keys (bleed, cloak, grenade, jump, leader, line,
    mission, orb, Unfaithful Steed) = 195. `make_100pct_save.py` now writes
    exactly that set. The owner reports 10 `special=` ability cards (including
-   Unjust Decree); the full card-field dump is pending Build-5 `SKCF|`.
+   Unjust Decree); **run 4 confirmed exactly 10 `special=` cards** and dumped
+   every field of all 186 cards (see `notes/map.md` run-4 section).
+5. ~~What is the input/button space?~~ **Mostly answered run 4, with a
+   landmine attached.** Valid named actions come from `INPUT_ASSIGNEMENT`
+   (validate/cancel/shoot/special/reload/unsafe) and `unsafe`/`cancel`/`ctrl`
+   are callable; mouse ids are only `m:lb`, `m:rb`, `m:mb` (+`m:x`/`m:y`
+   axes). **Any other `btn()` string is fatal** — that is what killed build 5.
+   Still open: whether `defbtn` accepts mouse4/mouse5-style codes at all
+   (needs the isolated one-candidate-per-boot experiment, see the queued item
+   above).
+6. **Build 6 must answer (needs gameplay, not just boot):** does the Dev panel
+   actually render/respond (`SKUI|panel|`), does the mod-menu Back/legend
+   attach to the real menu button ID (`SKI|menu_button|`, `SKI|menu_but|`),
+   does the bank persist across boots (`SKUI|bank|magic=505`), and does the
+   damage trace (`SKD|`) show the hit/bullet route during a real shot?
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-04 (session 8 — run 4 absorbed; boot crash fixed as Build 6):**
+- 🔴 **Run 4 (build 5) crashed the game at boot** — `ERR Button left for player
+      0 doesn't exist.` at `script.lua:817`: the input probe called `btn()`
+      with unconfirmed names, and SUGAR makes a malformed input id fatal (no
+      pcall exists in the mod sandbox). Both crash logs share the exact trace;
+      the intro/no-intro difference was just timing.
+- ✅ **Harvest before the crash absorbed**: 186 cards fully fielded (3353
+      `SKCF|` lines), EXCLUDE pairs, 14 piece definitions, 25 offer candidates,
+      the 63-name live API surface (incl. the whole soul/scepter family), and
+      the input dump. Promoted into `notes/map.md` + regenerated
+      `notes/game-map-draft.md`.
+- ✅ **Build 6 = evidence-gated input probe**: `btn*()` only with ids the live
+      game published (`validate/cancel/shoot/special/reload/unsafe`, `ctrl`,
+      `m:lb/m:rb/m:mb`); probe chain reordered (cards → exclude → souls → bank
+      → input) with `SKA2|probe|<name>=done` checkpoints; crash-fix documented
+      in the script header and info.lua.
+- ✅ **Regression proof**: re-injecting the run-4 bug into `script.lua` now
+      fails the smoke test with the live error message ("Button left for
+      player 0 doesn't exist"), because the fake `btn()` raises like the real
+      engine instead of returning `false`. Parser 37/37 (incl. crashed-chain
+      warning); smoke 36/36 × both `all()` semantics × default Lua + LuaJIT.
+- ✅ Owner doc note applied: mod-menu location now simply says "click Play"
+      (no title-screen/main-menu contrast) in README/INSTALL/HANDOFF/map/
+      mod-dev.
+- ⏭ Next: owner live-run Build 6 **in play** (runtime traces were never
+      reached in run 4).
 
 **2026-10-04 (session 7 — Build 5 code + map/tooling refresh):**
 - ✅ Build 5 Phase-2c panel and §0.7 `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes

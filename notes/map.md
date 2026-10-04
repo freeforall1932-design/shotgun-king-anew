@@ -4,11 +4,12 @@
 (custom Lua engine by Rémy Devaux — NOT Godot; runtime version from live logs,
 see PLANNING.md §0.5) · **Scripting:** LuaJIT 2.1 / Lua 5.1.
 
-**Status: live-verified runs 1–3 + vendored-mod cross-referenced.** Build-5
-probes are implemented and sandbox-tested, but not yet run by the owner in-game;
-all new runtime claims stay provisional until that live log arrives. Sources:
-`notes/game-map-draft.md`, `live testing result/SUMMARY.md`, and the 13 mods in
-`dist-overlay/mods/` (`notes/mods.md`).
+**Status: live-verified runs 1–4 + vendored-mod cross-referenced.** Run 4
+(2026-10-04, build 5) harvested the full card/piece/soul dump but **crashed at
+load** in the input probe — root cause and the permanent safety rule are in
+§"Input, UI & Persistence" below. Build 6 fixes it and is pending a new live
+run. Sources: `notes/game-map-draft.md`, `live testing result/SUMMARY.md`, and
+the 13 mods in `dist-overlay/mods/` (`notes/mods.md`).
 
 ---
 
@@ -133,14 +134,41 @@ firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
 
 ## Input, UI & Persistence (`btn`, `mk_text_but`, `mk_menu_but`, `newbnk`)
 
-- **Input API:** `defbtn(name, player_idx, key_spec)` is used by Glacies
-  Collection (e.g. `defbtn("…", 0, "k:grave")`); `btn(name)`, `btnp(name)`,
-  `btnr(name)` query named inputs. Live globals include `MOUSE`,
-  `INPUT_ASSIGNEMENT`, `SHOOT_BUTTON`, `RELOAD_BUTTON`, `SPECIAL_BUTTON`,
-  `CONFIRM_BUTTON`, `mx`, `my`, `mcl`, `mcr`, and `mlb`; mouse4/mouse5/wheel
-  availability to `btn()` is still unverified. Build-5 `SKI|` samples these
-  tables/values, captures the native `but` table by observing `add()` inside
-  `mk_menu_but`, and probes conservative candidate names.
+- 🛑 **`btn()` IS A LANDMINE — live-proven, run 4 (build 5 crashed the game at
+  load).** `btn(name)` / `btnp` / `btnr` accept (a) named actions the game has
+  registered and (b) input ids of the form `[k/m/c]:[key/button/[axis:direction]]`.
+  Any other string falls through to the input-id parser and its failure is
+  **FATAL**: the game logs `!! Not recognizing button '<x>'…`, `!! Malformed
+  input id '<x>'…`, then `ERR Button <x> for player 0 doesn't exist.` and quits
+  ("Quitting required"). There is **no pcall in the mod sandbox**, so a wrong
+  probe cannot be caught — it ends the run. Never call `btn*()` with a string
+  that a live dump has not already published. Run 4 died on `btn("left")`
+  (`modded/sk-rework/script.lua:817`); `btn("left"/"right"/"middle"/"mouse4"/
+  "wheel"…)` are exactly the unsafe class.
+- **Confirmed callable (non-fatal) named buttons:** `unsafe`, `cancel`,
+  `ctrl` (all returned `false` at load in run 4), plus the registered actions
+  from the live assignment dump: `validate`, `cancel`, `shoot`, `special`,
+  `reload`, `unsafe`.
+- **`INPUT_ASSIGNEMENT` is a formatted STRING** (not a table), dumped live as:
+  `validate> c:a, m:lb` · `cancel> c:b, k:escape` · `shoot> c:rtrigger` ·
+  `special> c:x, m:rb` · `reload> c:y, k:space` · `unsafe> c:ltrigger, k:lshift` ·
+  `mx> m:x` · `my> m:y` · `lb> m:lb` · `rb> m:rb` · `mouse_move> m:x, m:y` ·
+  `mouse> m:lb, m:rb, m:mb, k:escape, k:return, k:space, k:lshift, k:lalt, k:ralt` ·
+  `ctrlr> c:lstick:left … c:lshoulder`. It is the authoritative list of what
+  the running game answers to.
+- **Mouse code space published by the engine: `m:lb`, `m:rb`, `m:mb`
+  (+ `m:x`, `m:y` axes).** No mouse4/mouse5/wheel ids appear anywhere in the
+  live dump. Binding the owner's two side buttons is therefore **unproven** and
+  must be attacked as a deliberate, isolated experiment (a build that tries one
+  candidate binding on its own, restartable) — never as a blind load-time
+  probe. Phase-4 remap design: offer confirmed codes first; treat extra buttons
+  as experimental until a run proves they exist.
+- `MOUSE` is a **boolean** (`true`), not a table; `mx`, `my`, `mcl`, `mcr`,
+  `mlb` are `nil` at load (per-frame values). `SHOOT_BUTTON=RT`,
+  `RELOAD_BUTTON=Y`, `SPECIAL_BUTTON=X`, `CONFIRM_BUTTON=A`, `SNAP_KEY=k:f1`.
+- `defbtn(name, player_idx, key_spec)` exists live (Glacies uses
+  `defbtn("…", 0, "k:grave")`) — but see the landmine: a bad `key_spec` may be
+  just as fatal. Only pass codes copied from the live dump.
 - **Native UI:** live globals include `mk_text_but(x, y, w, label, fn)`,
   `mk_but(x, y, w, h, fn)`, `mk_menu_but(id, x, y, w, h)`, and
   `mk_hint_but(x, y, w, h, text, colors)`. Royal Card Lab modes use
@@ -171,13 +199,15 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ## Open questions / next intel steps
 
-**Build 5 status (2026-10-04):** the code-map promotion and sandbox-tested
-`sk-rework` Build 5 are in the repository; no Build-5 game log has been
-harvested yet. The next owner run is needed to validate offer filtering
-(`SKOF|`), all live card fields/EXCLUDE (`SKCF|`), soul/scepter objects and
-activation (`SKS|`), damage application (`SKD|`), input/button names (`SKI|`),
-and menu-ID detection/config persistence (`SKUI|`). Do not promote results
-from the fake SUGAR smoke test as game facts.
+**Build 6 status (2026-10-04):** run 4 harvested the full load-time probe
+chain (cards, EXCLUDE, pieces, souls, offer candidates — see the run-4 section
+below) and then crashed in the `btn()` probe; build 6 fixes that probe and adds
+per-block checkpoints. The **next owner run must happen in play**, because
+everything runtime-only is still unobserved: `SKD|` damage traces (fire/hit),
+`SKOF|` live offer rolls, `SKS|` soul/scepter activation, `SKI|menu_button/`
+`menu_but` IDs (mod-menu detection + Back/legend), Dev-panel clicks, and
+`SKUI|bank` config persistence. Do not promote results from the fake SUGAR
+smoke test as game facts.
 
 1. ~~game archive incomplete~~ → **SOLVED 2026-10-03**: all 4 parts uploaded,
    extracted (see changelog). Game copy analyzed; full file list in
@@ -221,6 +251,53 @@ from the fake SUGAR smoke test as game facts.
    Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod.
 
 ---
+
+## Live-verified facts — run 4 (2026-10-04, build 5, v1.623b)
+
+The load-time probe chain ran to completion for cards/EXCLUDE/pieces/souls/
+offers, then the run died in the input probe (see the btn() landmine above).
+Everything below is from the real game, not the smoke test.
+
+- **Full live API surface — `gimme("global")` intersects the planned list at
+  63 names**, including the whole gameplay-API set the §0.7 features need:
+  `inc_ammo`, `give_ammo`, `reload`, `pick`, `add_any_card`, `level_up`,
+  `is_card_available`, `fire`, `mk_bullet`, `hit`, `ev_hit`, `xpl`,
+  `add_soul`, `activate_soul`, `add_soul_slot`, `remove_soul_slot`,
+  `exhaust_soul`, `add_scepter`, `activate_scepter`, `recal_scepters`,
+  `get_scepter`, `newbnk`, `bget`, `bset`, `defbtn`, `btn`, `btnp`, `btnr`,
+  `mk_text_but`, `mk_but`, `mk_menu_but`, `EXCLUDE`, `PIECES`, `TEST_SOULS`,
+  `MOUSE`.
+  **Absent (5):** `append`, `prepend`, `gimme` (mod-env functions, never in
+  the global list), `savbnk` (bank saving is the engine's automatic
+  `save/mods/sk-rework.sav` write — run 4's exit did write that file), and
+  `scepters` (not a global; scepter state is reached through the scepter
+  functions above — it is only in `gimme("replaceable")`).
+- **Cards: 186, every field dumped** (`SKCF|`, 3353 lines — full dump in
+  `notes/game-map-draft.md`). The `special=` (right-click ability) set is
+  exactly **10 cards**: `strafe` Royal Loafers · `scope` Engraved Scope ·
+  `decree` Unjust Decree · `grenade` Kingly Alms, Philanthropy, Indelible
+  Memories, Sacred Light, Guerilla Tactics · `orb` Seer's Orb · `dig` Shovel —
+  confirming the owner's count and the cap-removal probe target. Other card
+  fields seen: `wand` (table; the Wand-* family), `soul_slot` (1/2),
+  `need_soul` (1/2), `pwe`, `gid`, `ext`, `sac`, `gain`, `need`, `need_card`,
+  `need_tag`, `exclude_tag`, `tags`, `team`, `terrorism`, `ammo_max`.
+- **Offer-eligible candidates** (`SKOF|` at load): 25 cards carrying
+  `special`/`wand`/`soul_slot`/`need_soul` — e.g. Majestic Censer (`soul_slot=1`),
+  Sacred Crown (`need_soul=1`), Possessed (`soul_slot=2`), Gradual Absolution
+  (`need_soul=2`), the Wand family (`wand=tbl`). These are the cards a
+  free-choice picker must respect.
+- **Pieces: 14 live definitions** (`SKS|piece_*`), fields `type`, `name`,
+  `hp`, `tempo`, `danger`, `seek` (`wdist`/`kdist`), `reap`, `sided`, `hdy`,
+  `index`, and a `behavior` table of vectors (`{native=1, move=1, id="line"}`,
+  `{native=1, atk=1, …}`). This is the schema the ally-summon and soul-piece
+  features must construct.
+- **`TEST_SOULS` exists but is empty at load** (`fields_shown=0`) and
+  `hero.free_souls` is a live field — soul contents are runtime state; the
+  `SKS|` activation hooks (never reached in run 4) are the live path.
+- `MOUSE=true` (boolean) and `INPUT_ASSIGNEMENT` is a formatted string — see
+  the input section for the full text.
+- **Damage/bullet path: still unobserved.** No `SKD|` line was ever emitted
+  (run 4 never reached gameplay). Damage multipliers stay gated.
 
 ## Live-verified facts — live tests 1–3 (2026-10-03, builds 3–4, v1.623b)
 
@@ -283,7 +360,7 @@ OBSERVED facts — prefer them over anything guessed above.
   active, priority_hint, author, cover, desc, num, here, exists, id,
   script, modes, langs, mode_description, mode_record`. `priority_hint`
   comes from info.lua; `num` = menu position; `here` = folder present.
-- In-game mod menu: NOT on the title screen — **Play → top entry**. **Black
+- In-game mod menu: click **Play** — top entry. **Black
   text = OFF, white text = ON** (click toggles; survives restarts);
   up/down arrows = load priority (override order), renumbering is cosmetic.
 - Title bar with an active mod: `MODDED: ON - ACHIEVEMENTS: OFF` = *Steam*
