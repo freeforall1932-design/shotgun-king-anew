@@ -35,7 +35,7 @@
 ## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
 
 > **Where this work happens:** these specs are implemented via the queue in
-> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 5 first**
+> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 6 first**
 > (Phase 2c cheat panel + mod-menu legend/Back button + the §0.7 intel
 > probes — offer roll, full card fields, scepters, soul flow, damage point,
 > input space), then the cap removal + bindings, card picker, soul deck,
@@ -64,9 +64,11 @@
    buttons + optional middle/wheel click ≈ 3–4 simultaneously bound,
    reassignable via the remap menu; more abilities than buttons →
    swap/cycle UI. **Scepter cap (3): owner said relax it too** — scepters
-   unify into the same dynamic active-ability pool. Build-5 probe still
-   dumps all card fields + the `scepters` global (what scepters are and
-   how they activate is still unknown). Goal: own MULTIPLE right-click
+   unify into the same dynamic active-ability pool. Run 4 showed `scepters`
+   is not a global (only replaceable) and that the scepter API is
+   `add_scepter`/`activate_scepter`/`recal_scepters`/`get_scepter`; build 6
+   traces those calls so what scepters are/how they activate stops being a
+   guess. Goal: own MULTIPLE right-click
    abilities + pick which one each button triggers (remap-menu binding /
    SPECIAL_BUTTON interception).
 8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a

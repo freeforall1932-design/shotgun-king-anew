@@ -151,6 +151,41 @@
     the common `. ` info prefix but missed the actual `!! ` warning prefix; a
     regression case now requires warning-wrapped `SKG|` lines to parse (31/31).
 
+## 2026-10-04 — Session 8 (run 4 absorbed; the crash that taught the rule)
+
+29. **A crash became the best documentation in the repo.** Build 5 died at boot
+    (`btn("left")` → fatal engine error), but the load-time harvest had already
+    completed: all 186 cards field-by-field, 14 piece schemas, 25 offer
+    candidates, the 63-name live API surface (including the entire soul/scepter
+    family nobody was sure existed), and the input dump. The fix and the
+    promotion happened in the same session as the failure — no round trip
+    wasted.
+30. **"Nothing hardcoded that can't be confirmed" became a mechanical rule.**
+    The owner's design principle turned into a concrete safety contract in the
+    code (a comment block naming the fatal path), in map.md (a 🛑 section with
+    the exact error text), in mod-dev.md, and in HANDOFF — because the failure
+    mode is un-`pcall`-able and costs a live run every time it is forgotten.
+31. **The fake engine now fails like the real one — the test that should have
+    caught this.** `mod_smoketest.py` used to return `false` for any `btn()`
+    call, so 33/33 passed while the game quit. It now raises on unconfirmed ids,
+    logs the engine's own `!!` messages, and self-checks that `btn("left")`
+    still raises. Re-injecting the run-4 bug produces the exact live error
+    string — the regression is proven by construction, not by assertion.
+32. **Crashed logs now parse *and* say they crashed.** `parse_log.py` gained
+    crash detection: `ERR` message, the tab-indented traceback, `Quitting
+    required`, and a highlight of the frame inside a mod — so a draft generated
+    from a dead run can never again look like a successful harvest (that
+    mistake was made once, by hand, when reading run 4).
+33. **Probe chains are checkpointed and ordered safe-first.** The blocks now
+    run cards → exclude → souls → bank → input, each ending with
+    `SKA2|probe|<name>=done`. When the next failure happens, the log itself
+    pinpoints the block and the draft lists exactly which blocks completed.
+    Run 4 lost the bank/input data purely because nothing marked the boundary.
+34. **The owner's wording note was treated as a bug, not a style nit.** "It
+    should simply point to the play button" — every mention of the mod-menu
+    location in README/INSTALL/HANDOFF/map/mod-dev now says *click Play*, with
+    no title-screen or main-menu contrast anywhere.
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)

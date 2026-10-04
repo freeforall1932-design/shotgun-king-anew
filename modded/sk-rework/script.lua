@@ -1,7 +1,19 @@
--- SK-REWORK build 5 — Phase 2c Dev Panel + §0.7 live probes
+-- SK-REWORK build 6 — Phase 2c Dev Panel + §0.7 live probes
 -- =====================================================================
+-- Build 5 was run live on 2026-10-04 (run 4) and CRASHED AT BOOT: the input
+-- probe called btn("left") on a name the engine does not know, which falls
+-- through to the input-id parser and is a FATAL game error ("Button left for
+-- player 0 doesn't exist", script.lua:817). Build 6 fixes that:
+--   * btn() is only ever called with strings the running game has already
+--     published (named buttons from INPUT_ASSIGNEMENT + the bound mouse
+--     codes). Unknown ids are never blind-probed — there is no pcall here.
+--   * probe blocks are reordered (safe blocks first) and each one logs a
+--     completion marker, so one failure can no longer hide the rest.
+-- Everything else from Build 5 is unchanged (live evidence in run 4: the
+-- card/piece/soul/offer harvest below ran to completion before the crash).
+-- ---------------------------------------------------------------------
 -- Build 4 was live-proven (runs 1–3): load proof, MODLIST/CARDS map, and
--- five append() hooks. Build 5 keeps that harvest and adds the queued work:
+-- five append() hooks. Build 6 keeps that harvest and adds the queued work:
 --   * Native-button Dev panel: +ammo, a random eligible card, summon ally,
 --     and a God Mode toggle. Settings use the standard per-mod bank API.
 --   * Mod-menu legend + Back button, attached only when a menu button ID
@@ -13,14 +25,17 @@
 --
 -- Safety rules:
 --   * No pcall/loadfile. Every value is nil/boolean-safe via sv().
+--   * ENGINE CALLS TAKE ONLY CONFIRMED ARGUMENTS. A wrong argument to some
+--     engine functions is fatal and unrecoverable (run 4: btn("left")).
 --   * No global on_* or upd dispatcher. Engine integration is append() /
 --     prepend() only; `e.upd` is not used.
 --   * Probe loops and output are capped. Static §0.7 probes run only after
---     the READY marker so their failure cannot hide the load verdict.
+--     the READY marker so their failure cannot hide the load verdict, and
+--     every block ends with an SKA2|probe|<name>=done checkpoint.
 --   * The gameplay buttons are opt-in. No gameplay code runs unless clicked.
 -- =====================================================================
 
-local BUILD = 5
+local BUILD = 6
 local CAP_FIRST = 30
 local CAP_EVERY = 25
 local MAX_FIELDS = 16
@@ -752,6 +767,7 @@ if type(CARDS) == "table" and type(all) == "function" then
 	end
 end
 log("SK-REWORK: SKC count=" .. sv(card_count))
+log("SKA2|probe|cards=done")
 
 if type(EXCLUDE) == "table" and type(all) == "function" then
 	local ex_count = 0
@@ -765,6 +781,7 @@ if type(EXCLUDE) == "table" and type(all) == "function" then
 	end
 	log("SKCF|__EXCLUDE__|count=" .. sv(ex_count))
 end
+log("SKA2|probe|exclude=done")
 
 -- Soul, scepter, and piece schemas; no game state is altered.
 if type(PIECES) == "table" and type(all) == "function" then
@@ -789,7 +806,58 @@ if type(hero) == "table" then
 	log("SKS|hero|free_souls=" .. sv(hero.free_souls) .. "|hp=" .. sv(hero.hp))
 end
 
--- Input/button ecosystem. These btn() names are probes only, not bindings.
+log("SKA2|probe|souls=done")
+
+-- Persistence probe and configuration read. Runs BEFORE the input probe
+-- because it is safe and its data was lost when run 4 crashed later in the
+-- chain (no SKUI|bank line ever reached the log).
+if type(newbnk) == "function" and type(bget) == "function" and type(bset) == "function" then
+	newbnk(128, 64, 4)
+	bank_ready = true
+	local magic = bget(0, 0)
+	if magic == 505 then god_mode = (bget(1, 0) == 1) end
+	log("SKUI|bank|ready=true|magic=" .. sv(magic) .. "|god_mode=" .. sv(god_mode))
+else
+	log("SKUI|bank|ready=false")
+end
+if type(defbtn) == "function" then
+	log("SKI|defbtn_api=available")
+else
+	log("SKI|defbtn_api=unavailable")
+end
+log("SKA2|probe|bank=done")
+
+-- Input/button ecosystem. SAFETY CONTRACT (learned the hard way in run 4):
+-- btn(<unknown>) is NOT a harmless false — it falls through to the engine's
+-- input-id parser and a malformed id is a FATAL error that quits the game
+-- ("ERR Button left for player 0 doesn't exist"; no pcall exists here).
+-- Therefore btn() may only ever be called with strings the running game has
+-- already published itself:
+--   * named buttons seen live in INPUT_ASSIGNEMENT: validate cancel shoot
+--     special reload unsafe — plus ctrl/unsafe/cancel, which run 4 already
+--     confirmed return false without error.
+--   * mouse codes bound in that same live dump: m:lb, m:rb, m:mb.
+-- Anything else (left/right/middle/mouse4/mouse5/wheel/...) must NOT be
+-- probed until a live dump confirms it. If the button space ever looks
+-- different, this list is updated from evidence, never guessed.
+local CONFIRMED_BTN_NAMES = {"validate", "cancel", "shoot", "special", "reload",
+	"unsafe", "ctrl"}
+local CONFIRMED_BTN_CODES = {"m:lb", "m:rb", "m:mb"}
+local btn_probed = 0
+if type(btn) == "function" then
+	for _, name in ipairs(CONFIRMED_BTN_NAMES) do
+		log("SKI|btn|" .. name .. "=" .. sv(btn(name)))
+		btn_probed = btn_probed + 1
+	end
+	for _, code in ipairs(CONFIRMED_BTN_CODES) do
+		log("SKI|btncode|" .. code .. "=" .. sv(btn(code)))
+		btn_probed = btn_probed + 1
+	end
+	log("SKI|input|probed=" .. sv(btn_probed) .. "|source=confirmed_list|status=done")
+else
+	log("SKI|input|probed=0|btn_api=missing")
+end
+
 local input_globals = {"MOUSE", "INPUT_ASSIGNEMENT", "SHOOT_BUTTON", "RELOAD_BUTTON",
 	"SPECIAL_BUTTON", "CONFIRM_BUTTON", "SNAP_KEY", "mcl", "mcr", "mlb", "mx", "my"}
 for _, gname in ipairs(input_globals) do
@@ -809,29 +877,6 @@ for _, gname in ipairs(input_globals) do
 	if type(gv) == "table" then dump_fields(gname, gv, 24, "SKI")
 	else log("SKI|global|" .. gname .. "=" .. sv(gv)) end
 end
-if type(btn) == "function" then
-	local btn_candidates = {"unsafe", "cancel", "ctrl", "left", "right", "middle",
-		"mouse1", "mouse2", "mouse3", "mouse4", "mouse5", "wheel", "wheelup",
-		"wheeldown", "special", "shoot", "reload", "confirm"}
-	for _, name in ipairs(btn_candidates) do
-		log("SKI|btn|" .. name .. "=" .. sv(btn(name)))
-	end
-end
-
--- Persistence probe and configuration read happen last, after the harvest.
-if type(newbnk) == "function" and type(bget) == "function" and type(bset) == "function" then
-	newbnk(128, 64, 4)
-	bank_ready = true
-	local magic = bget(0, 0)
-	if magic == 505 then god_mode = (bget(1, 0) == 1) end
-	log("SKUI|bank|ready=true|magic=" .. sv(magic) .. "|god_mode=" .. sv(god_mode))
-else
-	log("SKUI|bank|ready=false")
-end
-if type(defbtn) == "function" then
-	log("SKI|defbtn_api=available")
-else
-	log("SKI|defbtn_api=unavailable")
-end
+log("SKA2|probe|input=done")
 log("SKA2|loadfile=" .. (type(loadfile) == "function" and "yes" or "no"))
 log("SK-REWORK: PROBE done build=" .. sv(BUILD))
