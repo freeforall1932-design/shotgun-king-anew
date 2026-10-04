@@ -68,6 +68,14 @@ mod on/off and used save-and-reboot.
    damage + crit chance, pierce auto-crits
 5. **Full button-remap menu** (§0.7.9) + **mod-menu Back button** (§0.7.10)
 
-Next step: **sk-rework build 5** — Phase 2c cheat panel + legend + Back
-button + the probes that pin every remaining unknown (offer roll, full
-card fields, scepters, soul flow, damage application, mouse buttons).
+## Current follow-up status (2026-10-04, session 7)
+
+Build 5 code is now present in `modded/sk-rework/`: native-button Dev panel,
+MODLIST-ID-gated Back/legend helper, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes.
+The parser and fake-game test were updated (parser 31/31; smoke 33/33 under
+each `all()` semantics), but **none of this is a live-game result yet**.
+Damage-multiplier controls remain gated until the hit route is observed.
+
+Next step: apply Build 5, play a short run, collect `log.txt` with
+`apply.ps1 -GetInsights`, and use that output to validate panel/menu behavior
+and promote only confirmed probe results into `notes/map.md`.

@@ -1,13 +1,14 @@
 # notes/map.md — code map of Shotgun King
 
-**Game version:** v1.623b (from owner's archive name) · **Engine: SUGAR v0.0.6b**
-(custom Lua engine by Rémy Devaux — NOT Godot; correction 2026-10-03, see
-PLANNING.md §0.5) · **Scripting:** Pico-8-flavored Lua (no full stdlib)
+**Game version:** v1.623b (from owner's archive name) · **Engine: SUGAR v0.0.8f**
+(custom Lua engine by Rémy Devaux — NOT Godot; runtime version from live logs,
+see PLANNING.md §0.5) · **Scripting:** LuaJIT 2.1 / Lua 5.1.
 
-**Status: pre-source.** Everything below comes from the official modding guide
-(uploads/modding-guide/) and the 13 workshop mods (notes/mods.md). Re-verify
-against actual game scripts once the full game archive arrives (parts 1–3
-missing; see README to-do).
+**Status: live-verified runs 1–3 + vendored-mod cross-referenced.** Build-5
+probes are implemented and sandbox-tested, but not yet run by the owner in-game;
+all new runtime claims stay provisional until that live log arrives. Sources:
+`notes/game-map-draft.md`, `live testing result/SUMMARY.md`, and the 13 mods in
+`dist-overlay/mods/` (`notes/mods.md`).
 
 ---
 
@@ -15,68 +16,146 @@ missing; see README to-do).
 
 | Source | Location | Contents |
 |---|---|---|
-| Modding guide (by the dev) | `uploads/modding-guide/README.md` | info.lua format, custom cards/pieces/modes, saving, append/prepend, workshop upload |
-| SUGAR engine manual | `uploads/modding-guide/SUGAR_manual.txt` | full engine API (58 KB) |
-| **Vanilla card + piece data** | `uploads/modding-guide/vanilla_stuff/cards_n_pieces.lua` | the full `CARDS` table (gid 0–156, ext 0/1/2) + `EXCLUDE` pairs + piece-related tables |
-| Vanilla modes | `uploads/modding-guide/vanilla_stuff/{chase,endless,throne,tutorial}.lua` | stock game-mode scripts — spawn flow reference |
-| Sample mod | `uploads/modding-guide/sample_mod/` | canonical minimal example (info.lua, script.lua, modes/skirmish.lua, lang/) |
-| Workshop mods | `uploads/mods/extracted/` | 13 real mods; API usage patterns (notes/mods.md) |
+| Live game map draft | `notes/game-map-draft.md` | 920 globals, 41 replaceable, 26 forbidden, 14 MODLIST entries, 186 CARDS entries, live object fields |
+| Workshop mods (vendored) | `dist-overlay/mods/` | 13 real mods; verified API usage patterns (`notes/mods.md`) + full vanilla `CARDS`/`EXCLUDE`/`PIECES` tables in `Shootout/script.lua` |
+| Modding guide (owner machine) | `uploads/modding-guide/` | info.lua format, SUGAR_manual.txt, vanilla mode scripts |
 
-## Ammo / shells (search when source arrives: `ammo`, `shell`, `reload`, `chamber`)
+## Ammo / shells (`ammo`, `chamber`, `grenades`, `stack`)
 
 Known stat fields (vanilla card data): `ammo_max`, `ammo_regen`, `chamber_max`,
 `pawn_shell`, `rook_shell`, `bad_shells`, `spread`, `firepower`, `firerange`,
-`recoil`. Hero stat block (Fairy Endless mode): `{name, chamber_max, firepower,
-firerange, spread, ammo_max, knockback, pierce, blade}`.
+`recoil`. Hero stat block (Fairy Endless / Card Lab): `{name, chamber_max,
+firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
 
-- Where is the shell count stored? → **TBD (need source)**
-- Spend/refill functions? → **TBD** (candidates to wrap: `on_fire`,
-  `new_turn`, `spend_hop`-style spenders)
+- **Runtime count globals (live map + reference usage):**
+  - `ammo` (replaceable global) is the reserve-shell counter: `glacies collection`
+    reads it in conditions and updates it directly for negative ammo effects.
+  - `chamber` (replaceable global) is the loaded-shell counter; `reload(true)`
+    loads one shell and `reload()` performs the standard reload.
+  - `grenades` is a live global; `shields` appears in Glacies effect code, but
+    its storage/replaceable status is not established by the live dump.
+  - `hero.ammo` and `hero.hp` are live-observed fields. Whether `hero.ammo`
+    mirrors reserve `ammo` throughout every state is not yet pinned down.
+- **Spend / refill / stat functions** (`glacies collection/script.lua:1079–1209`):
+  - `give_ammo(from_ent, n)` is used when the effect has a source card/piece;
+    otherwise the same effect calls `inc_ammo(n)`. Negative ammo effects do
+    `ammo = ammo + n` directly.
+  - `reload(true)` loads one shell; `reload()` does a full reload;
+    `add_event(ev_reload, true)` queues the delayed single-shell load;
+    `add_event(ev_reload)` queues the ordinary reload.
+  - `can_reload()`, `need_reload()`, `refill_ammo()` are present in the live
+    global map; exact call contracts need source/runtime confirmation.
+  - **Stat changes:** run-persistent effects use
+    `add(upgrades, { [stat] = val })` then `build_stack()`; floor-temporary
+    effects call `uplift({ [stat] = val })`; turn/shot effects call
+    `boost(stat, val)`. These are reference-mod patterns, not all independent
+    owner-facing cheat APIs.
+- Card data includes caps/modifiers such as `ammo_max`, `ammo_regen`,
+  `chamber_max`, `grenades_max`, `firepower`, `firerange`, `spread`, and
+  `recoil`; each only contributes when the matching card/stack logic is active.
 - Vanilla rules from Better Codex: can't have 0 max ammo; ≤5 soul slots;
   ≤3 scepters; ≤1 right-click ability; no grab+blade combo.
 
-## Cards / perks / drafting (search: `card`, `perk`, `offer`, `pwe`, `codex`)
+## Cards / perks / drafting (`CARDS`, `EXCLUDE`, `level_up`, `get_slot_cards`)
 
-- Data: global `CARDS` table — vanilla copy already in hand (157 cards).
-  Fields: `gid, ext, n (copies), id, pwe (offer weight, default 4), team,
-  played, need/need_card/need_tag/... (requirements), exclude_tag, special,
-  flip_on, wild, gain/sac, delay/cycle/delayed` + effect fields.
-- `EXCLUDE` = mutual-exclusion pairs (e.g. Royal Loafers vs Sawed-off Justice).
-- Functions (from mods): `new_card(id)`, `add_card(ca)`, `init_codex()`,
-  `get_slot_cards()`, `cards.pool`, `flip_card`, `unflip_card`,
-  `check_cards_auto_flip`, `dr_flip_card`, `tear_apart`, `on_card_but_init`.
-- Offer roll location → **TBD** (wrap candidates: `new_level`, `add_card`).
-- Royal Card Lab already implements pick-any-card via wild cards + codex —
-  reuse the pattern.
+- **Data:** global `CARDS` table — 186 cards in v1.623b (`gid` 0–192, `ext` 0–3;
+  base definitions preserved in `dist-overlay/mods/Shootout/script.lua` lines 53–169).
+  Fields: `gid, ext, n (copies), id (display name), pwe (offer weight, default 4),
+  team (0=black, 1=white), played, ignored, need/need_card/need_tag/need_soul/
+  need_chamber_max/need_grenade, exclude_tag, special, wand, flip_on, wild,
+  gain/sac, delay/cycle/delayed` + effect fields.
+- **`EXCLUDE`** = mutual-exclusion pairs (`{"Royal Loafers","Sawed-off Justice"}`,
+  `{"Militia","Bloodless Coups"}`, `{"Guillotine","The Secret Heir"}`,
+  `{"The Red Book","The Royal Hunt"}`, `{"The Red Book","Buckler of Limos"}`).
+- **Right-click abilities (`special=`):** the owner reports 10 vanilla cards
+  (values include `strafe`, `scope`, `decree`, `grenade`, `orb`, `dig`), and
+  live `stack.special` is observed. The checked-in `Shootout/script.lua`
+  contains representative base definitions, but its `special=` entries alone
+  do not account for the full owner-reported set. Build-5 `SKCF|` will dump all
+  live card fields and settle the exact card IDs/count.
+- **Wands / scepters (`wand=`):** the vanilla card table has `wand={...}`
+  definitions (e.g. Downpour `{0,10}`, Frenzy `{1}`, Wrath `{2,"firepower"}`,
+  Wings `{3,3}`, Gust `{4}`, Hypnosis `{5}`). The live map confirms a
+  replaceable global named `scepters` and functions named `add_scepter`,
+  `activate_scepter`, `get_scepter`, `recal_scepters`; their runtime shape,
+  activation arguments, and relationship to `wand=` are **still unverified**
+  (Build-5 `SKS|` probe).
+- **Card/offer functions & flow:**
+  - `new_card(id)`, `add_card(ca)`, `replace_card(old_id, new_id, cb)`,
+    `tear_apart(ca, cb)`, `init_codex()`. Royal Card Lab and disgraced_justice
+    call `get_slot_cards(true)` to enumerate cards currently in owned slots;
+    `card_slots` holds physical slot records `sl.ca` / `sl.team`.
+  - `level_up(data, next_fn)` receives draft config with `choices`/`force`
+    (Nightmare mode reference); `pick({team=...})` selects an eligible card
+    (also used in Nightmare examples), while the exact vanilla offer filters
+    are still unknown. `add_any_card({team=...}, cb)` is used by Royal Card
+    Lab to reopen a choice from the pool. Build-5 `SKOF|` probes `level_up`,
+    `pick`, and `is_card_available` without changing the roll.
 
-## Enemies / spawning / floors (search: `spawn`, `piece`, `floor`, `wave`)
+## Enemies / spawning / floors (`PIECES`, `new_piece`, `spawn_pieces`, `gsq`)
 
-- Functions (from mods): `spawn_pieces`, `new_piece`, `setup_piece`,
-  `new_level`, `end_level`, `opp_turn`, `on_piece_move`, `on_bad_spawn`,
-  `on_bad_death`, `init_squares`, `gsq`, `goto_sq`, `get_range`.
-- Piece stat fields (Fairy Pieces): `<type>_hp`, `<type>_tempo`,
-  `commoner_typ`, etc.; custom pieces get custom movement/attack/draw/debris
-  (game update ≥2026-04).
-- Spawn decision point → **TBD** (`spawn_pieces` prepend is the obvious hook).
+- **Data:** global `PIECES` table (replaceable; 12 vanilla entries `type=0..11`:
+  `0=pawn`, `1=knight`, `2=bishop`, `3=rook`, `4=queen`, `5=king`, `6=boss`,
+  `7=all`, `8=leader`, `9=cannonball`, `10=queen mother`, `11=horseman`; full
+  schema in `Shootout/script.lua` lines 179–245). `PIECES_NAMES[name]` maps a
+  piece name to its entry (`PIECES_NAMES["knight"].type == 1`).
+- **Spawning & conversion (confirmed in `disgraced_justice`):**
+  - `new_piece(type, is_bad, sq)` — spawns piece of `type` on square `sq`
+    (`is_bad = true` for white enemy, `is_bad = false` for black ally!).
+  - `fx_spawn(p)` — spawn animation; `convert(target_p, cb)` — converts an
+    enemy piece to an ally (`target.bad = false; setup_piece(target)`).
+  - `spawn_pieces()` — floor army spawn (`custom_sort` hooks the spawn list).
+- **Board squares:** `squares` global table, `gsq(px, py)` (0..7, 0..7),
+  `is_free(sq)`, `get_free_squares()`, `get_square_at(x, y)`.
 
-## Damage / health / death (search: `damage`, `hp`, `hit`, `xpl`, `die`)
+## Damage / health / death & Bullets (`bullets`, `hit`, `xpl`, `mk_bullet`)
 
-- Events: `on_bad_hurt`, `on_bad_death`, `on_hero_death`, `on_boss_death`,
-  `on_fire`, `on_piece_move`.
-- Functions: `xpl` (piece explosion), `uplift`, `hop_dmg`, `grenade_dmg`,
-  `queen_poison`, `bleed_slow`, `caltrops` (DoT-ish vanilla fields!).
-- Single damage entry point? → **TBD** — once found, `prepend`/`append` it for
-  `damage_taken_mult` / `damage_dealt_mult` (Phase 6).
-- Vanilla already has: `knockback` (0–100), `pierce` (25/30), bleed tags,
-  `recoil`, leech-like `leader_queen_vampire` — Phase 5 is largely
-  *exposing existing internals*, not inventing mechanics.
+- **Bullets (`bullets` global + `mk_bullet`)**: `glacies collection`'s
+  `on_fire()` reads/writes fields including `b.dmg`, `b.pierce`, `b.shot`,
+  `b.vx`, `b.vy`, `b.x`, `b.y`, `b.t`, `b.life`, and `b.upd`; its fragment
+  effect constructs bullets with `mk_bullet(x, y, angle, speed)` and sets
+  damage/pierce. This proves the reference mod relies on those fields, but
+  does **not** prove which engine event applies every bullet hit.
+- **Direct damage helpers** (reference calls): `hit(p, dmg, tags)` is used
+  directly (e.g. aura damage and hook damage); `xpl(p)` explodes/kills a piece;
+  `mode.heal(p, hp)` is provided by Glac Terminal and used by Glacies
+  Collection. `inflict(p, "bleed")` and `stun_piece(p, turns)` also appear in
+  the live global map/reference API. These helpers are confirmed to exist or
+  be used, but `hit()` being the universal bullet/king damage path is **not**
+  established.
+- **Build-5 `SKD|` probes** are configured to hook `fire`, `mk_bullet`, `hit`,
+  `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`, `xpl`, and
+  `xpl_king` when present. They will log post-fire bullet fields and damage
+  arguments; no multipliers/crit logic runs yet. Their output still needs the
+  owner's live run before any insertion point can be called verified.
+- Vanilla card fields include `knockback`, `pierce`, bleed tags, `recoil`,
+  and leech-like `leader_queen_vampire`; numeric meanings are card-specific.
 
-## Debug toolchain (Phase 2) — now mostly "build a mod"
+## Input, UI & Persistence (`btn`, `mk_text_but`, `mk_menu_but`, `newbnk`)
 
-Deliverable = a mod folder (`modded/sk-rework/`) with F-key/debug handling via
-`script.lua`. Study Glac Terminal (modder console) before writing anything.
-`gimme("global")` at runtime lists all game functions — run once with `_log`
-dump to bootstrap this map.
+- **Input API:** `defbtn(name, player_idx, key_spec)` is used by Glacies
+  Collection (e.g. `defbtn("…", 0, "k:grave")`); `btn(name)`, `btnp(name)`,
+  `btnr(name)` query named inputs. Live globals include `MOUSE`,
+  `INPUT_ASSIGNEMENT`, `SHOOT_BUTTON`, `RELOAD_BUTTON`, `SPECIAL_BUTTON`,
+  `CONFIRM_BUTTON`, `mx`, `my`, `mcl`, `mcr`, and `mlb`; mouse4/mouse5/wheel
+  availability to `btn()` is still unverified. Build-5 `SKI|` samples these
+  tables/values, captures the native `but` table by observing `add()` inside
+  `mk_menu_but`, and probes conservative candidate names.
+- **Native UI:** live globals include `mk_text_but(x, y, w, label, fn)`,
+  `mk_but(x, y, w, h, fn)`, `mk_menu_but(id, x, y, w, h)`, and
+  `mk_hint_but(x, y, w, h, text, colors)`. Royal Card Lab modes use
+  `mk_text_but`/`mk_but`; Glac Terminal exposes `on_menu_but_init(but,id)` as
+  a Terminal-dispatched mod callback, but Build 5 uses additive hooks and
+  native `mk_text_but` controls rather than defining a global `on_*` name.
+- **Per-frame/update APIs:** `loop(function() … end)` and entity `mke()` are
+  available in the game, but sk-rework avoids global `upd`/`on_*` dispatchers.
+  Its Build-5 Dev panel is native-button-driven; it does not draw an overlay.
+- **Mod-specific persistent settings:** Royal Card Lab uses
+  `newbnk(128,64,4)` + `bget`/`bset`/`savbnk()`; Nightmare mode demonstrates
+  a `SAVE.nightmare` preference table. Build 5 uses the bank pattern for its
+  God Mode toggle if those functions exist. The game also writes
+  `save/mods/<mod>.sav` + registry; direct `SAVE.<mod>` usage is mode-specific,
+  not yet confirmed as a universal script API.
 
 ## Introspection cheat-sheet
 
@@ -92,14 +171,22 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ## Open questions / next intel steps
 
+**Build 5 status (2026-10-04):** the code-map promotion and sandbox-tested
+`sk-rework` Build 5 are in the repository; no Build-5 game log has been
+harvested yet. The next owner run is needed to validate offer filtering
+(`SKOF|`), all live card fields/EXCLUDE (`SKCF|`), soul/scepter objects and
+activation (`SKS|`), damage application (`SKD|`), input/button names (`SKI|`),
+and menu-ID detection/config persistence (`SKUI|`). Do not promote results
+from the fake SUGAR smoke test as game facts.
+
 1. ~~game archive incomplete~~ → **SOLVED 2026-10-03**: all 4 parts uploaded,
    extracted (see changelog). Game copy analyzed; full file list in
    `notes/data-sgr-filelist.txt`.
 2. `data.sgr` (79 MB) is a compressed/encrypted SUGAR package — no public
    format docs (SUGAR engine is not open-source; only `sugarcoat`, a Lua
    interface for Castle/Love2D, is). **Decision: don't crack it.** We get the
-   same intel at runtime via a debug mod (`gimme("global")` + `_log`) — that's
-   Phase 2's first deliverable anyway.
+   same intel at runtime via the live diagnostic mod (`gimme("global")` +
+   `_log`); the Build-5 follow-up probes now cover remaining feature unknowns.
 3. **SAVE FORMAT FULLY CRACKED 2026-10-03** (see tools/save_codec.py):
    `save/*.sav` = `[4-byte BE plaintext length][zlib stream]`; payload is
    PUNKCAKE serializer text (`PUNKCAKE\nt{ ... }\nFOREVER`; types: t table,
@@ -135,7 +222,7 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ---
 
-## Live-verified facts — live tests 1 & 2 (2026-10-03, builds 3–4, v1.623b)
+## Live-verified facts — live tests 1–3 (2026-10-03, builds 3–4, v1.623b)
 
 Source: live runs 1–3, 2026-10-03 (raw evidence since consolidated into
 `live testing result/SUMMARY.md`; run 1: inherited-mods + `-NoInheritMods`
@@ -215,15 +302,16 @@ OBSERVED facts — prefer them over anything guessed above.
   registered fine).
 
 #### API patterns from the vendored reference mods (read 2026-10-04)
-- **`get_slot_cards(true)`** — returns the offer-eligible card list; with
-  `true` it includes everything (Royal Card Lab builds its full picker from
-  it; disgraced_justice searches it by `ca.id`). "Slot cards" = the offered
-  cards. The vanilla offer roll (which 2 appear, and the right-click-slot
-  filtering) is still TBD — prime probe target.
-- **`on_card_but_init(but, ca)`** — define this global in a mod and the game
-  calls it when a card-offer button is created; wrap `but.left_clic` to
-  intercept picks (Royal Card Lab's whole picker works this way, incl. its
-  `mode.unlimited` free-choice mode = our Phase 4 blueprint).
+- **`get_slot_cards(true)`** — reference mods use it to enumerate cards in
+  the player's owned slots (Royal Card Lab copies this list for its picker;
+  disgraced_justice searches it by `ca.id`). It is not the list of cards
+  eligible for the next offer. The vanilla offer roll and its filtering remain
+  unverified until Build-5 `SKOF|` is live-tested.
+- **`on_card_but_init(but, ca)`** — Glac Terminal gathers this named callback
+  from each mod's private `mod.env` and calls it when a card-offer button is
+  created; Royal Card Lab wraps `but.left_clic` this way. This is a Terminal
+  callback, not an engine `on_*` dispatcher to define in the shared globals;
+  sk-rework itself continues to use additive hooks.
 - **Input**: mods read `but.left_clic` / `but.right_clic` (state + wrappable
   handlers) and `btn("unsafe")` (named-button query). NO vendored mod uses
   middle click / mouse4 / mouse5 — remap-menu feasibility needs a probe
@@ -282,8 +370,10 @@ OBSERVED facts — prefer them over anything guessed above.
   Nightbane 3, Bushido 2), `firepower` = per-bullet damage stat
   (`firepower=-1` on several cards). Interception pattern for the stats
   display: `prepend("get_disp_stats", …)` + `append("add", …)` +
-  `edit_disp_stats` callback list. Damage-related globals awaiting a probe:
-  `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`.
+  `edit_disp_stats` callback list. Live globals include candidate damage
+  functions `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`;
+  Build 5 hooks them for logging, but their exact role/ordering awaits the
+  owner's live Build-5 run.
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain

@@ -3,16 +3,20 @@ name="sk-rework" -- must match this mod's folder name
 title="SK Rework"
 by="freeforall1932"
 description=[[
-Ammo & gameplay rework (private personal-use project).
+SK Rework — Build 5 (Phase 2c + diagnostics).
 
-MOD MENU LEGEND: white text = ON, black text = OFF. Click toggles a mod;
-the up/down arrows only change load priority (which mod overrides which).
+DEV PANEL: native in-game buttons for +ammo, a random eligible card, an
+ally summon, and a God Mode toggle. The damage-multiplier control is
+intentionally gated until the live damage probe confirms the right hook.
+Settings use this mod's own bank save.
 
-Diagnostics build 4: same load/hook proof and function-map dump as build 3
-(lines prefixed SK-REWORK:, SKG|, SKA|, SKH|, SKE|, SKO|, SKW|), plus: dumps
-every MODLIST entry (SKM|) and the full card id map (SKC|), and probes
-mods/modlist.lua (SKML|). The on_*/upd probes of build 3 are gone — the first
-live run proved they never fire for plain mods. Changes nothing in the game.
+MOD MENU: adds a Back button and the WHITE=ON / BLACK=OFF legend when the
+menu button ID matches a live MODLIST entry. Existing load-order arrows are
+unchanged.
+
+DIAGNOSTICS: full card fields and EXCLUDE pairs (SKCF|), offer flow (SKOF|),
+souls/scepters/pieces (SKS|), damage/bullet route (SKD|), input/`but` fields/menu IDs
+(SKI|), and UI/config state (SKUI|). New probe dumps run after READY.
 ]]
 
 cover="cover.png"

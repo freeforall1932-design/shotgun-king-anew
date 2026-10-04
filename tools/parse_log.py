@@ -21,7 +21,13 @@ Line formats it understands (see modded/sk-rework/script.lua):
     SKM|<i>|k=v|...              MODLIST entry dump (build 4+)
     SKC|<id>|k=v|...             CARDS id map (build 4+)
     SKML|...                     mods/modlist.lua probe (build 4+)
-    SK-REWORK: READY build=3 hooks=5 globals=452
+    SKCF|<id>|k=v|...            Full card fields & EXCLUDE pairs (build 5+)
+    SKOF|<kind>|k=v|...           Offer-roll choices/filters (build 5+)
+    SKS|<tag>|k=v|...            Souls, scepters & PIECES dump (build 5+)
+    SKD|<tag>|k=v|...            Damage & bullet pipeline dump (build 5+)
+    SKI|<tag>|k=v|...            Input, mouse & btn() probe (build 5+)
+    SKUI|<tag>|k=v|...           Dev panel, mod menu & bank persistence (build 5+)
+    SK-REWORK: READY build=5 hooks=15 globals=920
 
 The game wraps every log line in a "  . " (info) / " !! " (warning) marker;
 this parser strips that marker first, so both raw mod output and a real
@@ -80,18 +86,23 @@ def parse_text(text: str) -> dict:
         "callbacks": collections.Counter(), "callback_samples": {},
         "event_total": {}, "callback_total": {},
         "modlist": collections.OrderedDict(), "cards": [], "modlist_raw": [],
+        "card_fields": collections.OrderedDict(), "exclude_pairs": [],
+        "offers": [], "souls": [], "damage": [], "input": [], "ui": [],
+
         "objects": collections.defaultdict(dict), "object_order": [],
         "world": [], "counts_reported": {}, "other_lines": 0, "tail": [],
     }
     lines = text.splitlines()
     for ln in lines:
         s = ln.strip()
-        # The game writes every log line with a "  . " (info) or " !! "
-        # (warning) marker, so our lines arrive as ". SK-REWORK: ..." /
-        # ". SKG|..." — strip the marker so raw and game-wrapped logs parse
-        # identically. (Bug found by the first live test 2026-10-03: without
-        # this, a perfectly good log was reported as "mod did not run".)
-        if s[:2] in (". ", "! "):
+        # The game wraps info lines as "  . " and warnings as " !! ".
+        # After strip(), these are ". …" and "!! …"; handle both so raw and
+        # game-wrapped SK-prefixed lines parse identically.
+        if s.startswith(". "):
+            s = s[2:].strip()
+        elif s.startswith("!! "):
+            s = s[3:].strip()
+        elif s.startswith("! "):
             s = s[2:].strip()
         if s.startswith(MAGIC):
             body = s[len(MAGIC):].strip()
@@ -194,6 +205,45 @@ def parse_text(text: str) -> dict:
             continue
         if s.startswith("SKML|"):
             d["modlist_raw"].append(s[5:])
+            continue
+        if s.startswith("SKCF|"):
+            parts = s.split("|")
+            if len(parts) >= 3:
+                cid = parts[1]
+                if cid == "__EXCLUDE__":
+                    for part in parts[2:]:
+                        if part.startswith("pair="):
+                            pair_val = part.split("=", 1)[1]
+                            if pair_val not in d["exclude_pairs"]:
+                                d["exclude_pairs"].append(pair_val)
+                else:
+                    entry = d["card_fields"].setdefault(cid, collections.OrderedDict())
+                    for part in parts[2:]:
+                        if "=" in part:
+                            k, v = part.split("=", 1)
+                            entry[k] = v
+            continue
+        if s.startswith("SKOF|"):
+            parts = s.split("|")
+            if len(parts) >= 2:
+                rec = {"kind": parts[1]}
+                for part in parts[2:]:
+                    if "=" in part:
+                        k, v = part.split("=", 1)
+                        rec[k] = v
+                d["offers"].append(rec)
+            continue
+        if s.startswith("SKS|"):
+            d["souls"].append(s[4:])
+            continue
+        if s.startswith("SKD|"):
+            d["damage"].append(s[4:])
+            continue
+        if s.startswith("SKI|"):
+            d["input"].append(s[4:])
+            continue
+        if s.startswith("SKUI|"):
+            d["ui"].append(s[5:])
             continue
         d["other_lines"] += 1
     # Multi-boot logs: the mod-menu's "save and reboot" reloads every mod in
@@ -407,6 +457,55 @@ def render_markdown(d: dict, src: str) -> str:
         w("```")
         w("")
 
+    # Build 5+: complete card fields and offer-roll observations.
+    if d["card_fields"] or d["exclude_pairs"]:
+        w("## 12b. Full card fields & EXCLUDE pairs (build 5+)")
+        w("")
+        for cid, fields in d["card_fields"].items():
+            w(f"- **{cid}**: " + ", ".join(f"`{k}={v}`" for k, v in fields.items()))
+        if d["exclude_pairs"]:
+            w("- **EXCLUDE pairs**: " + ", ".join(f"`{p}`" for p in d["exclude_pairs"]))
+        w("")
+
+    if d["offers"]:
+        w("## 12c. Offer-roll choices & filters (build 5+)")
+        w("")
+        for rec in d["offers"][:160]:
+            kind = rec.get("kind", "?")
+            rest = ", ".join(f"`{k}={v}`" for k, v in rec.items() if k != "kind")
+            w(f"- **{kind}**" + (f": {rest}" if rest else ""))
+        if len(d["offers"]) > 160:
+            w(f"- _(showing 160 of {len(d['offers'])} logged offer records)_")
+        w("")
+
+    if d["souls"]:
+        w("## 12d. Souls, scepters & pieces probe (build 5+)")
+        w("")
+        for ln in d["souls"][:40]:
+            w(f"- `{ln}`")
+        w("")
+
+    if d["damage"]:
+        w("## 12e. Damage & bullet pipeline probe (build 5+)")
+        w("")
+        for ln in d["damage"][:30]:
+            w(f"- `{ln}`")
+        w("")
+
+    if d["input"]:
+        w("## 12f. Input & button-remap probe (build 5+)")
+        w("")
+        for ln in d["input"][:40]:
+            w(f"- `{ln}`")
+        w("")
+
+    if d["ui"]:
+        w("## 12g. Dev panel, Mod Menu & Save persistence (build 5+)")
+        w("")
+        for ln in d["ui"][:30]:
+            w(f"- `{ln}`")
+        w("")
+
     w("## 13. Next step")
     w("")
     w("- Promote confirmed entries into `notes/map.md` (replace the TBD lines).")
@@ -490,19 +589,36 @@ def selftest() -> int:
         "  . SKA2|mod_found=yes|active=true\r\n"
         "  . SKA|append|no\r\n"
         " !! Could not open file 'save/mods/x.bnk': No such file or directory'.\r\n"
+        " !! SKG|warning_prefixed_global\r\n"
         "  . SKG|ammo_spend\r\n"
         "  . SKM|1|title=SK Rework|active=true\r\n"
         "  . SKC|Peace|gid=12|pwe=4\r\n"
+        "  . SKCF|Engraved Scope|gid=8|special=scope|pwe=4\r\n"
+        "  . SKCF|__EXCLUDE__|pair=Royal Loafers<>Sawed-off Justice\r\n"
+        "  . SKOF|is_card_available|id=Engraved Scope|special=scope|wand=nil\r\n"
+        "  . SKOF|choice_1|team=0|need_soul=1\r\n"
+        "  . SKS|piece|type=1|name=knight|hp=3\r\n"
+        "  . SKD|bullet|shot_n=1|idx=1|dmg=2|pierce=30|shot=true\r\n"
+        "  . SKI|btn|unsafe=false\r\n"
+        "  . SKUI|bank|ready=true|magic=505\r\n"
         "  . SKML|load|function\r\n"
-        "  . SK-REWORK: READY build=3 hooks=5 globals=1\r\n")
+        "  . SK-REWORK: READY build=5 hooks=15 globals=1\r\n")
     checks.append(("prefixed banner", d3["banner"] is not None))
     checks.append(("prefixed api-no", d3["api"].get("append") is False))
-    checks.append(("prefixed globals", d3["globals"] == ["ammo_spend"]))
+    checks.append(("prefixed info globals", d3["globals"] == ["warning_prefixed_global", "ammo_spend"]))
+    checks.append(("warning text remains other line", d3["other_lines"] == 1))
     checks.append(("prefixed ready", d3["ready"] is not None))
     checks.append(("modlist dump", d3["modlist"]["1"].get("title") == "SK Rework"))
     checks.append(("card map", d3["cards"][0]["id"] == "Peace"
                    and d3["cards"][0]["gid"] == "12"))
     checks.append(("modlist probe", d3["modlist_raw"] == ["load|function"]))
+    checks.append(("card fields SKCF", d3["card_fields"]["Engraved Scope"].get("special") == "scope"))
+    checks.append(("exclude pairs SKCF", d3["exclude_pairs"] == ["Royal Loafers<>Sawed-off Justice"]))
+    checks.append(("offer probe SKOF", len(d3["offers"]) == 2 and d3["offers"][0]["id"] == "Engraved Scope"))
+    checks.append(("souls SKS", len(d3["souls"]) == 1))
+    checks.append(("damage SKD", len(d3["damage"]) == 1))
+    checks.append(("input SKI", len(d3["input"]) == 1))
+    checks.append(("ui SKUI", len(d3["ui"]) == 1))
 
     bad = [name for name, ok in checks if not ok]
     print(f"selftest: {len(checks) - len(bad)}/{len(checks)} checks passed")

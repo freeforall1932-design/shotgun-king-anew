@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-04 (session 6, branch `arena/01a1027e-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-04 (session 7, branch `arena/01a10404-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -24,9 +24,9 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a1027e-shotgun-king-anew` (push here; PRs #1 and #2 already merged to `main`) |
-| Our mod | `modded/sk-rework/` (info.lua with mod-menu legend + script.lua = diagnostics build 4 + cover.png) |
-| Log parser + smoke test | `tools/parse_log.py` (23/23; summary incl. mods/cards; multi-boot dedup), `tools/mod_smoketest.py` (29/29) |
+| Working branch | `arena/01a10404-shotgun-king-anew` (session-fixed branch; PRs #1 and #2 already merged to `main`) |
+| Our mod | `modded/sk-rework/` (Build 5 Phase-2c native-button Dev panel + legend/Back helper + §0.7 probes; live run pending) |
+| Log parser + smoke test | `tools/parse_log.py` (31/31 incl. Build-5 + `!!` warning prefixes; multi-boot dedup), `tools/mod_smoketest.py` (33/33 under each `all()` semantics; default + LuaJIT 2.1) |
 | Live-test evidence | `live testing result/SUMMARY.md` — **consolidated** (raw logs/screenshots/saves deleted after absorption; findings live in the docs below) |
 | Parsed live map | `notes/game-map-draft.md` (from run-3 log: SKM/SKC sections live) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
@@ -126,15 +126,24 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 6)
+## 5. Current state & immediate next step (session 7)
 
-**All live testing is absorbed AND consolidated.** Runs 1–3 are distilled
-into `live testing result/SUMMARY.md` (raw evidence deleted — every
-finding lives in the docs). The toolchain is complete and live-proven:
-`build-dist.ps1` pre-enables sk-rework (3b/3, byte-exact modlist.lua),
-auto-applies the 100% unlock (4/4), and the parser handles multi-boot
-logs. The 100% tool writes the live-verified 195-card set. sk-rework's
-description carries the white/black mod-menu legend.
+**All live runs 1–3 are absorbed and consolidated** in
+`live testing result/SUMMARY.md`; the toolchain remains live-proven:
+`build-dist.ps1` pre-enables sk-rework, auto-applies the unlock-all, and the
+parser handles multi-boot logs. Build 5 is now in the repo but **has not been
+run in the game**.
+
+Build 5 contains: native `mk_text_but` controls for +ammo, random eligible
+card, dynamic ally spawn, and best-effort God Mode; mod-menu Back/legend
+widgets attached by an additive `mk_menu_but` hook when IDs match MODLIST;
+post-READY `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes. Damage multipliers are gated
+until the live hit route is confirmed. New UI/menu behavior and runtime data
+remain provisional until the owner runs it.
+
+Also done this session: promoted static code-map findings into `notes/map.md`,
+fixed `save_codec.py --selftest` to work without arguments (built-in checks),
+created Build-5 cover art, and synced README / WORKLIST / mod-dev docs.
 
 **The owner's feature requests are fully specified** (five asks, refined
 over several Q&A rounds into `PLANNING.md` §0.7 items 6–11): right-click
@@ -147,31 +156,28 @@ pierce auto-crits), the button-remap menu, and the mod-menu Back button.
 Design rule throughout: **nothing hardcoded that can't be confirmed —
 universal, soft-coded, adaptable as the owner plays.**
 
-**Next: sk-rework build 5** — Phase 2c dev-cheat panel
-(`mk_menu_but`; read `hero.ammo`/`hero.hp` directly; persist settings via
-`save/mods/sk-rework.sav`) + mod-menu legend line & Back button + the
-probes that pin the last unknowns (see WORKLIST "Next features" for the
-full probe list: offer roll, full card-field dump, scepters, soul flow,
-damage application point, MOUSE/but/btn input space). One short owner run
-after build 5 unblocks implementing every §0.7 feature on real data.
+**Next: owner live run of Build 5** using `INSTALL.md`/`apply.ps1 -GetInsights`:
+verify the panel actions, Back/legend detection, config-bank save, and capture
+`SKCF/SKOF/SKS/SKD/SKI/SKUI` output. Then promote confirmed values to
+`notes/map.md`; only afterward implement the queued ability cap, ammo/crit,
+card-picker, soul-deck, and input-remap systems.
 
-Verified without the game this session: parser selftest 23/23 + run-3
-parse (`hooks: 5 · cards: 186` post-dedup) + run-2 regression parse;
-smoke test 29/29 (both `all()` semantics); codec roundtrip on all real
-saves; unlock tool E2E; 3/3 `.ps1` tree-sitter clean; modlist generator
-byte-identical to the game's own file. Safety rules unchanged: no
-`pcall`, nil/boolean-safe `sv()`, capped loops, probe code AFTER the
-READY line.
+Verified without the game this session: parser selftest 31/31; smoke test
+33/33 under both `all()` semantics on default Lua and LuaJIT 2.1 (includes
+Lua load, hook registration, button callbacks, cheats, parser handoff);
+save-codec selftest 2/2 built-in
+parser+container checks; Python compilation. The six real saves had been
+roundtrip-verified in an earlier session; they are not present here. Safety
+rules unchanged: no `pcall`/`loadfile`, nil/boolean-safe `sv()`, capped loops,
+additive hooks only, and all static probe dumps after READY.
 
 ## 6. Owner (human) intervention points
 
-- ~~Harvest + verification runs~~ **DONE (runs 1–3, consolidated)**
-- Next rebuilt copy (updated repo): one glance — console shows
-  `3b/3` + `4/4 applying the 100% unlock...`, copy boots with everything
-  unlocked + sk-rework ON
-- Playtest build 5 (cheat panel + legend + Back button + probes); report
-  crashes (error text = END of log.txt — a missing READY in a rebooted
-  session is the log collision, not a failure)
+- ~~Harvest + verification runs 1–3~~ **DONE and consolidated**
+- Apply Build 5 to the modded copy (or use the updated build) and playtest
+  the native panel, Back/legend, and probes. Collect `log.txt` with
+  `apply.ps1 -GetInsights`; report crashes (error at log END; missing READY
+  after save-and-reboot can be the known log collision, not a failure).
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning
 

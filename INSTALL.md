@@ -174,40 +174,38 @@ itself silently ignores those too.
 
 ---
 
-### Step 5 — launch the copy and play a minute (5 minutes of live testing)
+### Step 5 — launch the copy and play a minute (Build-5 live test)
 
 1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
    (Step 4 printed its exact path).
 2. The **mod menu is NOT on the title screen**: click **Play** — the mod menu
    is the **top entry** of that screen.
 3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
-   — in the menu, **black text = OFF, white text = ON**. The build writes
+   — **black text = OFF, white text = ON**. The build writes
    `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
-   (ON) and the 13 workshop mods black (OFF) — if so, there is nothing to
-   click. Clicking any entry flips it, and the change survives restarts.
-   The **up/down arrows do not toggle on/off** — they change *load priority*
-   (which mod overrides which when several touch the same thing), so the
-   numbering after moving something is cosmetic, not a bug.
-4. **Start a run and play a couple of turns** — this is what makes the log
-   useful. The `sk-rework` mod is a diagnostics build: it watches the game
-   and writes what it sees to `log.txt` (it changes nothing in gameplay).
-   Even 30 seconds of play is enough.
-5. Quit the game normally.
+   (ON) and the 13 workshop mods black (OFF). The **up/down arrows only
+   change load priority**. Build 5 also attempts a Back button and white/black
+   legend inside the mod list; note whether they appear and whether Back exits
+   without save-and-reboot.
+4. Start a run and play a couple of turns. Find the native **SK DEV** text
+   button near the bottom of the board; click it to reveal the controls.
+   Try `+3 AMMO`, `RANDOM CARD`, `SPAWN ALLY`, and `GOD MODE` if convenient.
+   The `DMG GATED` button is intentionally a no-op placeholder until the live
+   damage trace confirms a safe implementation. The cheats only run if clicked;
+   otherwise the mod is diagnostic. Note crashes, UI overlap, or incorrect
+   actions. Then quit normally.
 
-The `sk-rework` mod reports on itself — if you open
-`E:\testing\ShotgunKing-Modded\log.txt`, these lines mean it worked (the game
-prefixes every line with `  . ` — that is normal):
+Build 5 writes its load/hook proof plus the new card/offer/soul/damage/input/UI
+probes to `log.txt`. The game prefixes every line with `  . ` — that is normal.
 
-| Line in `log.txt` | Meaning |
+| Line/prefix in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=4 loaded (mod_index=…)` | the mod loaded |
+| `SK-REWORK: BUILD=5 loaded (mod_index=…)` | the mod loaded |
 | `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
-| `SKH\|new_turn\|…` (5 of these) | its hooks registered |
-| `SKW\|turn=1\|…` (one per turn played) | it is alive and watching during play |
-| `SK-REWORK: READY build=4 hooks=5` | everything above succeeded |
-
-If the game crashes after the intro logos, don't worry — the reason is at the
-**end** of `E:\testing\ShotgunKing-Modded\log.txt`. Continue to Step 6.
+| `SKH\|…` | additive hook registrations |
+| `SKW\|turn=1\|…` | first per-turn state sample |
+| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | §0.7 card, offer, soul/scepter, damage, input, and UI probes (static dumps follow READY) |
+| `SK-REWORK: READY build=5 hooks=…` | load and registrations reached the marker |
 
 ---
 
@@ -291,9 +289,10 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; up/down = priority only |
-| 4 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `SK-REWORK: READY build=4` |
-| 5 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
+| 3 | Step 5 launch & mod menu | Play screen → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-5 Back/legend if shown |
+| 4 | Step 5 in-run panel | `SK DEV` opens native controls; note ammo/card/spawn/God Mode results, Back behavior, UI overlap, or crashes (`DMG GATED` is intentionally inactive) |
+| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=5` and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
+| 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
 the game crashed.
@@ -307,12 +306,12 @@ the game crashed.
 | Phase | What | Status |
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
-| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | 🟢 unblocked — first live log parsed 2026-10-03 (`notes/game-map-draft.md`); build 4 harvests the remaining unknowns (mod list format, card id map) |
-| 2c | in-game dev/cheat panel (give ammo/cards, god mode, spawns) | ⛔ after 2b |
-| 3 | ammo rework, staged A → B → C | ⛔ after 2b |
-| 4 | card picker + enemy picker | ⛔ after 2b |
-| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ after 2b |
-| 6 | balance knobs + final packaging (+ zero-arg auto-discovery on waitlist) | ⛔ after 2b |
+| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted; Build-5 probes target the remaining unknowns |
+| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 5 sandbox-tested; owner live run pending; damage control gated until hit path is confirmed |
+| 3 | ammo rework, staged A → B → C | ⛔ queued after Build-5 live probes/playtest |
+| 4 | card picker + enemy picker | ⛔ queued after Build-5 live probes/playtest |
+| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-5 live probes/playtest |
+| 6 | balance knobs + final packaging (+ zero-arg auto-discovery on waitlist) | ⛔ queued
 
 ---
 

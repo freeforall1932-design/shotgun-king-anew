@@ -28,47 +28,45 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       now have candidate lists in the draft; modlist.lua format awaited
       (build 4 SKML probe).
 - [x] **Step 5 — 100% save on the copy**: ✅ game ACCEPTED it —
-      Achievements 100%, chase unlocked; codex was 96% (6 special cards
-      missing) → tool now writes 170 cards. `ACHIEVEMENTS: OFF` title label
-      explained (Steam tracking paused while modded).
+      Achievements 100%, chase unlocked; the harvested game set is 186 CARDS
+      + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
+      label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (after log.txt)
+## 🟠 Next features (Build 5 live validation first)
 
-- [ ] Phase 2c — in-game **dev-cheat panel** (native `mk_menu_but` UI):
-      give ammo/cards, god mode, spawn pieces, damage multipliers
-      (+ owner ask from run 2: an always-visible "white = ON / black = OFF"
-      legend line in the mod menu itself — needs a draw hook on the mods
-      menu; the legend currently lives in sk-rework's description text).
-      Build 5 should carry the intel probes for §0.7 asks: offer roll
-      (right-click/soul/scepter cap filtering), **full card-field dump**
-      (every field of every CARDS entry — to find all active-ability
-      implementations incl. the magazine-dump card), soul system
-      (`add_soul`/`activate_soul`/`TEST_SOULS`/`hero.free_souls`),
-      **damage application point** (`ev_hit`/`damage`/`damages`/`fx_dmg`
-      for the bullet-crit system), input (`MOUSE` global, `but` fields,
-      `btn()` args — remap-menu feasibility), mods-menu draw hook
-      (legend + Back button)
-- [ ] **Mod-menu Back button** (owner ask run 3, **confirmed 2026-10-04**):
-      the game's mod menu only offers reset / save+reboot — no way out
-      without rebooting. Add a Back button via the same UI-hook route as
-      the legend (Phase 2c work)
-- [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
-      (shell economy) → **C** (shell types)  [owner decision §0.6]
-- [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
+- [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
+      are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
+      harness were updated. Sandbox checks pass (parser 31/31; smoke 33/33
+      under both `all()` semantics on default Lua and LuaJIT 2.1). Panel controls currently cover +ammo,
+      random eligible card, a dynamically selected ally summon, and a
+      best-effort God Mode toggle. Damage-multiplier action is explicitly
+      gated until the live hit path is confirmed. Mod-menu Back/legend attach
+      when a native menu-button ID matches a live MODLIST entry.
+- [ ] **Owner live-run Build 5** — confirm no crash; verify Dev panel actions,
+      mod-menu button-ID detection/Back/legend, bank persistence, and collect
+      the `SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`, `SKUI|` probes. Fake-SUGAR
+      results are not game evidence. Update `notes/map.md` from that log.
+- [ ] **Finish Phase 2c after probes** — implement damage multipliers only
+      after the `SKD|` trace proves a safe hook; fix any mod-menu false
+      positives/false negatives found in the live run.
+- [x] **Mod-menu Back + white/black legend code added** (owner ask run 3,
+      confirmed 2026-10-04) — native `mk_text_but` widgets are attached by
+      the `mk_menu_but` additive hook when a MODLIST-entry ID is recognized;
+      still needs the Build-5 live run to verify actual IDs and navigation.
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
       5 soul slots, 3 scepters") — owning one removes all others from
       offers. Goal: own multiple + pick which one each button triggers.
       **Soft-coded by design (owner): discover ALL active-ability cards at
-      runtime (`special=` — the 10 known ones cover v1.623b per owner,
-      Unjust Decree = the magazine-dump card — plus scepters, plus cards
-      other mods add); no hardcoded list, no fixed count — "universal
-      soft coded adaptable as I play".** Expected bindings (not caps):
-      RMB + 2 side buttons + optional middle click (~3–4 bound), remap
-      menu for assignment, swap/cycle when abilities outnumber buttons.
-      **Scepter cap (3) relaxed too (owner's yes).** Build-5 probe: dump
-      ALL card fields + `scepters` global + offer roll
+      runtime (`special=` — owner reports 10 in v1.623b, including Unjust
+      Decree; SKCF probe will verify; also scepters and mod-added cards); no
+      hardcoded list, no fixed count.** Expected bindings: RMB + two side
+      buttons + optional middle click, remap menu, cycle if abilities exceed
+      buttons. **Scepter cap relaxed too.** Probe results precede behavior.
+- [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
+      (shell economy) → **C** (shell types)  [owner decision §0.6]
+- [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
       freely use/exchange any stored soul mid-stage — **any soul allowed,
@@ -109,23 +107,33 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
-- [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — shipped session 2b,
-      live-fixed session 4: strips the game's `  . `/` !! ` line prefix;
-      parses `SKG|/SKR|/SKF|/SKA|/SKH|/SKE|/SKE2|/SKO|/SKW|/SKM|/SKC|/SKML|`
-      into `notes/game-map-draft.md`; `--selftest` 23/23 incl. a
-      game-prefixed regression case
-- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — shipped: runs
-      `script.lua` against a fake SUGAR env under BOTH `all()` semantics,
-      fires hooks, feeds the output to the parser; 29/29 checks (build 4)
+- [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — strips the game's
+      `  . `/` !! ` prefix; parses legacy build-4 and Build-5 prefixes
+      (`SKCF|/SKOF|/SKS|/SKD|/SKI|/SKUI|`) into the draft; selftest 31/31,
+      including a `!! ` warning-prefix regression.
+- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 5
+      in a fake SUGAR env under BOTH `all()` semantics, fires hooks and native
+      button callbacks, then checks parser output; 33/33 per mode on default
+      Lua and LuaJIT 2.1.
 - [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
       game (load proof, 920 globals, hooks, 47 events, object dumps)
 - [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4, **live-proven
       run 2**: MODLIST dump (`SKM|` 14 entries), card id map (`SKC|` 186 cards);
       the `SKML|` in-log probe never fired (`loadfile` absent from the mod env)
       but `-GetInsights` harvested the real `mods/modlist.lua` instead
+- [x] **Build 5 script + tool support** — native-button dev controls, menu
+      helper hook, post-READY `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes; sandbox
+      tested only, explicitly pending the owner's live run.
+- [x] **Promoted code map** — `notes/map.md` now folds in live runs 1–3 and
+      vendored mod patterns, with unknown/owner-reported facts labeled and
+      Build-5 probe gaps called out.
+- [x] **Save codec no-argument selftest** — `python tools/save_codec.py
+      --selftest` now runs two built-in parser+container roundtrips; optional
+      `[savedir]` adds real `.sav` text roundtrips; current result 2/2.
+- [x] **sk-rework cover art** — replaced the gray placeholder with custom
+      320×180 pixel-art crown/shells/Build-5 title.
 - [x] ~~`-NoInheritMods` switch for `build-dist.ps1`~~ (review F7) — shipped
       2026-10-03 session 2b: copies get exactly the 14 known-good mods
-- [ ] Real cover art for sk-rework (currently placeholder 320×180 gray)
 - [ ] **Waitlist (after core features work first):** zero-argument auto-file
       discovery across all tools (auto-find `game`, `repo`, and
       `ShotgunKing-Modded` anywhere on disk without predetermined `-GameDir` /
@@ -138,7 +146,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
-## ❓ Open questions — live-test answers (2026-10-03)
+## ❓ Live-test answers (runs 1–3) + Build-5 questions (2026-10-04)
 
 1. ~~Do plain mods receive `on_*` callbacks?~~ **No.** `on_*`/`upd` never
    fired during real gameplay; `append()` is the only proven hook. (Build 4
@@ -157,10 +165,24 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    `SKC|` dump):** the game's CARDS table = 186 cards; stats.sav codex =
    those 186 + 9 special keys (bleed, cloak, grenade, jump, leader, line,
    mission, orb, Unfaithful Steed) = 195. `make_100pct_save.py` now writes
-   exactly that set. 10 cards carry a `special=` mechanic field (strafe,
-   scope, decree, grenade, orb, dig).
+   exactly that set. The owner reports 10 `special=` ability cards (including
+   Unjust Decree); the full card-field dump is pending Build-5 `SKCF|`.
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-04 (session 7 — Build 5 code + map/tooling refresh):**
+- ✅ Build 5 Phase-2c panel and §0.7 `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes
+      implemented; parser handles all new prefixes; fake-game smoke test
+      exercises hooks, native buttons, panel actions and parser output.
+- ✅ Sandbox results: parser selftest 31/31; smoke test 33/33 under both
+      `all()` semantics; save-codec no-argument selftest 2/2; Python compile.
+- ✅ `notes/map.md` promoted with cautious source-grounded API facts and
+      explicit Build-5 unknowns; `save_codec.py --selftest` no longer needs a
+      directory and optionally accepts one for real saves.
+- ✅ Added a 320×180 Build-5-themed cover and synced README / mod-dev / info.
+- ⏳ Build 5 remains **not live-tested**: owner run needed to validate actual
+      menu-button IDs, navigation, God Mode, bank persistence, and the runtime
+      probe data. Damage multipliers remain gated until `SKD|` is verified.
 
 **2026-10-04 (session 6 — consolidation + full-diff audit + PR):**
 - ✅ **Live-testing evidence consolidated**: all raw material from runs 1–3
@@ -357,14 +379,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 👑 Owner to-do
 
-1. ~~Harvest + verification runs~~ **DONE (runs 1–3, consolidated into
-      `live testing result/SUMMARY.md`)** — nothing left to collect.
-2. Next launch of a rebuilt copy (with the updated repo, after this PR
-      merges): build console should show `3b/3` + `4/4 applying the 100%
-      unlock...` and the copy should boot with **everything unlocked from
-      the start** (128 achievements, all shotguns, codex 100%) plus
-      sk-rework already ON.
-3. **Playtest build 5** when it ships (cheat panel + mod-menu legend line +
-      Back button + the §0.7 probes) — that single run's data unblocks
-      implementing every feature ask on real internals.
+1. ~~Harvest + verification runs 1–3~~ **DONE and consolidated into
+      `live testing result/SUMMARY.md`.**
+2. Apply the updated Build-5 mod (or rebuild the copy) and confirm the
+      diagnostic banner and `READY build=5` in the log.
+3. **Playtest Build 5 now**: test SK DEV controls, mod-menu Back/legend, and
+      submit `-GetInsights` output. That live log validates the probes and
+      unblocks the queued feature work.
 4. At deployment: flip private; optionally scrub history; or archive repo
