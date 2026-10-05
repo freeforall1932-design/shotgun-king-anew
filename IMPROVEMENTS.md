@@ -186,9 +186,68 @@
     location in README/INSTALL/HANDOFF/map/mod-dev now says *click Play*, with
     no title-screen or main-menu contrast anywhere.
 
+## 2026-10-05 — Session 9 (run 5 absorbed; the bugs the playtest found; Build 7)
+
+35. **A 22-minute playtest is worth more than ten boot tests.** Run 4 proved a
+    build could boot; run 5 proved what a build *does*: every probe block ran,
+    the panel rendered, all four cheats fired, 30 shots traced, souls/scepters
+    flowed, the bank got written — and, crucially, the owner's hands found three
+    bugs no sandbox could: a panel that would not close, a legend that could
+    never attach, and a spawn that only ever made pawns in the king's way.
+    The cheap lesson: harvest at boot, judge in play.
+36. **The log answered its own questions and the tests lied about one.**
+    `ev_hit` was registered as a global and hooked for damage work — the run
+    showed it never fires on the bullet route (`mk_bullet` → `bullet.dmg` →
+    `hit` → `fx_dmg`). A name existing in `gimme("global")` is not evidence that
+    a code path uses it; only a trace line is.
+37. **`del(ents, e)` is not a UI API.** The panel's "close" deleted its own
+    button entities, so the mod's state said closed while the engine kept
+    drawing the buttons — the owner's frozen-brown-button report. The fix was
+    sitting in the vendored mods all along (`remove_buts()`, used by
+    disgraced_justice and glac terminal): when two independent sources in the
+    repo already solve a problem, check them before inventing a third way.
+38. **A find-predicate that cannot match is worse than none.** The legend
+    attach compared MODLIST *titles* against menu *ids* (`play`, `mods`,
+    `save_back`…), so it silently did nothing every run. Build 7 now logs the
+    attach attempt and its entry id, and the parser looks for the marker — a
+    no-op feature must be visible as a no-op in evidence.
+39. **Engine-call intent logging turns any crash into a one-run fix.**
+    `SKE|call|<name>=start` before every mutating call, `=ok` after: if the game
+    dies, the last dangling `=start` names the control, and the parser prints
+    "that control is the crash suspect". Combined with `SAFE:on` (one mutating
+    call per boot), a bad guess now costs a click instead of a run — the run-4
+    lesson turned into a mechanism instead of a rule to remember.
+40. **Guesses are allowed, blind guesses are not.** Three signatures are still
+    unknown (`goto_sq` argument order, `get_nearest_free_square`, the
+    `stack.chamber_max`/`ammo_max` fields). Each is marked GUESS in the source,
+    called through a wrapper that validates the result and falls back, and logs
+    which route worked — so the next live pass replaces a guess with a fact
+    without a crash.
+41. **Test fidelity is a moving target.** The fake engine kept ONE handler per
+    hook target, so Build 7's second `mk_bullet` append was silently dropped
+    (36→45 checks still passed). It now chains ordered hook lists like the real
+    engine, and the harness models the new engine surface (`remove_buts`,
+    `goto_sq`, `flr`, `mk_bullet`) — every time the mod grows a hook on a live
+    function, the fake must grow the same contract or the tests quietly diverge.
+42. **The owner's questions got designed answers, not deferrals.** "Is +3 ammo
+    a slot or regeneration?" → the panel now has both (reserve + RELOAD + CLIP+).
+    "Card from pieces, can you summon, give me a list or a fair roll?" → card
+    pages with AUTO/LIST, a uniform roll over the eligible pool, and a
+    piece/summon filter (FILT:PIECE). "God mode should dodge like mist instead
+    of being invulnerable" → the lethal-hit dodge with a logged route.
+43. **Safety guards should fail closed, visibly.** While a level-up/offer
+    screen is open, the panel refuses to clear the button layer (clearing would
+    delete the engine's own card buttons) and logs
+    `SKUI|panel|deferred=offer_active`. A guard that silently does nothing is
+    indistinguishable from a bug; a guard that logs is a diagnosis.
+
 ## Improvement ideas parked for later
 
 - In-game UI for save editing (cheat panel covers most of it)
 - Auto-update check for game version vs. known map.md version
 - A "verify my install" doctor script (folder names, archives, game closed)
 - CI-style selftest run before each commit that touches tools/
+- Timeline scrub for the card LIST page (currently PREV/NEXT only)
+- A balance-config panel page once the damage/crit knobs are live-verified
+- Free tile placement for the spawn picker (click a square) — blocked on the
+  `get_free_squares` signature being confirmed

@@ -1,19 +1,13 @@
 # Draft game map — generated from `log.txt`
 
-> Generated 2026-10-04 07:57 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
+> Generated 2026-10-05 19:43 by `tools/parse_log.py`. **Draft**: everything here comes from the diagnostics mod's live log; promote confirmed facts into `notes/map.md` by hand.
 
 ## 1. Did the mod load?
 
-- ✅ mod loaded — build 5, mod_index 1
+- ✅ mod loaded — build 6, mod_index 1
 - ✅ found itself in MODLIST; active=True
-- ✅ READY line: build 5, 30 hooks registered, 920 globals visible
-- ⛔ **the game CRASHED during this run:** `Button left for player 0 doesn't exist.` (Quitting required)
-- ⛔ crash inside a mod — `mods/sk-rework/script.lua:817: in main chunk`
-    - `[string "code.lua"]:197: in function <[string "code.lua"]:45>`
-    - `[string "code/mods.lua"]:713: in function 'run_mods'`
-    - `[string "code/mods.lua"]:395: in function 'safe_require'`
-    - `mods/sk-rework/script.lua:817: in main chunk`
-- A crashed run can still contain a full harvest (run 4 did): read the sections below, but treat runtime traces as absent.
+- ✅ READY line: build 6, 30 hooks registered, 920 globals visible
+- ✅ probe blocks completed: `cards`, `exclude`, `souls`, `bank`, `input`
 
 ## 2. API availability (planned functions)
 
@@ -55,7 +49,41 @@ Registered (append) hooks:
 - `add` (id `sk-rework:menu-button-fields`)
 - `mk_menu_but` (id `sk-rework:mod-menu-ui`)
 
-- ⚠️ no events fired — the mod loaded but the run may have been too short (start a floor and take a few turns).
+| event | via append() hook | via on_* callback probe |
+|---|---|---|
+| add_card | 2 | — |
+| cheat_ammo | 9 | — |
+| cheat_card | 2 | — |
+| cheat_spawn | 39 | — |
+| init_game | 5 | — |
+| new_level | 5 | — |
+| setup_piece | 175 (sampled: 36 lines) | — |
+
+- **Verdict:** append() hooks fire, `on_*` probes do not → for plain mods, events must be hooked with `append()` on game globals (the `on_*` dispatch comes from the Glacies Module Terminal mod, matching what the workshop mods show).
+
+## 4. Live state samples
+
+| turn | bads | bullets | hero_px | hero_py | ammo | chamber | free_souls |
+|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0 | 3 | 7 | 6 | 1 | 0 |
+| 2 | 12 | 0 | 3 | 7 | 6 | 0 | 0 |
+| 3 | 12 | 0 | 3 | 7 | 4 | 1 | 0 |
+| 4 | 12 | 0 | 3 | 7 | 4 | 0 | 0 |
+| 5 | 12 | 0 | 4 | 7 | 6 | 1 | 0 |
+| … | … | … | … | … | … | … | … |
+| 26 | 12 | 0 | 2 | 6 | 7 | 1 | 0 |
+| 27 | 12 | 0 | 1 | 5 | 7 | 1 | 0 |
+| 28 | 12 | 0 | 1 | 5 | 7 | 0 | 0 |
+| 29 | 12 | 0 | 2 | 6 | 6 | 1 | 0 |
+| 30 | 12 | 0 | 3 | 7 | 7 | 1 | 0 |
+
+## 5. Object model (real field names from the running game)
+
+- **piece**: `upd=fn`, `sq=tbl`, `sq.highlight=false`, `sq.p=tbl`, `sq.p.upd=fn`, `sq.p.sq=tbl`, `sq.p.vx=0`, `sq.p.bad=true`, `sq.p.t=0`, `sq.p.team=1`, `sq.p.hp_max=11`, `sq.p.name=king`, `sq.p.truncated=true`, `sq.stack=tbl`, `sq.upd=fn`, `sq.dr=fn`, `sq.moat=false`, `sq.vx=0`, `sq.dcy=0`, `sq.frict=1`
+- **hero**: `see_hat=false`, `upd=fn`, `sq=tbl`, `sq.risk=0`, `sq.upd=fn`, `sq.vx=0`, `sq.op=tbl`, `sq.op.see_hat=false`, `sq.op.upd=fn`, `sq.op.sq=tbl`, `sq.op.grenade_ready=true`, `sq.op.current_an=-0.46288803657627`, `sq.op.vx=0`, `sq.op.ready=false`, `sq.op.bad=false`, `sq.op.truncated=true`, `sq.t=406`, `sq.ww=16`, `sq.hh=16`, `sq.mark=tbl`
+- **hero.sq**: `risk=0`, `upd=fn`, `vx=0`, `op=tbl`, `op.see_hat=false`, `op.upd=fn`, `op.sq=tbl`, `op.sq.risk=0`, `op.sq.upd=fn`, `op.sq.vx=0`, `op.sq.op=tbl`, `op.sq.t=406`, `op.sq.ww=16`, `op.sq.hh=16`, `op.sq.mark=tbl`, `op.sq.truncated=true`, `op.grenade_ready=true`, `op.current_an=-0.46288803657627`, `op.vx=0`, `op.ready=false`
+- **stack**: `boss_hprc=200`, `chamber_max=1`, `grenade_dmg=2`, `special=grenade`, `blood_bowl=0`, `ammo_regen=1`, `pawn_hp=1`, `gid=7`, `queen_hp=1`, `knight_hp=1`, `pawn_global_promote=1`, `bishop_hp=1`, `rook_hp=3`, `grenades_max=1`, `surrender=1`, `firerange=3`, `truncated=true`, `fields_shown=16`
+- **card**: `index=82`, `ex=7`, `twcv=fn`, `gid=82`, `need=tbl`, `twf=fn`, `twc=0`, `tws=30`, `ey=13`, `need_card=tbl`, `team=0`, `pwe=4`, `sl=tbl`, `sl.vx=0`, `sl.dcy=0`, `sl.ca=tbl`, `sl.ca.index=82`, `sl.ca.ex=7`, `sl.ca.twcv=fn`, `sl.ca.gid=11`
 
 ## 6. Function map (candidates for the TBD areas)
 
@@ -254,20 +282,20 @@ xpl_king                    ysort
 
 ## 10. Mod list (live MODLIST dump)
 
-- entry 1: `num=1`, `cover=mods/sk-rework/cover.png`, `active=true`, `folder=mods/sk-rework`, `desc=SK Rework — Build 5 (Phase 2c + diagnostics).`, `mode_description=tbl`, `exists=true`, `name=sk-rework`, `priority_hint=0`, `author=freeforall1932`, `save=sk-rework`, `here=true`
-- entry 2: `active=false`, `folder=mods/disgraced_justice`, `desc=Broken oaths and holy corruption.`, `exists=true`, `name=disgraced_justice`, `priority_hint=0`, `author=Lorina Sonetto & Bob Qwerty`, `save=disgraced_justice`, `here=true`, `title=Disgraced Justice`, `script=mods/disgraced_justice/script.lua`
-- entry 3: `cover=mods/extra features/cover.png`, `id=3145848395`, `active=false`, `folder=mods/extra features`, `desc=This mod itself doesn't add any content. Only empowers other mods to have additional features.`, `mode_description=tbl`, `exists=true`, `name=extra features`, `priority_hint=0`, `author=Glacies`, `save=extra features`, `here=true`
-- entry 4: `cover=mods/glac terminal/cover.png`, `id=3144832438`, `active=false`, `folder=mods/glac terminal`, `desc=Modder tool. DOESN'T ADD ANY CONTENT.`, `mode_description=tbl`, `exists=true`, `name=glac terminal`, `priority_hint=-3`, `author=Glacies`, `save=glac terminal`, `here=true`
-- entry 5: `cover=mods/glacies collection/cover.png`, `id=3148586988`, `active=false`, `folder=mods/glacies collection`, `desc=Adds a bunch of ingame mechanics that can be used by other mods,`, `mode_description=tbl`, `exists=true`, `name=glacies collection`, `priority_hint=0`, `author=Glacies`, `save=glacies collection`, `here=true`
-- entry 6: `cover=mods/grenade predictor/cover.png`, `id=3449354474`, `active=false`, `folder=mods/grenade predictor`, `desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.`, `mode_description=tbl`, `exists=true`, `name=grenade predictor`, `priority_hint=0`, `author=Glacies`, `save=grenade predictor`, `here=true`
-- entry 7: `folder=mods/nightmare`, `cover=mods/nightmare/cover.png`, `id=3197738029`, `active=false`, `modes=tbl`, `mode_description=tbl`, `priority_hint=0`, `exists=true`, `name=nightmare`, `desc=The title is a lie. This mod isn't as hard as a nightmare at all.`, `author=Glacies`, `save=nightmare`
-- entry 8: `cover=mods/retry/cover.png`, `id=3626751996`, `active=false`, `folder=mods/retry`, `desc=Restarts the current floor after you die.`, `mode_description=tbl`, `exists=true`, `name=retry`, `priority_hint=0`, `author=Glacies`, `save=retry`, `here=true`
-- entry 9: `folder=mods/royal card lab`, `cover=mods/royal card lab/cover.png`, `id=3144064207`, `active=false`, `modes=tbl`, `mode_description=tbl`, `priority_hint=-1`, `exists=true`, `name=royal card lab`, `desc=`, `author=Glacies`, `save=royal card lab`
-- entry 10: `folder=mods/Shootout`, `cover=mods/Shootout/cover.png`, `active=false`, `modes=tbl`, `priority_hint=0`, `exists=true`, `name=Shootout`, `desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'`, `author=unknown2559`, `save=Shootout`, `here=true`, `title=Shootout: the Rifle King Adventure`
-- entry 11: `cover=mods/show exclude/cover.png`, `id=3145391294`, `active=false`, `folder=mods/show exclude`, `desc=Features:`, `mode_description=tbl`, `exists=true`, `name=show exclude`, `priority_hint=0`, `author=Glacies`, `save=show exclude`, `here=true`
-- entry 12: `id=3342310033`, `modes=tbl`, `langs=tbl`, `exists=true`, `name=some_fairy_pieces`, `author=sub122`, `save=some_fairy_pieces`, `here=true`, `priority_hint=1`, `script=mods/some_fairy_pieces/script.lua`, `mode_record=tbl`, `cover=mods/some_fairy_pieces/cover_sfps.png`
-- entry 13: `cover=mods/the art of war/cover.png`, `id=3512338449`, `active=false`, `folder=mods/the art of war`, `desc=[h2] Content [/h2]`, `mode_description=tbl`, `exists=true`, `name=the art of war`, `priority_hint=-1`, `author=Glacies`, `save=the art of war`, `here=true`
-- entry 14: `name=the_magnificient_quartz_army`, `cover=mods/the_magnificient_quartz_army/tmqa_cover.png`, `id=3151846036`, `active=false`, `script=mods/the_magnificient_quartz_army/script.lua`, `langs=tbl`, `title=The Magnificent Quartz Army`, `exists=true`, `folder=mods/the_magnificient_quartz_army`, `desc=The white army is getting bigger, this mod that adds a whole  lots of new pieces for the white army, as well as a special throne mod where the difficulties all affects these new pieces instead.`, `author=matheo000`, `save=the_magnificient_quartz_army`
+- entry 1: `cover=mods/sk-rework/cover.png`, `num=1`, `here=true`, `save=sk-rework`, `exists=true`, `name=sk-rework`, `title=SK Rework`, `author=freeforall1932`, `folder=mods/sk-rework`, `desc=SK Rework — Build 6 (Phase 2c + diagnostics). Build 5 crashed at boot in`, `priority_hint=0`, `active=true`
+- entry 2: `here=true`, `save=disgraced_justice`, `exists=true`, `name=disgraced_justice`, `title=Disgraced Justice`, `author=Lorina Sonetto & Bob Qwerty`, `folder=mods/disgraced_justice`, `desc=Broken oaths and holy corruption.`, `priority_hint=0`, `active=false`, `script=mods/disgraced_justice/script.lua`
+- entry 3: `cover=mods/extra features/cover.png`, `here=true`, `id=3145848395`, `save=extra features`, `exists=true`, `name=extra features`, `title=Glacies' Extra Features`, `author=Glacies`, `folder=mods/extra features`, `desc=This mod itself doesn't add any content. Only empowers other mods to have additional features.`, `priority_hint=0`, `active=false`
+- entry 4: `cover=mods/glac terminal/cover.png`, `here=true`, `id=3144832438`, `save=glac terminal`, `exists=true`, `name=glac terminal`, `title=Glacies Module Terminal`, `author=Glacies`, `folder=mods/glac terminal`, `desc=Modder tool. DOESN'T ADD ANY CONTENT.`, `priority_hint=-3`, `active=false`
+- entry 5: `cover=mods/glacies collection/cover.png`, `here=true`, `id=3148586988`, `save=glacies collection`, `exists=true`, `name=glacies collection`, `title=Glacies' Collection`, `author=Glacies`, `folder=mods/glacies collection`, `desc=Adds a bunch of ingame mechanics that can be used by other mods,`, `priority_hint=0`, `active=false`
+- entry 6: `cover=mods/grenade predictor/cover.png`, `here=true`, `id=3449354474`, `save=grenade predictor`, `exists=true`, `name=grenade predictor`, `title=Grenade Predictor`, `author=Glacies`, `folder=mods/grenade predictor`, `desc=Hold middle wheel over a square to see the probabilities or average damages of a grenade.`, `priority_hint=0`, `active=false`
+- entry 7: `modes=tbl`, `here=true`, `script=mods/nightmare/script.lua`, `save=nightmare`, `exists=true`, `name=nightmare`, `title=Nightmare Mode`, `id=3197738029`, `folder=mods/nightmare`, `desc=The title is a lie. This mod isn't as hard as a nightmare at all.`, `priority_hint=0`, `active=false`
+- entry 8: `cover=mods/retry/cover.png`, `here=true`, `id=3626751996`, `save=retry`, `exists=true`, `name=retry`, `title=Retry after Death`, `author=Glacies`, `folder=mods/retry`, `desc=Restarts the current floor after you die.`, `priority_hint=0`, `active=false`
+- entry 9: `modes=tbl`, `here=true`, `save=royal card lab`, `exists=true`, `name=royal card lab`, `title=Royal Card Lab`, `id=3144064207`, `folder=mods/royal card lab`, `desc=`, `priority_hint=-1`, `active=false`, `script=mods/royal card lab/script.lua`
+- entry 10: `modes=tbl`, `here=true`, `cover=mods/Shootout/cover.png`, `save=Shootout`, `exists=true`, `name=Shootout`, `title=Shootout: the Rifle King Adventure`, `author=unknown2559`, `folder=mods/Shootout`, `desc=An endless adventure in which your typical arsenal is replaced with a shitty rifle'`, `priority_hint=0`, `active=false`
+- entry 11: `cover=mods/show exclude/cover.png`, `here=true`, `id=3145391294`, `save=show exclude`, `exists=true`, `name=show exclude`, `title=Better Codex`, `author=Glacies`, `folder=mods/show exclude`, `desc=Features:`, `priority_hint=0`, `active=false`
+- entry 12: `modes=tbl`, `langs=tbl`, `exists=true`, `title=Fairy Pieces for SGK`, `author=sub122`, `priority_hint=1`, `active=false`, `cover=mods/some_fairy_pieces/cover_sfps.png`, `save=some_fairy_pieces`, `name=some_fairy_pieces`, `id=3342310033`, `folder=mods/some_fairy_pieces`
+- entry 13: `cover=mods/the art of war/cover.png`, `here=true`, `id=3512338449`, `save=the art of war`, `exists=true`, `name=the art of war`, `title=Military Tactics -The Art of War-`, `author=Glacies`, `folder=mods/the art of war`, `desc=[h2] Content [/h2]`, `priority_hint=-1`, `active=false`
+- entry 14: `modes=tbl`, `here=true`, `langs=tbl`, `save=the_magnificient_quartz_army`, `exists=true`, `name=the_magnificient_quartz_army`, `title=The Magnificent Quartz Army`, `id=3151846036`, `folder=mods/the_magnificient_quartz_army`, `desc=The white army is getting bigger, this mod that adds a whole  lots of new pieces for the white army, as well as a special throne mod where the difficulties all affects these new pieces instead.`, `priority_hint=5`, `active=false`
 
 ## 11. Card id map (live CARDS dump)
 
@@ -464,192 +492,192 @@ xpl_king                    ysort
 
 ## 12b. Full card fields & EXCLUDE pairs (build 5+)
 
-- **Ermine Belt**: `gid=0`, `id=Ermine Belt`, `n=3`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=0`, `gain=tbl`, `team=0`, `ext=0`, `ammo_max=3`
-- **Rightful Curtsy**: `n=2`, `gid=1`, `id=Rightful Curtsy`, `knockback=50`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=on_hit`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=1`, `gain=tbl`, `team=0`, `ext=0`, `ammo_max=1`
-- **Elite Gem**: `team=0`, `gid=2`, `id=Elite Gem`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `firerange=1`, `sac=tbl`, `index=2`, `gain=tbl`, `n=1`, `ext=0`, `ammo_regen=1`
-- **Extra Barrel**: `gid=3`, `id=Extra Barrel`, `n=3`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `team=0`, `sac=tbl`, `index=3`, `gain=tbl`, `chamber_max=1`, `ext=0`, `pwe=6`
-- **Royal Loafers**: `n=1`, `gid=4`, `id=Royal Loafers`, `exclude=tbl`, `exclude.1=Sawed-off Justice`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `team=0`, `sac=tbl`, `index=4`, `gain=tbl`, `special=strafe`, `ext=0`, `pwe=2`
-- **Majestic Censer**: `team=0`, `gid=5`, `id=Majestic Censer`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `soul_slot=1`, `sac=tbl`, `index=5`, `gain=tbl`, `n=1`, `ext=0`, `ammo_max=1`
-- **Sacred Crown**: `n=1`, `gid=6`, `id=Sacred Crown`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `team=0`, `sac=tbl`, `index=6`, `gain=tbl`, `need_soul=1`, `ext=0`, `crown=1`
-- **Blunderbuss**: `n=2`, `gid=7`, `id=Blunderbuss`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `spread=30`, `sac=tbl`, `index=7`, `gain=tbl`, `firepower=2`, `ext=0`, `pwe=4`
-- **Engraved Scope**: `n=1`, `gid=8`, `id=Engraved Scope`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `search=1`, `sac=tbl`, `index=8`, `gain=tbl`, `special=scope`, `ext=0`, `pwe=4`
-- **Holy Gunpowder**: `n=2`, `gid=9`, `id=Holy Gunpowder`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `team=0`, `sac=tbl`, `index=9`, `gain=tbl`, `firepower=1`, `ext=0`, `ammo_max=-1`
-- **Ritual Dagger**: `id=Ritual Dagger`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `tags.2=blade`, `index=10`, `exclude_tag=tbl`, `team=0`, `exclude=tbl`, `exclude.1=King's Shoulders`, `exclude.2=Guillotine`, `gid=10`, `need=tbl`, `ext=0`, `gain=tbl`, `firerange=-1`, `sac=tbl`, `n=1`, `need_card=tbl`, `leader_hp=-3`, `blade=1`, `pwe=4`
-- **August Presence**: `gid=11`, `id=August Presence`, `need_card=tbl`, `presence=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=11`, `gain=tbl`, `team=0`, `ext=0`, `pwe=4`
-- **Crow's Blessing**: `gid=12`, `id=Crow's Blessing`, `need_card=tbl`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `firerange=2`, `sac=tbl`, `index=12`, `gain=tbl`, `team=0`, `ext=0`, `pwe=4`
-- **Wand of Downpour**: `gid=13`, `id=Wand of Downpour`, `wand=tbl`, `wand.1=0`, `wand.2=10`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=13`, `gain=tbl`, `team=0`, `ext=0`, `pwe=1`
-- **Wand of Frenzy**: `gid=14`, `id=Wand of Frenzy`, `wand=tbl`, `wand.1=1`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=14`, `gain=tbl`, `team=0`, `ext=0`, `pwe=1`
-- **Wand of Wrath**: `gid=15`, `id=Wand of Wrath`, `wand=tbl`, `wand.1=2`, `wand.2=firepower`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=15`, `gain=tbl`, `team=0`, `ext=0`, `pwe=1`
-- **Wand of Wings**: `gid=16`, `id=Wand of Wings`, `wand=tbl`, `wand.1=3`, `wand.2=3`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=16`, `gain=tbl`, `team=0`, `ext=0`, `pwe=1`
-- **The Moat**: `gid=17`, `id=The Moat`, `team=0`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=17`, `gain=tbl`, `moat=4`, `ext=0`, `pwe=4`
-- **Gradual Absolution**: `gid=18`, `team=0`, `id=Gradual Absolution`, `need_tag=tbl`, `exclude_tag=tbl`, `absolution=1`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `gain=tbl`, `sac=tbl`, `index=18`, `need_soul=2`, `n=2`, `ext=0`, `pwe=2`
-- **Taunting Hop**: `sac=tbl`, `gid=19`, `id=Taunting Hop`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `hop_dmg=1`, `tags=tbl`, `tags.1=jump`, `need_card=tbl`, `need=tbl`, `hop=1`, `index=19`, `gain=tbl`, `n=2`, `ext=0`, `pwe=4`
-- **Wand of Gust**: `gid=20`, `id=Wand of Gust`, `wand=tbl`, `wand.1=4`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=20`, `gain=tbl`, `team=0`, `ext=0`, `pwe=1`
-- **Faithful Steed**: `knight_black_castle=1`, `gid=21`, `id=Faithful Steed`, `team=0`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sac=tbl`, `index=21`, `n=1`, `need_card=tbl`, `need_card.1=Warhorse`, `ext=0`, `knight_black_carryking=1`
-- **Unjust Decree**: `need_chamber_max=2`, `need_tag=tbl`, `tags=tbl`, `index=22`, `special=decree`, `exclude_tag=tbl`, `gid=22`, `need=tbl`, `id=Unjust Decree`, `ext=0`, `n=1`, `sac=tbl`, `team=0`, `need_card=tbl`, `firepower=-1`, `gain=tbl`, `pwe=2`
-- **Kingly Alms**: `grenade_center_dmg=2`, `id=Kingly Alms`, `need_tag=tbl`, `tags=tbl`, `tags.1=grenade`, `grenades_max=1`, `index=23`, `special=grenade`, `exclude_tag=tbl`, `team=0`, `need=tbl`, `gid=23`, `sac=tbl`, `ext=0`, `need_card=tbl`, `n=3`, `gain=tbl`, `pwe=4`
-- **Subtle Poison**: `id=Subtle Poison`, `queen_hp=-1`, `queen_poison=15`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=24`, `exclude_tag=tbl`, `gid=24`, `need=tbl`, `exclude=tbl`, `exclude.1=Guillotine`, `gain=tbl`, `ext=0`, `sac=tbl`, `n=1`, `need_card=tbl`, `leader_hp=-1`, `team=0`, `pwe=2`
-- **Kingdom Wealth**: `exclude=tbl`, `exclude.1=Guillotine`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=25`, `exclude_tag=tbl`, `team=0`, `ammo_max=6`, `need=tbl`, `ext=0`, `gain=tbl`, `n=1`, `sac=tbl`, `gid=25`, `need_card=tbl`, `leader_hp=2`, `id=Kingdom Wealth`, `pwe=3`
-- **Small Fry Harvest**: `exclude=tbl`, `exclude.1=King's Shoulders`, `pawn_shell=1`, `tags=tbl`, `tags.1=blade`, `index=26`, `exclude_tag=tbl`, `team=0`, `id=Small Fry Harvest`, `need=tbl`, `ext=0`, `gid=26`, `n=2`, `sac=tbl`, `gain=tbl`, `need_card=tbl`, `need_tag=tbl`, `blade=1`, `pwe=2`
-- **A Piercing Truth**: `gid=27`, `id=A Piercing Truth`, `need_card=tbl`, `n=2`, `pierce=30`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_tag=tbl`, `sac=tbl`, `index=27`, `gain=tbl`, `team=0`, `ext=0`, `pwe=4`
-- **Black Mist**: `mist=1`, `gid=28`, `id=Black Mist`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `firerange=-1`, `sac=tbl`, `index=28`, `gain=tbl`, `n=2`, `ext=0`, `pwe=4`
-- **King's Shoulders**: `ext=0`, `team=0`, `id=King's Shoulders`, `exclude=tbl`, `exclude.1=Ritual Dagger`, `exclude.2=Small Fry Harvest`, `exclude.3=Nightbane`, `exclude.4=Bushido`, `exclude.5=Shovel`, `exclude.6=Full Plate Armor`, `exclude.7=Vendetta`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gid=29`, `gain=tbl`, `sac=tbl`, `index=29`, `n=1`, `grab=1`, `exclude_tag=tbl`, `exclude_tag.1=blade`, `pwe=2`
-- **High Focus**: `id=High Focus`, `need_tag=tbl`, `tags=tbl`, `index=30`, `exclude_tag=tbl`, `team=0`, `flip_on=contact`, `need=tbl`, `gid=30`, `ext=0`, `spread=-10`, `sac=tbl`, `n=2`, `need_card=tbl`, `firepower=1`, `gain=tbl`, `pwe=4`
-- **Courteous Jousting**: `need=tbl`, `need.1=1`, `team=0`, `id=Courteous Jousting`, `exclude_tag=tbl`, `gid=31`, `need_tag=tbl`, `knight_joust=1`, `tags=tbl`, `need_card=tbl`, `gain=tbl`, `sac=tbl`, `index=31`, `spread=-10`, `n=1`, `ext=0`, `pwe=4`
-- **Cornered Despot**: `n=1`, `gid=32`, `id=Cornered Despot`, `exclude_tag=tbl`, `team=0`, `flip_on=inner`, `need=tbl`, `tags=tbl`, `need_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=32`, `gain=tbl`, `firepower=2`, `ext=0`, `pwe=4`
-- **Sawed-off Justice**: `id=Sawed-off Justice`, `need_tag=tbl`, `tags=tbl`, `index=33`, `exclude_tag=tbl`, `gid=33`, `exclude=tbl`, `exclude.1=Royal Loafers`, `team=0`, `need=tbl`, `ext=1`, `recoil=1`, `firerange=-1`, `sac=tbl`, `n=1`, `need_card=tbl`, `firepower=2`, `gain=tbl`, `pwe=4`
-- **Welcome Gift**: `n=1`, `gid=34`, `id=Welcome Gift`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `jumpy=1`, `sac=tbl`, `index=34`, `gain=tbl`, `firepower=4`, `ext=1`, `pwe=4`
-- **Cannon Fodder**: `gid=35`, `id=Cannon Fodder`, `need_card=tbl`, `tags=tbl`, `need_tag=tbl`, `need=tbl`, `pawnreap=1`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=35`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Possessed**: `team=0`, `id=Possessed`, `n=1`, `gid=36`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `soul_slot=2`, `sac=tbl`, `index=36`, `need_card=tbl`, `need_card.1=Conclave`, `need_card.2=Unholy Call`, `gain=tbl`, `gain.1=2`, `ext=1`, `pwe=4`
-- **Philanthropy**: `id=Philanthropy`, `need_tag=tbl`, `tags=tbl`, `tags.1=grenade`, `grenades_max=2`, `index=37`, `grenade_dmg=-1`, `special=grenade`, `exclude_tag=tbl`, `team=0`, `need=tbl`, `gid=37`, `sac=tbl`, `ext=1`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Imperial Shot Put**: `gid=38`, `team=0`, `id=Imperial Shot Put`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `sac=tbl`, `gain=tbl`, `cannonball=1`, `index=38`, `need_card=tbl`, `need_card.1=King's Shoulders`, `n=3`, `ext=1`, `ammo_max=-1`
-- **Egotic Maelstrom**: `id=Egotic Maelstrom`, `delayed=tbl`, `delayed.firepower=1`, `delay=12`, `need_tag=tbl`, `tags=tbl`, `cycle=1`, `index=39`, `exclude_tag=tbl`, `gid=39`, `need=tbl`, `team=0`, `sac=tbl`, `ext=1`, `need_card=tbl`, `gain=tbl`, `n=1`, `pwe=4`
-- **Church Organ**: `n=1`, `team=0`, `id=Church Organ`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gid=40`, `gain=tbl`, `sac=tbl`, `index=40`, `need_card=tbl`, `need_card.1=Cathedral`, `chamber_max=2`, `ext=1`, `ammo_max=2`
-- **Black Plague**: `gain=tbl`, `gid=41`, `id=Black Plague`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `plague=1`, `firerange=-1`, `sac=tbl`, `index=41`, `n=1`, `need_card=tbl`, `need_card.1=Crow's Blessing`, `need_card.2=Ravenous Rats`, `ext=1`, `pwe=4`
-- **Ravenous Rats**: `rats=1`, `gid=42`, `id=Ravenous Rats`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `exclude_tag=tbl`, `sac=tbl`, `index=42`, `n=1`, `team=0`, `ext=1`, `pwe=4`
-- **Deep Water**: `gid=43`, `id=Deep Water`, `n=1`, `deepwater=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=0`, `exclude_tag=tbl`, `sac=tbl`, `index=43`, `gain=tbl`, `need_card=tbl`, `need_card.1=The Moat`, `ext=1`, `pwe=4`
-- **Unholy Call**: `gid=44`, `id=Unholy Call`, `pentagrams=3`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=44`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Undercover Mission**: `waypoint=1`, `gid=45`, `id=Undercover Mission`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=mission`, `gain=tbl`, `exclude_tag=tbl`, `sac=tbl`, `index=45`, `n=1`, `team=0`, `ext=1`, `pwe=4`
-- **Caltrops**: `ext=1`, `gid=46`, `id=Caltrops`, `tags=tbl`, `tags.1=bleed`, `team=0`, `need_tag=tbl`, `need=tbl`, `bleed_slow=1`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=46`, `gain=tbl`, `n=2`, `caltrops=15`, `pwe=4`
-- **Nightbane**: `need_card=tbl`, `gid=47`, `id=Nightbane`, `exclude=tbl`, `exclude.1=King's Shoulders`, `tags=tbl`, `tags.1=blade`, `need_tag=tbl`, `need=tbl`, `blade=3`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=47`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Bushido**: `id=Bushido`, `need_tag=tbl`, `bushido=1`, `tags=tbl`, `tags.1=blade`, `index=48`, `exclude_tag=tbl`, `team=0`, `exclude=tbl`, `exclude.1=King's Shoulders`, `need=tbl`, `gid=48`, `ext=1`, `gain=tbl`, `sac=tbl`, `n=1`, `need_card=tbl`, `firepower=-1`, `blade=2`, `pwe=4`
-- **Bloodless Coups**: `id=Bloodless Coups`, `need_tag=tbl`, `tags=tbl`, `index=49`, `exclude_tag=tbl`, `team=0`, `exclude=tbl`, `exclude.1=Militia`, `exclude.2=Stoning`, `gid=49`, `need=tbl`, `ext=1`, `pawn_peace=1`, `spread=-15`, `sac=tbl`, `n=1`, `need_card=tbl`, `gain=tbl`, `pawn_curse=1`, `pwe=4`
-- **Wand of Hypnosis**: `gid=50`, `id=Wand of Hypnosis`, `wand=tbl`, `wand.1=5`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=50`, `gain=tbl`, `team=0`, `ext=1`, `pwe=1`
-- **Presbyopia**: `gid=51`, `id=Presbyopia`, `need_card=tbl`, `need_card.1=Golden Aging`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `queen_bishop_minr=2`, `exclude_tag=tbl`, `sac=tbl`, `index=51`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Golden Aging**: `id=Golden Aging`, `delayed=tbl`, `delayed.leader_queen_tempo=1`, `delay=10`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `cycle=1`, `index=52`, `exclude_tag=tbl`, `gid=52`, `need=tbl`, `need.1=4`, `need.2=8`, `exclude=tbl`, `exclude.1=Guillotine`, `leader_queen_hp=-1`, `ext=1`, `sac=tbl`, `team=0`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Fool Companion**: `jester_guard=1`, `gid=53`, `id=Fool Companion`, `need_card=tbl`, `need_card.1=The Jester`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=53`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Force-feeding**: `sac=tbl`, `gid=54`, `id=Force-feeding`, `exclude_tag=tbl`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `full_firepower=1`, `need_card=tbl`, `overload=1`, `index=54`, `gain=tbl`, `team=0`, `ext=1`, `pwe=4`
-- **Seer's Orb**: `id=Seer's Orb`, `need_tag=tbl`, `tags=tbl`, `tags.1=orb`, `index=55`, `special=orb`, `exclude_tag=tbl`, `team=0`, `orb=1`, `need=tbl`, `gid=55`, `search=1`, `sac=tbl`, `ext=2`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Fearsome**: `n=2`, `gid=56`, `id=Fearsome`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `fearsome=1`, `need_card=tbl`, `sac=tbl`, `index=56`, `gain=tbl`, `team=0`, `ext=2`, `ammo_max=1`
-- **Human Shield**: `humanshield=1`, `team=0`, `id=Human Shield`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gid=57`, `gain=tbl`, `sac=tbl`, `index=57`, `n=1`, `need_card=tbl`, `need_card.1=Fearsome`, `ext=2`, `ammo_max=2`
-- **Reign of Terror**: `gid=58`, `team=0`, `id=Reign of Terror`, `terrorism=1`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sac=tbl`, `index=58`, `n=1`, `need_card=tbl`, `need_card.1=Fearsome`, `ext=2`, `ammo_max=-2`
-- **Selective Listening**: `gid=59`, `id=Selective Listening`, `team=0`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=59`, `gain=tbl`, `tactic=2`, `ext=2`, `pwe=4`
-- **Monarch's Confidence**: `need_chamber_max=2`, `gid=60`, `id=Monarch's Confidence`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `confidence=1`, `tags=tbl`, `need_card=tbl`, `need=tbl`, `sac=tbl`, `index=60`, `gain=tbl`, `n=1`, `ext=2`, `pwe=4`
-- **The Mole**: `gid=61`, `id=The Mole`, `spy=1`, `team=0`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`, `need.6=0`, `need.7=0`, `tags=tbl`, `tags.1=mission`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=61`, `gain=tbl`, `n=2`, `ext=2`, `pwe=4`
-- **Elusive**: `sac=tbl`, `gid=62`, `id=Elusive`, `exclude_tag=tbl`, `team=0`, `need_tag=tbl`, `elusive=1`, `tags=tbl`, `tags.1=jump`, `need_card=tbl`, `need=tbl`, `hop=1`, `index=62`, `gain=tbl`, `n=1`, `ext=2`, `pwe=4`
-- **Holoking**: `gid=63`, `id=Holoking`, `index=63`, `gain=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `holoking=1`, `n=1`, `team=0`, `ext=2`, `pwe=4`
-- **Cloaking Device**: `index=64`, `team=0`, `id=Cloaking Device`, `exclude_tag=tbl`, `gid=64`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=cloak`, `need_card=tbl`, `need_card.1=Holoking`, `gain=tbl`, `sac=tbl`, `holoreveal=1`, `n=1`, `holocloak=1`, `ext=2`, `pwe=4`
-- **Low-Cost Disguise**: `gid=65`, `id=Low-Cost Disguise`, `pawn_disguise=2`, `n=2`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=cloak`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=65`, `gain=tbl`, `team=0`, `ext=2`, `pwe=4`
-- **Wand of Souls**: `gid=66`, `id=Wand of Souls`, `wand=tbl`, `wand.1=6`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=66`, `gain=tbl`, `team=0`, `ext=2`, `pwe=1`
-- **Wand of Execution**: `gid=67`, `id=Wand of Execution`, `wand=tbl`, `wand.1=7`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=67`, `gain=tbl`, `team=0`, `ext=2`, `pwe=1`
-- **Patience**: `id=Patience`, `need_tag=tbl`, `tags=tbl`, `floor_max=9`, `exclude_tag=tbl`, `team=0`, `index=68`, `need=tbl`, `ammo_max=1`, `ext=2`, `browse=1`, `sac=tbl`, `n=2`, `need_card=tbl`, `gain=tbl`, `gid=68`, `pwe=4`
-- **Bold Plan**: `replace_white_card=1`, `gid=69`, `id=Bold Plan`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `exclude_tag=tbl`, `sac=tbl`, `index=69`, `n=3`, `team=0`, `ext=2`, `pwe=4`
-- **Silencer**: `gain=tbl`, `team=0`, `id=Silencer`, `exclude_tag=tbl`, `gid=70`, `need_tag=tbl`, `need_tag.1=cloak`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `firerange=-1`, `sac=tbl`, `index=70`, `n=1`, `silencer=1`, `ext=2`, `pwe=4`
-- **Ambush**: `id=Ambush`, `need_tag=tbl`, `need_tag.1=cloak`, `tags=tbl`, `index=71`, `grenade_dmg=1`, `exclude_tag=tbl`, `gid=71`, `flip_on=not_cloaked`, `need=tbl`, `gain=tbl`, `firerange=2`, `sac=tbl`, `ext=2`, `need_card=tbl`, `n=1`, `team=0`, `pwe=4`
-- **Ancient Flagstone**: `gid=72`, `id=Ancient Flagstone`, `index=72`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `n=1`, `sac=tbl`, `flagstones=1`, `gain=tbl`, `team=0`, `ext=2`, `pwe=2`
-- **Tearing Bullets**: `tearing=1`, `gid=73`, `id=Tearing Bullets`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=bleed`, `tags.2=on_hit`, `gain=tbl`, `exclude_tag=tbl`, `sac=tbl`, `index=73`, `n=1`, `team=0`, `ext=2`, `pwe=4`
-- **Indelible Memories**: `id=Indelible Memories`, `grenade_bleed=1`, `need_tag=tbl`, `tags=tbl`, `tags.1=bleed`, `tags.2=grenade`, `grenades_max=1`, `index=74`, `special=grenade`, `exclude_tag=tbl`, `team=0`, `need=tbl`, `gid=74`, `sac=tbl`, `ext=2`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Mystic Shackles**: `gid=75`, `id=Mystic Shackles`, `index=75`, `n=1`, `need_tag=tbl`, `need_tag.1=orb`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `shackles=1`, `gain=tbl`, `team=0`, `ext=2`, `pwe=4`
-- **Secret Move**: `sac=tbl`, `team=0`, `id=Secret Move`, `exclude_tag=tbl`, `gid=76`, `need_tag=tbl`, `need_tag.1=jump`, `botte=2`, `tags=tbl`, `tags.1=jump`, `need_card=tbl`, `need=tbl`, `hop=1`, `index=76`, `n=1`, `gain=tbl`, `ext=2`, `pwe=4`
-- **Sacred Light**: `grenade_proof=1`, `id=Sacred Light`, `grenade_stun=2`, `need_tag=tbl`, `tags=tbl`, `tags.1=grenade`, `grenades_max=1`, `index=77`, `grenade_dmg=-2`, `special=grenade`, `exclude_tag=tbl`, `gid=77`, `need=tbl`, `gain=tbl`, `sac=tbl`, `ext=2`, `need_card=tbl`, `n=1`, `team=0`, `pwe=4`
-- **Workshop**: `id=Workshop`, `delayed=tbl`, `delayed.mk_ammo=2`, `delayed.mk_grenades=1`, `delay=8`, `need_tag=tbl`, `need_tag.1=grenade`, `tags=tbl`, `cycle=1`, `index=78`, `exclude_tag=tbl`, `team=0`, `need=tbl`, `gid=78`, `sac=tbl`, `ext=2`, `need_card=tbl`, `gain=tbl`, `n=1`, `pwe=4`
-- **Right-hand**: `gid=79`, `id=Right-hand`, `n=1`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `exclude_tag=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Gradual Absolution`, `need_card.1.2=Possessed`, `need_card.1.3=The Red Book`, `sac=tbl`, `index=79`, `gain=tbl`, `allies=tbl`, `allies.1=2`, `ext=3`, `pwe=4`
-- **Warhorse**: `gid=80`, `id=Warhorse`, `n=1`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `exclude_tag=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Saddle`, `need_card.1.2=Knightmare`, `need_card.1.3=Cavalry`, `sac=tbl`, `index=80`, `gain=tbl`, `allies=tbl`, `allies.1=1`, `ext=3`, `pwe=4`
-- **Bastion**: `gid=81`, `id=Bastion`, `n=1`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `exclude_tag=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Highest Dungeon`, `need_card.1.2=Bunker`, `need_card.1.3=Lookout Tower`, `sac=tbl`, `index=81`, `gain=tbl`, `allies=tbl`, `allies.1=3`, `ext=3`, `pwe=4`
-- **Sprint**: `gid=82`, `id=Sprint`, `need_card=tbl`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `sprint=1`, `sac=tbl`, `index=82`, `gain=tbl`, `team=0`, `ext=3`, `pwe=4`
-- **Soul Projection**: `gid=83`, `id=Soul Projection`, `n=1`, `team=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `exclude_tag=tbl`, `summoner=1`, `sac=tbl`, `index=83`, `gain=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Undead Armies`, `need_card.1.2=Knightmare`, `ext=3`, `pwe=4`
-- **Onboarding Party**: `gid=84`, `id=Onboarding Party`, `n=1`, `team=0`, `need_tag=tbl`, `onboarding=1`, `tags=tbl`, `exclude_tag=tbl`, `need=tbl`, `sac=tbl`, `index=84`, `gain=tbl`, `need_card=tbl`, `need_card.1=Welcome Gift`, `ext=3`, `pwe=4`
-- **Small Key**: `gid=85`, `id=Small Key`, `n=1`, `small_key=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=0`, `exclude_tag=tbl`, `sac=tbl`, `index=85`, `gain=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Prison`, `need_card.1.2=Trowel`, `ext=3`, `pwe=4`
-- **Rapunzel**: `gid=86`, `id=Rapunzel`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Lady in the Tower`, `need_card.1.2=Highest Dungeon`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `rapunzel=1`, `exclude_tag=tbl`, `sac=tbl`, `index=86`, `gain=tbl`, `team=0`, `ext=3`, `pwe=4`
-- **Wand of Treachery**: `gid=87`, `id=Wand of Treachery`, `wand=tbl`, `wand.1=8`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=ally`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=87`, `gain=tbl`, `team=0`, `ext=3`, `pwe=1`
-- **Guerilla Tactics**: `id=Guerilla Tactics`, `need_tag=tbl`, `tags=tbl`, `tags.1=grenade`, `grenades_max=1`, `index=88`, `special=grenade`, `exclude_tag=tbl`, `gid=88`, `need=tbl`, `ammo_max=1`, `ext=3`, `firerange=1`, `sac=tbl`, `n=1`, `need_card=tbl`, `gain=tbl`, `team=0`, `pwe=4`
-- **Shovel**: `id=Shovel`, `need_tag=tbl`, `blade=1`, `index=89`, `special=dig`, `exclude_tag=tbl`, `gid=89`, `tunnels=1`, `exclude=tbl`, `exclude.1=King's Shoulders`, `need=tbl`, `tags=tbl`, `tags.1=blade`, `tags.2=tunnels`, `hole_start=2`, `ext=3`, `sac=tbl`, `n=1`, `need_card=tbl`, `team=0`, `gain=tbl`, `pwe=2`
-- **Grindstone**: `id=Grindstone`, `delayed=tbl`, `delayed.blade=1`, `delay=6`, `need_tag=tbl`, `tags=tbl`, `cycle=1`, `index=90`, `exclude_tag=tbl`, `gid=90`, `need=tbl`, `gain=tbl`, `sac=tbl`, `ext=3`, `need_card=tbl`, `team=0`, `n=1`, `pwe=2`
-- **Death Mark**: `n=2`, `gid=91`, `id=Death Mark`, `exclude_tag=tbl`, `team=0`, `sheath=1`, `need=tbl`, `tags=tbl`, `tags.1=on_hit`, `need_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=91`, `gain=tbl`, `firepower=-1`, `ext=3`, `pwe=4`
-- **Shrapnel**: `gain=tbl`, `team=0`, `id=Shrapnel`, `knockback=15`, `pwe=4`, `need_tag=tbl`, `need_tag.1=on_hit`, `need=tbl`, `tags=tbl`, `tags.1=on_hit`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=92`, `n=2`, `gid=92`, `ext=3`, `shrapnel=3`
-- **Backups**: `gid=100`, `id=Backups`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=93`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `n=3`, `ext=0`, `pwe=4`
-- **Cavalry**: `gid=101`, `id=Cavalry`, `need_card=tbl`, `delay=15`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=94`, `n=1`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `ext=0`, `pwe=4`
-- **Conclave**: `gid=102`, `id=Conclave`, `need_card=tbl`, `delay=15`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=95`, `n=1`, `gain=tbl`, `gain.1=2`, `gain.2=2`, `ext=0`, `pwe=4`
-- **Entitle**: `gid=103`, `id=Entitle`, `team=1`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `sac.1=0`, `index=96`, `n=1`, `gain=tbl`, `gain.1=1`, `ext=0`, `ammo_max=-1`
-- **Cardinal**: `gid=104`, `id=Cardinal`, `team=1`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `sac.1=0`, `index=97`, `n=1`, `gain=tbl`, `gain.1=2`, `ext=0`, `ammo_max=-1`
-- **Remparts**: `gid=105`, `id=Remparts`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=0`, `sac.2=0`, `index=98`, `gain=tbl`, `gain.1=3`, `n=2`, `ext=0`, `pwe=4`
-- **Pillage**: `gid=106`, `id=Pillage`, `need_card=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `pawn_hp=1`, `sac=tbl`, `sac.1=3`, `index=99`, `n=1`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`, `ext=0`, `pwe=4`
-- **Crusades**: `gid=107`, `id=Crusades`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=2`, `index=100`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **Peace**: `gid=108`, `id=Peace`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `gain.1=2`, `gain.2=2`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=1`, `index=101`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **King's Mistress**: `gid=109`, `id=King's Mistress`, `sac=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=4`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `queen_cage=3`, `index=102`, `n=1`, `gain=tbl`, `gain.1=4`, `ext=0`, `pwe=4`
-- **Revolution**: `gid=110`, `id=Revolution`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`, `gain.6=0`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=2`, `index=103`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **Bodyguard**: `index=104`, `gid=111`, `id=Bodyguard`, `exclude_tag=tbl`, `knight_hp=1`, `need_tag=tbl`, `need=tbl`, `need.1=1`, `need.2=8`, `tags=tbl`, `need_card=tbl`, `gain=tbl`, `sac=tbl`, `knight_bodyguard=1`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **Ruins**: `gid=112`, `id=Ruins`, `team=1`, `gain=tbl`, `gain.1=3`, `gain.2=0`, `gain.3=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=105`, `n=1`, `rook_hp=-2`, `ext=0`, `pwe=4`
-- **Assault**: `gid=113`, `id=Assault`, `ext=0`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=106`, `n=1`, `gain=tbl`, `gain.1=0`, `pawn_assault=1`, `pwe=4`
-- **Kite Shield**: `gid=114`, `id=Kite Shield`, `team=1`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `need.1=1`, `need.2=1`, `tags=tbl`, `tags.1=on_hit`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=107`, `n=1`, `gain=tbl`, `gain.1=0`, `ext=0`, `knight_shield=1`
-- **Zealots**: `id=Zealots`, `need_tag=tbl`, `tags=tbl`, `index=108`, `exclude_tag=tbl`, `pawn_tempo=-1`, `gid=115`, `flip_on=no_bishop`, `need=tbl`, `need.1=2`, `team=1`, `ext=0`, `sac=tbl`, `bishop_tempo=-1`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Militia**: `need_card=tbl`, `gid=116`, `id=Militia`, `pawn_militia=1`, `exclude=tbl`, `exclude.1=Bloodless Coups`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `tags=tbl`, `gain=tbl`, `gain.1=0`, `exclude_tag=tbl`, `sac=tbl`, `index=109`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **Ammunition Depot**: `gid=117`, `id=Ammunition Depot`, `need_card=tbl`, `rook_shell=2`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=110`, `n=2`, `gain=tbl`, `gain.1=3`, `ext=0`, `pwe=4`
-- **Scouting**: `pawn_tempo=-1`, `gid=118`, `id=Scouting`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=1`, `index=111`, `n=1`, `team=1`, `ext=0`, `pwe=4`
-- **Pikemen**: `id=Pikemen`, `need_tag=tbl`, `tags=tbl`, `pawn_hp=1`, `index=112`, `exclude_tag=tbl`, `team=1`, `pawn_pike=1`, `pawn_reformed=1`, `gid=119`, `ext=0`, `sac=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Ascension**: `gid=120`, `id=Ascension`, `need_card=tbl`, `tags=tbl`, `need_tag=tbl`, `need=tbl`, `need.1=2`, `need.2=2`, `bishop_flying=1`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=113`, `gain=tbl`, `n=1`, `ext=0`, `pwe=4`
-- **Castle**: `exclude=tbl`, `exclude.1=Guillotine`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=114`, `rook_hp=1`, `exclude_tag=tbl`, `gid=121`, `need=tbl`, `need.1=3`, `need.2=8`, `id=Castle`, `rook_castle=1`, `ext=0`, `sac=tbl`, `n=1`, `need_card=tbl`, `gain=tbl`, `team=1`, `pwe=4`
-- **Conscription**: `need_card=tbl`, `team=1`, `id=Conscription`, `gid=122`, `delay=5`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `cycle=1`, `sac=tbl`, `index=115`, `n=2`, `gain=tbl`, `gain.1=0`, `ext=0`, `pwe=4`
-- **Theocracy**: `id=Theocracy`, `ruler=2`, `theocracy=1`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=116`, `exclude_tag=tbl`, `gid=123`, `exclude=tbl`, `exclude.1=Guillotine`, `need=tbl`, `need.1=2`, `need.2=2`, `sac=tbl`, `sac.1=5`, `ext=0`, `bishop_hp=2`, `no_ruler=1`, `team=1`, `need_card=tbl`, `gain=tbl`, `gain.1=2`, `n=1`, `pwe=4`
-- **Fallen Dynasty**: `gid=124`, `id=Fallen Dynasty`, `index=117`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `n=1`, `sac=tbl`, `fallen=1`, `gain=tbl`, `team=1`, `ext=0`, `pwe=0`
-- **Iron Maiden**: `id=Iron Maiden`, `need_tag=tbl`, `tags=tbl`, `index=118`, `exclude_tag=tbl`, `gid=125`, `flip_on=only_queen`, `need=tbl`, `need.1=4`, `need.2=4`, `team=1`, `ext=0`, `n=1`, `sac=tbl`, `sac.1=4`, `queen_iron=1`, `need_card=tbl`, `queen_tempo=2`, `gain=tbl`, `pwe=4`
-- **Court of the King**: `gid=126`, `id=Court of the King`, `need_card=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `all_tempo=1`, `exclude_tag=tbl`, `sac=tbl`, `index=119`, `n=2`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `gain.3=2`, `gain.4=3`, `ext=0`, `pwe=4`
-- **The Red Book**: `gain=tbl`, `gain.1=2`, `gid=127`, `id=The Red Book`, `exclude=tbl`, `exclude.1=The Royal Hunt`, `exclude.2=Buckler of Limos`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=120`, `n=1`, `team=1`, `ext=0`, `bishop_orth=1`
-- **Saboteur**: `bad_shells=1`, `gid=128`, `id=Saboteur`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=0`, `sac.2=0`, `index=121`, `n=2`, `gain=tbl`, `gain.1=2`, `ext=0`, `pwe=4`
-- **Homecoming**: `gid=129`, `id=Homecoming`, `team=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=122`, `n=1`, `gain=tbl`, `gain.1=4`, `ext=0`, `pwe=0`
-- **Lookout Tower**: `gid=130`, `team=1`, `id=Lookout Tower`, `pwe=4`, `delay=20`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=123`, `gain=tbl`, `gain.1=3`, `n=2`, `ext=0`, `alarm=1`
-- **Throne Room**: `exclude=tbl`, `exclude.1=Guillotine`, `queen_hp=1`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=124`, `exclude_tag=tbl`, `team=1`, `need=tbl`, `need.1=5`, `id=Throne Room`, `ext=0`, `gain=tbl`, `sac=tbl`, `n=1`, `need_card=tbl`, `leader_hp=2`, `gid=131`, `pwe=4`
-- **The Secret Heir**: `need_card=tbl`, `gid=132`, `id=The Secret Heir`, `exclude=tbl`, `exclude.1=Guillotine`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=leader`, `heir=1`, `exclude_tag=tbl`, `sac=tbl`, `index=125`, `gain=tbl`, `gain.1=0`, `team=1`, `ext=0`, `pwe=4`
-- **Genderqueer**: `gid=133`, `id=Genderqueer`, `need_card=tbl`, `delay=10`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=2`, `index=126`, `n=1`, `gain=tbl`, `gain.1=4`, `ext=0`, `pwe=4`
-- **Karma**: `sqb_spread=30`, `id=Karma`, `need_tag=tbl`, `tags=tbl`, `index=127`, `exclude_tag=tbl`, `team=1`, `gain=tbl`, `need=tbl`, `ext=1`, `sqw_firepower=-1`, `n=1`, `sac=tbl`, `gid=134`, `need_card=tbl`, `reversable=1`, `reform=1`, `pwe=4`
-- **Undead Armies**: `need_card=tbl`, `gid=135`, `id=Undead Armies`, `knight_bishop_rook_rep=0`, `n=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `pawn_hp=-1`, `sac=tbl`, `index=128`, `gain=tbl`, `team=1`, `ext=1`, `pwe=4`
-- **Shortage**: `gain=tbl`, `team=1`, `id=Shortage`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `need_tag.1=grenade`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `grenades_max=-1`, `sac=tbl`, `sac.1=0`, `index=129`, `n=1`, `gid=136`, `ext=1`, `ammo_max=-3`
-- **Succubus**: `gid=137`, `id=Succubus`, `need_card=tbl`, `gain=tbl`, `gain.1=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `soul_slot=1`, `sac=tbl`, `index=130`, `n=1`, `team=1`, `ext=1`, `pwe=4`
-- **Bunker**: `exclude=tbl`, `exclude.1=Guillotine`, `leader_pawn_hp=1`, `need_tag=tbl`, `need_tag.1=grenade`, `tags=tbl`, `tags.1=leader`, `index=131`, `grenade_dmg=-1`, `exclude_tag=tbl`, `gid=138`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `id=Bunker`, `ext=1`, `sac=tbl`, `sac.1=3`, `n=1`, `need_card=tbl`, `gain=tbl`, `team=1`, `pwe=4`
-- **Sanctity**: `gid=139`, `id=Sanctity`, `need_card=tbl`, `need_card.1=Conclave`, `team=1`, `bishop_sanctity=1`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_tag=tbl`, `sac=tbl`, `index=132`, `n=1`, `gain=tbl`, `gain.1=2`, `ext=1`, `pwe=4`
-- **Knightmare**: `knight_hp=-1`, `team=1`, `id=Knightmare`, `exclude_tag=tbl`, `gid=140`, `need_tag=tbl`, `knight_wraith=1`, `tags=tbl`, `n=1`, `gain=tbl`, `sac=tbl`, `index=133`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Fearsome`, `need_card.1.2=Black Mist`, `need=tbl`, `need.1=1`, `need.2=1`, `ext=1`, `pwe=4`
-- **Highest Dungeon**: `gid=141`, `team=1`, `id=Highest Dungeon`, `need_tag=tbl`, `exclude_tag=tbl`, `flip_on=no_rook`, `need=tbl`, `need.1=3`, `tags=tbl`, `need_card=tbl`, `gain=tbl`, `sac=tbl`, `index=134`, `n=1`, `all_hp=1`, `ext=1`, `pwe=2`
-- **Cathedral**: `gid=142`, `id=Cathedral`, `n=1`, `team=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `rook_protect=1`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=2`, `index=135`, `gain=tbl`, `gain.1=3`, `need_card=tbl`, `need_card.1=Cardinal`, `ext=1`, `pwe=4`
-- **The Bridge**: `bridge=1`, `team=1`, `id=The Bridge`, `gid=143`, `delay=10`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `n=1`, `sac=tbl`, `index=136`, `need_card=tbl`, `need_card.1=The Moat`, `gain=tbl`, `gain.1=1`, `ext=1`, `pwe=4`
-- **Divine Healing**: `gain=tbl`, `gid=144`, `id=Divine Healing`, `exclude_tag=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=2`, `tags=tbl`, `need_card=tbl`, `bishop_healer=2`, `sac=tbl`, `index=137`, `n=1`, `bishop_hp=1`, `ext=1`, `pwe=4`
-- **Last Guardian**: `gid=145`, `id=Last Guardian`, `sac=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `pawn_lastg=1`, `index=138`, `gain=tbl`, `n=1`, `ext=1`, `pwe=4`
-- **Trowel**: `gain=tbl`, `gid=146`, `id=Trowel`, `exclude_tag=tbl`, `team=1`, `flip_on=no_pawn`, `need=tbl`, `need.1=3`, `need.2=0`, `tags=tbl`, `need_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=139`, `n=1`, `rook_hp=4`, `ext=1`, `pwe=4`
-- **Full Plate Armor**: `id=Full Plate Armor`, `need_tag=tbl`, `tags=tbl`, `tags.1=blade`, `index=140`, `exclude_tag=tbl`, `gid=147`, `exclude=tbl`, `exclude.1=King's Shoulders`, `team=1`, `all_hp=1`, `ext=1`, `all_tempo=1`, `gain=tbl`, `sac=tbl`, `n=1`, `need_card=tbl`, `need=tbl`, `blade=-1`, `pwe=4`
-- **Military Academy**: `need_card=tbl`, `gid=148`, `id=Military Academy`, `team=1`, `delay=10`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `cycle=1`, `sac=tbl`, `index=141`, `n=1`, `gain=tbl`, `gain.1=1`, `ext=1`, `pwe=4`
-- **Witch's Curse**: `id=Witch's Curse`, `need_tag=tbl`, `tags=tbl`, `index=142`, `queen_curse=1`, `exclude_tag=tbl`, `gid=149`, `need_card=tbl`, `need=tbl`, `need.1=4`, `ext=1`, `gain=tbl`, `firerange=-1`, `sac=tbl`, `team=1`, `spread=10`, `firepower=-1`, `n=1`, `pwe=4`
-- **Saddle**: `ext=1`, `gid=150`, `id=Saddle`, `exclude_tag=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=1`, `tags=tbl`, `need_card=tbl`, `gain=tbl`, `sac=tbl`, `index=143`, `n=1`, `knight_carry=1`, `knight_tempo=1`, `pwe=4`
-- **The Jester**: `team=1`, `id=The Jester`, `index=144`, `gid=151`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `tags=tbl`, `exclude_tag=tbl`, `n=1`, `sac=tbl`, `jester=1`, `gain=tbl`, `gain.1=0`, `need_card=tbl`, `need_card.1=Throne Room`, `ext=1`, `pwe=4`
-- **Guillotine**: `gid=152`, `id=Guillotine`, `ext=1`, `exclude=tbl`, `exclude.1=Ritual Dagger`, `exclude.2=Subtle Poison`, `exclude.3=Kingdom Wealth`, `exclude.4=Golden Aging`, `exclude.5=Castle`, `exclude.6=Theocracy`, `exclude.7=Throne Room`, `exclude.8=The Secret Heir`, `exclude.9=Bunker`, `exclude.10=Emergency Call`, `exclude.11=Mausoleum`, `exclude.12=King's Look-alike`, `exclude.13=The Royal Hunt`, `exclude.14=Buckler of Limos`, `exclude.15=Vampirism`, `exclude.16=Commoner's Reign`, `exclude.17=Unsettled Throne`, `exclude.18=Anarchy`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `gain=tbl`, `sac=tbl`, `sac.1=5`, `index=145`, `n=1`, `need_card=tbl`, `need_card.1=Revolution`, `exclude_tag=tbl`, `exclude_tag.1=leader`, `pwe=4`
-- **Analysis Paralysis**: `paralysis=6`, `team=1`, `id=Analysis Paralysis`, `exclude_tag=tbl`, `gid=153`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gain=tbl`, `search=1`, `sac=tbl`, `index=146`, `need_card=tbl`, `need_card.1=High Focus`, `n=2`, `ext=1`, `pwe=4`
-- **Plumed Knight**: `gid=154`, `id=Plumed Knight`, `team=1`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `need.1=1`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=147`, `gain=tbl`, `n=1`, `ext=2`, `choose_knight_plumed=1`
-- **Emergency Call**: `leader_emergency=1`, `gid=155`, `id=Emergency Call`, `need_card=tbl`, `exclude=tbl`, `exclude.1=Guillotine`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `tags=tbl`, `tags.1=leader`, `gain=tbl`, `gain.1=0`, `exclude_tag=tbl`, `sac=tbl`, `index=148`, `n=1`, `team=1`, `ext=2`, `pwe=4`
-- **Mangonel**: `gain=tbl`, `gain.1=3`, `gid=156`, `id=Mangonel`, `exclude_tag=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `rook_catapult=1`, `sac=tbl`, `index=149`, `n=1`, `rook_tempo=2`, `ext=2`, `pwe=4`
-- **Governess**: `gid=157`, `id=Governess`, `force_promote=4`, `need_card=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=150`, `gain=tbl`, `gain.1=2`, `team=1`, `ext=2`, `pwe=4`
-- **Mausoleum**: `need_card=tbl`, `gid=158`, `id=Mausoleum`, `rook_leaderbond=2`, `exclude=tbl`, `exclude.1=Guillotine`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=leader`, `n=1`, `exclude_tag=tbl`, `sac=tbl`, `index=151`, `gain=tbl`, `gain.1=3`, `team=1`, `ext=2`, `pwe=4`
-- **Reverend Mother**: `gid=159`, `id=Reverend Mother`, `gain=tbl`, `gain.1=4`, `queen_despair=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `team=1`, `exclude_tag=tbl`, `sac=tbl`, `index=152`, `n=1`, `need_card=tbl`, `need_card.1=Theocracy`, `ext=2`, `pwe=4`
-- **Sokoban**: `gid=160`, `id=Sokoban`, `need_card=tbl`, `team=1`, `rook_push=3`, `need=tbl`, `need.1=3`, `need.2=3`, `tags=tbl`, `exclude_tag=tbl`, `need_tag=tbl`, `sac=tbl`, `index=153`, `n=1`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `ext=2`, `pwe=4`
-- **Tag Team**: `id=Tag Team`, `need_tag=tbl`, `tags=tbl`, `index=154`, `exclude_tag=tbl`, `gid=161`, `team=1`, `bishop_swap=tbl`, `bishop_swap.1=3`, `rook_swap=tbl`, `rook_swap.1=2`, `rook_bishop_hp=1`, `ext=2`, `sac=tbl`, `need=tbl`, `need.1=2`, `need.2=3`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Unicorn**: `team=1`, `id=Unicorn`, `need_card=tbl`, `gain=tbl`, `gain.1=1`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `knight_charge=1`, `sac=tbl`, `index=155`, `n=1`, `gid=162`, `ext=2`, `pwe=4`
-- **Lady in the Tower**: `gid=163`, `id=Lady in the Tower`, `rook_killprom=4`, `gain=tbl`, `gain.1=3`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=156`, `n=1`, `team=1`, `ext=2`, `pwe=4`
-- **Final Countdown**: `team=1`, `gid=164`, `id=Final Countdown`, `exclude_tag=tbl`, `pwe=4`, `need_tag=tbl`, `deathcount=12`, `tags=tbl`, `need_card=tbl`, `need=tbl`, `sac=tbl`, `index=157`, `gain=tbl`, `n=1`, `ext=2`, `deathcount_trig=6`
-- **Nomad Life**: `team=1`, `id=Nomad Life`, `index=158`, `gid=165`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `sac.1=3`, `knight_promote=1`, `n=2`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `gain.3=2`, `ext=2`, `pwe=4`
-- **Prison**: `gid=166`, `id=Prison`, `gain=tbl`, `gain.1=2`, `gain.2=1`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=1`, `need.2=2`, `need.3=3`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=159`, `n=1`, `knight_bishop_prison=3`, `ext=2`, `pwe=4`
-- **Inquisition**: `team=1`, `gid=167`, `id=Inquisition`, `exclude_tag=tbl`, `ext=2`, `need_tag=tbl`, `need_tag.1=mission`, `need_tag.2=cloak`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `n=1`, `sac=tbl`, `sac.1=0`, `index=160`, `gain=tbl`, `gain.1=2`, `bishop_uncover=1`, `bishop_investigate=1`, `pwe=4`
-- **King's Look-alike**: `id=King's Look-alike`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=161`, `ext=2`, `gid=168`, `exclude=tbl`, `exclude.1=Guillotine`, `exclude_tag=tbl`, `need=tbl`, `team=1`, `no_ruler=1`, `n=2`, `sac=tbl`, `gain=tbl`, `gain.1=5`, `need_card=tbl`, `leader_hp=1`, `false_king=1`, `pwe=4`
-- **The Royal Hunt**: `n=2`, `gid=169`, `id=The Royal Hunt`, `exclude=tbl`, `exclude.1=The Red Book`, `exclude.2=Guillotine`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=162`, `gain=tbl`, `team=1`, `ext=2`, `leader_bow=2`
-- **Tragic Homecoming**: `team=1`, `id=Tragic Homecoming`, `queen_hp=2`, `gid=170`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=163`, `n=1`, `gain=tbl`, `gain.1=4`, `ext=2`, `pwe=0`
-- **Buckler of Limos**: `leader_armorgap=3`, `leader_tempo=1`, `id=Buckler of Limos`, `need_firepower=5`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=164`, `exclude_tag=tbl`, `gid=171`, `need=tbl`, `exclude=tbl`, `exclude.1=The Red Book`, `exclude.2=Guillotine`, `team=1`, `ext=2`, `sac=tbl`, `leader_buckler=1`, `need_card=tbl`, `n=1`, `gain=tbl`, `pwe=4`
-- **Vampirism**: `exclude=tbl`, `exclude.1=Guillotine`, `leader_queen_vampire=1`, `need_tag=tbl`, `need_tag.1=bleed`, `tags=tbl`, `tags.1=leader`, `leader_queen_hp=1`, `index=165`, `exclude_tag=tbl`, `gid=172`, `need=tbl`, `id=Vampirism`, `ext=2`, `sac=tbl`, `gain=tbl`, `need_card=tbl`, `n=1`, `team=1`, `pwe=4`
-- **Commoner's Reign**: `exclude=tbl`, `exclude.1=Guillotine`, `ruler=1`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `index=166`, `knight_hp=2`, `exclude_tag=tbl`, `gid=173`, `need=tbl`, `id=Commoner's Reign`, `ext=2`, `sac=tbl`, `sac.1=5`, `gain=tbl`, `gain.1=1`, `need_card=tbl`, `team=1`, `n=1`, `pwe=0`
-- **Bouncy Castle**: `id=Bouncy Castle`, `need_knockback=100`, `tags=tbl`, `index=167`, `rook_hp=-2`, `exclude_tag=tbl`, `gid=174`, `trampoline=1`, `need=tbl`, `team=1`, `ext=2`, `sac=tbl`, `n=1`, `need_card=tbl`, `gain=tbl`, `need_tag=tbl`, `pwe=4`
-- **Self-Defense**: `gid=175`, `id=Self-Defense`, `knight_hp=2`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `need_card=tbl`, `n=1`, `sac=tbl`, `index=168`, `gain=tbl`, `team=1`, `ext=2`, `pwe=0`
-- **Unsettled Throne**: `id=Unsettled Throne`, `heirprom=1`, `need_tag=tbl`, `need_heir=1`, `tags=tbl`, `tags.1=leader`, `heir=1`, `index=169`, `exclude_tag=tbl`, `gid=176`, `need=tbl`, `exclude=tbl`, `exclude.1=Guillotine`, `team=1`, `sac=tbl`, `ext=2`, `need_card=tbl`, `gain=tbl`, `n=1`, `pwe=4`
-- **Vendetta**: `exclude=tbl`, `exclude.1=King's Shoulders`, `need_tag=tbl`, `tags=tbl`, `tags.1=blade`, `vendetta=1`, `index=170`, `exclude_tag=tbl`, `team=1`, `need=tbl`, `id=Vendetta`, `ext=3`, `gid=177`, `sac=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Tragic Homecoming`, `need_card.1.2=King's Mistress`, `gain=tbl`, `n=1`, `blade=1`, `pwe=8`
-- **Stoning**: `need_card=tbl`, `gid=178`, `id=Stoning`, `exclude=tbl`, `exclude.1=Bloodless Coups`, `n=1`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`, `tags=tbl`, `pawn_stoning=1`, `exclude_tag=tbl`, `sac=tbl`, `index=171`, `gain=tbl`, `team=1`, `ext=3`, `pwe=4`
-- **Anarchy**: `anarchy=1`, `gid=179`, `id=Anarchy`, `gain=tbl`, `exclude=tbl`, `exclude.1=Guillotine`, `need_tag=tbl`, `need=tbl`, `need.1=0`, `need.2=1`, `need.3=2`, `need.4=3`, `need.5=4`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=172`, `n=1`, `team=1`, `ext=3`, `pwe=2`
-- **Auto-da-fe**: `team=1`, `id=Auto-da-fe`, `index=173`, `gid=180`, `need_tag=tbl`, `need=tbl`, `need.1=2`, `tags=tbl`, `exclude_tag=tbl`, `n=1`, `sac=tbl`, `bishop_censor=1`, `gain=tbl`, `gain.1=2`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Inquisition`, `need_card.1.2=Conclave`, `need_card.1.3=Zealots`, `ext=3`, `pwe=4`
-- **Late for dinner**: `team=1`, `id=Late for dinner`, `n=1`, `delay=10`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `gid=181`, `exclude_tag=tbl`, `sac=tbl`, `sac.1=0`, `sac.2=1`, `sac.3=2`, `index=174`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Kingdom Wealth`, `need_card.1.2=Final Countdown`, `gain=tbl`, `gain.1=0`, `gain.2=1`, `gain.3=2`, `gain.4=3`, `ext=3`, `pwe=4`
-- **Excommunication**: `gid=182`, `id=Excommunication`, `need_card=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=2`, `tags=tbl`, `exclude_tag=tbl`, `exile=15`, `sac=tbl`, `index=175`, `n=1`, `gain=tbl`, `gain.1=3`, `gain.2=1`, `ext=3`, `pwe=4`
-- **Pyre of Lust**: `team=1`, `id=Pyre of Lust`, `n=1`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `need.1=2`, `tags=tbl`, `need_card=tbl`, `exile=15`, `sac=tbl`, `index=176`, `gain=tbl`, `gain.1=4`, `gid=183`, `ext=3`, `pwe=2`
-- **Gatehouse**: `id=Gatehouse`, `need_tag=tbl`, `tags=tbl`, `index=177`, `rook_hp=-1`, `exclude_tag=tbl`, `rook_spawn=1`, `gid=184`, `rook_tempo=2`, `need=tbl`, `need.1=3`, `gain=tbl`, `sac=tbl`, `ext=3`, `n=1`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Remparts`, `need_card.1.2=Trowel`, `team=1`, `pwe=4`
-- **Lightfoot**: `gid=185`, `id=Lightfoot`, `pawn_lightfoot=1`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=178`, `n=1`, `team=1`, `ext=3`, `pwe=4`
-- **Loyalist March**: `gid=186`, `id=Loyalist March`, `team=1`, `delay=10`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=179`, `n=1`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`, `gain.6=0`, `gain.7=0`, `gain.8=0`, `ext=3`, `pwe=2`
-- **Trench War**: `ext=3`, `gid=187`, `id=Trench War`, `need_card=tbl`, `exclude_tag=tbl`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `hole_start=5`, `team=1`, `sac=tbl`, `index=180`, `n=2`, `gain=tbl`, `gain.1=1`, `hole_cover=1`, `pwe=2`
-- **Catacombs**: `n=1`, `team=1`, `id=Catacombs`, `tags=tbl`, `gid=188`, `need_tag=tbl`, `need_tag.1=tunnels`, `need=tbl`, `hole_solid=1`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=181`, `spread=10`, `gain=tbl`, `gain.1=3`, `ext=3`, `pwe=4`
-- **Flesh Wall**: `gid=189`, `id=Flesh Wall`, `gain=tbl`, `gain.1=0`, `tags=tbl`, `need_tag=tbl`, `need=tbl`, `pawn_block=1`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=182`, `n=1`, `team=1`, `ext=3`, `pwe=2`
-- **Hired Blade**: `team=1`, `id=Hired Blade`, `gid=190`, `pwe=4`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `sac.1=0`, `index=183`, `n=2`, `gain=tbl`, `gain.1=12`, `ext=3`, `ammo_max=-1`
-- **Oathkeeper**: `gid=191`, `id=Oathkeeper`, `gain=tbl`, `gain.1=13`, `need_tag=tbl`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=184`, `n=1`, `team=1`, `ext=3`, `pwe=2`
-- **Redemption**: `gid=192`, `id=Redemption`, `redemption=1`, `team=1`, `need_tag=tbl`, `need_tag.1=ally`, `need=tbl`, `tags=tbl`, `exclude_tag=tbl`, `need_card=tbl`, `sac=tbl`, `index=185`, `n=1`, `gain=tbl`, `gain.1=2`, `ext=3`, `pwe=4`
+- **Ermine Belt**: `index=0`, `need_card=tbl`, `team=0`, `ammo_max=3`, `pwe=4`, `ext=0`, `id=Ermine Belt`, `tags=tbl`, `need_tag=tbl`, `gid=0`, `n=3`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Rightful Curtsy**: `index=1`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=on_hit`, `ammo_max=1`, `pwe=4`, `ext=0`, `id=Rightful Curtsy`, `need_tag=tbl`, `knockback=50`, `gid=1`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Elite Gem**: `index=2`, `need_card=tbl`, `team=0`, `tags=tbl`, `id=Elite Gem`, `pwe=4`, `ext=0`, `ammo_regen=1`, `need_tag=tbl`, `need=tbl`, `gid=2`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `firerange=1`
+- **Extra Barrel**: `index=3`, `chamber_max=1`, `team=0`, `tags=tbl`, `pwe=6`, `ext=0`, `id=Extra Barrel`, `need_card=tbl`, `need_tag=tbl`, `gid=3`, `n=3`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Royal Loafers**: `index=4`, `need_card=tbl`, `team=0`, `special=strafe`, `exclude=tbl`, `exclude.1=Sawed-off Justice`, `pwe=2`, `ext=0`, `id=Royal Loafers`, `tags=tbl`, `need_tag=tbl`, `gid=4`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Majestic Censer**: `index=5`, `need_card=tbl`, `team=0`, `tags=tbl`, `ammo_max=1`, `pwe=4`, `ext=0`, `id=Majestic Censer`, `need=tbl`, `need_tag=tbl`, `gid=5`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `soul_slot=1`
+- **Sacred Crown**: `index=6`, `need_card=tbl`, `team=0`, `crown=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Sacred Crown`, `need_tag=tbl`, `need_soul=1`, `gid=6`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Blunderbuss**: `index=7`, `need_card=tbl`, `team=0`, `firepower=2`, `tags=tbl`, `spread=30`, `ext=0`, `id=Blunderbuss`, `pwe=4`, `need_tag=tbl`, `gid=7`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Engraved Scope**: `index=8`, `need_card=tbl`, `team=0`, `special=scope`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Engraved Scope`, `need=tbl`, `need_tag=tbl`, `gid=8`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `search=1`
+- **Holy Gunpowder**: `index=9`, `need_card=tbl`, `team=0`, `firepower=1`, `ammo_max=-1`, `pwe=4`, `ext=0`, `id=Holy Gunpowder`, `tags=tbl`, `need_tag=tbl`, `gid=9`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Ritual Dagger**: `index=10`, `exclude=tbl`, `exclude.1=King's Shoulders`, `exclude.2=Guillotine`, `gid=10`, `need=tbl`, `need_card=tbl`, `team=0`, `firerange=-1`, `pwe=4`, `ext=0`, `id=Ritual Dagger`, `n=1`, `blade=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `tags.2=blade`, `exclude_tag=tbl`, `gain=tbl`, `leader_hp=-3`
+- **August Presence**: `index=11`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=0`, `id=August Presence`, `need_tag=tbl`, `presence=1`, `gid=11`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Crow's Blessing**: `index=12`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Crow's Blessing`, `need=tbl`, `need_tag=tbl`, `gid=12`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `firerange=2`
+- **Wand of Downpour**: `wand=tbl`, `wand.1=0`, `wand.2=10`, `need_card=tbl`, `team=0`, `index=13`, `pwe=1`, `ext=0`, `id=Wand of Downpour`, `tags=tbl`, `need_tag=tbl`, `gid=13`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Frenzy**: `wand=tbl`, `wand.1=1`, `need_card=tbl`, `team=0`, `index=14`, `pwe=1`, `ext=0`, `id=Wand of Frenzy`, `tags=tbl`, `need_tag=tbl`, `gid=14`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Wrath**: `wand=tbl`, `wand.1=2`, `wand.2=firepower`, `need_card=tbl`, `team=0`, `index=15`, `pwe=1`, `ext=0`, `id=Wand of Wrath`, `tags=tbl`, `need_tag=tbl`, `gid=15`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Wings**: `wand=tbl`, `wand.1=3`, `wand.2=3`, `need_card=tbl`, `team=0`, `index=16`, `pwe=1`, `ext=0`, `id=Wand of Wings`, `tags=tbl`, `need_tag=tbl`, `gid=16`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **The Moat**: `index=17`, `need_card=tbl`, `team=0`, `moat=4`, `pwe=4`, `ext=0`, `id=The Moat`, `tags=tbl`, `need_tag=tbl`, `gid=17`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Gradual Absolution**: `index=18`, `need_card=tbl`, `team=0`, `tags=tbl`, `need=tbl`, `pwe=2`, `ext=0`, `id=Gradual Absolution`, `need_tag=tbl`, `need_soul=2`, `gid=18`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `absolution=1`, `gain=tbl`
+- **Taunting Hop**: `hop=1`, `need_card=tbl`, `team=0`, `index=19`, `hop_dmg=1`, `pwe=4`, `ext=0`, `id=Taunting Hop`, `tags=tbl`, `tags.1=jump`, `need_tag=tbl`, `gid=19`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Gust**: `wand=tbl`, `wand.1=4`, `need_card=tbl`, `team=0`, `index=20`, `pwe=1`, `ext=0`, `id=Wand of Gust`, `tags=tbl`, `need_tag=tbl`, `gid=20`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Faithful Steed**: `index=21`, `need_card=tbl`, `need_card.1=Warhorse`, `team=0`, `tags=tbl`, `exclude_tag=tbl`, `pwe=4`, `ext=0`, `id=Faithful Steed`, `need_tag=tbl`, `need=tbl`, `gid=21`, `n=1`, `knight_black_carryking=1`, `knight_black_castle=1`, `gain=tbl`, `sac=tbl`
+- **Unjust Decree**: `index=22`, `special=decree`, `gid=22`, `need=tbl`, `need_card=tbl`, `team=0`, `firepower=-1`, `pwe=2`, `ext=0`, `id=Unjust Decree`, `n=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_chamber_max=2`
+- **Kingly Alms**: `index=23`, `special=grenade`, `grenade_center_dmg=2`, `gid=23`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=0`, `id=Kingly Alms`, `gain=tbl`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=grenade`, `exclude_tag=tbl`, `grenades_max=1`, `n=3`
+- **Subtle Poison**: `queen_hp=-1`, `queen_poison=15`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=24`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=2`, `ext=0`, `id=Subtle Poison`, `index=24`, `leader_hp=-1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Kingdom Wealth**: `index=25`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=25`, `need=tbl`, `need_card=tbl`, `team=0`, `ammo_max=6`, `pwe=3`, `ext=0`, `id=Kingdom Wealth`, `n=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `leader_hp=2`
+- **Small Fry Harvest**: `index=26`, `pawn_shell=1`, `exclude=tbl`, `exclude.1=King's Shoulders`, `gid=26`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=2`, `ext=0`, `id=Small Fry Harvest`, `sac=tbl`, `need_tag=tbl`, `blade=1`, `tags=tbl`, `tags.1=blade`, `exclude_tag=tbl`, `gain=tbl`, `n=2`
+- **A Piercing Truth**: `index=27`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=0`, `id=A Piercing Truth`, `need=tbl`, `need_tag=tbl`, `gid=27`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `pierce=30`
+- **Black Mist**: `index=28`, `need_card=tbl`, `team=0`, `tags=tbl`, `mist=1`, `pwe=4`, `ext=0`, `id=Black Mist`, `need_tag=tbl`, `need=tbl`, `gid=28`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `firerange=-1`
+- **King's Shoulders**: `index=29`, `grab=1`, `team=0`, `exclude=tbl`, `exclude.1=Ritual Dagger`, `exclude.2=Small Fry Harvest`, `exclude.3=Nightbane`, `exclude.4=Bushido`, `exclude.5=Shovel`, `exclude.6=Full Plate Armor`, `exclude.7=Vendetta`, `tags=tbl`, `pwe=2`, `ext=0`, `id=King's Shoulders`, `need_tag=tbl`, `need_card=tbl`, `gid=29`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `exclude_tag.1=blade`, `gain=tbl`, `need=tbl`
+- **High Focus**: `index=30`, `gid=30`, `n=2`, `flip_on=contact`, `need_card=tbl`, `team=0`, `firepower=1`, `pwe=4`, `ext=0`, `id=High Focus`, `need=tbl`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `spread=-10`
+- **Courteous Jousting**: `index=31`, `need_card=tbl`, `team=0`, `knight_joust=1`, `tags=tbl`, `spread=-10`, `ext=0`, `id=Courteous Jousting`, `pwe=4`, `need_tag=tbl`, `gid=31`, `need=tbl`, `need.1=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Cornered Despot**: `index=32`, `need_card=tbl`, `team=0`, `firepower=2`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Cornered Despot`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=32`, `n=1`, `sac=tbl`, `flip_on=inner`, `gain=tbl`, `need=tbl`
+- **Sawed-off Justice**: `index=33`, `exclude=tbl`, `exclude.1=Royal Loafers`, `gid=33`, `need=tbl`, `recoil=1`, `need_card=tbl`, `team=0`, `firepower=2`, `pwe=4`, `ext=1`, `id=Sawed-off Justice`, `n=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `firerange=-1`
+- **Welcome Gift**: `index=34`, `need_card=tbl`, `team=0`, `firepower=4`, `tags=tbl`, `jumpy=1`, `ext=1`, `id=Welcome Gift`, `pwe=4`, `need_tag=tbl`, `gid=34`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Cannon Fodder**: `index=35`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Cannon Fodder`, `need=tbl`, `need_tag=tbl`, `gid=35`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `pawnreap=1`
+- **Possessed**: `index=36`, `need_card=tbl`, `need_card.1=Conclave`, `need_card.2=Unholy Call`, `team=0`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Possessed`, `need=tbl`, `need_tag=tbl`, `gid=36`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `soul_slot=2`
+- **Philanthropy**: `index=37`, `grenade_dmg=-1`, `special=grenade`, `gid=37`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=1`, `id=Philanthropy`, `grenades_max=2`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=grenade`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Imperial Shot Put**: `index=38`, `need_card=tbl`, `need_card.1=King's Shoulders`, `team=0`, `cannonball=1`, `ammo_max=-1`, `pwe=4`, `ext=1`, `id=Imperial Shot Put`, `tags=tbl`, `need_tag=tbl`, `gid=38`, `n=3`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Egotic Maelstrom**: `index=39`, `cycle=1`, `gid=39`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=1`, `id=Egotic Maelstrom`, `delayed=tbl`, `delayed.firepower=1`, `sac=tbl`, `need_tag=tbl`, `delay=12`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Church Organ**: `index=40`, `chamber_max=2`, `team=0`, `tags=tbl`, `ammo_max=2`, `pwe=4`, `ext=1`, `id=Church Organ`, `need=tbl`, `need_tag=tbl`, `gid=40`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_card=tbl`, `need_card.1=Cathedral`
+- **Black Plague**: `index=41`, `need_card=tbl`, `need_card.1=Crow's Blessing`, `need_card.2=Ravenous Rats`, `team=0`, `tags=tbl`, `gain=tbl`, `pwe=4`, `ext=1`, `id=Black Plague`, `need_tag=tbl`, `need=tbl`, `gid=41`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `plague=1`, `firerange=-1`
+- **Ravenous Rats**: `index=42`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Ravenous Rats`, `need=tbl`, `need_tag=tbl`, `gid=42`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `rats=1`
+- **Deep Water**: `index=43`, `need_card=tbl`, `need_card.1=The Moat`, `team=0`, `tags=tbl`, `deepwater=1`, `ext=1`, `id=Deep Water`, `pwe=4`, `need_tag=tbl`, `gid=43`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Unholy Call**: `index=44`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `pentagrams=3`, `id=Unholy Call`, `need=tbl`, `need_tag=tbl`, `gid=44`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `ext=1`
+- **Undercover Mission**: `index=45`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=mission`, `pwe=4`, `ext=1`, `id=Undercover Mission`, `need_tag=tbl`, `waypoint=1`, `gid=45`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Caltrops**: `bleed_slow=1`, `need_card=tbl`, `team=0`, `index=46`, `tags=tbl`, `tags.1=bleed`, `pwe=4`, `ext=1`, `id=Caltrops`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=46`, `n=2`, `sac=tbl`, `caltrops=15`, `gain=tbl`, `need=tbl`
+- **Nightbane**: `index=47`, `need_card=tbl`, `team=0`, `exclude=tbl`, `exclude.1=King's Shoulders`, `tags=tbl`, `tags.1=blade`, `pwe=4`, `ext=1`, `id=Nightbane`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=47`, `n=1`, `sac=tbl`, `blade=3`, `gain=tbl`, `need=tbl`
+- **Bushido**: `index=48`, `exclude=tbl`, `exclude.1=King's Shoulders`, `bushido=1`, `gid=48`, `need=tbl`, `need_card=tbl`, `team=0`, `firepower=-1`, `pwe=4`, `ext=1`, `id=Bushido`, `sac=tbl`, `need_tag=tbl`, `blade=2`, `tags=tbl`, `tags.1=blade`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Bloodless Coups**: `index=49`, `exclude=tbl`, `exclude.1=Militia`, `exclude.2=Stoning`, `pawn_curse=1`, `pawn_peace=1`, `gid=49`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=1`, `id=Bloodless Coups`, `n=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `spread=-15`
+- **Wand of Hypnosis**: `wand=tbl`, `wand.1=5`, `need_card=tbl`, `team=0`, `index=50`, `pwe=1`, `ext=1`, `id=Wand of Hypnosis`, `tags=tbl`, `need_tag=tbl`, `gid=50`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Presbyopia**: `index=51`, `need_card=tbl`, `need_card.1=Golden Aging`, `team=0`, `tags=tbl`, `queen_bishop_minr=2`, `ext=1`, `id=Presbyopia`, `pwe=4`, `need_tag=tbl`, `gid=51`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Golden Aging**: `index=52`, `cycle=1`, `exclude=tbl`, `exclude.1=Guillotine`, `leader_queen_hp=-1`, `gid=52`, `n=1`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=1`, `id=Golden Aging`, `delayed=tbl`, `delayed.leader_queen_tempo=1`, `tags=tbl`, `tags.1=leader`, `need_tag=tbl`, `need=tbl`, `need.1=4`, `need.2=8`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `delay=10`
+- **Fool Companion**: `index=53`, `need_card=tbl`, `need_card.1=The Jester`, `team=0`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Fool Companion`, `need=tbl`, `need_tag=tbl`, `gid=53`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `jester_guard=1`
+- **Force-feeding**: `index=54`, `full_firepower=1`, `team=0`, `overload=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Force-feeding`, `need_card=tbl`, `need_tag=tbl`, `gid=54`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Seer's Orb**: `index=55`, `special=orb`, `gid=55`, `n=1`, `search=1`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=2`, `id=Seer's Orb`, `orb=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=orb`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Fearsome**: `index=56`, `need_card=tbl`, `team=0`, `tags=tbl`, `ammo_max=1`, `pwe=4`, `ext=2`, `id=Fearsome`, `need=tbl`, `need_tag=tbl`, `gid=56`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `fearsome=1`
+- **Human Shield**: `index=57`, `need_card=tbl`, `need_card.1=Fearsome`, `team=0`, `tags=tbl`, `ammo_max=2`, `pwe=4`, `ext=2`, `id=Human Shield`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=57`, `n=1`, `sac=tbl`, `humanshield=1`, `gain=tbl`, `need=tbl`
+- **Reign of Terror**: `index=58`, `need_card=tbl`, `need_card.1=Fearsome`, `team=0`, `tags=tbl`, `ammo_max=-2`, `pwe=4`, `ext=2`, `id=Reign of Terror`, `need=tbl`, `need_tag=tbl`, `gid=58`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `terrorism=1`
+- **Selective Listening**: `index=59`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Selective Listening`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=59`, `n=1`, `sac=tbl`, `tactic=2`, `gain=tbl`, `need=tbl`
+- **Monarch's Confidence**: `index=60`, `need_card=tbl`, `team=0`, `tags=tbl`, `need_chamber_max=2`, `pwe=4`, `ext=2`, `id=Monarch's Confidence`, `need_tag=tbl`, `need=tbl`, `gid=60`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `confidence=1`
+- **The Mole**: `index=61`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=mission`, `pwe=4`, `ext=2`, `spy=1`, `id=The Mole`, `need_tag=tbl`, `gid=61`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`, `need.6=0`, `need.7=0`
+- **Elusive**: `hop=1`, `need_card=tbl`, `team=0`, `index=62`, `tags=tbl`, `tags.1=jump`, `pwe=4`, `ext=2`, `elusive=1`, `need=tbl`, `need_tag=tbl`, `gid=62`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `id=Elusive`
+- **Holoking**: `index=63`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Holoking`, `holoking=1`, `need_tag=tbl`, `gid=63`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Cloaking Device**: `index=64`, `need_card=tbl`, `need_card.1=Holoking`, `team=0`, `tags=tbl`, `tags.1=cloak`, `holocloak=1`, `pwe=4`, `ext=2`, `id=Cloaking Device`, `holoreveal=1`, `need_tag=tbl`, `gid=64`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Low-Cost Disguise**: `index=65`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=cloak`, `pwe=4`, `ext=2`, `id=Low-Cost Disguise`, `need_tag=tbl`, `pawn_disguise=2`, `gid=65`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Souls**: `wand=tbl`, `wand.1=6`, `need_card=tbl`, `team=0`, `index=66`, `pwe=1`, `ext=2`, `id=Wand of Souls`, `tags=tbl`, `need_tag=tbl`, `gid=66`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Execution**: `wand=tbl`, `wand.1=7`, `need_card=tbl`, `team=0`, `index=67`, `pwe=1`, `ext=2`, `id=Wand of Execution`, `tags=tbl`, `need_tag=tbl`, `gid=67`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Patience**: `floor_max=9`, `gid=68`, `need=tbl`, `need_card=tbl`, `team=0`, `ammo_max=1`, `pwe=4`, `ext=2`, `id=Patience`, `index=68`, `gain=tbl`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `browse=1`, `n=2`
+- **Bold Plan**: `index=69`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `replace_white_card=1`, `id=Bold Plan`, `need=tbl`, `need_tag=tbl`, `gid=69`, `n=3`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `ext=2`
+- **Silencer**: `index=70`, `need_card=tbl`, `team=0`, `tags=tbl`, `silencer=1`, `pwe=4`, `ext=2`, `id=Silencer`, `firerange=-1`, `need=tbl`, `need_tag=tbl`, `need_tag.1=cloak`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gid=70`
+- **Ambush**: `index=71`, `grenade_dmg=1`, `gid=71`, `need=tbl`, `flip_on=not_cloaked`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=2`, `id=Ambush`, `n=1`, `need_tag=tbl`, `need_tag.1=cloak`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `firerange=2`
+- **Ancient Flagstone**: `index=72`, `need_card=tbl`, `team=0`, `flagstones=1`, `pwe=2`, `ext=2`, `id=Ancient Flagstone`, `tags=tbl`, `need_tag=tbl`, `gid=72`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Tearing Bullets**: `index=73`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=bleed`, `tags.2=on_hit`, `pwe=4`, `tearing=1`, `id=Tearing Bullets`, `need=tbl`, `need_tag=tbl`, `gid=73`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `ext=2`
+- **Indelible Memories**: `index=74`, `special=grenade`, `grenade_bleed=1`, `gid=74`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=2`, `id=Indelible Memories`, `grenades_max=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=bleed`, `tags.2=grenade`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Mystic Shackles**: `index=75`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=2`, `shackles=1`, `id=Mystic Shackles`, `need=tbl`, `gid=75`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_tag=tbl`, `need_tag.1=orb`
+- **Secret Move**: `hop=1`, `need_card=tbl`, `team=0`, `index=76`, `tags=tbl`, `tags.1=jump`, `pwe=4`, `ext=2`, `id=Secret Move`, `sac=tbl`, `need=tbl`, `gid=76`, `n=1`, `botte=2`, `exclude_tag=tbl`, `gain=tbl`, `need_tag=tbl`, `need_tag.1=jump`
+- **Sacred Light**: `index=77`, `grenade_dmg=-2`, `special=grenade`, `grenade_proof=1`, `grenade_stun=2`, `gid=77`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=2`, `id=Sacred Light`, `tags=tbl`, `tags.1=grenade`, `need_tag=tbl`, `grenades_max=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Workshop**: `index=78`, `cycle=1`, `gid=78`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=4`, `ext=2`, `id=Workshop`, `delayed=tbl`, `delayed.mk_grenades=1`, `delayed.mk_ammo=2`, `n=1`, `need_tag=tbl`, `need_tag.1=grenade`, `delay=8`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sac=tbl`
+- **Right-hand**: `index=79`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Gradual Absolution`, `need_card.1.2=Possessed`, `need_card.1.3=The Red Book`, `team=0`, `tags=tbl`, `tags.1=ally`, `pwe=4`, `ext=3`, `id=Right-hand`, `need=tbl`, `need_tag=tbl`, `gid=79`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `allies=tbl`, `allies.1=2`
+- **Warhorse**: `index=80`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Saddle`, `need_card.1.2=Knightmare`, `need_card.1.3=Cavalry`, `team=0`, `tags=tbl`, `tags.1=ally`, `pwe=4`, `ext=3`, `id=Warhorse`, `need=tbl`, `need_tag=tbl`, `gid=80`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `allies=tbl`, `allies.1=1`
+- **Bastion**: `index=81`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Highest Dungeon`, `need_card.1.2=Bunker`, `need_card.1.3=Lookout Tower`, `team=0`, `tags=tbl`, `tags.1=ally`, `pwe=4`, `ext=3`, `id=Bastion`, `need=tbl`, `need_tag=tbl`, `gid=81`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `allies=tbl`, `allies.1=3`
+- **Sprint**: `index=82`, `need_card=tbl`, `team=0`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Sprint`, `need=tbl`, `need_tag=tbl`, `gid=82`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sprint=1`
+- **Soul Projection**: `index=83`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Undead Armies`, `need_card.1.2=Knightmare`, `team=0`, `tags=tbl`, `tags.1=ally`, `summoner=1`, `ext=3`, `id=Soul Projection`, `pwe=4`, `need_tag=tbl`, `gid=83`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Onboarding Party**: `index=84`, `need_card=tbl`, `need_card.1=Welcome Gift`, `team=0`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Onboarding Party`, `onboarding=1`, `need_tag=tbl`, `gid=84`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Small Key**: `index=85`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Prison`, `need_card.1.2=Trowel`, `team=0`, `small_key=1`, `pwe=4`, `ext=3`, `id=Small Key`, `tags=tbl`, `need_tag=tbl`, `gid=85`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Rapunzel**: `index=86`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Lady in the Tower`, `need_card.1.2=Highest Dungeon`, `team=0`, `rapunzel=1`, `pwe=4`, `ext=3`, `id=Rapunzel`, `tags=tbl`, `tags.1=ally`, `need_tag=tbl`, `gid=86`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Wand of Treachery**: `wand=tbl`, `wand.1=8`, `need_card=tbl`, `team=0`, `index=87`, `pwe=1`, `ext=3`, `id=Wand of Treachery`, `tags=tbl`, `tags.1=ally`, `need_tag=tbl`, `gid=87`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Guerilla Tactics**: `index=88`, `special=grenade`, `gid=88`, `need=tbl`, `need_card=tbl`, `firerange=1`, `ammo_max=1`, `pwe=4`, `ext=3`, `id=Guerilla Tactics`, `tags=tbl`, `tags.1=grenade`, `team=0`, `need_tag=tbl`, `grenades_max=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Shovel**: `index=89`, `special=dig`, `gid=89`, `need=tbl`, `need_card=tbl`, `tunnels=1`, `exclude=tbl`, `exclude.1=King's Shoulders`, `tags=tbl`, `tags.1=blade`, `tags.2=tunnels`, `pwe=2`, `ext=3`, `hole_start=2`, `id=Shovel`, `n=1`, `need_tag=tbl`, `blade=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `team=0`
+- **Grindstone**: `index=90`, `cycle=1`, `gid=90`, `need=tbl`, `need_card=tbl`, `team=0`, `pwe=2`, `ext=3`, `id=Grindstone`, `delayed=tbl`, `delayed.blade=1`, `sac=tbl`, `need_tag=tbl`, `delay=6`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Death Mark**: `index=91`, `need_card=tbl`, `team=0`, `firepower=-1`, `sheath=1`, `pwe=4`, `ext=3`, `id=Death Mark`, `tags=tbl`, `tags.1=on_hit`, `need_tag=tbl`, `gid=91`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Shrapnel**: `index=92`, `need_card=tbl`, `team=0`, `tags=tbl`, `tags.1=on_hit`, `pwe=4`, `shrapnel=3`, `ext=3`, `id=Shrapnel`, `need=tbl`, `knockback=15`, `gid=92`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_tag=tbl`, `need_tag.1=on_hit`
+- **Backups**: `index=93`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Backups`, `tags=tbl`, `need_tag=tbl`, `gid=100`, `need=tbl`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `n=3`
+- **Cavalry**: `index=94`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Cavalry`, `need=tbl`, `need_tag=tbl`, `gid=101`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `delay=15`
+- **Conclave**: `index=95`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Conclave`, `need=tbl`, `need_tag=tbl`, `gid=102`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `gain.2=2`, `delay=15`
+- **Entitle**: `index=96`, `need_card=tbl`, `team=1`, `ammo_max=-1`, `pwe=4`, `ext=0`, `id=Entitle`, `tags=tbl`, `need_tag=tbl`, `gid=103`, `n=1`, `sac=tbl`, `sac.1=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `need=tbl`
+- **Cardinal**: `index=97`, `need_card=tbl`, `team=1`, `ammo_max=-1`, `pwe=4`, `ext=0`, `id=Cardinal`, `tags=tbl`, `need_tag=tbl`, `gid=104`, `n=1`, `sac=tbl`, `sac.1=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need=tbl`
+- **Remparts**: `index=98`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Remparts`, `tags=tbl`, `need_tag=tbl`, `gid=105`, `need=tbl`, `sac=tbl`, `sac.1=0`, `sac.2=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `n=2`
+- **Pillage**: `index=99`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Pillage`, `need=tbl`, `need_tag=tbl`, `gid=106`, `n=1`, `sac=tbl`, `sac.1=3`, `exclude_tag=tbl`, `pawn_hp=1`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`
+- **Crusades**: `index=100`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Crusades`, `tags=tbl`, `need_tag=tbl`, `gid=107`, `need=tbl`, `sac=tbl`, `sac.1=2`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `n=1`
+- **Peace**: `index=101`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Peace`, `tags=tbl`, `need_tag=tbl`, `gid=108`, `need=tbl`, `sac=tbl`, `sac.1=1`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `gain.2=2`, `n=1`
+- **King's Mistress**: `index=102`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=King's Mistress`, `need=tbl`, `need.1=4`, `need_tag=tbl`, `gid=109`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `queen_cage=3`
+- **Revolution**: `index=103`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Revolution`, `tags=tbl`, `need_tag=tbl`, `gid=110`, `need=tbl`, `sac=tbl`, `sac.1=2`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`, `gain.6=0`, `n=1`
+- **Bodyguard**: `knight_bodyguard=1`, `knight_hp=1`, `team=1`, `index=104`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Bodyguard`, `need_card=tbl`, `need_tag=tbl`, `gid=111`, `need=tbl`, `need.1=1`, `need.2=8`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Ruins**: `index=105`, `need_card=tbl`, `rook_hp=-2`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Ruins`, `need=tbl`, `need_tag=tbl`, `gid=112`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `gain.2=0`, `gain.3=0`, `team=1`
+- **Assault**: `index=106`, `need_card=tbl`, `team=1`, `pawn_assault=1`, `pwe=4`, `ext=0`, `id=Assault`, `tags=tbl`, `need_tag=tbl`, `gid=113`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`
+- **Kite Shield**: `index=107`, `need_card=tbl`, `team=1`, `knight_shield=1`, `pwe=4`, `ext=0`, `id=Kite Shield`, `tags=tbl`, `tags.1=on_hit`, `need_tag=tbl`, `gid=114`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `need=tbl`, `need.1=1`, `need.2=1`
+- **Zealots**: `index=108`, `pawn_tempo=-1`, `bishop_tempo=-1`, `gid=115`, `n=1`, `flip_on=no_bishop`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Zealots`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=2`
+- **Militia**: `index=109`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=Bloodless Coups`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Militia`, `pawn_militia=1`, `need_tag=tbl`, `gid=116`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`
+- **Ammunition Depot**: `index=110`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Ammunition Depot`, `need_tag=tbl`, `rook_shell=2`, `gid=117`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `need=tbl`
+- **Scouting**: `index=111`, `need_card=tbl`, `team=1`, `tags=tbl`, `pawn_tempo=-1`, `ext=0`, `id=Scouting`, `pwe=4`, `need_tag=tbl`, `gid=118`, `n=1`, `sac=tbl`, `sac.1=1`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `need=tbl`
+- **Pikemen**: `index=112`, `pawn_pike=1`, `n=1`, `need_card=tbl`, `team=1`, `need=tbl`, `need.1=0`, `need.2=0`, `pwe=4`, `ext=0`, `id=Pikemen`, `pawn_hp=1`, `pawn_reformed=1`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gid=119`
+- **Ascension**: `index=113`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Ascension`, `sac=tbl`, `need_tag=tbl`, `gid=120`, `n=1`, `bishop_flying=1`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=2`, `need.2=2`
+- **Castle**: `index=114`, `rook_hp=1`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=121`, `n=1`, `rook_castle=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Castle`, `need_tag=tbl`, `need=tbl`, `need.1=3`, `need.2=8`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `sac=tbl`
+- **Conscription**: `index=115`, `cycle=1`, `team=1`, `tags=tbl`, `need=tbl`, `pwe=4`, `ext=0`, `id=Conscription`, `need_tag=tbl`, `need_card=tbl`, `gid=122`, `n=2`, `delay=5`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `sac=tbl`
+- **Theocracy**: `index=116`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=123`, `n=1`, `bishop_hp=2`, `no_ruler=1`, `need_card=tbl`, `team=1`, `theocracy=1`, `pwe=4`, `ext=0`, `id=Theocracy`, `tags=tbl`, `tags.1=leader`, `need_tag=tbl`, `sac=tbl`, `sac.1=5`, `ruler=2`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need=tbl`, `need.1=2`, `need.2=2`
+- **Fallen Dynasty**: `fallen=1`, `need_card=tbl`, `team=1`, `index=117`, `pwe=0`, `ext=0`, `id=Fallen Dynasty`, `tags=tbl`, `need_tag=tbl`, `gid=124`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Iron Maiden**: `index=118`, `gid=125`, `n=1`, `flip_on=only_queen`, `queen_iron=1`, `queen_tempo=2`, `pwe=4`, `ext=0`, `id=Iron Maiden`, `team=1`, `need=tbl`, `need.1=4`, `need.2=4`, `need_tag=tbl`, `sac=tbl`, `sac.1=4`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_card=tbl`
+- **Court of the King**: `index=119`, `all_tempo=1`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Court of the King`, `need_card=tbl`, `need_tag=tbl`, `gid=126`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `gain.3=2`, `gain.4=3`, `need=tbl`
+- **The Red Book**: `index=120`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=The Royal Hunt`, `exclude.2=Buckler of Limos`, `bishop_orth=1`, `pwe=4`, `ext=0`, `id=The Red Book`, `tags=tbl`, `need_tag=tbl`, `gid=127`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need=tbl`
+- **Saboteur**: `index=121`, `need_card=tbl`, `team=1`, `tags=tbl`, `bad_shells=1`, `ext=0`, `id=Saboteur`, `pwe=4`, `need_tag=tbl`, `gid=128`, `n=2`, `sac=tbl`, `sac.1=0`, `sac.2=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need=tbl`
+- **Homecoming**: `index=122`, `need_card=tbl`, `team=1`, `pwe=0`, `ext=0`, `id=Homecoming`, `tags=tbl`, `need_tag=tbl`, `gid=129`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `need=tbl`
+- **Lookout Tower**: `index=123`, `need_card=tbl`, `team=1`, `tags=tbl`, `sac=tbl`, `pwe=4`, `ext=0`, `id=Lookout Tower`, `need_tag=tbl`, `need=tbl`, `gid=130`, `alarm=1`, `delay=20`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `n=2`
+- **Throne Room**: `queen_hp=1`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=131`, `n=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=0`, `id=Throne Room`, `index=124`, `need=tbl`, `need.1=5`, `leader_hp=2`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `need_tag=tbl`
+- **The Secret Heir**: `index=125`, `heir=1`, `team=1`, `exclude=tbl`, `exclude.1=Guillotine`, `tags=tbl`, `tags.1=leader`, `pwe=4`, `ext=0`, `id=The Secret Heir`, `need_card=tbl`, `need_tag=tbl`, `gid=132`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `need=tbl`
+- **Genderqueer**: `index=126`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=0`, `id=Genderqueer`, `need=tbl`, `need_tag=tbl`, `gid=133`, `n=1`, `delay=10`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `sac=tbl`, `sac.1=2`
+- **Karma**: `index=127`, `reform=1`, `gid=134`, `need=tbl`, `reversable=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=1`, `id=Karma`, `tags=tbl`, `sqb_spread=30`, `need_tag=tbl`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sqw_firepower=-1`
+- **Undead Armies**: `index=128`, `need_card=tbl`, `team=1`, `tags=tbl`, `need=tbl`, `pwe=4`, `ext=1`, `id=Undead Armies`, `knight_bishop_rook_rep=0`, `need_tag=tbl`, `gid=135`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `pawn_hp=-1`
+- **Shortage**: `index=129`, `need_card=tbl`, `team=1`, `tags=tbl`, `ammo_max=-3`, `pwe=4`, `ext=1`, `id=Shortage`, `gain=tbl`, `need=tbl`, `need_tag=tbl`, `need_tag.1=grenade`, `n=1`, `sac=tbl`, `sac.1=0`, `exclude_tag=tbl`, `grenades_max=-1`, `gid=136`
+- **Succubus**: `index=130`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Succubus`, `need=tbl`, `need_tag=tbl`, `gid=137`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `soul_slot=1`, `gain=tbl`, `gain.1=4`
+- **Bunker**: `index=131`, `grenade_dmg=-1`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=138`, `n=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=1`, `id=Bunker`, `leader_pawn_hp=1`, `need_tag=tbl`, `need_tag.1=grenade`, `sac=tbl`, `sac.1=3`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`
+- **Sanctity**: `index=132`, `need_card=tbl`, `need_card.1=Conclave`, `team=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Sanctity`, `need=tbl`, `need_tag=tbl`, `gid=139`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `bishop_sanctity=1`
+- **Knightmare**: `index=133`, `knight_hp=-1`, `team=1`, `tags=tbl`, `n=1`, `pwe=4`, `ext=1`, `id=Knightmare`, `need_tag=tbl`, `knight_wraith=1`, `gid=140`, `need=tbl`, `need.1=1`, `need.2=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Fearsome`, `need_card.1.2=Black Mist`
+- **Highest Dungeon**: `index=134`, `need_card=tbl`, `team=1`, `tags=tbl`, `exclude_tag=tbl`, `pwe=2`, `ext=1`, `id=Highest Dungeon`, `need_tag=tbl`, `n=1`, `gid=141`, `need=tbl`, `need.1=3`, `sac=tbl`, `flip_on=no_rook`, `gain=tbl`, `all_hp=1`
+- **Cathedral**: `index=135`, `need_card=tbl`, `need_card.1=Cardinal`, `team=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Cathedral`, `exclude_tag=tbl`, `need_tag=tbl`, `gid=142`, `n=1`, `sac=tbl`, `sac.1=2`, `rook_protect=1`, `gain=tbl`, `gain.1=3`, `need=tbl`
+- **The Bridge**: `index=136`, `need_card=tbl`, `need_card.1=The Moat`, `team=1`, `tags=tbl`, `bridge=1`, `pwe=4`, `ext=1`, `id=The Bridge`, `need=tbl`, `need_tag=tbl`, `gid=143`, `n=1`, `delay=10`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `sac=tbl`
+- **Divine Healing**: `index=137`, `need_card=tbl`, `team=1`, `tags=tbl`, `bishop_hp=1`, `pwe=4`, `ext=1`, `id=Divine Healing`, `need_tag=tbl`, `gain=tbl`, `gid=144`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `bishop_healer=2`, `need=tbl`, `need.1=2`
+- **Last Guardian**: `index=138`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Last Guardian`, `need=tbl`, `need.1=0`, `need.2=0`, `need_tag=tbl`, `gid=145`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `pawn_lastg=1`
+- **Trowel**: `index=139`, `need_card=tbl`, `team=1`, `tags=tbl`, `exclude_tag=tbl`, `pwe=4`, `ext=1`, `id=Trowel`, `need_tag=tbl`, `rook_hp=4`, `gid=146`, `n=1`, `sac=tbl`, `flip_on=no_pawn`, `gain=tbl`, `need=tbl`, `need.1=3`, `need.2=0`
+- **Full Plate Armor**: `index=140`, `all_tempo=1`, `exclude=tbl`, `exclude.1=King's Shoulders`, `gid=147`, `need=tbl`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=1`, `id=Full Plate Armor`, `n=1`, `sac=tbl`, `need_tag=tbl`, `blade=-1`, `tags=tbl`, `tags.1=blade`, `exclude_tag=tbl`, `gain=tbl`, `all_hp=1`
+- **Military Academy**: `index=141`, `cycle=1`, `team=1`, `tags=tbl`, `need=tbl`, `pwe=4`, `ext=1`, `id=Military Academy`, `need_tag=tbl`, `need_card=tbl`, `gid=148`, `n=1`, `delay=10`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `sac=tbl`
+- **Witch's Curse**: `index=142`, `queen_curse=1`, `gid=149`, `n=1`, `need_card=tbl`, `firerange=-1`, `firepower=-1`, `pwe=4`, `ext=1`, `id=Witch's Curse`, `tags=tbl`, `team=1`, `need_tag=tbl`, `need=tbl`, `need.1=4`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `spread=10`
+- **Saddle**: `index=143`, `need_card=tbl`, `team=1`, `knight_tempo=1`, `tags=tbl`, `pwe=4`, `ext=1`, `id=Saddle`, `knight_carry=1`, `need_tag=tbl`, `gid=150`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=1`
+- **The Jester**: `index=144`, `need_card=tbl`, `need_card.1=Throne Room`, `team=1`, `jester=1`, `pwe=4`, `ext=1`, `id=The Jester`, `tags=tbl`, `need_tag=tbl`, `gid=151`, `need=tbl`, `need.1=0`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `n=1`
+- **Guillotine**: `index=145`, `need_card=tbl`, `need_card.1=Revolution`, `team=1`, `exclude=tbl`, `exclude.1=Ritual Dagger`, `exclude.2=Subtle Poison`, `exclude.3=Kingdom Wealth`, `exclude.4=Golden Aging`, `exclude.5=Castle`, `exclude.6=Theocracy`, `exclude.7=Throne Room`, `exclude.8=The Secret Heir`, `exclude.9=Bunker`, `exclude.10=Emergency Call`, `exclude.11=Mausoleum`, `exclude.12=King's Look-alike`, `exclude.13=The Royal Hunt`, `exclude.14=Buckler of Limos`, `exclude.15=Vampirism`, `exclude.16=Commoner's Reign`, `exclude.17=Unsettled Throne`, `exclude.18=Anarchy`, `pwe=4`, `ext=1`, `id=Guillotine`, `tags=tbl`, `need_tag=tbl`, `gid=152`, `n=1`, `sac=tbl`, `sac.1=5`, `exclude_tag=tbl`, `exclude_tag.1=leader`, `gain=tbl`, `need=tbl`
+- **Analysis Paralysis**: `index=146`, `need_card=tbl`, `need_card.1=High Focus`, `team=1`, `tags=tbl`, `paralysis=6`, `pwe=4`, `ext=1`, `id=Analysis Paralysis`, `need_tag=tbl`, `need=tbl`, `gid=153`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `search=1`
+- **Plumed Knight**: `index=147`, `need_card=tbl`, `team=1`, `choose_knight_plumed=1`, `pwe=4`, `ext=2`, `id=Plumed Knight`, `tags=tbl`, `need_tag=tbl`, `gid=154`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=1`
+- **Emergency Call**: `index=148`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=Guillotine`, `tags=tbl`, `tags.1=leader`, `leader_emergency=1`, `ext=2`, `id=Emergency Call`, `pwe=4`, `need_tag=tbl`, `gid=155`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `need=tbl`, `need.1=0`, `need.2=0`
+- **Mangonel**: `index=149`, `need_card=tbl`, `team=1`, `tags=tbl`, `id=Mangonel`, `pwe=4`, `rook_catapult=1`, `rook_tempo=2`, `need_tag=tbl`, `need=tbl`, `gid=156`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `ext=2`
+- **Governess**: `index=150`, `need_card=tbl`, `team=1`, `tags=tbl`, `force_promote=4`, `ext=2`, `id=Governess`, `pwe=4`, `need_tag=tbl`, `gid=157`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need=tbl`
+- **Mausoleum**: `index=151`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=Guillotine`, `tags=tbl`, `tags.1=leader`, `pwe=4`, `ext=2`, `id=Mausoleum`, `rook_leaderbond=2`, `need_tag=tbl`, `gid=158`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `need=tbl`
+- **Reverend Mother**: `index=152`, `need_card=tbl`, `need_card.1=Theocracy`, `team=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Reverend Mother`, `need_tag=tbl`, `queen_despair=1`, `gid=159`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `need=tbl`
+- **Sokoban**: `index=153`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Sokoban`, `rook_push=3`, `need_tag=tbl`, `gid=160`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `need=tbl`, `need.1=3`, `need.2=3`
+- **Tag Team**: `index=154`, `gid=161`, `n=1`, `rook_swap=tbl`, `rook_swap.1=2`, `rook_bishop_hp=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `id=Tag Team`, `need=tbl`, `need.1=2`, `need.2=3`, `need_tag=tbl`, `bishop_swap=tbl`, `bishop_swap.1=3`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `sac=tbl`
+- **Unicorn**: `index=155`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Unicorn`, `need=tbl`, `need_tag=tbl`, `gid=162`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `knight_charge=1`
+- **Lady in the Tower**: `index=156`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Lady in the Tower`, `need=tbl`, `need_tag=tbl`, `gid=163`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `rook_killprom=4`
+- **Final Countdown**: `index=157`, `need_card=tbl`, `team=1`, `tags=tbl`, `deathcount=12`, `pwe=4`, `ext=2`, `id=Final Countdown`, `need_tag=tbl`, `need=tbl`, `gid=164`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `deathcount_trig=6`
+- **Nomad Life**: `knight_promote=1`, `need_card=tbl`, `team=1`, `index=158`, `pwe=4`, `ext=2`, `id=Nomad Life`, `tags=tbl`, `need_tag=tbl`, `gid=165`, `n=2`, `sac=tbl`, `sac.1=3`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `gain.2=1`, `gain.3=2`, `need=tbl`
+- **Prison**: `index=159`, `knight_bishop_prison=3`, `team=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Prison`, `need_card=tbl`, `need_tag=tbl`, `gid=166`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `gain.2=1`, `need=tbl`, `need.1=1`, `need.2=2`, `need.3=3`
+- **Inquisition**: `index=160`, `need_card=tbl`, `bishop_uncover=1`, `bishop_investigate=1`, `tags=tbl`, `pwe=4`, `ext=2`, `id=Inquisition`, `team=1`, `need=tbl`, `need_tag=tbl`, `need_tag.1=mission`, `need_tag.2=cloak`, `n=1`, `sac=tbl`, `sac.1=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `gid=167`
+- **King's Look-alike**: `index=161`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=168`, `need=tbl`, `no_ruler=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `false_king=1`, `leader_hp=1`, `n=2`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=5`, `id=King's Look-alike`
+- **The Royal Hunt**: `index=162`, `need_card=tbl`, `team=1`, `leader_bow=2`, `exclude=tbl`, `exclude.1=The Red Book`, `exclude.2=Guillotine`, `pwe=4`, `ext=2`, `id=The Royal Hunt`, `tags=tbl`, `tags.1=leader`, `need_tag=tbl`, `gid=169`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Tragic Homecoming**: `queen_hp=2`, `need_card=tbl`, `team=1`, `index=163`, `pwe=0`, `ext=2`, `id=Tragic Homecoming`, `tags=tbl`, `need_tag=tbl`, `gid=170`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `need=tbl`
+- **Buckler of Limos**: `index=164`, `exclude=tbl`, `exclude.1=The Red Book`, `exclude.2=Guillotine`, `leader_armorgap=3`, `leader_tempo=1`, `leader_buckler=1`, `need_firepower=5`, `gid=171`, `need=tbl`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `id=Buckler of Limos`, `need_tag=tbl`, `tags=tbl`, `tags.1=leader`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Vampirism**: `index=165`, `exclude=tbl`, `exclude.1=Guillotine`, `leader_queen_hp=1`, `leader_queen_vampire=1`, `gid=172`, `need=tbl`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `id=Vampirism`, `need_tag=tbl`, `need_tag.1=bleed`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Commoner's Reign**: `index=166`, `knight_hp=2`, `exclude=tbl`, `exclude.1=Guillotine`, `gid=173`, `need=tbl`, `need_card=tbl`, `team=1`, `pwe=0`, `ext=2`, `id=Commoner's Reign`, `sac=tbl`, `sac.1=5`, `need_tag=tbl`, `ruler=1`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `n=1`
+- **Bouncy Castle**: `index=167`, `rook_hp=-2`, `need_knockback=100`, `gid=174`, `need=tbl`, `trampoline=1`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `id=Bouncy Castle`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Self-Defense**: `index=168`, `knight_hp=2`, `team=1`, `tags=tbl`, `pwe=0`, `ext=2`, `id=Self-Defense`, `need_card=tbl`, `need_tag=tbl`, `gid=175`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`
+- **Unsettled Throne**: `index=169`, `heir=1`, `exclude=tbl`, `exclude.1=Guillotine`, `heirprom=1`, `need_heir=1`, `need=tbl`, `need_card=tbl`, `team=1`, `pwe=4`, `ext=2`, `id=Unsettled Throne`, `gid=176`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `tags.1=leader`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Vendetta**: `index=170`, `exclude=tbl`, `exclude.1=King's Shoulders`, `vendetta=1`, `gid=177`, `need=tbl`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Tragic Homecoming`, `need_card.1.2=King's Mistress`, `team=1`, `pwe=8`, `ext=3`, `id=Vendetta`, `sac=tbl`, `need_tag=tbl`, `blade=1`, `tags=tbl`, `tags.1=blade`, `exclude_tag=tbl`, `gain=tbl`, `n=1`
+- **Stoning**: `index=171`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=Bloodless Coups`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Stoning`, `sac=tbl`, `need_tag=tbl`, `gid=178`, `n=1`, `pawn_stoning=1`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=0`, `need.2=0`, `need.3=0`, `need.4=0`, `need.5=0`
+- **Anarchy**: `index=172`, `need_card=tbl`, `team=1`, `exclude=tbl`, `exclude.1=Guillotine`, `tags=tbl`, `tags.1=leader`, `pwe=2`, `ext=3`, `id=Anarchy`, `need_tag=tbl`, `anarchy=1`, `gid=179`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=0`, `need.2=1`, `need.3=2`, `need.4=3`, `need.5=4`
+- **Auto-da-fe**: `index=173`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Inquisition`, `need_card.1.2=Conclave`, `need_card.1.3=Zealots`, `team=1`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Auto-da-fe`, `n=1`, `need_tag=tbl`, `gid=180`, `need=tbl`, `need.1=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `bishop_censor=1`
+- **Late for dinner**: `index=174`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Kingdom Wealth`, `need_card.1.2=Final Countdown`, `team=1`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Late for dinner`, `need=tbl`, `need_tag=tbl`, `gid=181`, `n=1`, `delay=10`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=1`, `gain.3=2`, `gain.4=3`, `sac=tbl`, `sac.1=0`, `sac.2=1`, `sac.3=2`
+- **Excommunication**: `index=175`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Excommunication`, `exile=15`, `need_tag=tbl`, `gid=182`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `gain.2=1`, `need=tbl`, `need.1=2`
+- **Pyre of Lust**: `index=176`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=2`, `ext=3`, `id=Pyre of Lust`, `exile=15`, `need_tag=tbl`, `gid=183`, `need=tbl`, `need.1=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=4`, `n=1`
+- **Gatehouse**: `index=177`, `rook_hp=-1`, `rook_tempo=2`, `gid=184`, `n=1`, `need_card=tbl`, `need_card.1=tbl`, `need_card.1.1=Remparts`, `need_card.1.2=Trowel`, `team=1`, `rook_spawn=1`, `pwe=4`, `ext=3`, `id=Gatehouse`, `need_tag=tbl`, `sac=tbl`, `tags=tbl`, `exclude_tag=tbl`, `gain=tbl`, `need=tbl`, `need.1=3`
+- **Lightfoot**: `index=178`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `pawn_lightfoot=1`, `id=Lightfoot`, `need=tbl`, `need_tag=tbl`, `gid=185`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `ext=3`
+- **Loyalist March**: `index=179`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=2`, `ext=3`, `id=Loyalist March`, `need=tbl`, `need_tag=tbl`, `gid=186`, `n=1`, `delay=10`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `gain.2=0`, `gain.3=0`, `gain.4=0`, `gain.5=0`, `gain.6=0`, `gain.7=0`, `gain.8=0`, `sac=tbl`
+- **Trench War**: `index=180`, `need_card=tbl`, `team=1`, `tags=tbl`, `id=Trench War`, `pwe=2`, `ext=3`, `hole_cover=1`, `need_tag=tbl`, `need=tbl`, `gid=187`, `n=2`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=1`, `hole_start=5`
+- **Catacombs**: `index=181`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `spread=10`, `ext=3`, `hole_solid=1`, `id=Catacombs`, `need=tbl`, `need_tag=tbl`, `need_tag.1=tunnels`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=3`, `gid=188`
+- **Flesh Wall**: `index=182`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=2`, `ext=3`, `id=Flesh Wall`, `need=tbl`, `need_tag=tbl`, `gid=189`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=0`, `pawn_block=1`
+- **Hired Blade**: `index=183`, `need_card=tbl`, `team=1`, `ammo_max=-1`, `pwe=4`, `ext=3`, `id=Hired Blade`, `tags=tbl`, `need_tag=tbl`, `gid=190`, `n=2`, `sac=tbl`, `sac.1=0`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=12`, `need=tbl`
+- **Oathkeeper**: `index=184`, `need_card=tbl`, `team=1`, `pwe=2`, `ext=3`, `id=Oathkeeper`, `tags=tbl`, `need_tag=tbl`, `gid=191`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=13`, `need=tbl`
+- **Redemption**: `index=185`, `need_card=tbl`, `team=1`, `tags=tbl`, `pwe=4`, `ext=3`, `id=Redemption`, `redemption=1`, `need=tbl`, `gid=192`, `n=1`, `sac=tbl`, `exclude_tag=tbl`, `gain=tbl`, `gain.1=2`, `need_tag=tbl`, `need_tag.1=ally`
 - **EXCLUDE pairs**: `Royal Loafers<>Sawed-off Justice`, `Militia<>Bloodless Coups`, `The Red Book<>The Royal Hunt`, `The Red Book<>Buckler of Limos`, `Bloodless Coups<>Stoning`
 
 ## 12c. Offer-roll choices & filters (build 5+)
@@ -678,52 +706,234 @@ xpl_king                    ysort
 - **candidate**: `id=Guerilla Tactics`, `special=grenade`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
 - **candidate**: `id=Shovel`, `special=dig`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
 - **candidate**: `id=Succubus`, `special=nil`, `wand=nil`, `soul_slot=1`, `need_soul=nil`
+- **is_card_available**: `n=1`, `id=Ermine Belt`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=0`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `ammo_max=3`
+- **availability**: `pwe=4`
+- **availability**: `ext=0`
+- **availability**: `id=Ermine Belt`
+- **availability**: `need=tbl`
+- **availability**: `sac=tbl`
+- **availability**: `need_tag=tbl`
+- **availability**: `n=3`
+- **availability**: `tags=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `gid=0`
+- **availability**: `fields_shown=15`
+- **is_card_available**: `n=2`, `id=Rightful Curtsy`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=1`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `sac=tbl`
+- **availability**: `ammo_max=1`
+- **availability**: `pwe=4`
+- **availability**: `ext=0`
+- **availability**: `id=Rightful Curtsy`
+- **availability**: `need=tbl`
+- **availability**: `knockback=50`
+- **availability**: `gid=1`
+- **availability**: `n=2`
+- **availability**: `tags=tbl`
+- **availability**: `tags.1=on_hit`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `need_tag=tbl`
+- **availability**: `fields_shown=16`
+- **is_card_available**: `n=3`, `id=Elite Gem`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=2`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `n=1`
+- **availability**: `firerange=1`
+- **availability**: `pwe=4`
+- **availability**: `ext=0`
+- **availability**: `ammo_regen=1`
+- **availability**: `need_tag=tbl`
+- **availability**: `tags=tbl`
+- **availability**: `gid=2`
+- **availability**: `need=tbl`
+- **availability**: `sac=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `id=Elite Gem`
+- **availability**: `fields_shown=16`
+- **is_card_available**: `n=4`, `id=Extra Barrel`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=3`
+- **availability**: `chamber_max=1`
+- **availability**: `team=0`
+- **availability**: `need=tbl`
+- **availability**: `pwe=6`
+- **availability**: `ext=0`
+- **availability**: `id=Extra Barrel`
+- **availability**: `gid=3`
+- **availability**: `sac=tbl`
+- **availability**: `need_tag=tbl`
+- **availability**: `n=3`
+- **availability**: `tags=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `need_card=tbl`
+- **availability**: `fields_shown=15`
+- **is_card_available**: `n=5`, `id=Royal Loafers`, `special=strafe`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=4`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `special=strafe`
+- **availability**: `need=tbl`
+- **availability**: `pwe=2`
+- **availability**: `ext=0`
+- **availability**: `id=Royal Loafers`
+- **availability**: `gid=4`
+- **availability**: `sac=tbl`
+- **availability**: `need_tag=tbl`
+- **availability**: `n=1`
+- **availability**: `tags=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `exclude=tbl`
+- **availability**: `exclude.1=Sawed-off Justice`
+- **availability**: `fields_shown=16`
+- **is_card_available**: `n=6`, `id=Majestic Censer`, `special=nil`, `wand=nil`, `soul_slot=1`, `need_soul=nil`
+- **availability**: `index=5`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `n=1`
+- **availability**: `ammo_max=1`
+- **availability**: `pwe=4`
+- **availability**: `ext=0`
+- **availability**: `id=Majestic Censer`
+- **availability**: `gain=tbl`
+- **availability**: `tags=tbl`
+- **availability**: `gid=5`
+- **availability**: `need=tbl`
+- **availability**: `sac=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `soul_slot=1`
+- **availability**: `need_tag=tbl`
+- **availability**: `fields_shown=16`
+- **is_card_available**: `n=7`, `id=Sacred Crown`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=1`
+- **availability**: `index=6`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `crown=1`
+- **availability**: `sac=tbl`
+- **availability**: `pwe=4`
+- **availability**: `ext=0`
+- **availability**: `id=Sacred Crown`
+- **availability**: `need=tbl`
+- **availability**: `need_soul=1`
+- **availability**: `gid=6`
+- **availability**: `n=1`
+- **availability**: `tags=tbl`
+- **availability**: `exclude_tag=tbl`
+- **availability**: `gain=tbl`
+- **availability**: `need_tag=tbl`
+- **availability**: `fields_shown=16`
+- **is_card_available**: `n=8`, `id=Blunderbuss`, `special=nil`, `wand=nil`, `soul_slot=nil`, `need_soul=nil`
+- **availability**: `index=7`
+- **availability**: `need_card=tbl`
+- **availability**: `team=0`
+- **availability**: `firepower=2`
+- **availability**: `pwe=4`
+- **availability**: `spread=30`
+- **availability**: `ext=0`
+- **availability**: `id=Blunderbuss`
+- **availability**: `need_tag=tbl`
+- _(showing 160 of 243 logged offer records)_
 
 ## 12d. Souls, scepters & pieces probe (build 5+)
 
 - `piece|type=0|name=pawn|hp=3|tempo=5|danger=1`
-- `piece_0|tempo=5`
-- `piece_0|danger=1`
-- `piece_0|seek=wdist`
-- `piece_0|name=pawn`
-- `piece_0|type=0`
 - `piece_0|index=0`
+- `piece_0|type=0`
+- `piece_0|name=pawn`
+- `piece_0|tempo=5`
+- `piece_0|seek=wdist`
+- `piece_0|danger=1`
 - `piece_0|behavior=tbl`
 - `piece_0|behavior.1=tbl`
 - `piece_0|behavior.1.1=1`
 - `piece_0|behavior.1.2=1`
 - `piece_0|behavior.1.3=1`
-- `piece_0|behavior.1.native=1`
 - `piece_0|behavior.1.move=1`
+- `piece_0|behavior.1.native=1`
 - `piece_0|behavior.1.id=line`
 - `piece_0|behavior.2=tbl`
 - `piece_0|behavior.2.1=4`
 - `piece_0|behavior.2.2=5`
 - `piece_0|behavior.2.3=1`
-- `piece_0|behavior.2.native=1`
 - `piece_0|behavior.2.atk=1`
+- `piece_0|behavior.2.native=1`
 - `piece_0|behavior.2.id=line`
-- `piece_0|sided=1`
 - `piece_0|hdy=2`
+- `piece_0|sided=1`
 - `piece_0|hp=3`
 - `piece_0|fields_shown=10`
 - `piece|type=1|name=knight|hp=3|tempo=3|danger=3`
+- `piece_1|index=1`
+- `piece_1|nocarry=1`
+- `piece_1|type=1`
+- `piece_1|name=knight`
 - `piece_1|tempo=3`
+- `piece_1|seek=kdist`
 - `piece_1|danger=3`
 - `piece_1|reap=1`
-- `piece_1|seek=kdist`
-- `piece_1|name=knight`
-- `piece_1|type=1`
-- `piece_1|index=1`
 - `piece_1|behavior=tbl`
 - `piece_1|behavior.1=tbl`
 - `piece_1|behavior.1.1=2`
 - `piece_1|behavior.1.2=-1`
 - `piece_1|behavior.1.3=2`
-- `piece_1|behavior.1.4=1`
+
+## 12e. Damage & bullet pipeline probe (build 5+)
+
+- `hit|target=pawn|dmg=2|hp=3|bad=false|god_mode=false`
+- `bleed_dmg|n=1|a1=tbl|a2=2|a3=nil|a4=nil`
+- `bleed_dmg_arg1|see_hat=false`
+- `bleed_dmg_arg1|upd=fn`
+- `bleed_dmg_arg1|sq=tbl`
+- `bleed_dmg_arg1|sq.risk=0`
+- `bleed_dmg_arg1|sq.upd=fn`
+- `bleed_dmg_arg1|sq.vx=0`
+- `bleed_dmg_arg1|sq.t=13099`
+- `bleed_dmg_arg1|sq.ww=16`
+- `bleed_dmg_arg1|sq.px=2`
+- `bleed_dmg_arg1|sq.flx=false`
+- `bleed_dmg_arg1|sq.danger=tbl`
+- `bleed_dmg_arg1|sq.shells=tbl`
+- `bleed_dmg_arg1|sq.seed=311`
+- `bleed_dmg_arg1|sq.x=128`
+- `bleed_dmg_arg1|sq.y=126`
+- `bleed_dmg_arg1|sq.truncated=true`
+- `bleed_dmg_arg1|vx=0`
+- `bleed_dmg_arg1|bad=false`
+- `bleed_dmg_arg1|t=12225`
+- `bleed_dmg_arg1|team=0`
+- `bleed_dmg_arg1|sided=1`
+- `bleed_dmg_arg1|tempo=5`
+- `bleed_dmg_arg1|hh=16`
+- `bleed_dmg_arg1|mark=tbl`
+- `bleed_dmg_arg1|danger=1`
+- `bleed_dmg_arg1|truncated=true`
+- `bleed_dmg_arg1|fields_shown=12`
+- `fx_dmg|n=1|a1=tbl|a2=2|a3=nil|a4=nil`
 
 ## 12f. Input & button-remap probe (build 5+)
 
+- `defbtn_api=available`
+- `btn|validate=false`
+- `btn|cancel=false`
+- `btn|shoot=false`
+- `btn|special=false`
+- `btn|reload=false`
+- `btn|unsafe=false`
+- `btn|ctrl=false`
+- `btncode|m:lb=false`
+- `btncode|m:rb=false`
+- `btncode|m:mb=false`
+- `input|probed=10|source=confirmed_list|status=done`
 - `global|MOUSE=true`
 - `global|INPUT_ASSIGNEMENT=			validate> c:a, m:lb`
 - `global|SHOOT_BUTTON=RT`
@@ -736,16 +946,85 @@ xpl_king                    ysort
 - `global|mlb=nil`
 - `global|mx=nil`
 - `global|my=nil`
-- `btn|unsafe=false`
-- `btn|cancel=false`
-- `btn|ctrl=false`
+- `menu_but|n=1|id=play`
+- `menu_but_1|t=0`
+- `menu_but_1|flx=false`
+- `menu_but_1|fly=false`
+- `menu_but_1|dp=3`
+- `menu_but_1|we=0`
+- `menu_but_1|ww=16`
+- `menu_but_1|vy=0`
+- `menu_but_1|vx=0`
+- `menu_but_1|dcy=0`
+- `menu_but_1|hh=16`
+- `menu_but_1|dcx=0`
+- `menu_but_1|x=212`
+- `menu_but_1|fr=0`
+- `menu_but_1|y=108.5`
+- `menu_but_1|frict=1`
 
 ## 12g. Dev panel, Mod Menu & Save persistence (build 5+)
 
+- `bank|ready=true|magic=0|god_mode=false`
 - `menu_state|n=1|menu=nil|mMenu=nil`
+- `panel|available=true|native=mk_text_but`
+- `panel|width=320|y=148`
+- `panel|width=320|y=148`
+- `panel|open=true|buttons=6`
+- `panel|open=false`
+- `panel|damage_controls=deferred_until_live_damage_probe`
+- `panel|damage_controls=deferred_until_live_damage_probe`
+- `panel|god_mode=true`
+- `panel|god_mode=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=true|buttons=6`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|open=false`
+- `panel|width=320|y=148`
+- `panel|width=320|y=148`
+- `panel|width=320|y=148`
+- `menu_state|n=2|menu=nil|mMenu=tbl`
+- `mMenu|y=99.5`
+- `mMenu|x=183`
+
+## 12h. Build 7 — panel v2, damage/crit, dodge & engine-call trace
+
+- `SKUI|panel|available=true|native=mk_text_but`
+- `SKUI|panel|width=320|y=148`
+- `SKUI|panel|width=320|y=148`
+- `SKUI|panel|open=true|buttons=6`
+- `SKUI|panel|open=false`
+- `SKUI|panel|damage_controls=deferred_until_live_damage_probe`
+- `SKUI|panel|damage_controls=deferred_until_live_damage_probe`
+- `SKUI|panel|god_mode=true`
+- `SKUI|panel|god_mode=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=true|buttons=6`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|open=false`
+- `SKUI|panel|width=320|y=148`
+- `SKUI|panel|width=320|y=148`
 
 ## 13. Next step
 
 - Promote confirmed entries into `notes/map.md` (replace the TBD lines).
 - Pick the dev-cheat panel targets from the ammo/UI candidate lists.
-- Lines from other systems in the log: 992 (ignored; raise an issue if the game seems noisy).
+- Lines from other systems in the log: 1040 (ignored; raise an issue if the game seems noisy).

@@ -1,3 +1,59 @@
+## 2026-10-05 — session 9: run 5 absorbed, Build 7 shipped
+
+- `modded/sk-rework/script.lua` — **BUILD=7**. New §1b runtime layer (config
+  table, SAFE budget + `SKE|call|` intent logging, seeded PRNG, damage/crit
+  roll, `ifloor`, bank helpers `bank_set`/`bank_flush`/`persist_cfg`, diagonal-
+  first `choose_spawn_square`, `spawn_ally`, `dodge_king`). §4 rewritten as the
+  panel v2 (13 buttons on page 1, REAL pages via `remove_buts()` +
+  `reopen_page()` after every action so labels show live state; card LIST page
+  6/page with `is_card_available` filtering and summon-on-card; spawn piece
+  picker). §5 menu widgets now arm on the run-5 ids and clear via `del` (never
+  `remove_buts`, which would wipe the engine's own menu). §6 hooks: `new_turn`
+  also flushes the bank; `hit` prepend adds the dodge; a new `mk_bullet` append
+  applies the damage/crit roll. Post-READY: bank restore/rewrite (magic 505 +
+  config cells), a Build-7 API capability line, and the existing probe blocks.
+  An offer/level-up screen sets `offer_active`, and the panel refuses to clear
+  or build the button layer while it is set — otherwise a stray click on our
+  panel would delete the engine's own card buttons. Dead helpers from the
+  build-6 panel (`is_live_entity`, `group_alive`, `cheat_spawn_ally`) removed.
+- `modded/sk-rework/info.lua` — Build-7 description (panel controls, damage
+  knobs, persistence, menu legend, diagnostics + SAFE/intent logging).
+- `tools/mod_smoketest.py` — fake engine now keeps **ordered hook lists + a
+  `fire()` dispatcher** (the real engine chains appends; the old single-slot
+  dict silently dropped Build 7's damage hook), models `remove_buts`, `goto_sq`
+  (only the `(hero, sq)` order works, so the mod's guess-validation is
+  exercised), `flr`, `t`, `mk_bullet`, `refill_ammo`/`can_reload`, and
+  `stack.chamber_max=1` (faithful to run 5). Scenario rewritten for the new
+  panel (per-control clicks, offer-screen guard, DMG on → bullet roll, lethal hit → dodge, card
+  list take, spawn picker, SAFE double-click, CLOSE) with 45 checks incl. the
+  close-state regression and the offer-screen guard). **47/47 × value/pair ×
+  default/LuaJIT.**
+- `tools/parse_log.py` — parses `SKE|call|` (name/status + a dangling `=start`
+  becomes `crash.pending_call`, rendered as "that control is the crash
+  suspect"), stores `SKD|dmg|` rolls and `SKUI|{panel,card,spawn,dodge,cfg,api,
+  menu}` lines, and renders a new "12h. Build 7" section. Selftest extended to
+  **44/44** (build-7 calls, SAFE-blocked call, damage roll, panel lines,
+  section render, dangling-call forensics, plus a mutation-command
+  non-execution check).
+- `notes/map.md` — new "Live-verified facts — run 5" section: the ghost-panel
+  root cause + `remove_buts`, the real menu ids, the decoded bank format, the
+  bullet/damage route + `stack` fields, summon-family card fields, live soul/
+  scepter/offer traces, and the availability of the Build-7 helpers.
+- `notes/game-map-draft.md` — regenerated from the run-5 log (new parser
+  sections included).
+- `live testing result/SUMMARY.md` — Run 5 section (findings + the 8 owner
+  asks) and the refreshed follow-up status.
+- `PLANNING.md` — §0.7 routing note updated; new **§0.7b** with asks 12–19
+  (panel close/state, spawn placement/variety, ally bugs, reload/cartridge,
+  cardless card, damage, dodge, spawn lag).
+- `WORKLIST.md` — Build-6 live run ticked, Build 7 recorded, guessed-signature
+  item rewritten, Phase-2c finished, menu item closed, session-9 audit entry,
+  owner to-do refreshed for the control-by-control Build-7 run.
+- `HANDOFF.md` — session 9: branch/docs/mod pointers, new hard-won facts
+  (2c–2f), §5 rewritten around the run-5 outcome and the Build-7 next step.
+- Evidence cleanup: `live testing result/uploads/` (run 4) and the run-5
+  `notes/` snapshot deleted after absorption.
+
 # notes/changelog.md — what we changed and why
 
 Every kept change gets an entry. Newest first. `res://` paths only (the same

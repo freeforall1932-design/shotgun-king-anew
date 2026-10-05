@@ -184,38 +184,57 @@ itself silently ignores those too.
    — **black text = OFF, white text = ON**. The build writes
    `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
    (ON) and the 13 workshop mods black (OFF). The **up/down arrows only
-   change load priority**. Build 6 also attempts a Back button and white/black
-   legend inside the mod list; note whether they appear and whether Back exits
-   without save-and-reboot.
+   change load priority**. Build 7 shows a `< BACK` button and the white/black
+   legend on the mod-list screen (`SKUI\|menu\|widgets_added=true` in the log
+   is the proof); note whether they appear and whether Back exits without
+   save-and-reboot.
 4. Start a run and play a couple of turns. Find the native **SK DEV** text
    button near the bottom of the board; click it to reveal the controls.
-   Try `+3 AMMO`, `RANDOM CARD`, `SPAWN ALLY`, and `GOD MODE` if convenient
-   — one at a time, and note which one you clicked if the game dies. (The
-   diagnostic probes all run at load, so a crash after a click still leaves
-   a complete harvest in `log.txt`.)
-   The `DMG GATED` button is intentionally a no-op placeholder until the live
-   damage trace confirms a safe implementation. The cheats only run if clicked;
-   otherwise the mod is diagnostic. Note crashes, UI overlap, or incorrect
-   actions. Then quit normally.
+   **Build 7 layout — page 1:** `+3 AMMO` (reserve) · `RELOAD` · `CLIP+` ·
+   `SAFE:off/on` · `CARD:AUTO/LIST` · `CARD NOW` · `CARDS>` · `SPAWN...` ·
+   `GOD:off/on` · `DMG:off/on` · `DMG+` · `CRIT+` · `CLOSE`.
+   Click each one **once**, in this order if convenient:
+   1. `+3 AMMO` (reserve adds 3), `RELOAD` (chamber fills), `CLIP+` (bumps
+      `stack.chamber_max` — a status experiment; note if anything changes).
+   2. `CARD NOW` (takes a card), then `CARDS>` → take any card from the list →
+      `FILT:ALL`/`FILT:PIECE` filters to piece/summon cards (e.g. Right-hand)
+      → the piece it summons arrives on a neighbouring square.
+   3. `SPAWN...` → pick `knight`/`bishop`/etc. — the ally should appear on a
+      DIAGONAL neighbour (never blocking your 1-tile move).
+   4. `GOD:on`, then let a piece hit you lethally: the king should dodge to a
+      free square instead of dying.
+   5. `DMG:on`, then `DMG+`/`CRIT+` and fire a few shots: damage rolls (and
+      crits on piercing shots) appear in the log as `SKD|dmg|…`.
+   6. `SAFE:on` limits a boot to ONE gameplay-mutating call (use it if a
+      control ever crashes the game — it makes the culprit obvious).
+   7. `CLOSE` — the panel (and its buttons) must disappear for real.
+   Every control logs an intent line (`SKE|call|<name>=start`) before it runs,
+   so if the game dies, `log.txt` names the control. The diagnostic probes all
+   run at load; a crash after a click still leaves a complete harvest. Note
+   crashes, UI overlap, or wrong behaviour. Then quit normally.
 
-Build 6 writes its load/hook proof plus the card/offer/soul/damage/input/UI
-probes to `log.txt`. The game prefixes every line with `  . ` — that is normal.
+Build 7 writes its load/hook proof plus the card/offer/soul/damage/input/UI
+probes and the engine-call trace to `log.txt`. The game prefixes every line with `  . ` — that is normal.
 
 > **Build 5 crashed at boot (run 4)** — it probed an input name the engine did
-> not know, and SUGAR treats that as fatal. Build 6 only probes inputs the game
+> not know, and SUGAR treats that as fatal. Build 6 (run 5: booted and played
+> 22 min cleanly) and Build 7 only probe inputs the game
 > itself published, so that crash cannot repeat; if the game ever quits at boot
 > again, send me `log.txt` **and** the newest `crash_log_*.txt` — the last
 > `ERR`/`Stack traceback` block names the exact line.
 
 | Line/prefix in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=6 loaded (mod_index=…)` | the mod loaded |
+| `SK-REWORK: BUILD=7 loaded (mod_index=…)` | the mod loaded |
 | `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
 | `SKH\|…` | additive hook registrations |
 | `SKW\|turn=1\|…` | first per-turn state sample |
 | `SKA2\|probe\|<block>=done` | a probe block finished (cards/exclude/souls/bank/input) |
-| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | §0.7 card, offer, soul/scepter, damage, input, and UI probes (static dumps follow READY) |
-| `SK-REWORK: READY build=6 hooks=…` | load and registrations reached the marker |
+| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | card, offer, soul/scepter, damage, input and UI probes (static dumps follow READY) |
+| `SKUI\|panel\|…`, `SKUI\|card\|…`, `SKUI\|spawn\|…`, `SKUI\|dodge\|…`, `SKUI\|cfg\|…` | build-7 panel state, card/spawn pickers, dodge routes and the live damage config |
+| `SKE\|call\|<name>=start` … `=ok` | an engine-mutating control ran; a `=start` with no matching `=ok` names the control that crashed the game |
+| `SKD\|dmg\|before=…\|after=…\|crit=…` | the configured damage/crit roll applied to a fired bullet |
+| `SK-REWORK: READY build=7 hooks=…` | load and registrations reached the marker |
 
 ---
 
@@ -300,8 +319,8 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
 | 3 | Step 5 launch & mod menu | click Play → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-6 Back/legend if shown |
-| 4 | Step 5 in-run panel | `SK DEV` opens native controls; note ammo/card/spawn/God Mode results, Back behavior, UI overlap, or crashes (`DMG GATED` is intentionally inactive) |
-| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=6`, `SK-REWORK: PROBE done build=6`, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
+| 4 | Step 5 in-run panel | `SK DEV` opens page 1; note ammo/reload/clip, card (AUTO/LIST/FILT), spawn (piece + square), God Mode dodge, damage/crit rolls, SAFE, and that CLOSE really removes the panel; note the mod-menu legend/Back; report crashes |
+| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=7`, `SK-REWORK: PROBE done build=7`, the `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines, and the `SKE\|call`/`SKD\|dmg` build-7 traces |
 | 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
@@ -317,7 +336,7 @@ the game crashed.
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
 | 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted (runs 1–4); Build-6 probes target the remaining unknowns |
-| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 5 crashed at boot (run 4); build 6 sandbox-tested and regression-guarded; owner live run pending; damage control gated until the hit path is confirmed in play |
+| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 6 ran live in run 5 (panel + actions verified; three bugs found and fixed); **Build 7** adds damage/crit, reload/clip, card + spawn pickers, dodge and real CLOSE — sandbox-tested 47/47, owner live run pending |
 | 3 | ammo rework, staged A → B → C | ⛔ queued after Build-6 live probes/playtest |
 | 4 | card picker + enemy picker | ⛔ queued after Build-6 live probes/playtest |
 | 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-6 live probes/playtest |

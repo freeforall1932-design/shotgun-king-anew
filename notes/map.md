@@ -7,7 +7,8 @@ see PLANNING.md §0.5) · **Scripting:** LuaJIT 2.1 / Lua 5.1.
 **Status: live-verified runs 1–4 + vendored-mod cross-referenced.** Run 4
 (2026-10-04, build 5) harvested the full card/piece/soul dump but **crashed at
 load** in the input probe — root cause and the permanent safety rule are in
-§"Input, UI & Persistence" below. Build 6 fixes it and is pending a new live
+§"Input, UI & Persistence" below. Build 6 fixed the boot crash and ran live in
+run 5 (see the run-5 section); Build 7 builds on that and is pending a new live
 run. Sources: `notes/game-map-draft.md`, `live testing result/SUMMARY.md`, and
 the 13 mods in `dist-overlay/mods/` (`notes/mods.md`).
 
@@ -251,6 +252,110 @@ smoke test as game facts.
    Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod.
 
 ---
+
+## Live-verified facts — run 5 (2026-10-04, build 6, v1.623b, ~22 min in play)
+
+Run 5 booted build 6 cleanly and played through to the end of a run
+(`READY build=6 hooks=30 globals=920`; single boot; `Application ran for
+1311.772000 seconds`; clean shutdown). Everything below is from that log +
+its `-GetInsights` save pack.
+
+### A. Dev panel / native buttons (the run-5 ghost-panel bug)
+
+- **The engine IGNORES `del(ents, e)` on `mk_text_but` groups.** Run 5 shows
+  `SKUI|panel|open=true|buttons=6` immediately followed by `open=false`, then
+  bursts of `open=false` — the mod "closed" a panel whose visuals stayed on
+  screen (owner: "close it doesnt close the ui", "button is frozen to brown").
+  Deleting our own button entities does not remove the engine's UI.
+- **`remove_buts()` is the engine's own primitive** for that, and it IS a live
+  global: `disgraced_justice` (7 call sites, incl. inside button handlers) and
+  `glac terminal` (`hero_fail`) both call it. Build 7 uses it for the panel.
+- Native panel audit from the run: `available=true|native=mk_text_but`,
+  `width=320|y=148` — but the panel actions fired while the state machine was
+  already inconsistent: `SKE|cheat_ammo|amount=3` (ammo 3→6, `hero_ammo=nil`),
+  `SKE|cheat_card|id=August Presence`, `SKE|cheat_spawn|type=0|name=pawn` ×5
+  then ×3 `no_piece_or_free_square`, `god_mode=true` → `false`.
+- **Summoning only ever produced pawns**: `first_spawnable_piece()` returns the
+  first `PIECES` entry, which is the pawn. It also spawned ON the king's route
+  and the owner reported the ally blocking his 1-tile move ("i spawn ally that
+  block my 1 tile movement") — hence Build 7's diagonal-first square picker.
+- `hero.ammo` is `nil` in play; the live ammo counter is the global `ammo`
+  (`hero` in the run-5 hero dump has no ammo field). `+3 ammo` behaves like a
+  refill of the reserve — the owner wants a RELOAD button + a cartridge/shell
+  slot button, not a different +N.
+
+### B. Mod-menu ids (the attach bug)
+
+- The real menu button ids, harvested live at `mk_menu_but`:
+  `play`, `options`, `codex`, `credits`, `quit`, `mods`, `throne`, `endless`,
+  `chase`, `charnier`, `tutorial`, `back`, `save_back`, the mod-list rows
+  ` ON `, `OFF `, and the arrow glyphs `é`, `è`. A second menu pass logs the
+  same ids with a numeric prefix (`100|play`, `2|options`…).
+- Build 6's attach predicate compared MODLIST *titles* with those ids, so it
+  could never match: `SKUI|menu|widgets_added` never appears in the run-5 log.
+  Build 7 arms on the ids above.
+- `init_menu` fires on menu entry (4× in run 5) and its state dump shows
+  `menu=nil`, `mMenu=tbl` — `mMenu` is the mod-menu table, not `menu`.
+
+### C. Bank / persistence (decoded from the run-5 save pack)
+
+- `save/mods/sk-rework.bnk` is the bank file: **`<w>:<h>:<cell>:<hex>`** in
+  ASCII — header `128:64:4:` then `65536` hex chars = `32768` bytes, i.e. one
+  ASCII hex digit per nibble, 4 bytes per cell. Little-endian `i32` per cell:
+  run 5's file decodes to `(0,0)=505`, `(1,0)=1` (magic + God Mode ON).
+- The in-log read in that same boot said `SKUI|bank|ready=true|magic=0` — i.e.
+  run 5 was the first boot that ever WROTE the bank; the read-back across a
+  boot had not happened yet. `savbnk()` + `bset()` are proven writers.
+- `sk-rework.sav` stays the empty per-mod registry file
+  (`PUNKCAKE\nt{\n}\nFOREVER`); `reg.sav` maps `s"sk-rework"` →
+  `f"save/mods/sk-rework.sav"`. `_bak` copies are byte-identical.
+
+### D. Damage pipeline (the crit/damage design)
+
+- Live bullet route: `fire` (12×) → `mk_bullet(x, y, angle, life)` (30×, all 4
+  bullets share one origin, angles ≈ -0.21/-0.42) → each bullet carries
+  `dmg=1`, `pierce=0`, `shot=true`, `life` 6–10 → `hit(p, dmg, tags)` 30×
+  (`dmg=1` vs `dmg=2`, `hp` before the hit) → `fx_dmg(p, dmg)` 30× (a2 = the
+  final damage) → `bleed_dmg` 30×. **`ev_hit` never fired in play** (it is
+  registered as a global but not on the bullet route), so hooking it is
+  pointless for damage work; `mk_bullet`, `hit` and `fx_dmg` are the points.
+- `stack` (live fields): `chamber_max=1`, `ammo_regen=1`, `grenades_max=1`,
+  `firerange=3`, `boss_hprc=200`, plus per-piece hp multipliers
+  (`pawn_hp`, `knight_hp`, `bishop_hp`, `queen_hp`, `rook_hp`) — **no `ammo_max`
+  / `chamber` on the stack** (those are card fields), so Build 7's CLIP+ writes
+  `chamber_max` and only bumps `ammo_max` if the field exists.
+- Ammo/refill globals confirmed present in the run-5 global dump: `reload`,
+  `give_ammo`, `inc_ammo`, `refill_ammo`, `can_reload`, `need_reload`, `clip`,
+  `ev_reload`. `chamber` is a plain global (value `0` in the `fire` trace).
+
+### E. Cards, souls, scepters (offer/AI surface)
+
+- 186 cards dumped field-by-field again; exactly **10 `special=` ability cards**
+  (scope, 5× grenade, strafe, orb, dig, decree) — matches the owner's count.
+- **Summon-family card fields** (the ext=3 block): `Right-hand`
+  (`allies.1=2`), `Warhorse` (`allies.1=1`), `Onboarding Party`
+  (`onboarding=1`), `Rapunzel` (`rapunzel=1`), `Small Key` (`small_key=1`),
+  `Holoking` (`holoking=1`, ext=2), `Soul Projection` (`summoner=1`). This is
+  the data Build 7 uses to bring a card's piece in (`allies.1` = piece type).
+- `ammo_max` values seen: -3 Shortage, -2 Reign of Terror, -1 Cardinal / Hired
+  Blade / Holy Gunpowder / Imperial Shot Put, +1 Fearsome / Guerilla Tactics /
+  Majestic Censer / Patience / Rightful Curtsy, +2 Church Organ / Human Shield,
+  +3 Ermine Belt, +6 Kingdom Wealth.
+- Soul flow ran live: `SKS|add_soul|n=1|a1=2|a2=tbl` (a1 = piece type, a2 =
+  piece/square table), `add_soul_slot` ×5 (`a1=nil`, `free_souls` 0/1),
+  `get_scepter` ×7 with `a1=7` (a scepter id). `add_scepter`/`activate_scepter`
+  did **not** fire this run — soul-slot internals remain the open question.
+- Offer candidates logged live via `SKOF|candidate|…` (special/wand/soul_slot/
+  need_soul fields) — the raw material for the card picker's filter.
+
+### F. Availability of the Build-7 helpers in play
+
+`remove_buts`, `goto_sq`, `get_allies`, `get_free_squares`,
+`get_nearest_free_square`, `black_mist_check`, `get_dodge`, `fx_spawn`,
+`reload`, `refill_ammo`, `can_reload`, `need_reload`, `clip`, `is_free`, `flr`
+all appear in the run-5 global dump. `goto_sq`'s *signature* is still a guess
+(Build 7 tries both plausible orders and validates the result before trusting
+it, falling back to a direct `hero.sq` write).
 
 ## Live-verified facts — run 4 (2026-10-04, build 5, v1.623b)
 
