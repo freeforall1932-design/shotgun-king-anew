@@ -1,9 +1,39 @@
--- SK-REWORK build 6 — Phase 2c Dev Panel + §0.7 live probes
+-- SK-REWORK build 7 — Dev Panel v2, damage/crit, ammo, dodge, pickers
 -- =====================================================================
+-- Build 6 was run live on 2026-10-04 (run 5, ~22 min, clean shutdown) and
+-- every Build-6 question was answered. Build 7 absorbs that evidence:
+--   * PANEL (run 5 finding): the panel rendered and all cheats fired, but
+--     mk_text_but groups were deleted with del(ents, e), which the engine
+--     ignores -> `open=true` immediately followed by `open=false` and ghost
+--     buttons (owner: "close doesn't close, button frozen brown"). Build 7
+--     uses the engine's own remove_buts() (proven in disgraced_justice and
+--     glac terminal) and rebuilds the header on the next turn.
+--   * DAMAGE/CRIT: run 5 logged the live route (mk_bullet x30, bullets carry
+--     dmg/pierce, hit(p,dmg,tags) x30, fx_dmg(p,dmg) x30, ev_hit NEVER fires).
+--     The gated "DMG" button is now real: configurable per-bullet damage,
+--     crit chance/damage, pierce auto-crit by default, persisted in the bank.
+--   * AMMO: +3 stays reserve (owner: "more like ammo regeneration"); new
+--     RELOAD button uses the `reload` global and CLIP+ bumps
+--     stack.chamber_max (live: stack.chamber_max=1). chamber/value readouts.
+--   * SPAWN: pick the piece type (page 3) and the square (prefers a DIAGONAL
+--     neighbour so the ally never blocks the king's 1-tile move -- the run-5
+--     complaint), logs both, still fx_spawn'd.
+--   * GOD MODE: HP refill + Mist-style dodge to a free square via goto_sq
+--     (signature guessed; logs which route worked and falls back to a direct
+--     hero.sq field write).
+--   * CARD: AUTO (game pick()) or LIST (browse every card, click to take;
+--     summon-family cards also spawn their `allies` piece).
+--   * MENU: legend/Back attach on the real mod-list ids harvested in run 5
+--     ("mods"/"save_back"/" ON "/"OFF "); the previous MODLIST-title compare
+--     could never match, which is why widgets_added never appeared.
+--   * SAFE mode: one engine-mutating action per boot (bank-stored), plus a
+--     SKE|call|<name>=start line before every mutating engine call, so a
+--     crash still names the failing control.
+-- ---------------------------------------------------------------------
 -- Build 5 was run live on 2026-10-04 (run 4) and CRASHED AT BOOT: the input
 -- probe called btn("left") on a name the engine does not know, which falls
 -- through to the input-id parser and is a FATAL game error ("Button left for
--- player 0 doesn't exist", script.lua:817). Build 6 fixes that:
+-- player 0 doesn't exist", script.lua:817). Build 6 fixed that:
 --   * btn() is only ever called with strings the running game has already
 --     published (named buttons from INPUT_ASSIGNEMENT + the bound mouse
 --     codes). Unknown ids are never blind-probed — there is no pcall here.
@@ -18,6 +48,8 @@
 --     and a God Mode toggle. Settings use the standard per-mod bank API.
 --   * Mod-menu legend + Back button, attached only when a menu button ID
 --     matches a live MODLIST entry (no guessed screen-state constants).
+--     v7: run 5 proved that compare can never match (ids are play/mods/
+--     save_back/" ON "/"OFF "); the trigger is now the real live ids.
 --   * §0.7 probes after READY: SKCF (all card fields + EXCLUDE), SKOF
 --     (offer filters/choices), SKS (souls/scepters/pieces), SKD
 --     (bullet/damage path), SKI (mouse/buttons/input/menu IDs), SKUI
@@ -35,7 +67,7 @@
 --   * The gameplay buttons are opt-in. No gameplay code runs unless clicked.
 -- =====================================================================
 
-local BUILD = 6
+local BUILD = 7
 local CAP_FIRST = 30
 local CAP_EVERY = 25
 local MAX_FIELDS = 16
@@ -46,6 +78,8 @@ local MAX_CARDS = 400
 local MAX_PIECES = 128
 local MAX_EXCLUDES = 512
 local MAX_ENTS_SCAN = 2000
+local PANEL_PAGE_BUTTONS = 6
+local SPAWN_PICK_BUTTONS = 6
 
 -- ---------- tiny helpers (nil-safe; no dependencies on unavailable APIs)
 local function sv(v)
@@ -63,6 +97,13 @@ local function log(s)
 end
 
 -- SUGAR's `all()` yields values; this also handles iterator,index,value.
+-- flr() is a live engine global, but never assume it: if it is missing the
+-- helper returns the value unchanged instead of raising.
+local function ifloor(v)
+	if type(flr) == "function" then return flr(v) end
+	return v
+end
+
 local function iter_value(a, b)
 	if b ~= nil then return b end
 	return a
@@ -130,6 +171,241 @@ local function log_target(prefix, tag, target, dmg, extra)
 		.. "|hp=" .. hp .. "|bad=" .. bad .. (extra or ""))
 end
 
+-- ---------- 1b. Build 7 state, config, safety budget & helpers ----------
+-- All state that section 4/5/6 closures touch lives here so the upvalues
+-- resolve (a local declared later would silently become a global).
+local cfg = { on = 0, dmg_min = 1, dmg_max = 1, crit = 0, crit_dmg = 2, pierce_crit = 1 }
+local card_mode = "auto"          -- "auto" (game pick) | "list" (browse + take)
+local card_filter = "all"         -- "all" | "piece" (piece/summon-related cards)
+local offer_active = false        -- level-up/offer screen open: never touch buttons
+local safe_mode = 0               -- 1 = one engine-mutating action per boot
+local safe_budget = 1
+local safe_used = {}
+local bank_ready = false
+local bank_dirty = false
+local bank_flush_gate = 0
+local god_mode = false
+local rand_state = 20261005
+local dev_actions = {}
+local dev_open = false
+local dev_page = 1
+local card_page = 1
+local spawn_pick = nil
+local panel_present = false
+local dev_header = nil
+local dev_y = nil
+local panel_creation_logged = false
+local make_dev_actions
+local make_card_page
+local make_spawn_page
+local ensure_dev_panel
+local reopen_page
+
+local function prand()
+	rand_state = (rand_state * 48271) % 2147483647
+	if rand_state <= 0 then rand_state = 1 end
+	return rand_state
+end
+
+local function seed_rand()
+	if type(t) == "number" and type(flr) == "function" then
+		rand_state = (rand_state + flr(t * 1000)) % 2147483647
+		if rand_state <= 0 then rand_state = 1 end
+	end
+end
+
+-- Configured per-bullet damage + crit roll (W3). pierce > 0 auto-crits by
+-- default unless the owner turns pierce_crit off in the panel.
+local function roll_damage(pierce)
+	local lo, hi = cfg.dmg_min, cfg.dmg_max
+	if type(lo) ~= "number" or lo < 0 then lo = 1 end
+	if type(hi) ~= "number" or hi < lo then hi = lo end
+	lo, hi = ifloor(lo), ifloor(hi)
+	local dmg = lo
+	if hi > lo then dmg = lo + (prand() % (hi - lo + 1)) end
+	local crit = false
+	if type(cfg.crit) == "number" and cfg.crit > 0 and (prand() % 100) < cfg.crit then crit = true end
+	if cfg.pierce_crit == 1 and type(pierce) == "number" and pierce > 0 then crit = true end
+	if crit then
+		local cd = cfg.crit_dmg
+		if type(cd) ~= "number" or cd < 1 then cd = 2 end
+		dmg = dmg * cd
+	end
+	return dmg, crit
+end
+
+local function cfg_line()
+	return "SKUI|cfg|on=" .. sv(cfg.on) .. "|dmg=" .. sv(cfg.dmg_min) .. "-" .. sv(cfg.dmg_max)
+		.. "|crit=" .. sv(cfg.crit) .. "%|crit_dmg=" .. sv(cfg.crit_dmg)
+		.. "|pierce_crit=" .. sv(cfg.pierce_crit) .. "|card_mode=" .. sv(card_mode)
+		.. "|safe=" .. sv(safe_mode) .. "|god_mode=" .. sv(god_mode)
+end
+
+-- EFcall: every engine-mutating call goes through here. It logs intent
+-- BEFORE the call (so a crash still names the control that caused it) and
+-- enforces the optional SAFE budget (one mutating call per boot).
+-- Proven-safe calls (run-5 evidence: they wrote/read the bank and removed
+-- buttons without incident) bypass the SAFE budget; gameplay mutators do not.
+local SAFE_EXEMPT = {savbnk = true, newbnk = true, bget = true, bset = true,
+	remove_buts = true, init_menu = true, get_nearest_free_square = true}
+
+local function ecall(name, fn, ...)
+	if type(fn) ~= "function" then
+		log("SKE|call|" .. name .. "=skipped|reason=not_a_function")
+		return nil
+	end
+	if safe_mode == 1 and safe_budget <= 0 and not SAFE_EXEMPT[name] then
+		log("SKE|call|" .. name .. "=blocked|reason=safe_mode|hint=SAFE off in the panel")
+		return nil
+	end
+	log("SKE|call|" .. name .. "=start")
+	local a, b, c = fn(...)
+	if safe_mode == 1 and not SAFE_EXEMPT[name] and not safe_used[name] then
+		safe_used[name] = true
+		safe_budget = safe_budget - 1
+	end
+	log("SKE|call|" .. name .. "=ok|r=" .. sv(a) .. "|budget=" .. sv(safe_budget))
+	return a, b, c
+end
+
+local function bank_set(x, y, v)
+	if not bank_ready or type(bset) ~= "function" then return end
+	bset(x, y, v)          -- proven live in run 5 (write path + savbnk)
+	bank_dirty = true
+end
+
+local function bank_flush(force)
+	if not (bank_ready and bank_dirty) then return end
+	if type(savbnk) ~= "function" then return end
+	if force or bank_flush_gate <= 0 then
+		ecall("savbnk", savbnk)
+		bank_dirty = false
+		bank_flush_gate = 12
+	end
+	bank_flush_gate = bank_flush_gate - 1
+end
+
+local function persist_cfg(force)
+	bank_set(0, 0, 505)
+	bank_set(1, 0, god_mode and 1 or 0)
+	bank_set(2, 0, cfg.on)
+	bank_set(3, 0, cfg.dmg_min)
+	bank_set(4, 0, cfg.dmg_max)
+	bank_set(5, 0, cfg.crit)
+	bank_set(6, 0, cfg.crit_dmg)
+	bank_set(7, 0, cfg.pierce_crit)
+	bank_set(8, 0, card_mode == "list" and 1 or 0)
+	bank_set(9, 0, safe_mode)
+	bank_flush(force)
+end
+
+-- Square picker (W5): diagonal neighbours first, because the king moves one
+-- orthogonal tile per turn and a diagonal ally never blocks that move (the
+-- run-5 complaint: "spawn ally blocks my 1 tile movement").
+local function free_square_at(x, y)
+	if type(gsq) ~= "function" then return nil end
+	local sq = gsq(x, y)
+	if sq == nil then return nil end
+	if type(is_free) == "function" then
+		if is_free(sq) then return sq end
+		return nil
+	end
+	if sq.p == nil and sq.op == nil then return sq end
+	return nil
+end
+
+local function choose_spawn_square()
+	if not (hero and hero.sq) then return nil, "no_hero" end
+	local px, py = hero.sq.px, hero.sq.py
+	if type(px) ~= "number" or type(py) ~= "number" then return nil, "no_hero_pos" end
+	local diag = {{-1, -1}, {1, -1}, {-1, 1}, {1, 1}}
+	local orth = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+	local i, sq
+	for i = 1, 4 do
+		sq = free_square_at(px + diag[i][1], py + diag[i][2])
+		if sq then return sq, "diagonal" end
+	end
+	for i = 1, 4 do
+		sq = free_square_at(px + orth[i][1], py + orth[i][2])
+		if sq then return sq, "orthogonal" end
+	end
+	if type(get_nearest_free_square) == "function" then
+		-- GUESSED signature: (px, py) -> square. Guarded by type() and the
+		-- result is validated before use, so a wrong guess degrades, not dies.
+		local guess = ecall("get_nearest_free_square", get_nearest_free_square, px, py)
+		if type(guess) == "table" and type(guess.px) == "number" then
+			return guess, "engine_nearest"
+		end
+	end
+	for r = 2, 6 do
+		for dx = -r, r do
+			for dy = -r, r do
+				if dx == -r or dx == r or dy == -r or dy == r then
+					sq = free_square_at(px + dx, py + dy)
+					if sq then return sq, "ring" .. sv(r) end
+				end
+			end
+		end
+	end
+	return nil, "none"
+end
+
+local function spawn_ally(ptype, via)
+	if type(new_piece) ~= "function" then
+		log("SKUI|spawn|status=new_piece_missing")
+		return
+	end
+	local sq, how = choose_spawn_square()
+	if sq == nil then
+		log("SKUI|spawn|status=no_free_square|route=" .. sv(how))
+		return
+	end
+	local px, py = sq.px, sq.py
+	local p = ecall("new_piece", new_piece, ptype, false, sq)
+	if type(p) == "table" then
+		-- plain field writes only (no engine call): the engine keys allies
+		-- off `bad`; these are peace-keeping hints for other code paths.
+		p.team = 0
+		p.ally = true
+		if type(fx_spawn) == "function" then ecall("fx_spawn", fx_spawn, p) end
+	end
+	log("SKUI|spawn|type=" .. sv(ptype) .. "|px=" .. sv(px) .. "|py=" .. sv(py)
+		.. "|route=" .. sv(how) .. "|via=" .. sv(via) .. "|piece=" .. sv(p))
+end
+
+-- God Mode dodge (W6): move the king to a free square instead of relying on
+-- HP alone. goto_sq's signature is unverified, so both plausible argument
+-- orders are tried and validated; if neither moved the king, a direct
+-- hero.sq write is used (plain table data). Every route logs what happened.
+local function dodge_king(reason)
+	if not (hero and hero.sq) then
+		log("SKUI|dodge|status=no_hero|reason=" .. sv(reason))
+		return false
+	end
+	local sq, how = choose_spawn_square()
+	if sq == nil then
+		log("SKUI|dodge|status=no_square|reason=" .. sv(reason))
+		return false
+	end
+	local bx, by = sv(hero.sq.px), sv(hero.sq.py)
+	local ok = false
+	if type(goto_sq) == "function" then
+		ecall("goto_sq_sq", goto_sq, hero.sq, sq)          -- GUESS #1
+		if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
+		if not ok then
+			ecall("goto_sq_hero", goto_sq, hero, sq)       -- GUESS #2
+			if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
+		end
+	end
+	if not ok and hero.sq then
+		hero.sq.px, hero.sq.py = sq.px, sq.py
+		ok = hero.sq.px == sq.px
+	end
+	log("SKUI|dodge|from=" .. bx .. "," .. by .. "|to=" .. sv(sq.px) .. "," .. sv(sq.py)
+		.. "|route=" .. sv(how) .. "|moved=" .. sv(ok) .. "|reason=" .. sv(reason))
+	return ok
+end
+
 -- ---------- 1. find ourselves in MODLIST -------------------------------
 local mod_index, mod = -1, nil
 if type(MODLIST) == "table" then
@@ -194,6 +470,9 @@ local api_wanted = {
 	"btn", "btnp", "btnr", "fire", "mk_bullet", "hit", "ev_hit", "xpl",
 	"add_soul", "activate_soul", "add_soul_slot", "add_scepter",
 	"activate_scepter", "recal_scepters", "scepters", "TEST_SOULS", "MOUSE",
+	"remove_buts", "get_allies", "get_free_squares", "get_nearest_free_square",
+	"black_mist_check", "get_dodge", "refill_ammo", "can_reload", "need_reload",
+	"clip", "is_free", "flr", "t", "chamber", "stack", "hero",
 }
 for _, name in ipairs(api_wanted) do
 	log("SKA|" .. name .. "|" .. (known[name] and "YES" or "no"))
@@ -231,28 +510,6 @@ local function hookf(target, fn, id, use_prepend)
 	return true
 end
 
-local function is_live_entity(e)
-	if e == nil then return false end
-	if type(ents) ~= "table" or type(all) ~= "function" then return true end
-	local n = 0
-	for a, b in all(ents) do
-		n = n + 1
-		if iter_value(a, b) == e then return true end
-		if n >= MAX_ENTS_SCAN then break end
-	end
-	return false
-end
-
-local function group_alive(group)
-	if type(group) ~= "table" then return false end
-	if type(group.ents) ~= "table" then return true end
-	for i = 1, 8 do
-		local e = group.ents[i]
-		if e then return is_live_entity(e) end
-	end
-	return false
-end
-
 local function destroy_group(group)
 	if type(group) ~= "table" or type(group.ents) ~= "table" then return end
 	if type(del) ~= "function" or type(ents) ~= "table" then return end
@@ -262,16 +519,12 @@ local function destroy_group(group)
 	end
 end
 
--- ---------- 4. Phase 2c native-button Dev panel -----------------------
-local dev_header = nil
-local dev_actions = {}
-local dev_open = false
-local dev_y = nil
-local god_mode = false
-local bank_ready = false
-local panel_creation_logged = false
-local make_dev_actions
-
+-- ---------- 4. Dev panel v2: pages, real CLOSE, live actions ----------
+-- Run 5 proved the engine ignores del(ents, e) on mk_text_but groups: the
+-- panel "closed" itself while its visuals stayed (open=true then open=false
+-- in the same frame, frozen brown buttons for the owner). The engine's own
+-- remove_buts() is the proven primitive (disgraced_justice, glac terminal),
+-- so v2 clears through it and rebuilds the header on the next turn.
 local function native_button(x, y, w, label, fn, store)
 	if type(mk_text_but) ~= "function" then return nil end
 	local group = mk_text_but(x, y, w, label, fn)
@@ -285,118 +538,411 @@ local function native_button(x, y, w, label, fn, store)
 	return group
 end
 
-local function remove_dev_actions()
-	for i = 1, 16 do
-		local group = dev_actions[i]
-		if group == nil then break end
-		destroy_group(group)
-		dev_actions[i] = nil
+local function clear_native_buttons(reason)
+	if offer_active and reason ~= "offer_guard" then
+		-- An offer/level-up screen owns the button layer right now: clearing
+		-- here would delete the engine's own card buttons. Defer instead.
+		local n = capped("panel_offer_guard")
+		if n then log("SKUI|panel|deferred=offer_active|reason=" .. sv(reason)) end
+		return
 	end
-	dev_open = false
-	log("SKUI|panel|open=false")
-end
-
-local function nearby_free_square()
-	if not (hero and hero.sq and type(gsq) == "function" and type(is_free) == "function") then return nil end
-	local px, py = hero.sq.px, hero.sq.py
-	if type(px) ~= "number" or type(py) ~= "number" then return nil end
-	for dx = -1, 1 do
-		for dy = -1, 1 do
-			if dx ~= 0 or dy ~= 0 then
-				local sq = gsq(px + dx, py + dy)
-				if sq and (type(is_free) ~= "function" or is_free(sq)) then
-					return sq
+	if type(remove_buts) == "function" then
+		ecall("remove_buts", remove_buts)
+		log("SKUI|panel|clear=remove_buts|reason=" .. sv(reason))
+	else
+		if type(del) == "function" and type(ents) == "table" then
+			for i = 1, 24 do
+				local g = dev_actions[i]
+				if g and type(g.ents) == "table" then
+					for j = 1, 8 do
+						if g.ents[j] then del(ents, g.ents[j]) end
+					end
 				end
 			end
 		end
+		log("SKUI|panel|clear=del_fallback|reason=" .. sv(reason))
 	end
-	return nil
+	dev_open = false
+	panel_present = false
+	dev_header = nil
+	for i = 1, 24 do dev_actions[i] = nil end
 end
 
-local function first_spawnable_piece()
-	if type(PIECES) ~= "table" or type(all) ~= "function" then return nil end
+-- --- actions -----------------------------------------------------------
+local function cheat_ammo_reserve()
+	local before = ammo
+	ecall("inc_ammo", inc_ammo, 3)
+	log("SKE|cheat_ammo|kind=reserve|amount=3|ammo_before=" .. sv(before)
+		.. "|ammo=" .. sv(ammo) .. "|hero_ammo=" .. sv(hero and hero.ammo))
+end
+
+local function cheat_reload()
+	local before = chamber
+	if type(reload) == "function" then
+		ecall("reload", reload)
+	elseif type(refill_ammo) == "function" then
+		ecall("refill_ammo", refill_ammo)
+	end
+	log("SKE|cheat_reload|chamber_before=" .. sv(before) .. "|chamber=" .. sv(chamber)
+		.. "|ammo=" .. sv(ammo) .. "|need_reload=" .. sv(need_reload))
+end
+
+local function cheat_clip()
+	if type(stack) ~= "table" then
+		log("SKE|cheat_clip|status=no_stack")
+		return
+	end
+	-- GUESSED fields (live stack dump shows chamber_max=1, ammo_regen,
+	-- grenades_max; ammo_max is a card field). Plain field writes only.
+	if type(stack.chamber_max) == "number" then
+		stack.chamber_max = stack.chamber_max + 1
+	end
+	if type(stack.ammo_max) == "number" then
+		stack.ammo_max = stack.ammo_max + 1
+	end
+	log("SKE|cheat_clip|chamber_max=" .. sv(stack.chamber_max)
+		.. "|ammo_max=" .. sv(stack.ammo_max) .. "|grenades_max=" .. sv(stack.grenades_max))
+end
+
+local function eligible_cards()
+	local pool = {}
+	if type(CARDS) ~= "table" or type(all) ~= "function" then return pool end
 	local n = 0
-	for a, b in all(PIECES) do
-		local p = iter_value(a, b)
+	for a, b in all(CARDS) do
+		local ca = iter_value(a, b)
 		n = n + 1
-		if type(p) == "table" and type(p.type) == "number" and p.name ~= nil
-			and type(p.behavior) == "table" then
-			return p
+		if n > MAX_CARDS then break end
+		if type(ca) == "table" and ca.id ~= nil then
+			local ok = true
+			if type(is_card_available) == "function" then
+				local r = is_card_available(ca)
+				if r == false then ok = false end
+			end
+			if ok then pool[#pool + 1] = ca end
 		end
-		if n >= MAX_PIECES then break end
 	end
-	return nil
+	log("SKUI|card|pool=" .. sv(#pool) .. "|of=" .. sv(n))
+	return pool
 end
 
-local function cheat_ammo()
-	if type(inc_ammo) == "function" then
-		inc_ammo(3)
-	elseif type(ammo) == "number" then
-		ammo = ammo + 3
+-- Piece-related cards (the owner's "card from pieces, say knight" ask): a card
+-- whose id mentions a PIECES name, or that carries a summon-family field.
+local function card_is_piece_related(ca)
+	if type(ca) ~= "table" then return false end
+	if type(ca.allies) == "table" then return true end
+	local summon_fields = {"summoner", "holoking", "onboarding", "rapunzel", "small_key"}
+	for i = 1, #summon_fields do
+		if ca[summon_fields[i]] ~= nil then return true end
 	end
-	log("SKE|cheat_ammo|amount=3|ammo=" .. sv(ammo) .. "|hero_ammo=" .. sv(hero and hero.ammo))
+	local id_s = sv(ca.id)
+	if id_s == "nil" then return false end
+	local lower = id_s:lower()
+	if type(PIECES) == "table" and type(all) == "function" then
+		local n = 0
+		for a, b in all(PIECES) do
+			local p = iter_value(a, b)
+			n = n + 1
+			if n > MAX_PIECES then break end
+			if type(p) == "table" and type(p.name) == "string" and #p.name > 2 then
+				if lower:find(p.name:lower(), 1, true) ~= nil then return true end
+			end
+		end
+	end
+	return false
 end
 
-local function cheat_random_card()
-	if type(pick) ~= "function" or type(add_card) ~= "function" then
+local function apply_card_filter(pool)
+	if card_filter ~= "piece" then return pool end
+	local out = {}
+	for i = 1, #pool do
+		if card_is_piece_related(pool[i]) then out[#out + 1] = pool[i] end
+	end
+	log("SKUI|card|filter=piece|kept=" .. sv(#out) .. "|of=" .. sv(#pool))
+	return out
+end
+
+local function take_card_by_id(card_id)
+	if type(CARDS) ~= "table" or type(all) ~= "function" or type(add_card) ~= "function" then
 		log("SKE|cheat_card|status=api_unavailable")
 		return
 	end
-	local ca = pick({team=0})
-	if ca == nil then
+	local n = 0
+	for a, b in all(CARDS) do
+		local ca = iter_value(a, b)
+		n = n + 1
+		if n > MAX_CARDS then break end
+		if type(ca) == "table" and sv(ca.id) == sv(card_id) then
+			ecall("add_card", add_card, ca)
+			log("SKE|cheat_card|mode=list|id=" .. sv(ca.id))
+			-- summon-family cards (W8): if the card carries an `allies` list,
+			-- bring the piece in as the game's own summon-family would.
+			if type(ca.allies) == "table" and type(ca.allies[1]) == "number" then
+				spawn_ally(ca.allies[1], "card:" .. sv(ca.id))
+			end
+			return
+		end
+	end
+	log("SKE|cheat_card|mode=list|status=id_not_found|id=" .. sv(card_id))
+end
+
+local function cheat_random_card()
+	local pool = eligible_cards()
+	if #pool == 0 then
 		log("SKE|cheat_card|status=no_eligible_card")
 		return
 	end
-	local id = type(ca) == "table" and sv(ca.id) or sv(ca)
-	add_card(ca)
-	log("SKE|cheat_card|id=" .. id)
-end
-
-local function cheat_spawn_ally()
-	local pdef = first_spawnable_piece()
-	local sq = nearby_free_square()
-	if pdef == nil or sq == nil or type(new_piece) ~= "function" then
-		log("SKE|cheat_spawn|status=no_piece_or_free_square")
+	if card_mode == "list" then
+		-- deterministic-but-varying index; the owner can page through and
+		-- pick instead of this roll (LIST page in the panel).
+		local pick_i = (prand() % #pool) + 1
+		local ca = pool[pick_i]
+		ecall("add_card", add_card, ca)
+		log("SKE|cheat_card|mode=roll|id=" .. sv(ca and ca.id) .. "|pool=" .. sv(#pool))
 		return
 	end
-	local p = new_piece(pdef.type, false, sq)
-	if p and type(fx_spawn) == "function" then fx_spawn(p) end
-	log("SKE|cheat_spawn|type=" .. sv(pdef.type) .. "|name=" .. sv(pdef.name))
+	if type(pick) == "function" then
+		local ca = ecall("pick", pick, {team = 0})
+		if type(ca) == "table" then
+			ecall("add_card", add_card, ca)
+			log("SKE|cheat_card|mode=auto|id=" .. sv(ca.id) .. "|pool=" .. sv(#pool))
+			return
+		end
+		-- cardless fallback (run-5 ask: "when i dont have card theres no
+		-- random card i get"): browse the pool ourselves.
+		log("SKE|cheat_card|mode=auto|status=pick_returned_nil|fallback=pool")
+	else
+		log("SKE|cheat_card|mode=auto|status=pick_missing|fallback=pool")
+	end
+	local ca = pool[(prand() % #pool) + 1]
+	ecall("add_card", add_card, ca)
+	log("SKE|cheat_card|mode=fallback|id=" .. sv(ca and ca.id) .. "|pool=" .. sv(#pool))
 end
 
 local function cheat_god_mode()
 	god_mode = not god_mode
 	if god_mode and hero and type(hero.hp) == "number" then hero.hp = 99 end
-	if bank_ready and type(bset) == "function" then
-		bset(0, 0, 505)
-		bset(1, 0, god_mode and 1 or 0)
-		if type(savbnk) == "function" then savbnk() end
-	end
+	persist_cfg(true)
 	log("SKUI|panel|god_mode=" .. sv(god_mode))
+	reopen_page(1)
+end
+
+-- damage/crit knobs (W3): cycle presets, persisted immediately.
+local DMG_PRESETS = {{1, 1}, {1, 2}, {1, 3}, {2, 3}, {1, 5}}
+local CRIT_PRESETS = {0, 10, 25, 50, 100}
+local dmg_preset_i, crit_preset_i = 1, 1
+
+local function cheat_dmg_toggle()
+	cfg.on = (cfg.on == 1) and 0 or 1
+	if cfg.on == 1 then
+		cfg.dmg_min, cfg.dmg_max = DMG_PRESETS[dmg_preset_i][1], DMG_PRESETS[dmg_preset_i][2]
+		cfg.crit = CRIT_PRESETS[crit_preset_i]
+		cfg.pierce_crit = 1
+	end
+	persist_cfg(true)
+	log(cfg_line())
+	reopen_page(1)
+end
+
+local function cheat_dmg_cycle()
+	dmg_preset_i = dmg_preset_i + 1
+	if dmg_preset_i > #DMG_PRESETS then dmg_preset_i = 1 end
+	cfg.dmg_min, cfg.dmg_max = DMG_PRESETS[dmg_preset_i][1], DMG_PRESETS[dmg_preset_i][2]
+	cfg.on = 1
+	persist_cfg(true)
+	log(cfg_line())
+	reopen_page(1)
+end
+
+local function cheat_crit_cycle()
+	crit_preset_i = crit_preset_i + 1
+	if crit_preset_i > #CRIT_PRESETS then crit_preset_i = 1 end
+	cfg.crit = CRIT_PRESETS[crit_preset_i]
+	cfg.on = 1
+	persist_cfg(true)
+	log(cfg_line())
+	reopen_page(1)
+end
+
+local function cheat_card_mode()
+	card_mode = (card_mode == "list") and "auto" or "list"
+	persist_cfg(true)
+	log("SKUI|panel|card_mode=" .. sv(card_mode))
+	reopen_page(1)
+end
+
+local function cheat_safe_toggle()
+	safe_mode = (safe_mode == 1) and 0 or 1
+	safe_budget = 1
+	safe_used = {}
+	persist_cfg(true)
+	log("SKUI|panel|safe=" .. sv(safe_mode) .. "|budget=" .. sv(safe_budget))
+	reopen_page(1)
+end
+
+-- --- page builders -----------------------------------------------------
+-- Rebuild the panel on a given page. Used after every state change so the
+-- button labels always show the CURRENT state (run-5 ask: "when I press it
+-- it doesnt change state to on or off in text").
+reopen_page = function(page)
+	dev_page = page or 1
+	clear_native_buttons("reopen_page" .. sv(dev_page))
+	ensure_dev_panel()
+	make_dev_actions()
+end
+
+local function pager_rows()
+	dev_page = 1
+	card_page = 1
+	reopen_page(1)
 end
 
 make_dev_actions = function()
-	if dev_open or type(mk_text_but) ~= "function" then return end
+	if type(mk_text_but) ~= "function" then return end
+	if offer_active then
+		local n = capped("panel_offer_guard_open")
+		if n then log("SKUI|panel|deferred=offer_active|action=open") end
+		return
+	end
 	dev_open = true
+	panel_present = true
 	local sw = (type(MCW) == "number" and MCW) or 320
 	local width, gap = 62, 5
 	local total = width * 3 + gap * 2
 	local x0 = (sw - total) / 2
-	if type(flr) == "function" then x0 = flr(x0) end
+	x0 = ifloor(x0)
 	local y = (dev_y or 0) + 10
 	local y2 = y + 10
-	native_button(x0, y, width, "+3 AMMO", cheat_ammo, dev_actions)
-	native_button(x0 + width + gap, y, width, "RANDOM CARD", cheat_random_card, dev_actions)
-	native_button(x0 + 2 * (width + gap), y, width, "SPAWN ALLY", cheat_spawn_ally, dev_actions)
-	native_button(x0, y2, width, "GOD MODE", cheat_god_mode, dev_actions)
-	native_button(x0 + width + gap, y2, width, "DMG GATED", function()
-		log("SKUI|panel|damage_controls=deferred_until_live_damage_probe")
+	local y3 = y + 20
+	local y4 = y + 30
+	if dev_page == 2 then
+		make_card_page(x0, y, width, gap)
+		return
+	end
+	if dev_page == 3 then
+		make_spawn_page(x0, y, width, gap)
+		return
+	end
+	local cols, cw, cg = 4, 55, 4
+	local total_w = cols * cw + (cols - 1) * cg
+	local cx = ifloor((sw - total_w) / 2)
+	local cx2, cx3, cx4 = cx + cw + cg, cx + 2 * (cw + cg), cx + 3 * (cw + cg)
+	native_button(cx, y, cw, "+3 AMMO", cheat_ammo_reserve, dev_actions)
+	native_button(cx2, y, cw, "RELOAD", cheat_reload, dev_actions)
+	native_button(cx3, y, cw, "CLIP+", cheat_clip, dev_actions)
+	native_button(cx4, y, cw, safe_mode == 1 and "SAFE:on" or "SAFE:off", cheat_safe_toggle, dev_actions)
+	native_button(cx, y2, cw, card_mode == "list" and "CARD:LIST" or "CARD:AUTO", cheat_card_mode, dev_actions)
+	native_button(cx2, y2, cw, "CARD NOW", cheat_random_card, dev_actions)
+	native_button(cx3, y2, cw, "CARDS>", function()
+		card_page = 1
+		reopen_page(2)
 	end, dev_actions)
-	native_button(x0 + 2 * (width + gap), y2, width, "CLOSE", remove_dev_actions, dev_actions)
-	log("SKUI|panel|open=true|buttons=" .. sv(#dev_actions))
+	native_button(cx4, y2, cw, "SPAWN...", function()
+		spawn_pick = nil
+		reopen_page(3)
+	end, dev_actions)
+	native_button(cx, y3, cw, god_mode and "GOD:on" or "GOD:off", cheat_god_mode, dev_actions)
+	native_button(cx2, y3, cw, cfg.on == 1 and "DMG:on" or "DMG:off", cheat_dmg_toggle, dev_actions)
+	native_button(cx3, y3, cw, "DMG+", cheat_dmg_cycle, dev_actions)
+	native_button(cx4, y3, cw, "CRIT+", cheat_crit_cycle, dev_actions)
+	native_button(cx, y4, cw, "CLOSE", function()
+		clear_native_buttons("close_clicked")
+		log("SKUI|panel|open=false")
+	end, dev_actions)
+	log("SKUI|panel|open=true|page=1|buttons=" .. sv(#dev_actions))
+	log(cfg_line())
 end
 
-local function ensure_dev_panel()
+make_card_page = function(x0, y, width, gap)
+	local pool = apply_card_filter(eligible_cards())
+	local sw = (type(MCW) == "number" and MCW) or 320
+	local pages = 1
+	if #pool > PANEL_PAGE_BUTTONS then
+		pages = ifloor((#pool + PANEL_PAGE_BUTTONS - 1) / PANEL_PAGE_BUTTONS)
+	end
+	if card_page > pages then card_page = pages end
+	if card_page < 1 then card_page = 1 end
+	local first = (card_page - 1) * PANEL_PAGE_BUTTONS + 1
+	local per_row = 3
+	local card_w, card_gap = 100, 5
+	local card_x0 = ifloor((sw - (per_row * card_w + (per_row - 1) * card_gap)) / 2)
+	if card_x0 < 0 then card_x0 = 0 end
+	for i = 0, PANEL_PAGE_BUTTONS - 1 do
+		local ca = pool[first + i]
+		if ca == nil then break end
+		local col = i % per_row
+		local row = ifloor(i / per_row)
+		local label = sv(ca.id)
+		if #label > 13 then label = label:sub(1, 13) end
+		local card_id = sv(ca.id)
+		native_button(card_x0 + col * (card_w + card_gap), y + row * 10, card_w, label, function()
+			take_card_by_id(card_id)
+			reopen_page(2)
+		end, dev_actions)
+	end
+	local y4 = y + 22
+	native_button(x0, y4, width, "<PREV", function()
+		card_page = card_page - 1
+		reopen_page(2)
+	end, dev_actions)
+	native_button(x0 + width + gap, y4, width, "NEXT>", function()
+		card_page = card_page + 1
+		reopen_page(2)
+	end, dev_actions)
+	native_button(x0 + 2 * (width + gap), y4, width, "<BACK", pager_rows, dev_actions)
+	native_button(x0 + 3 * (width + gap), y4, width,
+		card_filter == "piece" and "FILT:PIECE" or "FILT:ALL", function()
+			card_filter = (card_filter == "piece") and "all" or "piece"
+			card_page = 1
+			log("SKUI|panel|card_filter=" .. sv(card_filter))
+			reopen_page(2)
+		end, dev_actions)
+	log("SKUI|card|page=" .. sv(card_page) .. "/" .. sv(pages) .. "|pool=" .. sv(#pool)
+		.. "|filter=" .. sv(card_filter))
+end
+
+make_spawn_page = function(x0, y, width, gap)
+	local sw = (type(MCW) == "number" and MCW) or 320
+	local names = {}
+	if type(PIECES) == "table" and type(all) == "function" then
+		local n = 0
+		for a, b in all(PIECES) do
+			local p = iter_value(a, b)
+			n = n + 1
+			if n > MAX_PIECES then break end
+			if type(p) == "table" and type(p.type) == "number" and p.name ~= nil then
+				names[#names + 1] = p
+			end
+		end
+	end
+	local shown = 0
+	for i = 1, #names do
+		if shown >= SPAWN_PICK_BUTTONS * 2 then break end
+		local p = names[i]
+		local col = (i - 1) % SPAWN_PICK_BUTTONS
+		local row = ifloor((i - 1) / SPAWN_PICK_BUTTONS)
+		local ptype = p.type
+		local label = sv(p.name)
+		if #label > 11 then label = label:sub(1, 11) end
+		local pw, pg = 50, 2
+		local px0 = ifloor((sw - (SPAWN_PICK_BUTTONS * pw + (SPAWN_PICK_BUTTONS - 1) * pg)) / 2)
+		if px0 < 0 then px0 = 0 end
+		native_button(px0 + (i - 1) * (pw + pg), y, pw, label, function()
+			spawn_pick = ptype
+			spawn_ally(ptype, "panel_pick")
+			reopen_page(3)
+		end, dev_actions)
+		shown = shown + 1
+	end
+	native_button(x0, y + 12, width, "<BACK", pager_rows, dev_actions)
+	log("SKUI|spawn|page=1|choices=" .. sv(shown) .. "|selected=" .. sv(spawn_pick))
+end
+
+ensure_dev_panel = function()
+	if offer_active then
+		local n = capped("panel_offer_guard_hdr")
+		if n then log("SKUI|panel|deferred=offer_active|action=header") end
+		return
+	end
 	if type(mk_text_but) ~= "function" then
 		if not panel_creation_logged then
 			log("SKUI|panel|available=false|reason=mk_text_but_missing")
@@ -404,21 +950,29 @@ local function ensure_dev_panel()
 		end
 		return
 	end
-	if dev_header then
-		if group_alive(dev_header) then return end
-		dev_header = nil
-		if dev_open then remove_dev_actions() end
+	if panel_present and dev_header ~= nil then
+		return
 	end
+	dev_header = nil
+	panel_present = false
 	local screen_h = (type(MCH) == "number" and MCH) or 180
 	dev_y = ((type(board_y) == "number" and board_y) or 0) + 16 * 8 + 3
-	local last_y = screen_h - 32
+	-- 4 action rows below the header need ~42 px of headroom, so clamp higher
+	-- than build 6 did (run 5: y=148 with 2 rows fit, 4 rows would not).
+	local last_y = screen_h - 52
 	if dev_y > last_y then dev_y = last_y end
 	if dev_y < 0 then dev_y = 0 end
 	local screen_w = (type(MCW) == "number" and MCW) or 320
 	local title = native_button(4, dev_y, 44, "SK DEV", function()
-		if dev_open then remove_dev_actions() else make_dev_actions() end
+		if dev_open then
+			clear_native_buttons("header_close")
+			log("SKUI|panel|open=false")
+		else
+			make_dev_actions()
+		end
 	end)
 	dev_header = title
+	panel_present = title ~= nil
 	if not panel_creation_logged then
 		log("SKUI|panel|available=true|native=mk_text_but")
 		panel_creation_logged = true
@@ -428,35 +982,41 @@ local function ensure_dev_panel()
 	end
 end
 
+
 -- ---------- 5. Mod-menu legend + Back via native menu hook -------------
+-- Run 5 harvested the REAL menu button ids: play, options, codex, credits,
+-- quit, mods, throne, endless, chase, charnier, tutorial, back, save_back,
+-- plus the mod-list rows " ON "/"OFF " and the arrow glyphs. The Build-6
+-- trigger compared MODLIST titles to ids, which can never match (that is
+-- why SKUI|menu|widgets_added never appeared in the log). v7 arms on the
+-- ids that actually exist, so the legend finally shows up.
 local menu_widgets_created = false
 local menu_widget_groups = {}
 local pending_menu_button = false
 local pending_menu_button_id = nil
+local menu_armed = false
 
-local function is_modlist_entry_id(id)
-	if id == nil or type(MODLIST) ~= "table" then return false end
+local MENU_ARM_IDS = {["mods"] = true, ["save_back"] = true, [" ON "] = true,
+	["OFF "] = true, ["é"] = true, ["è"] = true, ["back"] = true}
+local MENU_DISARM_IDS = {["play"] = true, ["options"] = true, ["codex"] = true,
+	["credits"] = true, ["quit"] = true, ["throne"] = true, ["endless"] = true,
+	["chase"] = true, ["charnier"] = true, ["tutorial"] = true}
+
+local function menu_id_is(id, set)
+	if id == nil then return false end
 	local id_s = sv(id)
-	for i, entry in ipairs(MODLIST) do
-		if i > 40 then break end
-		if type(entry) == "table" then
-			local fields = {"title", "name", "folder"}
-			for _, field in ipairs(fields) do
-				local val = entry[field]
-				if val ~= nil then
-					local value = sv(val)
-					if id_s == value or id_s == (sv(i) .. ". " .. value) then return true end
-				end
-			end
-		end
-	end
-	return false
+	if set[id_s] then return true end
+	-- tolerate a numeric prefix like "2. mods" or a trimmed variant
+	local trimmed = id_s:gsub("^%d+%.%s*", ""):gsub("^%s+", ""):gsub("%s+$", "")
+	return set[trimmed] == true
 end
 
 local function clear_menu_widgets()
 	for i = 1, 4 do
 		local group = menu_widget_groups[i]
 		if group == nil then break end
+		-- Only ever our own text buttons: the del() route is used here (NOT
+		-- remove_buts, which would wipe the engine's own menu buttons).
 		destroy_group(group)
 		menu_widget_groups[i] = nil
 	end
@@ -464,17 +1024,20 @@ local function clear_menu_widgets()
 end
 
 local function add_mod_menu_widgets(id)
-	if menu_widgets_created or not is_modlist_entry_id(id) then return end
+	if menu_widgets_created then return end
+	if not menu_armed then return end
 	if type(mk_text_but) ~= "function" then return end
 	menu_widgets_created = true
 	local sw = (type(MCW) == "number" and MCW) or 320
 	local back = native_button(2, 2, 42, "< BACK", function()
-		if type(init_menu) == "function" then init_menu() end
+		if type(init_menu) == "function" then
+			ecall("init_menu", init_menu)
+		end
 		log("SKUI|menu|back_clicked=true")
 	end, menu_widget_groups)
-	local legend = native_button(48, 2, sw - 52, "WHITE=ON  BLACK=OFF  (UP/DN=LOAD ORDER)", function() end, menu_widget_groups)
-	-- This follows Royal Card Lab's proven way to make a native text label
-	-- non-interactive while preserving its own rendering.
+	local legend = native_button(48, 2, sw - 52, "WHITE=ON  BLACK=OFF  (UP/DN=LOAD ORDER)",
+		function() end, menu_widget_groups)
+	-- The Terminal/Royal-Card-Lab pattern for a non-interactive native label.
 	if legend and type(legend.ents) == "table" and legend.ents[1] then
 		legend.ents[1].button = false
 	end
@@ -484,7 +1047,9 @@ end
 -- ---------- 6. base diagnostic hooks ----------------------------------
 -- SK-REWORK: append new_turn for world state, panel recovery, and God Mode HP refresh.
 hookf("new_turn", function()
+	offer_active = false
 	ensure_dev_panel()
+	bank_flush(false)
 	if god_mode and hero and type(hero.hp) == "number" and hero.hp < 99 then hero.hp = 99 end
 	local n = capped("turn")
 	if not n then return end
@@ -537,6 +1102,7 @@ end, "sk-rework:add_card")
 
 -- SK-REWORK: append init_game to install native panel buttons in a run.
 hookf("init_game", function(...)
+	offer_active = false
 	dev_open = false
 	for i = 1, 16 do dev_actions[i] = nil end
 	ensure_dev_panel()
@@ -547,13 +1113,20 @@ end, "sk-rework:init_game")
 -- God Mode protects against the confirmed hit(p,dmg,tags) route; a huge HP
 -- refill also covers normal turns. Other death routes remain a live-probe item.
 if known["hit"] then
-	-- SK-REWORK: prepend hit only for best-effort God Mode + damage tracing.
+	-- SK-REWORK: prepend hit for God Mode (HP refill + Mist-style dodge on a
+	-- lethal hit, run-5 ask) and for damage tracing.
 	hookf("hit", function(p, dmg, tags, ...)
-		if god_mode and p == hero and type(p.hp) == "number" and type(dmg) == "number" then
-			p.hp = p.hp + dmg
+		local amt = (type(dmg) == "number") and dmg or 0
+		if god_mode and p == hero and type(p.hp) == "number" then
+			local lethal = amt >= p.hp
+			p.hp = p.hp + amt
+			if lethal then dodge_king("lethal_hit") end
 		end
 		local n = capped("god_hit")
-		if n then log_target("SKD", "hit", p, dmg, "|god_mode=" .. sv(god_mode)) end
+		if n then
+			log_target("SKD", "hit", p, dmg, "|god_mode=" .. sv(god_mode)
+				.. "|hp=" .. sv(type(p) == "table" and p.hp or nil))
+		end
 	end, "sk-rework:god-mode-hit", true)
 end
 
@@ -577,8 +1150,10 @@ local function offer_probe(name, a1, a2, a3)
 	end
 end
 if known["level_up"] then
-	-- SK-REWORK: append level_up to observe draft filters/choices.
+	-- SK-REWORK: append level_up to observe draft filters/choices and to
+	-- protect the engine's offer buttons from our panel's remove_buts().
 	hookf("level_up", function(data, next_fn, ...)
+		offer_active = true
 		offer_probe("level_up", data, next_fn, nil)
 	end, "sk-rework:offer-level-up")
 end
@@ -647,6 +1222,30 @@ if known["fire"] then
 	end, "sk-rework:damage-fire")
 end
 
+-- W3: the configured damage/crit roll. Run 5 proved bullets carry dmg/pierce
+-- and that mk_bullet(x, y, angle, life) is the creation point, so the roll is
+-- applied to the freshly created bullet (last entry of the live `bullets`).
+if known["mk_bullet"] then
+	-- SK-REWORK: append mk_bullet to apply the configured damage/crit values.
+	hookf("mk_bullet", function(a1, a2, a3, a4, ...)
+		if cfg.on ~= 1 then return end
+		local n = capped("dmg_apply")
+		if not n then return end
+		local b = (type(bullets) == "table") and bullets[#bullets] or nil
+		if type(b) ~= "table" then
+			log("SKD|dmg|n=" .. sv(n) .. "|status=no_bullet_table")
+			return
+		end
+		local before = b.dmg
+		local dmg, crit = roll_damage(b.pierce)
+		b.dmg = dmg
+		log("SKD|dmg|n=" .. sv(n) .. "|before=" .. sv(before) .. "|after=" .. sv(b.dmg)
+			.. "|crit=" .. sv(crit) .. "|pierce=" .. sv(b.pierce)
+			.. "|range=" .. sv(cfg.dmg_min) .. "-" .. sv(cfg.dmg_max)
+			.. "|critpct=" .. sv(cfg.crit) .. "|critdmg=" .. sv(cfg.crit_dmg))
+	end, "sk-rework:damage-config")
+end
+
 local function hook_damage_probe(name)
 	if not known[name] or name == "hit" or name == "fire" then return end
 	-- SK-REWORK: append the named damage function for read-only argument tracing.
@@ -707,7 +1306,14 @@ if known["mk_menu_but"] then
 				.. "|y=" .. sv(y) .. "|w=" .. sv(w) .. "|h=" .. sv(h))
 		end
 		pending_menu_button = false
-		if id ~= nil then add_mod_menu_widgets(id) end
+		if menu_id_is(id, MENU_DISARM_IDS) then
+			clear_menu_widgets()
+			menu_armed = false
+		elseif menu_id_is(id, MENU_ARM_IDS) then
+			-- the mod-list scene is on screen (or being built): show helper
+			menu_armed = true
+			add_mod_menu_widgets(id)
+		end
 	end, "sk-rework:mod-menu-ui")
 end
 
@@ -812,14 +1418,51 @@ log("SKA2|probe|souls=done")
 -- because it is safe and its data was lost when run 4 crashed later in the
 -- chain (no SKUI|bank line ever reached the log).
 if type(newbnk) == "function" and type(bget) == "function" and type(bset) == "function" then
-	newbnk(128, 64, 4)
+	ecall("newbnk", newbnk, 128, 64, 4)
 	bank_ready = true
 	local magic = bget(0, 0)
-	if magic == 505 then god_mode = (bget(1, 0) == 1) end
-	log("SKUI|bank|ready=true|magic=" .. sv(magic) .. "|god_mode=" .. sv(god_mode))
+	local stored_safe = 0
+	if magic == 505 then
+		god_mode = (bget(1, 0) == 1)
+		local on = bget(2, 0)
+		if on == 0 or on == 1 then cfg.on = on end
+		local lo = bget(3, 0)
+		if type(lo) == "number" and lo >= 0 then cfg.dmg_min = lo end
+		local hi = bget(4, 0)
+		if type(hi) == "number" and hi >= 0 then cfg.dmg_max = hi end
+		local cr = bget(5, 0)
+		if type(cr) == "number" and cr >= 0 then cfg.crit = cr end
+		local cd = bget(6, 0)
+		if type(cd) == "number" and cd >= 1 then cfg.crit_dmg = cd end
+		local pc = bget(7, 0)
+		if pc == 0 or pc == 1 then cfg.pierce_crit = pc end
+		card_mode = (bget(8, 0) == 1) and "list" or "auto"
+		local sm = bget(9, 0)
+		if sm == 0 or sm == 1 then stored_safe = sm end
+		log("SKUI|bank|restored=true|magic=" .. sv(magic))
+	else
+		log("SKUI|bank|restored=false|magic=" .. sv(magic))
+	end
+	seed_rand()
+	-- Write the magic + config so the NEXT boot restores everything (this is
+	-- the read-back the run-5 report could not confirm yet).
+	persist_cfg(true)
+	safe_mode = stored_safe
+	if safe_mode == 1 then safe_budget = 1 end
+	log("SKUI|bank|ready=true|magic=" .. sv(bget(0, 0)) .. "|budget=" .. sv(safe_budget))
+	log(cfg_line())
 else
 	log("SKUI|bank|ready=false")
 end
+local function tf(v) return (type(v) == "function") and "fn" or sv(v) end
+log("SKUI|api|remove_buts=" .. tf(remove_buts) .. "|goto_sq=" .. tf(goto_sq)
+	.. "|get_allies=" .. tf(get_allies) .. "|get_free_squares=" .. tf(get_free_squares)
+	.. "|get_nearest_free_square=" .. tf(get_nearest_free_square)
+	.. "|black_mist_check=" .. tf(black_mist_check) .. "|get_dodge=" .. tf(get_dodge)
+	.. "|fx_spawn=" .. tf(fx_spawn) .. "|reload=" .. tf(reload)
+	.. "|refill_ammo=" .. tf(refill_ammo) .. "|can_reload=" .. tf(can_reload)
+	.. "|need_reload=" .. tf(need_reload) .. "|clip=" .. sv(clip)
+	.. "|chamber=" .. sv(chamber) .. "|is_free=" .. tf(is_free) .. "|flr=" .. tf(flr))
 if type(defbtn) == "function" then
 	log("SKI|defbtn_api=available")
 else

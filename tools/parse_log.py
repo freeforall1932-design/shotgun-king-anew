@@ -90,7 +90,9 @@ def parse_text(text: str) -> dict:
         "offers": [], "souls": [], "damage": [], "input": [], "ui": [],
 
         "checkpoints": [],
-        "crash": {"error": None, "frames": [], "quitting": False, "trace_seen": False},
+        "calls": [], "dmg_rolls": [], "panel": [],
+        "crash": {"error": None, "frames": [], "quitting": False, "trace_seen": False,
+                  "pending_call": None},
         "objects": collections.defaultdict(dict), "object_order": [],
         "world": [], "counts_reported": {}, "other_lines": 0, "tail": [],
     }
@@ -146,6 +148,19 @@ def parse_text(text: str) -> dict:
             parts = s.split("|")
             if len(parts) >= 3:
                 d["api"][parts[1]] = (parts[2] == "YES")
+            continue
+        if s.startswith("SKE|call|"):
+            # Build 7 logs intent BEFORE every engine-mutating call, so a
+            # crashed log names the control that killed the game: the last
+            # "=start" that never reached "=ok".
+            payload = s[len("SKE|call|"):]
+            name, _, rest = payload.partition("=")
+            status = rest.split("|", 1)[0] if rest else "?"
+            d["calls"].append({"name": name, "status": status})
+            if status == "start":
+                d["crash"]["pending_call"] = name
+            elif d["crash"]["pending_call"] == name:
+                d["crash"]["pending_call"] = None
             continue
         if s.startswith("SKH|"):
             parts = s.split("|")
@@ -248,12 +263,17 @@ def parse_text(text: str) -> dict:
             continue
         if s.startswith("SKD|"):
             d["damage"].append(s[4:])
+            if s.startswith("SKD|dmg|"):
+                d["dmg_rolls"].append(s[8:])
             continue
         if s.startswith("SKI|"):
             d["input"].append(s[4:])
             continue
         if s.startswith("SKUI|"):
             d["ui"].append(s[5:])
+            tag = s[5:].split("|", 1)[0]
+            if tag in ("panel", "card", "spawn", "dodge", "cfg", "api", "menu"):
+                d["panel"].append(s[5:])
             continue
         # Crash detection (run 4): a fatal engine error prints "ERR <msg>",
         # a tab-indented Stack traceback, then "Quitting required.". Without
@@ -335,6 +355,10 @@ def render_markdown(d: dict, src: str) -> str:
     if d["crash"]["error"]:
         w(f"- ⛔ **the game CRASHED during this run:** `{d['crash']['error']}`"
           + (" (Quitting required)" if d["crash"]["quitting"] else ""))
+        if d["crash"].get("pending_call"):
+            w(f"- ⛔ **last engine call that started but never finished:** "
+              f"`{d['crash']['pending_call']}` — that control is the crash suspect "
+              "(every mutating call logs `=start` before it runs and `=ok` after).")
         mod_frames = [f for f in d["crash"]["frames"] if "mods/" in f]
         if mod_frames:
             w(f"- ⛔ crash inside a mod — `{mod_frames[-1]}`")
@@ -550,6 +574,34 @@ def render_markdown(d: dict, src: str) -> str:
             w(f"- `{ln}`")
         w("")
 
+    if d["panel"] or d["calls"] or d["dmg_rolls"]:
+        w("## 12h. Build 7 — panel v2, damage/crit, dodge & engine-call trace")
+        w("")
+        if d["calls"]:
+            started = [c for c in d["calls"] if c["status"] == "start"]
+            blocked = [c for c in d["calls"] if c["status"] == "blocked"]
+            ok = [c for c in d["calls"] if c["status"] == "ok"]
+            w(f"- engine calls: **{len(started)} started · {len(ok)} ok · "
+              f"{len(blocked)} blocked by SAFE**")
+            names = collections.OrderedDict()
+            for c in started:
+                names[c["name"]] = names.get(c["name"], 0) + 1
+            if names:
+                w("- call names: " + ", ".join(f"`{k}`×{v}" for k, v in list(names.items())[:20]))
+            if blocked:
+                w("- SAFE-blocked: " + ", ".join(f"`{c['name']}`" for c in blocked[:10])
+                  + " (turn SAFE off in the panel to allow them)")
+        rolls = d["dmg_rolls"][:12]
+        if rolls:
+            crits = sum(1 for r in rolls if "crit=true" in r)
+            w(f"- damage rolls: {len(d['dmg_rolls'])} logged, {crits} crit in the first "
+              f"{len(rolls)} sampled")
+            for r in rolls[:6]:
+                w(f"  - `{r}`")
+        for ln in d["panel"][:24]:
+            w(f"- `SKUI|{ln}`")
+        w("")
+
     w("## 13. Next step")
     w("")
     w("- Promote confirmed entries into `notes/map.md` (replace the TBD lines).")
@@ -666,6 +718,43 @@ def selftest() -> int:
     checks.append(("input SKI", len(d3["input"]) == 1))
     checks.append(("ui SKUI", len(d3["ui"]) == 1))
     checks.append(("probe checkpoints SKA2", d3["checkpoints"] == ["cards", "bank"]))
+    d7 = parse_text(
+        "  . SK-REWORK: BUILD=7 loaded (mod_index=1)\r\n"
+        "  . SK-REWORK: READY build=7 hooks=30 globals=920\r\n"
+        "  . SKE|call|inc_ammo=start\r\n"
+        "  . SKE|call|inc_ammo=ok|r=nil|budget=1\r\n"
+        "  . SKE|call|add_card=start\r\n"
+        "  . SKE|call|new_piece=blocked|reason=safe_mode|hint=SAFE off in the panel\r\n"
+        "  . SKD|dmg|n=1|before=1|after=2|crit=true|pierce=30|range=1-2|critpct=10|critdmg=2\r\n"
+        "  . SKUI|panel|open=true|page=1|buttons=13\r\n"
+        "  . SKUI|spawn|type=1|px=3|py=6|route=diagonal|via=panel_pick|piece=tbl\r\n"
+        "  . SKUI|dodge|from=4,7|to=3,6|route=diagonal|moved=true|reason=lethal_hit\r\n"
+        "  . SKUI|cfg|on=1|dmg=1-2|crit=10%|crit_dmg=2|pierce_crit=1|card_mode=auto|safe=1|god_mode=false\r\n"
+        "  . SKUI|bank|ready=true|magic=505|budget=1\r\n"
+        "  . SKE|call|add_card=ok|r=nil|budget=0\r\n"
+        "  . SRCH|rm -rf /tmp/nonexistent-path\r\n")
+    md7 = render_markdown(d7, "<selftest-build-7>")
+    checks.append(("build-7 calls parsed", [c["name"] for c in d7["calls"]] == [
+        "inc_ammo", "inc_ammo", "add_card", "new_piece", "add_card"]))
+    checks.append(("SAFE-blocked call recorded", any(
+        c["name"] == "new_piece" and c["status"] == "blocked" for c in d7["calls"])))
+    checks.append(("damage roll parsed", len(d7["dmg_rolls"]) == 1
+                   and "crit=true" in d7["dmg_rolls"][0]))
+    checks.append(("panel lines parsed", "panel|open=true|page=1|buttons=13" in d7["panel"]
+                   and any(x.startswith("spawn|type=1") for x in d7["panel"])))
+    checks.append(("build-7 section rendered", "Build 7 — panel v2, damage/crit, dodge & engine-call trace" in md7
+                   and "blocked by SAFE" in md7))
+    checks.append(("mutation-command line ignored", "rm -rf" not in md7))
+
+    d8 = parse_text(
+        "  . SK-REWORK: READY build=7 hooks=30 globals=920\r\n"
+        "  . SKE|call|new_piece=start\r\n"
+        "  . ERR Button left for player 0 doesn't exist.\r\n"
+        "  . Quitting required.\r\n")
+    md8 = render_markdown(d8, "<selftest-build-7-crash>")
+    checks.append(("dangling call names the culprit", d8["crash"]["pending_call"] == "new_piece"
+                   and "that control is the crash suspect" in md8))
+
     d4 = parse_text(
         "  . SK-REWORK: BUILD=5 loaded (mod_index=1)\r\n"
         "  . SK-REWORK: READY build=5 hooks=30 globals=920\r\n"

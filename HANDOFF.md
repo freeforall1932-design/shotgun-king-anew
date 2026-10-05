@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-04 (session 8, branch `arena/01a105e5-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-05 (session 9, branch `arena/01a10d48-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -24,10 +24,10 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a105e5-shotgun-king-anew` (session-fixed branch; PRs #1 and #2 already merged to `main`) |
-| Our mod | `modded/sk-rework/` (**Build 6** — Build 5 crashed at boot in run 4; build 6 has the evidence-gated input probe, safe-first probe chain with checkpoints, plus the Phase-2c panel and legend/Back helper) |
-| Log parser + smoke test | `tools/parse_log.py` (37/37: `!!` warning prefixes, multi-boot dedup, probe checkpoints, **crash detection with the failing frame**), `tools/mod_smoketest.py` (36/36 under each `all()` semantics; default + LuaJIT 2.1; fake `btn()` re-raises the fatal unknown-id error) |
-| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–4; **run 4's raw pack is still in `live testing result/uploads/`** (log + 2 crash logs + saves + critique) and can be deleted once the run-5 pack arrives |
+| Working branch | `arena/01a10d48-shotgun-king-anew` (session-fixed branch; PRs #1 and #2 already merged to `main`) |
+| Our mod | `modded/sk-rework/` (**Build 7** — run-5 fixes + features: panel v2 with the engine's own `remove_buts()` CLOSE and per-action page rebuild, damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages + cardless fallback + summon-on-card, spawn piece picker with diagonal-first squares, Mist-style dodge, `SKE|call|` intent logging + SAFE mode, bank restore, menu legend on the real run-5 ids) |
+| Log parser + smoke test | `tools/parse_log.py` (**44/44**: `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mod_smoketest.py` (**47/47** × both `all()` semantics × default Lua/LuaJIT 2.1; the fake engine chains multiple appends per target like the real one, models `remove_buts`/`goto_sq`/`flr`/`mk_bullet`, and re-raises the fatal unknown-id `btn()` error) |
+| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–5; run 5's raw pack (`run 5 i believe or latest run/`: log, save/bank files, critique) is absorbed and kept as the newest evidence; the run-4 pack was deleted |
 | Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
@@ -55,6 +55,27 @@ game's own mod system).
    `ctrl`, and the bound mouse codes `m:lb/m:rb/m:mb`. Everything else —
    `left`, `right`, `middle`, `mouse4`, `wheel`… — is a one-way ticket.
    **General rule: engine calls take only confirmed arguments.**
+2c. **Engine UI: `del(ents, e)` does NOT remove `mk_text_but` groups** — run 5
+   showed the panel's state flipping to closed while its buttons stayed on
+   screen. The engine's own **`remove_buts()`** is the proven primitive
+   (disgraced_justice ×7, glac terminal); it clears the button layer, so a mod
+   panel must be rebuilt afterwards (sk-rework does this on the next turn /
+   next click).
+2d. **Mod-menu button ids are plain strings**: `play options codex credits quit
+   mods throne endless chase charnier tutorial back save_back`, the mod-list
+   rows `" ON "` / `"OFF "` and the arrows `é`/`è` (a later pass repeats them
+   with a numeric prefix). Nothing compares against MODLIST titles — that's
+   why the Build-6 legend never attached.
+2e. **Bank file format** (`save/mods/<mod>.bnk`): ASCII `<w>:<h>:<cell>:<hex>`
+   — run 5: `128:64:4:` + 65536 hex chars = 32768 bytes, little-endian i32 per
+   4-byte cell; cells `(0,0)=505` (magic) and `(1,0)=1` (God Mode). Read with
+   `bget(x,y)`, write with `bset(x,y,v)`, flush with `savbnk()`; the game
+   keeps a byte-identical `_bak`.
+2f. **Damage/bullet route (live)**: `fire` → `mk_bullet(x, y, angle, life)` →
+   bullet carries `dmg`/`pierce`/`shot`/`life` → `hit(p, dmg, tags)` →
+   `fx_dmg(p, dmg)` (a2 = final damage) → `bleed_dmg`. **`ev_hit` never fires.**
+   The shot is 4 bullets sharing one origin. `stack.chamber_max` is the live
+   chamber field (1); there is no `stack.ammo_max`/`stack.chamber`.
 3. **Save format** (`save/*.sav`): `[u32 BE plaintext length][zlib stream]`,
    payload `PUNKCAKE\nt{...}\nFOREVER`, no indentation, string values carry
    a trailing 0x1F. `tools/save_codec.py` parses/serializes **byte-identical**
@@ -134,79 +155,65 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 8)
+## 5. Current state & immediate next step (session 9)
 
-**Run 4 happened (owner, 2026-10-04) and Build 5 crashed the game at boot.**
-Both launches died with the same fatal — `ERR Button left for player 0
-doesn't exist.` at `mods/sk-rework/script.lua:817`, inside the mod's own load.
-Cause: the input probe blind-called `btn()` on names the engine does not know;
-in SUGAR an unknown `btn()` id falls through to the input-id parser and a
-malformed id is **fatal**, and the mod sandbox has no `pcall`. The "no intro"
-vs "intro then crash" difference the owner saw was just timing — the crash is
-deterministic and identical in both logs.
+**Run 5 happened (owner, 2026-10-04) and it was a full success for Build 6**:
+one clean boot, ~22 minutes of real play (`READY build=6 hooks=30 globals=920`,
+`Application ran for 1311.772 s`), every probe block completed, and all four
+open Build-6 questions answered — panel renders + actions fire, the real menu
+ids are captured, the bank write path is proven, and the damage route is
+traced (`mk_bullet` → `bullet.dmg` → `hit(p,dmg,tags)` → `fx_dmg(p,dmg)`;
+`ev_hit` never fires). Full absorption: `notes/map.md` run-5 section,
+`SUMMARY.md` Run 5, `PLANNING.md` §0.7b.
 
-**But the run still paid off.** The whole load-time harvest completed before
-the crash and is now promoted into `notes/map.md` (run-4 section):
-- the live `gimme("global")` API surface (63 planned names present, incl. the
-  full soul/scepter family `add_soul`/`activate_soul`/`add_soul_slot`/
-  `remove_soul_slot`/`exhaust_soul`/`add_scepter`/`activate_scepter`/
-  `recal_scepters`/`get_scepter`, plus `fire`/`mk_bullet`/`hit`/`ev_hit`/
-  `pick`/`add_any_card`/`level_up`/`is_card_available`/`newbnk`/`bget`/`bset`);
-  `savbnk` and `scepters` do **not** exist as globals (the engine writes the
-  per-mod save itself, and `scepters` is only *replaceable*);
-- all 186 cards field-by-field (3353 `SKCF|` lines) — the ten `special=`
-  right-click cards are exactly the owner's list (strafe, scope, decree,
-  grenade ×5, orb, dig);
-- 14 piece definitions with the real schema (`type/name/hp/tempo/danger/seek/
-  behavior/sided/hdy/reap`), the 25 offer-eligible candidates, and the input
-  dump (`INPUT_ASSIGNEMENT` is a formatted string; mouse ids stop at
-  `m:lb`/`m:rb`/`m:mb` — no mouse4/mouse5 anywhere).
+**Run 5 also exposed three real bugs and produced 8 owner asks**, all of which
+Build 7 addresses:
+1. **The panel never really closed** — the engine ignores `del(ents, e)` on
+   `mk_text_but` groups, so the mod's state and the on-screen buttons diverged
+   (owner: "close it doesnt close the ui", "button is frozen to brown").
+   Build 7 clears through the engine's own `remove_buts()` and rebuilds the
+   page after every action so the labels always show live state.
+2. **The mod-menu legend could never attach** — the predicate compared MODLIST
+   titles to ids; the real ids are `play/mods/save_back/" ON "/"OFF "` etc.
+   Build 7 arms on the harvested ids.
+3. **Spawn-ally only ever made a pawn and could block the king's 1-tile move**
+   — Build 7 adds a piece picker page and a square picker that prefers a
+   DIAGONAL neighbour, plus summon-on-card for the ext=3 `allies` cards.
 
-**Build 6 (this session) fixes the crash**: `btn*()` is only called with ids
-the live game published; the probe chain is reordered safe-first (cards →
-exclude → souls → bank → input) with `SKA2|probe|<name>=done` checkpoints so a
-partial run is diagnosable; the parser now detects crashes and prints the
-failing frame. The smoke test's fake engine now **raises** on unconfirmed ids
-exactly like the real engine — re-injecting the run-4 bug into the script
-makes the harness fail with the live error message. Sandbox: parser 37/37,
-smoke 36/36 × both `all()` semantics × default Lua and LuaJIT 2.1.
+**Build 7 also ships the feature work the run-5 answers unblocked**: the
+damage/crit/pierce system (applied at `mk_bullet`, persisted), RELOAD +
+CLIP+ (`reload`, `stack.chamber_max`), card AUTO/LIST pages with the cardless
+fallback, Mist-style dodge on lethal hits, `SKE|call|<name>=start/=ok`
+intent logging (so a crash names the failing control) and a `SAFE` toggle that
+limits a boot to one gameplay-mutating engine call.
 
-**Next: owner live run of Build 6, in play (not just boot).** Run 4 proved the
-load-time chain works; everything runtime-only is still unobserved: Dev-panel
-actions (`SKUI|panel|`), mod-menu Back/legend ID detection (`SKI|menu_button|`,
-`SKI|menu_but|`), bank persistence (`SKUI|bank|magic=505`), and the damage
-trace (`SKD|`) during real shots. Collect with `apply.ps1 -GetInsights`; if the
-game dies, send `log.txt` **and** the newest `crash_log_*.txt`.
+**Next: owner live run of Build 7, control by control.** Rebuild the copy
+(`build-dist.ps1`, or `apply.ps1` over it), then in play click each SK DEV
+control once — `+3 AMMO`, `RELOAD`, `CLIP+`, `CARD:AUTO`, `CARD NOW`, `CARDS>`
+(take a card), `SPAWN...` (pick a knight), `GOD:on` then take a lethal hit,
+`DMG:on` + `DMG+` + `CRIT+` then fire a few shots, `SAFE`, `CLOSE` — and open
+the mod menu once for the legend. Collect with `apply.ps1 -GetInsights`; if
+the game dies, send `log.txt` **and** the newest `crash_log_*.txt` (the parser
+now names the last engine call that started but never finished).
 
-**The owner's feature requests are fully specified** (five asks, refined
-over several Q&A rounds into `PLANNING.md` §0.7 items 6–11): right-click
-ability cap removal (soft-coded discovery, any number of ability cards,
-bindings RMB + side buttons + optional middle click, scepter cap relaxed
-too), free-choice card picker, the Yu-Gi-Oh soul deck (any soul allowed —
-pawn behavior stays card-driven; summons capped by board capacity only),
-the bullet damage & crit system (configurable damage/crit-chance/crit-damage,
-pierce auto-crits), the button-remap menu, and the mod-menu Back button.
-Design rule throughout: **nothing hardcoded that can't be confirmed —
-universal, soft-coded, adaptable as the owner plays.** Run 4 sharpened this
-into a hard safety rule: **engine calls take only confirmed arguments.**
-
-Verified without the game this session: parser selftest 37/37 (incl. the
-crashed-chain and crash-render cases); smoke test 36/36 under both `all()`
-semantics on default Lua and LuaJIT 2.1, including the meta-check that the
-fake engine still rejects `btn("left")` and an end-to-end run of the real
-`script.lua`; Python compilation. Safety rules unchanged: no
-`pcall`/`loadfile`, nil/boolean-safe `sv()`, capped loops, additive hooks only,
-all static probe dumps after READY, and no unconfirmed arguments to engine
-functions.
+Verified without the game this session: smoke test **47/47** under both
+`all()` semantics on default Lua and LuaJIT 2.1 (including the panel
+close-state regression, the offer-screen guard that keeps a stray click from
+wiping the engine's level-up buttons, damage rolls, dodge route validation,
+SAFE blocking, card list pages and the fake engine's multi-append chaining);
+parser
+**44/44** (incl. the dangling-call crash-forensics case and a Build-7 render
+check); save codec 2/2; Python compilation.
 
 ## 6. Owner (human) intervention points
 
 - ~~Harvest + verification runs 1–3~~ **DONE and consolidated**
-- Apply Build 6 to the modded copy (rebuild keeps the pre-enable + unlock) and
-  playtest **in play**: native panel actions, Back/legend in the mod menu,
-  bank persistence across a boot, and a few shots so the damage trace fires.
+- ~~Build 6 playtest~~ **done (run 5)**
+- Apply Build 7 to the modded copy (rebuild keeps the pre-enable + unlock) and
+  playtest it control-by-control (list in §5 / `WORKLIST.md` owner to-do).
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
-  newest `crash_log_*.txt` (the parser now names the failing frame).
+  newest `crash_log_*.txt` — the parser names the last engine call that started
+  and never finished, so the failing control is identifiable from the log.
 - At deployment: flip repo private, optional git history scrub (old commits
   still contain the rars), or archive repo if abandoning
 
@@ -219,7 +226,11 @@ functions.
   GitHub, GitHub release assets, Debian apt mirrors (apt install fails).
 - **No `pwsh`** → PowerShell scripts are static-parsed (tree-sitter) but never
   executed here. Python 3.11 is available; `/tmp/skvenv` (lupa + tree-sitter)
-  works and is ephemeral.
+  works and is ephemeral. System `pip install lupa` fails (PEP 668,
+  externally-managed): create a venv first —
+  `python3 -m venv /tmp/skvenv && /tmp/skvenv/bin/pip install lupa`, then run
+  the smoke test with `/tmp/skvenv/bin/python tools/mod_smoketest.py`
+  (plain `python3 tools/mod_smoketest.py` fails on `import lupa`).
 - `uploads/` is gitignored and **absent in this session** — docs referencing
   it describe the owner's machine.
 - No unrar/7z preinstalled; unrar was compiled last session (that binary is

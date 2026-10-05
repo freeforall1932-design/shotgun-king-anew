@@ -14,6 +14,7 @@ Usage:
     python tools/mod_smoketest.py
     python tools/mod_smoketest.py --dump
 """
+import math
 import os
 import sys
 import tempfile
@@ -80,7 +81,7 @@ def build_env(L, all_mode="value"):
     ])
     g.CARDS = to_lua(L, [
         {"id": "Peace", "gid": 12, "ext": 0, "pwe": 4, "sac": [1], "gain": [2, 2]},
-        {"id": "Right-hand", "gid": 157, "ext": 2, "pwe": 1, "special": "strafe"},
+        {"id": "Right-hand", "gid": 157, "ext": 2, "pwe": 1, "special": "strafe", "allies": [1]},
         {"id": "Unjust Decree", "gid": 22, "ext": 0, "pwe": 2, "special": "decree"},
         {"id": "Wand of Frenzy", "gid": 14, "ext": 0, "pwe": 1, "wand": [1]},
     ])
@@ -135,6 +136,10 @@ def build_env(L, all_mode="value"):
         "activate_soul", "add_soul_slot", "remove_soul_slot", "exhaust_soul",
         "add_scepter", "activate_scepter", "recal_scepters", "get_scepter",
         "TEST_SOULS", "MOUSE", "PIECES_NAMES", "get_free_squares", "is_free",
+        "remove_buts", "get_allies", "get_nearest_free_square", "black_mist_check",
+        "get_dodge", "goto_sq", "refill_ammo", "can_reload", "need_reload", "clip",
+        "flr", "t", "chamber", "stack", "hero", "mk_text_but", "mk_menu_but",
+        "add", "del", "savbnk", "bget", "bset", "newbnk", "fx_spawn",
     ]
     replaceable_names = ["hero", "stack", "ammo", "chamber", "scepters"]
 
@@ -146,9 +151,16 @@ def build_env(L, all_mode="value"):
     bind("gimme", gimme)
 
     def register(target, fn, hook_id=None):
-        hooks[target] = fn
+        # The real engine chains EVERY append on a target, so the fake must
+        # keep an ordered list (Build 7 appends mk_bullet twice; the old
+        # single-slot dict silently dropped the damage hook).
+        hooks.setdefault(target, []).append(fn)
         if hook_id:
             appends.setdefault(target, []).append(hook_id)
+
+    def fire(name, *args):
+        for fn in hooks.get(name, []):
+            fn(*args)
 
     def register_pre(target, fn, hook_id=None):
         prepends[target] = fn
@@ -164,7 +176,7 @@ def build_env(L, all_mode="value"):
     g.menu = "mods"
     g.mMenu = "mods"
     g.hero = to_lua(L, {"hp": 3, "ammo": 5, "free_souls": 1, "sq": {"px": 4, "py": 7}})
-    g.stack = to_lua(L, {"special": "strafe", "pierce": 30, "ammo_max": 6, "chamber_max": 2})
+    g.stack = to_lua(L, {"special": "strafe", "pierce": 30, "ammo_max": 6, "chamber_max": 1})
     g.bads = to_lua(L, [1, 2, 3])
     g.bullets = to_lua(L, [
         {"dmg": 1, "pierce": 30, "shot": True, "x": 10, "y": 20, "life": 8},
@@ -226,24 +238,46 @@ def build_env(L, all_mode="value"):
     bind("btnp", engine_btn)
     bind("btnr", engine_btn)
     bind("fx_spawn", lambda p: None)
+    # Build 7 engine surface (live-registered globals in run 5).
+    bind("remove_buts", lambda: native_buttons.clear())
+    bind("flr", lambda v: int(math.floor(float(v))))
+    g.t = 12345.678
+    g.get_nearest_free_square = None  # NOT a function in the fake: exercises the fallback
+    bind("get_allies", lambda: g.ents)
+    bind("black_mist_check", lambda e: False)
+    bind("get_dodge", lambda e: None)
+
+    def engine_goto_sq(a, b):
+        # Models the real signature being unknown: only the (hero, sq) order
+        # works, so the mod's first guess must fail and its second must land.
+        if a is g.hero and b is not None and b.px is not None:
+            if g.hero.sq is not None:
+                g.hero.sq.px, g.hero.sq.py = b.px, b.py
+            return True
+        return False
+    bind("goto_sq", engine_goto_sq)
+    bind("refill_ammo", lambda: setattr(g, "chamber", g.stack.chamber_max or 1))
+    bind("can_reload", lambda: (g.chamber or 0) < (g.stack.chamber_max or 1))
+    g.need_reload = False
+    g.clip = 1
 
     def engine_pick(filters):
         # First dynamic black card; the real game selects a random eligible card.
         ca = g.CARDS[1]
-        if "pick" in hooks: hooks["pick"](filters)
+        if "pick" in hooks: fire("pick", filters)
         return ca
     bind("pick", engine_pick)
 
     def engine_add_card(ca):
-        if "add_card" in hooks: hooks["add_card"](ca)
+        if "add_card" in hooks: fire("add_card", ca)
     bind("add_card", engine_add_card)
 
     def engine_add_soul(a1, a2=None, a3=None, a4=None):
-        if "add_soul" in hooks: hooks["add_soul"](a1, a2, a3, a4)
+        if "add_soul" in hooks: fire("add_soul", a1, a2, a3, a4)
     bind("add_soul", engine_add_soul)
 
     def engine_add_scepter(a1=None, a2=None):
-        if "add_scepter" in hooks: hooks["add_scepter"](a1, a2)
+        if "add_scepter" in hooks: fire("add_scepter", a1, a2)
     bind("add_scepter", engine_add_scepter)
 
     def engine_hit(target, damage, tags=None):
@@ -256,7 +290,7 @@ def build_env(L, all_mode="value"):
     def engine_init_menu():
         init_menu_calls[0] += 1
         if "init_menu" in prepends: prepends["init_menu"]()
-        if "init_menu" in hooks: hooks["init_menu"]()
+        if "init_menu" in hooks: fire("init_menu")
     bind("init_menu", engine_init_menu)
 
     def engine_gsq(px, py):
@@ -295,38 +329,46 @@ def build_env(L, all_mode="value"):
         ent.right_clic = L.eval("function() end")
         add_entity(ent)
         if "add" in hooks:
-            hooks["add"](g.ents, ent)
+            fire("add", g.ents, ent)
         if "mk_menu_but" in hooks:
-            hooks["mk_menu_but"](ident, x, y, w, h)
+            fire("mk_menu_but", ident, x, y, w, h)
     bind("mk_menu_but", engine_mk_menu_but)
 
     def engine_level_up(data, next_fn=None):
-        if "level_up" in hooks: hooks["level_up"](data, next_fn)
+        if "level_up" in hooks: fire("level_up", data, next_fn)
     bind("level_up", engine_level_up)
 
     def engine_is_card_available(ca):
-        if "is_card_available" in hooks: hooks["is_card_available"](ca)
+        if "is_card_available" in hooks: fire("is_card_available", ca)
         return True
     bind("is_card_available", engine_is_card_available)
 
     def engine_fire():
-        if "fire" in hooks: hooks["fire"]()
+        if "fire" in hooks: fire("fire")
     bind("fire", engine_fire)
 
+    def engine_mk_bullet(x, y, angle, life):
+        b = to_lua(L, {"dmg": 1, "pierce": 30, "shot": True, "x": x, "y": y, "life": life})
+        g.bullets[len(g.bullets) + 1] = b
+        fire("mk_bullet", x, y, angle, life)
+        return b
+    bind("mk_bullet", engine_mk_bullet)
+
     def engine_fx_damage(target, amount):
-        if "fx_dmg" in hooks: hooks["fx_dmg"](target, amount)
+        if "fx_dmg" in hooks: fire("fx_dmg", target, amount)
     bind("fx_dmg", engine_fx_damage)
 
     def engine_ev_hit(target, amount):
-        if "ev_hit" in hooks: hooks["ev_hit"](target, amount)
+        if "ev_hit" in hooks: fire("ev_hit", target, amount)
     bind("ev_hit", engine_ev_hit)
 
     def engine_xpl(target):
-        if "xpl" in hooks: hooks["xpl"](target)
+        if "xpl" in hooks: fire("xpl", target)
     bind("xpl", engine_xpl)
 
     return {
         "captured": captured,
+        "fire": fire,
         "hooks": hooks,
         "prepends": prepends,
         "appends": appends,
@@ -354,6 +396,7 @@ def call_button(env, label):
 def run_scenario(L, env, mode, dump=False):
     g = env["globals"]
     captured, hooks, prepends = env["captured"], env["hooks"], env["prepends"]
+    fire = env["fire"]
 
     calls = [
         ("new_turn", []), ("new_turn", []),
@@ -371,49 +414,101 @@ def run_scenario(L, env, mode, dump=False):
         ("add_scepter", [1, None]),
     ]
     for name, args in calls:
-        fn = hooks.get(name)
-        if fn is None:
+        if not hooks.get(name):
             print(f"FAIL[{mode}]: hook '{name}' was never registered")
             return False
-        fn(*args)
+        fire(name, *args)
 
     # Simulate mod-menu native buttons and validate the Back action.
     pre_menu = prepends.get("init_menu")
     if pre_menu: pre_menu()
+    # An unrelated id must NOT attach widgets (W7 regression: the Build-6
+    # MODLIST-title compare matched nothing at all in run 5).
     g.mk_menu_but("SK Rework", 0, 0, 80, 12)
+    # A real run-5 mod-list id must attach them.
+    g.mk_menu_but("mods", 0, 0, 80, 12)
     back = call_button(env, "< BACK")
 
-    # Fire init_game, open the Dev panel, then click each safe control.
+    # Fire init_game, open the Dev panel, then click each control once.
     if "init_game" not in hooks:
         print(f"FAIL[{mode}]: init_game hook was not registered")
         return False
-    hooks["init_game"]()
+    fire("init_game")
     header = find_button(env, "SK DEV")
     if header is None:
         print(f"FAIL[{mode}]: native SK DEV button was not created")
         return False
-    # Header toggles action buttons.
     header["fn"]()
-    for label in ("+3 AMMO", "RANDOM CARD", "SPAWN ALLY", "GOD MODE", "DMG GATED"):
+    for label in ("+3 AMMO", "RELOAD", "CLIP+", "CARD:AUTO", "SPAWN...", "GOD:off",
+                  "DMG:off", "DMG+", "CRIT+", "CARDS>", "SAFE:off", "CLOSE"):
         if find_button(env, label) is None:
             print(f"FAIL[{mode}]: native Dev action was not created: {label}")
             return False
-    # Trigger actions individually. `CLOSE` is not clicked until assertions read its marker.
-    before_ammo = g.ammo
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "+3 AMMO"][-1]]["fn"]()
-    ammo_after = g.ammo
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "RANDOM CARD"][-1]]["fn"]()
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "SPAWN ALLY"][-1]]["fn"]()
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "GOD MODE"][-1]]["fn"]()
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "DMG GATED"][-1]]["fn"]()
 
-    # A God Mode hit should leave hero HP unchanged in the fake engine.
-    hp_before_hit = g.hero.hp
-    g.hit(g.hero, 2, to_lua(L, {}))
+    # Offer-screen guard: with the panel open, a level_up must make the panel
+    # refuse to clear the button layer (remove_buts would also delete the
+    # engine's own card buttons). CLOSE is the harmless probe for that path.
+    fire("level_up", to_lua(L, {"id": "level_up", "choices": [[{"team": 0}]]}), None)
+    call_button(env, "CLOSE")
+    buttons_during_offer = len(env["native_buttons"])
+    fire("new_turn")            # offer over; the panel was never cleared
+    still_open = find_button(env, "+3 AMMO") is not None
+
+    before_ammo = g.ammo
+    call_button(env, "+3 AMMO")
+    ammo_after = g.ammo
+    chamber_before = g.chamber
+    call_button(env, "RELOAD")
+    chamber_after = g.chamber
+    clip_before = g.stack.chamber_max
+    call_button(env, "CLIP+")
+    clip_after = g.stack.chamber_max
+    # AUTO card path (game pick())
+    call_button(env, "CARD NOW")
+    call_button(env, "CARD:AUTO")
+
+    # Damage/crit: turn DMG on, then create a bullet (pierce=30 must auto-crit).
+    call_button(env, "DMG:off")
+    dmg_on = g.ammo is not None  # state flag read below via the log instead
+    bullet = g.mk_bullet(10, 20, 0, 8)
+    bullet_dmg, bullet_crit = bullet.dmg, None
+    call_button(env, "DMG+")
+    call_button(env, "CRIT+")
+
+    # God Mode: enable, then take a lethal hit -> HP refill + dodge.
+    call_button(env, "GOD:off")
+    g.hero.hp = 1
+    hero_px_before, hero_py_before = g.hero.sq.px, g.hero.sq.py
+    g.hit(g.hero, 5, to_lua(L, {}))
     hp_after_hit = g.hero.hp
+    hero_moved = (g.hero.sq.px != hero_px_before or g.hero.sq.py != hero_py_before)
+
+    # Card LIST page: open it, take Right-hand (allies=[1] -> also spawns),
+    # then back to page 1 (every action leaves the panel open by design).
+    call_button(env, "CARDS>")
+    call_button(env, "FILT:ALL")          # piece/summon-only view (owner ask)
+    call_button(env, "Right-hand")
+    call_button(env, "<BACK")
+
+    # Spawn page: put the king back on (4,7) so the diagonal preference is
+    # deterministic, then pick the knight explicitly.
+    g.hero.sq.px, g.hero.sq.py = 4, 7
+    call_button(env, "SPAWN...")
+    call_button(env, "knight")
+    call_button(env, "<BACK")
+
+    # SAFE mode: budget of one mutating engine call per boot.
+    call_button(env, "SAFE:off")
+    safe_before = g.ammo
+    call_button(env, "+3 AMMO")
+    call_button(env, "+3 AMMO")
+    safe_after = g.ammo
+
+    # CLOSE must really remove the native buttons (run-5 ghost-panel bug).
     close_button = find_button(env, "CLOSE")
     if close_button is not None:
         close_button["fn"]()
+    buttons_after_close = len(env["native_buttons"])
 
     # Simulate an actual menu button ID from MODLIST; the hook adds Back + legend.
     g.mk_menu_but("2. SK Rework", 0, 0, 80, 12)
@@ -423,7 +518,7 @@ def run_scenario(L, env, mode, dump=False):
         return any(fragment in line for line in captured)
 
     # Ensure the promised marker precedes every static §0.7 dump.
-    ready_idx = next((i for i, line in enumerate(captured) if "READY build=6" in line), -1)
+    ready_idx = next((i for i, line in enumerate(captured) if "READY build=7" in line), -1)
     probe_idx = next((i for i, line in enumerate(captured) if line.startswith("SKCF|")), -1)
 
     # Model self-check: the fake engine MUST reject unconfirmed buttons the
@@ -437,7 +532,7 @@ def run_scenario(L, env, mode, dump=False):
 
     checks = [
         ("fake engine models the fatal btn() contract", fatal_button_model),
-        ("build-6 load banner", has("SK-REWORK: BUILD=6 loaded (mod_index=2)")),
+        ("build-6 load banner", has("SK-REWORK: BUILD=7 loaded (mod_index=2)")),
         ("MODLIST self-check", has("SKA2|mod_found=yes|active=true")),
         ("MODLIST entry dump", has("SKM|2|title=SK Rework")),
         ("Lua function wrappers/API checks", has("SKA|append|no") and has("SKA|_log|YES")
@@ -462,26 +557,54 @@ def run_scenario(L, env, mode, dump=False):
                                                and not has("SKI|btn|wheel=")),
         ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")
                                  and has("SKI|menu_but|n=1|id=SK Rework")),
-        ("native panel controls", has("SKUI|panel|available=true|native=mk_text_but")
-                                  and has("SKE|cheat_ammo|amount=3")
-                                  and has("SKE|cheat_card|id=Peace")
-                                  and has("SKE|cheat_spawn|type=0|name=pawn")
+        ("native panel controls (Build 7)", has("SKUI|panel|available=true|native=mk_text_but")
+                                  and has("SKUI|panel|open=true|page=1")
+                                  and has("SKE|cheat_ammo|kind=reserve|amount=3")
+                                  and has("SKE|cheat_card|mode=auto|id=Peace")
+                                  and has("SKE|cheat_reload|")
+                                  and has("SKE|cheat_clip|chamber_max=2")
                                   and has("SKUI|panel|god_mode=true")
-                                  and has("SKUI|panel|open=false")
                                   and env["bank_store"].get((0, 0)) == 505
                                   and env["bank_store"].get((1, 0)) == 1),
-        ("God Mode hook basic path", hp_after_hit == hp_before_hit),
-        ("native mod-menu Back + legend", has("SKUI|menu|widgets_added=true|entry=SK Rework|back=true")
+        ("ammo buttons change state", ammo_after == before_ammo + 3
+                                      and chamber_after == chamber_before + 1
+                                      and clip_after == clip_before + 1),
+        ("CLOSE really removes the native buttons", buttons_after_close == 0
+                                                   and has("SKUI|panel|clear=remove_buts|reason=close_clicked")
+                                                   and has("SKUI|panel|open=false")),
+        ("damage/crit roll applied to bullets", has("SKD|dmg|n=1|before=1|after=2|crit=true|pierce=30")
+                                                and bullet_dmg == 2),
+        ("damage knobs cycle + persist", has("SKUI|cfg|on=1|dmg=1-2")
+                                         and env["bank_store"].get((2, 0)) == 1),
+        ("God Mode dodge on lethal hit", hero_moved and hp_after_hit and hp_after_hit > 0
+                                         and has("SKUI|dodge|from=4,7|to=3,6|route=diagonal|moved=true")
+                                         and has("SKE|call|goto_sq_hero=ok")),
+        ("card LIST page + take by id", has("SKUI|card|page=1/1|pool=4")
+                                        and has("SKE|cheat_card|mode=list|id=Right-hand")
+                                        and has("via=card:Right-hand")),
+        ("piece-card filter (FILT:PIECE)", has("SKUI|card|filter=piece|kept=1|of=4")
+                                           and has("SKUI|panel|card_filter=piece")),
+        ("spawn page picks the piece", has("SKUI|spawn|page=1|choices=3")
+                                       and has("via=panel_pick")),
+        ("spawn prefers a diagonal (never blocks the king)", has("SKUI|spawn|type=1|px=3|py=6|route=diagonal|via=panel_pick")),
+        ("SAFE mode blocks the 2nd mutating call", safe_after == safe_before + 3
+                                                   and has("SKE|call|inc_ammo=blocked|reason=safe_mode")),
+        ("engine-call intent logging", has("SKE|call|inc_ammo=start")
+                                       and has("SKE|call|inc_ammo=ok|r=")),
+        ("panel defers while an offer screen is open",
+         has("SKUI|panel|deferred=offer_active") and buttons_during_offer > 0
+         and still_open),
+        ("native mod-menu Back + legend on real ids", has("SKUI|menu|widgets_added=true|entry=mods|back=true")
                                           and back is not None),
+        ("unrelated menu id attaches nothing", not has("widgets_added=true|entry=SK Rework")),
         ("back click returns through init_menu", has("SKUI|menu|back_clicked=true")
                                                  and env["init_menu_calls"][0] == 1),
-        ("damage control clearly gated", has("SKUI|panel|damage_controls=deferred_until_live_damage_probe")),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
         ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
                                     and has("SKA2|probe|souls=done") and has("SKA2|probe|bank=done")
                                     and has("SKA2|probe|input=done")),
-        ("probe done marker", has("SK-REWORK: PROBE done build=6")),
+        ("probe done marker", has("SK-REWORK: PROBE done build=7")),
         ("ammo cheat changes state", ammo_after == before_ammo + 3),
     ]
     bad = [name for name, ok in checks if not ok]
@@ -490,10 +613,10 @@ def run_scenario(L, env, mode, dump=False):
     import parse_log
     d = parse_log.parse_text(text)
     parser_checks = [
-        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 6
-                              and d["ready"] is not None and d["ready"]["build"] == 6),
+        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 7
+                              and d["ready"] is not None and d["ready"]["build"] == 7),
         ("parser hooks", len(d["hooks"]) >= 15),
-        ("parser world samples", len(d["world"]) == 2),
+        ("parser world samples", len(d["world"]) >= 2),
         ("parser cards", len(d["cards"]) == 4),
         ("parser all card fields", d["card_fields"]["Right-hand"].get("special") == "strafe"
                                 and "__CARD_COUNT__" not in d["card_fields"]),
@@ -509,7 +632,7 @@ def run_scenario(L, env, mode, dump=False):
     ]
     bad += [name for name, ok in parser_checks if not ok]
 
-    md = parse_log.render_markdown(d, "<smoketest-build-6>")
+    md = parse_log.render_markdown(d, "<smoketest-build-7>")
     if ("Did the mod load?" not in md or "Full card fields & EXCLUDE pairs" not in md
             or "Offer-roll choices & filters" not in md):
         bad.append("parser Build-6 markdown rendering")

@@ -35,12 +35,12 @@
 ## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
 
 > **Where this work happens:** these specs are implemented via the queue in
-> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 6 first**
-> (Phase 2c cheat panel + mod-menu legend/Back button + the §0.7 intel
-> probes — offer roll, full card fields, scepters, soul flow, damage point,
-> input space), then the cap removal + bindings, card picker, soul deck,
-> crit system, and remap menu on top of that panel. Live-test status of
-> every ask: `live testing result/SUMMARY.md`.
+> `WORKLIST.md` → "🟠 Next features". Order: **build 6 ran live in run 5**
+> (2026-10-04: panel + probes + harvest all verified in play), **build 7 is
+> the current code** (panel v2 with real CLOSE, damage/crit, reload/clip,
+> card picker pages, spawn picker, dodge, SAFE mode, menu legend on the real
+> ids), then the cap removal + bindings, soul deck, and remap menu on top of
+> that panel. Live-test status of every ask: `live testing result/SUMMARY.md`.
 
 6. **Right-click ability cap — REMOVE it** (owner's refined description,
    2026-10-04): right-click is ONE button, so vanilla lets you hold only
@@ -134,6 +134,55 @@
 10. **Mod-menu Back button** (confirmed): the vanilla mod menu only offers
     reset / save+reboot; add a Back button via the same UI-hook route as
     the white/black legend line (Phase 2c).
+
+### 0.7b Owner asks from run 5 (2026-10-04, build-6 playtest)
+
+12. **Panel state must be visible and CLOSE must really close** — "once i open
+    sk dev it doesnt close the option when clicked", "when i press it it
+    doesnt change state to on or off in text … the button is frozen to brown
+    even when i hover my mouse", "clicking sk dev also close it but the ui
+    still linger like it was still on". Root cause (live): the engine ignores
+    `del(ents, e)` on `mk_text_but` groups, so the panel closed its own state
+    while the visuals stayed. Fix = the engine's own `remove_buts()` + a page
+    rebuild after every action so labels show live state. **Build 7.**
+13. **Spawn-ally must be placeable and varied** — "the spawn ally work but
+    only pawn", "if only it was spawn 1 tile away or in the corner and have
+    variation not just pawn", "i spawn ally that block my 1 tile movement",
+    "if only i can put where the spawned ally would be or like in white card
+    skill it arrive from outside of board fade in or out … like loyalist or
+    royalist march". **Build 7:** piece picker page, diagonal-first square
+    picker (never blocks the king's orthogonal step), summon-on-card for the
+    ext=3 `allies` cards, arrival FX kept. Free tile placement (click a tile)
+    stays queued behind the `get_free_squares` probe.
+14. **Spawned-ally bugs after resign + new run** — "i can go to that pawn tile
+    with the pawn still there like it never existed but i still can move the
+    pawn", "the black pawn can still destroy white pieces", "if i hide in tile
+    with pawn white pieces will destroy me first aka king piece instead of
+    pawn". Engine-side targeting rules around mod-spawned allies. **Build 7**
+    mirrors the card route where the data allows and logs
+    `SKUI|spawn|route=|via=` for the next live pass.
+15. **Ammo: keep the reserve, add RELOAD + cartridge slot** — "plus 3 ammo …
+    is it like ammo regeneration or adding ammo slot", "no need to change if
+    only theres a button for that and adding cartridge slot", "i hate that the
+    plus 3 ammo didnt reload my gun". **Build 7:** `+3 AMMO` (reserve),
+    `RELOAD` (`reload`/`refill_ammo`), `CLIP+` (`stack.chamber_max`; live=1).
+16. **Cardless random card** — "when i dont have card theres no random card i
+    get". **Build 7:** fallback pool when `pick()` returns nothing, plus a
+    LIST mode to browse/take any card; summon cards bring their `allies`
+    piece.
+17. **Damage still unchanged** — the button was gated by design; run 5
+    confirmed the route (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`).
+    **Build 7** applies the configured roll (range, crit chance/damage, pierce
+    auto-crit), persisted and logged per shot.
+18. **God Mode → Mist-style dodge** — "god mode doesnt work still get
+    destroyed … instead of undestroyeable i move out like mist … avoid death
+    by moving to nearby unocupied tile away from threat of piece". **Build 7:**
+    lethal hit → HP refill + dodge via `goto_sq` (both argument orders tried
+    and validated, direct `hero.sq` fallback), route logged.
+19. **Spawn lag / occasional no-op** — "theres also times where when i press
+    spawn ally theres a lag or not working". **Build 7** logs every spawn
+    attempt with route/status so a blocked click (SAFE, no free square) is
+    distinguishable from a hitch.
 
 ## 0. What this project is
 

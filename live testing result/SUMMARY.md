@@ -70,6 +70,39 @@ intro but second have intro but crash again."*
 | `SKD|`/`SKUI|bank`/menu-ID probes never ran (crash + no gameplay) | 🔜 Build 6 re-run, this time through gameplay |
 | Owner doc note: where the mod menu is should just say **"click Play"** — no mention of the title screen or a contrast ("not on the main menu") | ✅ all docs reworded in this session |
 
+## Run 5 — Build 6 in play (2026-10-04, ~22 min) — the run-4 questions answered
+
+**Tested:** build 6 applied to the copy, booted once, played a full run
+(`READY build=6 hooks=30 globals=920`, `Application ran for 1311.772 s`,
+clean shutdown). Evidence: `run 5 i believe or latest run/` (log + save pack +
+critique; the run-4 raw pack was deleted after absorption).
+
+| Finding | Status |
+|---|---|
+| **Build 6 boots and plays** — the run-4 boot crash is fixed; all five probe blocks completed (`cards`, `exclude`, `souls`, `bank`, `input`) | ✅ verified live |
+| **Dev panel renders and every action fires** — `SKUI\|panel\|available=true\|native=mk_text_but`, `open=true\|buttons=6`, `cheat_ammo` (3→6), `cheat_card\|id=August Presence`, `cheat_spawn`, `god_mode=true/false` | ✅ absorbed; behaviour fixes → Build 7 |
+| **The panel cannot close and its visuals linger** — `open=true` then `open=false` in the same frame; the engine ignores `del(ents, e)` on `mk_text_but` groups (owner: "close it doesnt close the ui", "button is frozen to brown") | 🔴 root-caused → Build 7 uses the engine's own `remove_buts()` (proven in disgraced_justice + glac terminal) |
+| **Spawn ally only ever made a pawn and blocked the king's 1-tile move** | 🔴 root-caused (`first_spawnable_piece` returns `PIECES[1]`; square picked without checking the king's movement line) → Build 7: piece picker page + diagonal-first square + logged route |
+| **God Mode did not save the king** ("still get destroyed") | 🟡 HP refill alone is not enough; Build 7 adds the owner's Mist-style dodge (`goto_sq`, both argument orders tried + validated) |
+| **Damage controls were gated** — live route is `mk_bullet` → `bullet.dmg` → `hit(p,dmg,tags)` → `fx_dmg(p,dmg)`; `ev_hit` never fires | ✅ gate lifted: Build 7 applies configurable damage/crit/pierce at `mk_bullet` |
+| **Mod-menu Back/legend never appeared** — real ids are `play/mods/save_back/" ON "/"OFF "…`; Build 6 compared MODLIST titles to ids, which can never match | 🔴 root-caused → Build 7 arms on the harvested ids |
+| **Bank write path proven + file format decoded** — in-log `magic=0` (first write that boot), on-disk `sk-rework.bnk` = `128:64:4:` + hex, cells `(0,0)=505`, `(1,0)=1` | ✅ decoded → `notes/map.md`; Build 7 restores config from it and re-writes magic every boot |
+| **Souls/scepters/offers ran live** — `add_soul` ×2 (a1 = piece type, a2 = piece table), `add_soul_slot` ×5, `get_scepter` ×7, `SKOF\|candidate` list | ✅ absorbed; slot internals still open |
+| **Ammo semantics** — `hero.ammo` is nil, the counter is the global `ammo`; +3 behaves like a reserve refill; owner wants RELOAD + a cartridge/shell slot button | ✅ designed → Build 7 `RELOAD`/`CLIP+` |
+
+### Owner asks collected in run 5 (`critique.txt` → PLANNING §0.7.12–.19)
+
+1. Panel CLOSE/state (frozen buttons, lingering UI, "mod state problem").
+2. Ally spawn: choose the tile (corner / one tile away), non-pawn pieces,
+   arrival animation like the vanilla summon cards, no blocking the king.
+3. Bug: after resign + new run the king can walk onto his own spawned pawn.
+4. White pieces target the king instead of the spawned ally.
+5. "+3 ammo" = regeneration, not slots — add a RELOAD and a cartridge/shell
+   slot button instead.
+6. No random card when the player has no card (cardless).
+7. Damage still unchanged (the gated button).
+8. God Mode → Mist-style dodge instead of invulnerability.
+
 ## Still open — the owner's feature asks (all specs in PLANNING §0.7)
 
 1. **Right-click ability cap removal** (§0.7.6) — own multiple abilities,
@@ -84,18 +117,21 @@ intro but second have intro but crash again."*
    damage + crit chance, pierce auto-crits
 5. **Full button-remap menu** (§0.7.9) + **mod-menu Back button** (§0.7.10)
 
-## Current follow-up status (2026-10-04, session 8)
+## Current follow-up status (2026-10-05, session 9)
 
-**Build 5 is retired** (it crashed at boot — see run 4 above). Build 6 is in
-`modded/sk-rework/`: same Dev panel, Back/legend helper and probes, but the
-input probe only uses ids the live game published, probe blocks are reordered
-(safe blocks first) with `SKA2|probe|<name>=done` checkpoints, and the fake
-engine now models the fatal `btn()` contract. Sandbox: parser 34/34 (incl. a
-crashed-chain check), smoke test 36/36 under each `all()` semantics on default
-Lua and LuaJIT 2.1 — including a deliberate re-injection of the run-4 bug,
-which the harness now catches with the exact live error.
+**Build 7 is in `modded/sk-rework/`** (panel v2 with real CLOSE via
+`remove_buts()`, damage/crit system at `mk_bullet`, RELOAD + CLIP+, card AUTO /
+LIST pages incl. the cardless fallback and summon-on-card, spawn piece picker
+with diagonal-first squares, Mist-style dodge, engine-call intent logging +
+SAFE mode, legend/Back on the real menu ids, bank-backed config). Sandbox:
+smoke test **47/47** (incl. the offer-screen guard) under both `all()`
+semantics on default Lua and LuaJIT 2.1; parser **44/44** (incl. a dangling-call crash-forensics check); save codec
+2/2.
 
-Next step: apply Build 6 (`apply.ps1` or a fresh `build-dist.ps1`), **play a
-couple of turns** (the runtime probes need gameplay), collect the log with
-`apply.ps1 -GetInsights`. Damage-multiplier controls remain gated until the
-`SKD|` traces are observed in play.
+Next step: apply Build 7 (`apply.ps1` or a fresh `build-dist.ps1`), play a few
+minutes and click each control once, then collect with
+`apply.ps1 -GetInsights`. What the log must answer: `SKUI|bank|ready=true|
+magic=505` (read-back across a boot), `SKUI|panel|clear=remove_buts` on CLOSE,
+`SKD|dmg|…` rolls on real shots, `SKE|cheat_reload`/`cheat_clip`, the spawn
+piece picker's `route=…`, `SKUI|dodge|…|moved=true`, and
+`SKUI|menu|widgets_added=true` on the mod-list screen.

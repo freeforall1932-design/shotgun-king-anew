@@ -32,7 +32,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (Build 6 live validation first)
+## 🟠 Next features (Build 7 live validation first)
 
 - [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
       are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
@@ -54,21 +54,41 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       like the game (the old fake returned `false`, which is why 33/33 passed
       while the game died). Verified by re-injecting the run-4 bug: the
       harness fails with the live error. Parser 37/37 (crash detection included), smoke 36/36.
-- [ ] **Owner live-run Build 6** — confirm the game boots and plays; verify
-      Dev panel actions, mod-menu button-ID detection/Back/legend, bank
-      persistence, and collect the `SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`,
-      `SKUI|` probes **in play** (run 4 proved the load-time harvest works;
-      the runtime traces were never reached). Update `notes/map.md` from that
-      log. Fake-SUGAR results are not game evidence.
-- [ ] **Panel cheat actions are still unverified engine calls** — `pick({team=0})`
-      + `add_card`, `inc_ammo(3)`, `new_piece(type,false,sq)`, `hit`-based God
-      Mode. They are click-gated, run only on owner action, and the probe chain
-      completes at load, so a bad one costs a run but never the harvest. Ask
-      the owner to click them one at a time (see INSTALL step 5) so the failing
-      control is identifiable; fold the real signatures back in afterwards.
-- [ ] **Finish Phase 2c after probes** — implement damage multipliers only
-      after the `SKD|` trace proves a safe hook; fix any mod-menu false
-      positives/false negatives found in the live run.
+- [x] ~~**Owner live-run Build 6**~~ — **RAN 2026-10-04 (run 5, ~22 min in
+      play, clean shutdown)**: `READY build=6 hooks=30 globals=920`, all five
+      probe blocks completed, panel + every cheat fired, bank written, souls/
+      scepters/offers/damage traced. Findings absorbed into `notes/map.md`,
+      `SUMMARY.md`, `PLANNING.md` §0.7b. The run also produced 8 new owner
+      asks (panel close/state, spawn placement + ally bugs, reload/cartridge,
+      cardless card, damage, dodge, spawn lag).
+- [x] **Build 7 — run-5 fixes + features (this session)** — panel v2 with the
+      engine's own `remove_buts()` and a page rebuild after every action;
+      damage/crit/pierce system applied at `mk_bullet`; RELOAD + CLIP+;
+      card AUTO/LIST pages with the cardless fallback and summon-on-card;
+      spawn piece picker with diagonal-first squares; Mist-style dodge;
+      engine-call intent logging (`SKE|call|…=start/=ok`) + SAFE mode; bank
+      read-back/config restore; menu legend/Back armed on the real run-5 ids.
+      Sandbox: smoke **47/47** ×4 variants (incl. the panel's offer-screen guard,
+      which stops a stray click from wiping the engine's own level-up buttons),
+      parser **44/44**, codec 2/2.
+- [ ] **Owner live-run Build 7** — click each control once in play, then
+      `apply.ps1 -GetInsights`. The log should show: `SKUI|bank|ready=true|
+      magic=505` (read-back across a boot), `SKUI|panel|clear=remove_buts` on
+      CLOSE, `SKD|dmg|…` rolls on shots, `SKE|cheat_reload`/`cheat_clip`,
+      `SKUI|spawn|…|route=…` from the picker, `SKUI|dodge|…|moved=true`, and
+      `SKUI|menu|widgets_added=true` on the mod-list screen.
+- [ ] **Guessed signatures now marked + validated at runtime** — `goto_sq`
+      (both plausible argument orders tried, result validated, `hero.sq`
+      fallback), `get_nearest_free_square(px,py)` (only called when it exists,
+      result validated), `stack.chamber_max` / `stack.ammo_max` field writes.
+      Each logs which route worked, so the next live pass replaces the guesses
+      with facts. `SAFE:on` in the panel limits a boot to one gameplay-mutating
+      engine call if a new guess turns out fatal.
+- [x] ~~**Finish Phase 2c after probes**~~ — run 5 proved the route
+      (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`; `ev_hit` never fires), so
+      Build 7 ships configurable damage + crit + pierce auto-crit, and the
+      legend/Back now arm on the real menu ids (the Build-6 predicate could
+      never match). Live validation of both is the Build-7 run.
 - [ ] **Extra-mouse-button binding — isolated experiment (run-4 finding).**
       The only mouse ids the engine publishes are `m:lb`, `m:rb`, `m:mb`
       (+ `m:x`/`m:y` axes); mouse4/mouse5/wheel appear nowhere, and a wrong
@@ -76,10 +96,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       opt-in build that tries ONE candidate binding per boot (config-bank
       switched), documented as crash-tolerant, so a failure costs one run
       instead of a whole feature cycle.
-- [x] **Mod-menu Back + white/black legend code added** (owner ask run 3,
-      confirmed 2026-10-04) — native `mk_text_but` widgets are attached by
-      the `mk_menu_but` additive hook when a MODLIST-entry ID is recognized;
-      still needs the Build-6 live run to verify actual IDs and navigation.
+- [x] **Mod-menu Back + white/black legend** (owner ask run 3) — Build 6
+      attached nothing because it compared MODLIST titles to button ids; run 5
+      harvested the real ids (`mods`/`save_back`/`" ON "`/`"OFF "`/arrows) and
+      Build 7 arms on those.
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
@@ -140,11 +160,12 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       and `SKA2|probe|<name>=done` checkpoints (`probe blocks completed` +
       a crash-location warning); selftest 37/37, including a `!! `
       warning-prefix regression and a crashed-chain case.
-- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 6
+- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 7
       in a fake SUGAR env under BOTH `all()` semantics, fires hooks and native
-      button callbacks, then checks parser output; 36/36 per mode on default
-      Lua and LuaJIT 2.1. The fake `btn()` now models the engine's fatal
-      unknown-id path (and self-checks that it does).
+      button callbacks, then checks parser output; **47/47** per mode on default
+      Lua and LuaJIT 2.1. The fake engine chains multiple appends per target
+      like the real one, models `remove_buts`/`goto_sq`/`flr`/`mk_bullet`, and
+      its `btn()` reproduces the fatal unknown-id path (with a self-check).
 - [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
       game (load proof, 920 globals, hooks, 47 events, object dumps)
 - [x] ~~**diagnostics build 4** of sk-rework~~ — shipped session 4, **live-proven
@@ -207,13 +228,49 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    Still open: whether `defbtn` accepts mouse4/mouse5-style codes at all
    (needs the isolated one-candidate-per-boot experiment, see the queued item
    above).
-6. **Build 6 must answer (needs gameplay, not just boot):** does the Dev panel
-   actually render/respond (`SKUI|panel|`), does the mod-menu Back/legend
-   attach to the real menu button ID (`SKI|menu_button|`, `SKI|menu_but|`),
-   does the bank persist across boots (`SKUI|bank|magic=505`), and does the
-   damage trace (`SKD|`) show the hit/bullet route during a real shot?
+6. ~~**Build 6 must answer (needs gameplay, not just boot)**~~ — **ANSWERED
+   by run 5 (2026-10-04, ~22 min in play):** the panel renders and every action
+   fires; the real menu ids are `play/mods/save_back/" ON "/"OFF "` (the build-6
+   title compare could never match); the bank write path is proven and its file
+   format decoded (`128:64:4:` + hex, `(0,0)=505`, `(1,0)=1`); the damage route
+   is `mk_bullet` → `bullet.dmg` → `hit(p,dmg,tags)` → `fx_dmg(p,dmg)`, with
+   `ev_hit` never firing. Build 7 ships the fixes + features; **Build 7 must
+   answer** (next run): the bank read-back across a boot
+   (`SKUI|bank|ready=true|magic=505`), real CLOSE (`SKUI|panel|clear=remove_buts`),
+   damage rolls on shots (`SKD|dmg|`), reload/clip effects, the spawn picker's
+   `route=`, a dodge that moved the king (`SKUI|dodge|…|moved=true`), and the
+   legend attaching (`SKUI|menu|widgets_added=true`).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-05 (session 9 — run 5 absorbed; Build 7 shipped):**
+- ✅ **Run 5 (build 6) parsed and absorbed**: 22 min in play, clean shutdown,
+  1 boot, all probe blocks done; every "Build 6 must answer" question resolved
+  (panel renders + actions fire, menu ids harvested, bank write proven,
+  damage route traced, souls/scepters/offers live).
+- 🔴 **Three run-5 bugs root-caused**: (1) the panel never really closed —
+  the engine ignores `del(ents, e)` on `mk_text_but` groups, so state and
+  visuals diverged; (2) the mod-menu legend could never attach — the predicate
+  compared MODLIST titles to ids; (3) spawn-ally only ever made a pawn and
+  could block the king's step.
+- ✅ **Build 7 shipped** (`modded/sk-rework/`, BUILD=7 + info.lua): panel v2
+  (real `remove_buts()` CLOSE, page rebuild per action, live labels, card
+  pages, spawn picker, damage knobs, SAFE toggle), damage/crit system at
+  `mk_bullet`, RELOAD + CLIP+, cardless fallback + summon-on-card, Mist-style
+  dodge, engine-call intent logging for crash forensics, bank restore/rewrite.
+- ✅ **Bank format decoded** from the run-5 save pack: `128:64:4:` + hex,
+  one ASCII hex pair per byte, LE i32 per cell → `(0,0)=505`, `(1,0)=1`.
+- ✅ **Tooling**: smoke test now chains multiple appends per target like the
+  real engine (the old single-slot dict silently dropped the damage hook) and
+  models `remove_buts`/`goto_sq`/`flr`/`mk_bullet`; parser gained
+  `SKE|call|` crash forensics (a dangling `=start` names the failing control)
+  and a Build-7 section. **47/47 smoke ×4 variants; 44/44 parser selftest;
+  codec 2/2.**
+- 🧹 **Evidence consolidated**: `uploads/` (run-4 pack) and the run-5
+  `notes/` snapshot deleted after absorption; `notes/game-map-draft.md`
+  regenerated from the run-5 log with the new parser sections.
+- ⏭ Next: owner live-run Build 7 (control-by-control), then the cap
+  removal + picker/soul-deck work on top of the validated panel.
 
 **2026-10-04 (session 8 — run 4 absorbed; boot crash fixed as Build 6):**
 - 🔴 **Run 4 (build 5) crashed the game at boot** — `ERR Button left for player
@@ -239,8 +296,8 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - ✅ Owner doc note applied: mod-menu location now simply says "click Play"
       (no title-screen/main-menu contrast) in README/INSTALL/HANDOFF/map/
       mod-dev.
-- ⏭ Next: owner live-run Build 6 **in play** (runtime traces were never
-      reached in run 4).
+- ⏭ Next: ~~owner live-run Build 6 in play~~ **done — run 5 (22 min,
+      clean, all blocks answered)**; the follow-up is the Build-7 run.
 
 **2026-10-04 (session 7 — Build 5 code + map/tooling refresh):**
 - ✅ Build 5 Phase-2c panel and §0.7 `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes
@@ -453,9 +510,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 1. ~~Harvest + verification runs 1–3~~ **DONE and consolidated into
       `live testing result/SUMMARY.md`.**
-2. Apply the updated Build-5 mod (or rebuild the copy) and confirm the
-      diagnostic banner and `READY build=5` in the log.
-3. **Playtest Build 5 now**: test SK DEV controls, mod-menu Back/legend, and
-      submit `-GetInsights` output. That live log validates the probes and
-      unblocks the queued feature work.
+2. ~~Apply Build 5 / playtest~~ **done (run 4/5)**; Build 6 is retired.
+3. **Apply Build 7 and playtest it**: rebuild with `build-dist.ps1` (or
+      `apply.ps1`) and click each SK DEV control once — +3 AMMO, RELOAD,
+      CLIP+, CARD:AUTO, CARD NOW, CARDS> (take one), SPAWN... (pick a knight),
+      GOD:on (then take a lethal hit), DMG:on + DMG+ + CRIT+ (fire a few
+      shots), SAFE, CLOSE — plus opening the mod menu once for the legend.
+      Then `apply.ps1 -GetInsights`.
 4. At deployment: flip private; optionally scrub history; or archive repo
