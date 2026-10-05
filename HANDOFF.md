@@ -24,7 +24,7 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a10d48-shotgun-king-anew` (session-fixed branch; PRs #1 and #2 already merged to `main`) |
+| Working branch | `arena/01a10d48-shotgun-king-anew` (session-fixed). **Session 9's work is merged to `main` as PR #8** (merge commit `2975dba`), so `main` is current and a fresh session can branch from it; earlier sessions = PRs #1–#7 |
 | Our mod | `modded/sk-rework/` (**Build 7** — run-5 fixes + features: panel v2 with the engine's own `remove_buts()` CLOSE and per-action page rebuild, damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages + cardless fallback + summon-on-card, spawn piece picker with diagonal-first squares, Mist-style dodge, `SKE|call|` intent logging + SAFE mode, bank restore, menu legend on the real run-5 ids) |
 | Log parser + smoke test | `tools/parse_log.py` (**44/44**: `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mod_smoketest.py` (**47/47** × both `all()` semantics × default Lua/LuaJIT 2.1; the fake engine chains multiple appends per target like the real one, models `remove_buts`/`goto_sq`/`flr`/`mk_bullet`, and re-raises the fatal unknown-id `btn()` error) |
 | Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–5; run 5's raw pack (`run 5 i believe or latest run/`: log, save/bank files, critique) is absorbed and kept as the newest evidence; the run-4 pack was deleted |
