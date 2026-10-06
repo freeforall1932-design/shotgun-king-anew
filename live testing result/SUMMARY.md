@@ -134,18 +134,34 @@ decoded game source (`notes/game-internals.md`).
   order, Terminal last.
 - Save: `save/mods` holds only `sk-rework.bnk` and `royal card lab.bnk`; the
   quartz/fairy/card-lab `.sav` files are empty. The mode unlock data lives in
-  the per-mod `.bnk` (`bget(i,4)` weapon unlocks), so the 100% tool doesn't
-  cover mod modes yet (Build 8 item 4, not yet approved).
+  the per-mod `.bnk` (`bget(i,4)` weapon unlocks). **Session 10 found why
+  Quartz's unlocks never stuck:** its mode file calls `save()`, but never
+  `savbnk()`, so the bank only lived in RAM (no `the_magnificient_quartz_army.bnk`
+  exists, and the log shows `Could not open file` for it at every boot).
+  **Fixed in Build 9** in the mode itself (details below and in
+  `dist-overlay/README.md`).
+- **Red text = error codes** (owner rule, session 10). This run's red lines
+  map to: **T1** ×3 (Collection, Grenade Predictor, Card Lab couldn't see
+  Glac Terminal), **T3** (Retry below Terminal), **A3** (Art of War below
+  Terminal), **L1** ×21 (the asset-order bug above). All of them came from
+  the alphabetical order and the asset-order bug, both fixed in Build 8.
+  Code table: `notes/red-warnings.md`; `parse_log.py --print` §1b now lists
+  them per mod.
 
 ### Owner asks collected in run 6 (`critique.txt`)
 
 1. Mod menu: the ON/OFF text should change live on click; Back fails after
    toggling a mod on and off; the legend turns red on hover → move it to the
-   middle of the far-left side as small line-broken chunks. *(item 5, open)*
+   middle of the far-left side as small line-broken chunks. *(item 5,
+   **done in Build 9**: live text via `e.name=e.id` re-sync, Back restored
+   when the list matches the opening state, legend at x=4 vertically centred
+   with E1–E4 + AUTO-FIX; mock: `notes/img/build9-modmenu-mock.png`)*
 2. disgraced_justice needs Collection + Terminal; 5 red warnings with all
    mods ON; order mods correctly by default. *(item 3, **done**)*
 3. Throne-like modes have incomplete gun lists → use the throne list;
-   quartz/fairy ignore the unlocked guns. *(item 4, open)*
+   quartz/fairy ignore the unlocked guns. *(item 4, **done in Build 9**: the
+   9-gun Throne list in Quartz Throne / Fairy Endless / Nightmare / Card
+   Lab; Quartz + Fairy unlock all guns in-game and now save their bank)*
 4. Panel: CLIP+ moved the king and the panel was gone for good; wants
    smaller buttons or a card-choice-style overlay. *(item 1, **done**)*
 5. Game files provided → read the internals and take assets. *(**done**:
@@ -167,16 +183,33 @@ decoded game source (`notes/game-internals.md`).
 
 ## Current follow-up status (2026-10-06, session 10)
 
-**Build 8 is in `modded/sk-rework/`**: an overlay dev panel (an `SK DEV` tab
-bottom-left, a modal box over the board, clicks consumed in a `gamepad_ctrl`
-hook before any board button sees them, re-created on every new run, hidden
-during card choices/pause/game over). Also in this build: the seven patched
-workshop mods and the dependency-ordered `modlist.lua`. Sandbox: smoke test
-**59/59** with the real mod-sandbox write rules modelled, under both `all()`
-semantics on default Lua and LuaJIT 2.1; parser 44/44; save codec 2/2.
+**Build 9 is in `modded/sk-rework/`.** It has two parts:
 
-Next step: rebuild with `build-dist.ps1` and run the INSTALL Step-5 list
-(from Step 4 on). What the log must show: `READY build=8`,
-`SKUI|panel|entity=created`, `SKUI|panel|open=true|via=tab`, a
-`SKUI|panel|click=CLIP+` with the king staying put, and no `didn't match any
-files` / `must be loaded above` lines with all mods ON.
+- **Build 8's overlay dev panel:** an `SK DEV` tab at the bottom left, and a
+  modal box over the board. Clicks are consumed in a `gamepad_ctrl` hook
+  before any board button sees them. The panel is re-created on every new
+  run and hidden during card choices, pause and game over.
+- **The reworked mod menu:** live ON/OFF text, Back restored after undoing a
+  change, the far-left legend with E1–E4 load-order codes, and AUTO-FIX.
+
+The overlay also has the seven asset-order-patched workshop mods, the
+dependency-ordered `modlist.lua`, and the 9-gun Throne list in the four
+Throne-like modes, with Quartz's bank now saved.
+
+Sandbox results:
+- smoke test **64/64**, with the real mod-sandbox write rules and the
+  engine's own mod-menu code modelled, under both `all()` semantics on
+  default Lua and LuaJIT 2.1;
+- `mode_guns_check` 29/29;
+- parser 49/49;
+- save codec 2/2.
+
+Next step: rebuild with `build-dist.ps1` (Step 4), then run the INSTALL
+Step 5 test list (A1–A6 mod menu, B1–B4 modes, C1–C8 panel). The log must
+show:
+- `READY build=9`;
+- `SKUI|modcheck|boot|issues=0` with the dependency order;
+- `SKUI|modmenu|…|back=back` after an on→off toggle;
+- `Quartz Throne guns=9`;
+- a `SKUI|panel|click=CLIP+` with the king staying put;
+- no ` !! ` mod red text with all mods ON.

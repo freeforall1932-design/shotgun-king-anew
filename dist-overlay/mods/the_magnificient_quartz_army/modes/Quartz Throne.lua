@@ -21,16 +21,17 @@ setup={
 }
 
 
-weapons={
-
+weapons={ -- SK-REWORK (Build 8 item 4): full base-game Throne list (9 guns,
+	-- game code/modes/throne.lua); firerange made absolute (throne base=3).
 	{ gid=0, name="Solomon",			chamber_max=2, firepower=4, firerange=3, spread=55, ammo_max=6, },
 	{ gid=1, name="Victoria", 		chamber_max=1, firepower=5, firerange=4, spread=45, ammo_max=3, },
 	{ gid=2, name="Ramesses II",	chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=5, knockback=50, },
-	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=25 },
-	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2 },
-	{ gid=4, name="Alexander",		chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=8, search=1 },
-	{ gid=4, name="Yvan IV",			chamber_max=1, firepower=4, firerange=2, spread=50, ammo_max=6, all_freereload=1 },
-	
+	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=40 },
+	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2, butcher=1 },
+	{ gid=5, name="Alexander",		chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=8, search=1 },
+	{ gid=6, name="Yvan IV",			chamber_max=1, firepower=4, firerange=2, spread=50, ammo_max=6, all_freereload=1 },
+	{ gid=7, name="Attila",				chamber_max=1, firepower=4, firerange=3, spread=65, ammo_max=5,	grenades_max=1, special="grenade", reload_grenade=1, grenade_dmg=-1 },
+	{ gid=8, name="Montezuma",		chamber_max=3, firepower=3, firerange=3, spread=65, ammo_max=6,	sheath=1 },
 }
 
 
@@ -66,9 +67,31 @@ base={
 intro=true
 
 
+-- SK-REWORK (Build 8 item 4): this mode used to keep its gun unlocks only in
+-- RAM (it never called savbnk), so every boot started from zero. Flush the
+-- mod bank after every save, and - owner's 100% intent - unlock all guns.
+-- Set SK_ALL_GUNS = false to earn them again (state is kept in the bank).
+local SK_ALL_GUNS = true
+local function sk_savbnk()
+	if type(savbnk) == "function" then savbnk() end
+end
+local function sk_unlock_all_guns(tag)
+	if not SK_ALL_GUNS then return end
+	local changed = 0
+	for i = 2, #weapons do
+		if bget(i, 4) ~= 1 then bset(i, 4, 1) changed = changed + 1 end
+	end
+	if changed > 0 then sk_savbnk() end
+	log("SK-REWORK: " .. tag .. " guns=" .. #weapons .. " newly_unlocked=" .. changed)
+end
+
 function initialize()
 
-	newsrf("weapons", "tmqa_weapons.png")
+	-- SK-REWORK (Build 8 item 4): tmqa_weapons.png is an old copy of the base
+	-- sheet with only 5 guns; the engine loads the full 9-gun 'weapons' sheet
+	-- at boot (code.lua:62), and overriding it also broke later modes.
+	-- newsrf("weapons", "tmqa_weapons.png")
+	sk_unlock_all_guns("Quartz Throne")
 	mode.ranks_index=mid(0,bget(0,4),#ranks-1)
 	mode.weapons_index=mid(0,bget(1,4),#weapons-1)
 	
@@ -221,6 +244,7 @@ function outro()
 
 	--
 	save()
+	sk_savbnk() -- SK-REWORK
 
 
 	-- COLLECTION
@@ -249,6 +273,7 @@ function on_hero_death()
 	bank("save")
 	if mode.lvl>bget(rank,1) then bset(rank,1,mode.lvl) end
 	save()
+	sk_savbnk() -- SK-REWORK
 	gameover()
 	
 end
@@ -317,6 +342,7 @@ function check_unlocks()
 		if bget(x,4)==0 then
 			bset(x,4,1)
 			save()
+			sk_savbnk() -- SK-REWORK
 			fx_unlock(weapons[x].name,{icon={x=21,y=282,w=12,h=6}})
 		end
 	end
@@ -326,6 +352,7 @@ function check_unlocks()
 	if stack.blade and stack.blade>=4 then unlock(5) end
 	if (inter.searched or 0) >= 4 then unlock(6) end
 	if stack.firerange==0 then unlock(7) end
+	if (stack.sheath or 0)>=2 then unlock(9) end -- SK-REWORK: base Montezuma rule
 
 end
 
@@ -335,6 +362,7 @@ function save_preferences()
 	bset(0,4,mode.ranks_index)
 	bset(1,4,mode.weapons_index)
 	save()
+	sk_savbnk() -- SK-REWORK
 
 end
 

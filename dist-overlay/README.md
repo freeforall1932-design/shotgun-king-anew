@@ -52,6 +52,31 @@ applied. Nightmare and Quartz Throne still swap `weapons` while their mode
 runs, which is the same thing the base Throne mode does
 (`newsrf("weapons", …)` on initialize).
 
+## Local patches (Build 9, session 10): Throne-like gun lists and unlocks
+
+Four modes copied an old, partial Throne gun list. They now all carry the
+base game's **9-gun list** (`game/decoded/code/modes/throne.lua`: Solomon …
+Montezuma) with absolute `firerange` values. `tools/mode_guns_check.py`
+checks this.
+
+| Mode file | Change |
+|---|---|
+| `the_magnificient_quartz_army/modes/Quartz Throne.lua` | 9-gun list (was 7 rows with three `gid=4` duplicates). `newsrf("weapons","tmqa_weapons.png")` commented out; that sheet is an old 5-gun copy, and the engine's boot-loaded 9-gun `weapons` sheet is used instead. **Save bug fixed:** the mode never called `savbnk()`, so its unlocks lived only in RAM and were lost on every boot. `sk_savbnk()` now follows every `save()`. All guns are unlocked on `initialize` (`SK_ALL_GUNS = true`), and the Montezuma rule `unlock(9)` was added. |
+| `some_fairy_pieces/modes/Fairy Endless.lua` | 9-gun list. All guns are unlocked after the bank is created (`SK_ALL_GUNS`). Base unlock rules for guns 6, 7 and 9 were added. `save_preferences` flushes with `sk_savbnk()`. |
+| `nightmare/modes/nightmare.lua` | 9-gun list. Its `newsrf("weapons","weapons.png")` (an old 7-gun sheet) is commented out. |
+| `royal card lab/modes/card lab.lua` | 9-gun list only (the mode has no unlock gate). |
+
+**Why the 100% tool doesn't write these unlocks:**
+- Mods can't read the base Throne unlocks: `DEN` is forbidden, and `bget`
+  only reads the mod's own bank.
+- An offline write to `save/mods/<id>.bnk` would be lost again on Quartz's
+  next boot, because Quartz never saved its bank.
+
+The unlock therefore happens in-game, inside each mode. That fixes
+persistence too, and it works on a fresh install with no tool run. Set
+`SK_ALL_GUNS = false` in the mode file to earn guns normally; earned state is
+now saved.
+
 ## Load order (written by `tools/build-dist.ps1` into `mods/modlist.lua`)
 
 The game loads mods top to bottom. Glac Terminal gathers hook functions only

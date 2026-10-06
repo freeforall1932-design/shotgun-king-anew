@@ -27,8 +27,8 @@ game's own mod system).
 | Working branch | `arena/6424942a-shotgun-king-anew` (session 10, session-fixed; branched from `main` @ `aedfc71`, fast-forwarded to the owner's zip upload `a9e5dd2`). Session 9 = PR #8 (`2975dba`); earlier sessions = PRs #1–#7 |
 | **Owner's game copy (unpacked)** | **`game/`** in this branch — exe, dlls, `data.sgr`, `lang/`, `mods/` (workshop originals), `save/`, `log.txt`, `settings.txt`. **Read §2b before touching it** |
 | **Decoded game source** | **`game/decoded/`**: `code.lua` (main, ~15.4k lines), `code/*.lua` (menu, mods sandbox, gamepad, save, codex…), `code/modes/*.lua`, `libs/*.lua`, `lang/`, `assets/gfx/*.png`, shaders. Produced by `tools/sgr_extract.py`; the engine facts are summarised in **`notes/game-internals.md`** |
-| Our mod | `modded/sk-rework/` (**Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids) |
-| Log parser + smoke test | `tools/parse_log.py` (**44/44**: `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mod_smoketest.py` (**59/59** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, and re-raises the fatal unknown-id `btn()` error) |
+| Our mod | `modded/sk-rework/` (**Build 9** = Build 8 panel + the reworked mod menu: live ON/OFF text, Back restored after undoing a change, far-left legend with E1–E4 load-order codes + AUTO-FIX (§5 of script.lua, `notes/red-warnings.md`). **Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids — replaced in Build 9) |
+| Log parser + smoke test | `tools/parse_log.py` (**49/49**: red mod text → error codes §1b, `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mode_guns_check.py` (**29/29**, Throne-like mode gun lists), `tools/mod_smoketest.py` (**64/64** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, re-raises the fatal unknown-id `btn()` error, and runs a verbatim port of the engine's mod-menu `open_menu`/`act_menu`/`close_menu`) |
 | Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–6; raw packs `run 5 i believe or latest run/` and **`run 6 wow/`** (critique, powershell output, log, modlist, save, 4 crash logs) |
 | Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
@@ -219,35 +219,59 @@ load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
    under LuaJIT 2.1. `build-dist.ps1` couldn't be executed (no `pwsh`); its
    ordering logic was checked against the folder list in Python.
 
-**Next: owner live run of Build 8** (INSTALL Step 4 onwards). Rebuild with
-`build-dist.ps1`, then in a run:
-- click the bottom-left `SK DEV` tab, then `CLIP+` (the king must not move);
-- click `+3 AMMO`, `RELOAD` and `CARD NOW`;
-- `CARDS >`: take one card, try `FILT`;
-- `SPAWN >`: pick a knight;
-- `GOD:on`, then take a lethal hit;
-- `DMG:on` + `DMG+`/`CRIT+`, then fire a few shots;
-- `SAFE`, then `CLOSE` (the turn continues);
-- level up once (the tab hides, then returns); start a new run (the tab is
-  back);
-- in the mod menu, turn all mods ON once (no red load-order warnings).
+6. **Build 9: owner's Build 8 items 4–6** (approved in session 10):
+   - **Item 4, Throne-like gun lists:** Quartz Throne, Fairy Endless,
+     Nightmare and Card Lab carry the base 9-gun Throne list.
+     - **Quartz never called `savbnk()`**, so its unlocks lived only in RAM.
+       It now flushes after every `save()`.
+     - Quartz and Fairy unlock all guns in-game (`SK_ALL_GUNS`).
+     - Stale `weapons` sheet overrides are commented out.
+     - **Decision:** the 100% tool does **not** write mod banks. Mods can't
+       read the base unlocks (`DEN` is forbidden; `bget` is per-mod), and
+       an offline write would have been lost on Quartz's next boot anyway.
+       The in-mode unlock is more robust. Checked by
+       `tools/mode_guns_check.py` (29 checks). Details:
+       `dist-overlay/README.md`.
+   - **Item 5, mod menu** (`script.lua` §5): appends to `open_menu` /
+     `act_menu` / `gamepad_ctrl`, and never adds entities to `menu`.
+     - Row text is re-synced live (`e.name = e.id`).
+     - Back and Reset are restored when the list matches the state at
+       opening.
+     - The legend is one plain dp-4 entity at x=4, vertically centred, with
+       pico-font short lines and no hover.
+     - `modcheck` gives E1–E4 at boot and in the menu; AUTO-FIX
+       stable-sorts to the canonical order and enables needed mods.
+     - The owner rule "red text = error code" is implemented in
+       `notes/red-warnings.md` (T/A/D/C/S/L/B) and `parse_log.py` §1b.
+     - Mock render: `notes/img/build9-modmenu-mock.png`.
+   - **Item 6:** INSTALL Step 5 is rewritten as the Build 9 test list
+     (A mod menu, B modes, C panel), listing only the tests.
+   - Verified: smoke **64/64** ×4 (with a verbatim port of the engine's
+     `open_menu`/`act_menu`/`close_menu`; mutation-checked: 3 injected bugs
+     each caught), `mode_guns_check` 29/29, parser 49/49, codec 2/2, and
+     all mod Lua compiles under LuaJIT 2.1.
+
+**Next: owner live run of Build 9.** Rebuild with `build-dist.ps1`
+(INSTALL Step 4), then do INSTALL Step 5:
+- A1–A6: mod-menu legend, live toggle, Back after on→off, the AUTO-FIX
+  flow, no red text with all mods ON;
+- B1–B4: 9 guns in Quartz, Fairy, Nightmare and Card Lab; Quartz and Fairy
+  unlocks survive a relaunch;
+- C1–C8: the Build 8 panel, never run live (CLIP+ must not move the king).
 
 Collect with `apply.ps1 -GetInsights`.
+Any red text from an ON mod is an error: read `parse_log.py --print` §1b.
 
-**Approved items still open:** none. **Awaiting approval:**
-- (4) the 100% tool writes per-mod `.bnk` gun unlocks, and the mods' gun
-  lists are completed;
-- (5) mod-menu polish: legend chunks on the far-left, live ON/OFF text,
-  Back after on→off;
-- (6) a test-checklist rewrite.
+**Approved items still open:** none. **Owner asks still open:** the
+features in `live testing result/SUMMARY.md` "Still open".
 
 ## 6. Owner (human) intervention points
 
 - ~~Harvest + verification runs 1–3~~ **DONE and consolidated**
 - ~~Build 6 playtest~~ **done (run 5)**
 - ~~Build 7 playtest~~ **done (run 6)**
-- Rebuild with Build 8 and playtest it from INSTALL Step 4 (list in §5 /
-  `WORKLIST.md` owner to-do).
+- Rebuild with Build 9 and playtest it: INSTALL Step 4 (rebuild), then the
+  Step 5 test list (A1–A6, B1–B4, C1–C8).
 - Delete `game/` from the branch yourself once testing no longer needs it
   (agents never do that unprompted, §2b).
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the

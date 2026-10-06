@@ -1,3 +1,54 @@
+## 2026-10-06 — session 10 (cont.): Build 9 = owner's Build 8 items 4–6
+
+- **Item 4, Throne-like gun lists** (`dist-overlay/mods/`): Quartz Throne,
+  Fairy Endless, Nightmare and Card Lab now carry the base 9-gun Throne list
+  (absolute `firerange`).
+  - **Quartz:** never called `savbnk()`, so its unlocks were RAM-only and
+    lost at every boot. It now flushes after every `save()`, unlocks all
+    guns on `initialize` (`SK_ALL_GUNS`), adds the Montezuma `unlock(9)`
+    rule, and drops its stale 5-gun `weapons` override.
+  - **Fairy:** unlocks all guns, adds the rules for guns 6/7/9, and flushes
+    with `save_preferences`.
+  - **Nightmare:** its stale 7-gun `weapons` override is commented out.
+  - **Decision:** the 100% tool does not write mod banks; the in-mode unlock
+    is more robust (README "Local patches (Build 9…)").
+  - New **`tools/mode_guns_check.py`** (29 checks; 12 fail against the old
+    files).
+- **Item 5, mod menu**, `modded/sk-rework/script.lua` **BUILD=9**, new §5:
+  - appends to `open_menu` / `act_menu` / `gamepad_ctrl`, and never adds
+    entities to the engine `menu` table;
+  - `mm_sync` re-syncs the frozen row names (`e.name = e.id`) so ON/OFF
+    flips live;
+  - restores Back (`back`) and locks Reset when the list matches the state
+    at opening (the engine set `reboot` permanently);
+  - the legend is one plain dp-4 entity at x=4, vertically centred, in short
+    pico-font lines, with no hover state;
+  - `modcheck` gives E1–E4 (Terminal off or not last; Collection off or
+    below Art of War) at boot and live;
+  - **AUTO-FIX** stable-sorts to the canonical order and enables the needed
+    mods;
+  - the old `native_button` / `destroy_group` / global `add` probe were
+    removed;
+  - mock render: `notes/img/build9-modmenu-mock.png`.
+- **Red text = error codes** (owner rule): new **`notes/red-warnings.md`**
+  (T1–T3, A1–A3, D1, C1–C2, S1, L1, B1 + E1–E4 + dependency rules).
+  `tools/parse_log.py` adds section **1b**: every ` !! ` mod red line,
+  classified, attributed to the loading mod (L1 to the folder in its path),
+  with engine noise ignored. It also collects `SKUI|modmenu` /
+  `SKUI|modcheck`. Selftest **49/49**; mutation-checked.
+- `tools/mod_smoketest.py`:
+  - `FAKE_MODMENU_LUA`, a verbatim port of the engine's
+    `open_menu` / `act_menu` / `close_menu` mod-list branches;
+  - 8 item-5 checks (live toggle text, Back after on→off, reorder and
+    restore, legend position and removal, AUTO-FIX result, boot modcheck);
+  - the build number is read from `script.lua`.
+  - **64/64 ×4.** Mutation-checked: no name re-sync, Back never restored, and
+    Terminal mis-ranked are each caught.
+- **Item 6:** INSTALL Step 5 is rewritten as the Build 9 test list (A1–A6,
+  B1–B4, C1–C8, tests only). The success checklist, HANDOFF §5/§6, WORKLIST,
+  README, SUMMARY, `notes/mods.md` pitfalls 8–9 and `tools/mod-dev.md` are
+  updated.
+
 ## 2026-10-06 — session 10: run 6 absorbed, game decoded, Build 8 items 1–3
 
 - **`game/`** (commit d4cb2f5): the owner's game copy, extracted from the

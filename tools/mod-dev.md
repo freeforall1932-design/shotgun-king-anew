@@ -112,6 +112,7 @@ Parsing a log into a draft map:
 python tools/parse_log.py uploads/game-insights/log.txt   # -> notes/game-map-draft.md
 python tools/parse_log.py <log> --print                   # markdown to stdout
 python tools/parse_log.py --selftest                      # parser checks
+# red mod text in a log -> error codes: --print, section 1b (notes/red-warnings.md)
 ```
 
 Sandbox-testing the mod **without the game** (fake SUGAR environment):
@@ -120,6 +121,7 @@ Sandbox-testing the mod **without the game** (fake SUGAR environment):
 pip install lupa           # dev-only
 python tools/mod_smoketest.py      # loads script.lua, fires hooks, checks output
 python tools/mod_smoketest.py --dump
+python tools/mode_guns_check.py    # Throne-like mode files: 9-gun list, unlocks, savbnk
 ```
 
 The smoke test runs the mod under **both** possible `all()` semantics and,

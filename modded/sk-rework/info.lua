@@ -3,8 +3,8 @@ name="sk-rework" -- must match this mod's folder name
 title="SK Rework"
 by="freeforall1932"
 description=[[
-SK Rework — Build 8 (run-6 absorbed; first build written against the
-decoded game source). The dev panel is now an overlay that owns no engine
+SK Rework — Build 9 (Build 8's overlay panel + a reworked mod menu; written
+against the decoded game source). The dev panel is now an overlay that owns no engine
 buttons, so a click on it can never move the king or end your turn.
 
 DEV PANEL: click the small "SK DEV" tab in the bottom-left corner. A box
@@ -21,9 +21,11 @@ pause menu and game over, and comes back on every new run.
 Damage/crit values and the toggles persist in this mod's own bank save
 (save/mods/sk-rework.bnk, format 128:64:4 hex; magic cell 505).
 
-MOD MENU: adds a Back button and the WHITE=ON / BLACK=OFF legend on the
-mod-list screen, using the real menu button ids harvested live in run 5
-(mods / save_back / " ON " / "OFF ").
+MOD MENU: clicking a mod name flips its ON/OFF text at once; undoing a
+change turns "Save and Reboot" back into "Back"; a small legend sits on the
+far left (WHITE = ON / DARK = OFF) with a live load-order check. Red E1-E4
+lines name missing or misplaced dependencies (Glac Terminal last, Glacies'
+Collection above Art of War / Disgraced Justice), and AUTO-FIX repairs them.
 
 DIAGNOSTICS: full card fields and EXCLUDE pairs (SKCF|), offer flow (SKOF|),
 souls/scepters/pieces (SKS|), damage/bullet/damage-roll route (SKD|),

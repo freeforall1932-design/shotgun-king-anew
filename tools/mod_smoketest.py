@@ -16,12 +16,15 @@ Usage:
 """
 import math
 import os
+import re
 import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 MOD = os.path.join(REPO, "modded", "sk-rework", "script.lua")
+# the build number the mod declares (`local BUILD = N`); log checks follow it
+BUILD_NO = int(re.search(r"^local BUILD = (\d+)", open(MOD, encoding="utf-8").read(), re.M).group(1))
 
 FAKE_ENGINE_LINES = ["SUGAR v0.0.8f (LuaJIT 2.1) boot", "loaded lang/english.txt"]
 
@@ -69,6 +72,106 @@ ENGINE_REPLACEABLE = [
     "mx", "my", "mcl", "mlb", "mcr", "mMenu", "VISION",
 ]
 
+# Faithful copy of the engine's mod-list screen (game code/menu.lua:
+# open_menu "mods" branch layout, act_menu's inmods branch verbatim,
+# close_menu). Wrapped the way the real append() wraps a global: the
+# original runs, then every appended hook with the same arguments - and
+# internal recursive calls go through the wrapped global too.
+FAKE_MODMENU_LUA = r"""
+inmods = nil
+__fake = {closes = 0, play_opened = 0, reboots = 0}
+local function get_lang(s) return s end   -- code/lang.lua: unknown id -> id
+local function mkb(id, lock)
+  local e = {id = id, name = get_lang(id), lock = lock, dp = 6}
+  menu[#menu + 1] = e
+  return e
+end
+local function core_open(a, kind)
+  menu = {}
+  menu[1] = {eraser = true}
+  if kind == "mods" then
+    inmods = true
+    for i, mod in ipairs(MODLIST) do
+      local name = (mod.empty and "EMP | " or (mod.active and " ON | " or "OFF | ")) .. i .. ". " .. mod.title
+      mkb("\195\169", i == 1)
+      mkb("\195\168", i == #MODLIST)
+      local m = mkb(name)
+      m.labelc = mod.active and 4 or 2
+    end
+    local res = mkb("reset", true); res.name = "Reset"
+    local bck = mkb("back"); bck.name = "Back"
+  end
+end
+open_menu = function(a, kind) core_open(a, kind); __sk_fire("open_menu", a, kind) end
+close_menu = function(f)
+  if not menu then return end
+  for _, e in ipairs(menu) do e.dead = true end
+  menu = nil
+  inmods = nil
+  __fake.closes = __fake.closes + 1
+  if f then f() end            -- the engine waits 16 frames first
+end
+local function core_act(id)
+  if not menu then return end
+  if inmods then
+    if id == "back" then
+      inmods = nil
+      return act_menu("play")
+    elseif id == "reset" then
+      local list = {}
+      for i, mod in ipairs(MODLIST) do
+        mod.active = mod.loaded
+        list[mod.num] = mod
+      end
+      MODLIST = list
+      inmods = nil
+      act_menu("mods")
+      return
+    elseif id == "reboot" then
+      __fake.reboots = __fake.reboots + 1
+      return
+    end
+    for i, b in ipairs(menu) do
+      if b.over then
+        local i = i - 1
+        local mid = math.ceil(i / 3)
+        local mac = i % 3
+        if mac == 0 then
+          local mod = MODLIST[mid]
+          if mod.empty then return end
+          mod.active = not mod.active
+          b.id = (mod.active and " ON | " or "OFF | ") .. mid .. ". " .. mod.title
+          b.labelc = mod.active and 4 or 2
+        elseif mac == 1 then
+          MODLIST[mid], MODLIST[mid - 1] = MODLIST[mid - 1], MODLIST[mid]
+          menu[1 + mid * 3], menu[1 + mid * 3 - 3] = menu[1 + mid * 3 - 3], menu[1 + mid * 3]
+          menu[1 + mid * 3].id = (MODLIST[mid].active and " ON | " or "OFF | ") .. mid .. ". " .. MODLIST[mid].title
+          menu[1 + mid * 3 - 3].id = (MODLIST[mid - 1].active and " ON | " or "OFF | ") .. (mid - 1) .. ". " .. MODLIST[mid - 1].title
+        elseif mac == 2 then
+          MODLIST[mid], MODLIST[mid + 1] = MODLIST[mid + 1], MODLIST[mid]
+          menu[1 + mid * 3], menu[1 + mid * 3 + 3] = menu[1 + mid * 3 + 3], menu[1 + mid * 3]
+          menu[1 + mid * 3].id = (MODLIST[mid].active and " ON | " or "OFF | ") .. mid .. ". " .. MODLIST[mid].title
+          menu[1 + mid * 3 + 3].id = (MODLIST[mid + 1].active and " ON | " or "OFF | ") .. (mid + 1) .. ". " .. MODLIST[mid + 1].title
+        end
+        menu[#MODLIST * 3 + 2].lock = nil
+        menu[#MODLIST * 3 + 3].id = "reboot"
+        menu[#MODLIST * 3 + 3].name = "Save and Reboot"
+        return
+      end
+    end
+    return
+  end
+  if id == "play" then
+    close_menu(function() __fake.play_opened = __fake.play_opened + 1; menu = {{eraser = true}} end)
+  elseif id == "mods" then
+    close_menu(function() open_menu(nil, "mods") end)
+  end
+end
+act_menu = function(id) local r = core_act(id); __sk_fire("act_menu", id); return r end
+-- what mk_menu_but's draw shows: e.name = lang[e.id] or e.name or e.id
+function __fake_text(e) return e.name or e.id end
+"""
+
 SANDBOX_LUA = """
 function __sk_sandbox_load(src, replaceable)
     local env = _G
@@ -115,6 +218,8 @@ def build_env(L, all_mode="value"):
     violations = []
     bind("__sk_violation", lambda k: violations.append(str(k)))
     L.execute(SANDBOX_LUA)
+    g["__sk_fire"] = lambda name, *a: [fn(*a) for fn in hooks.get(name, [])]
+    L.execute(FAKE_MODMENU_LUA)
     L.execute(ALL_VALUE if all_mode == "value" else ALL_PAIR)
 
     g.MODLIST = to_lua(L, [
@@ -515,15 +620,8 @@ def run_scenario(L, env, mode, dump=False):
             return False
         fire(name, *args)
 
-    # Simulate mod-menu native buttons and validate the Back action.
-    pre_menu = prepends.get("init_menu")
-    if pre_menu: pre_menu()
-    # An unrelated id must NOT attach widgets (W7 regression: the Build-6
-    # MODLIST-title compare matched nothing at all in run 5).
+    # Menu-button id probe (read-only) still logs the real ids.
     g.mk_menu_but("SK Rework", 0, 0, 80, 12)
-    # A real run-5 mod-list id must attach them.
-    g.mk_menu_but("mods", 0, 0, 80, 12)
-    back = call_button(env, "< BACK")
 
     # ---- Build 8 panel: drive it the way the engine does -------------------
     # Every interaction goes through the fake gamepad_ctrl (mouse read ->
@@ -691,15 +789,125 @@ def run_scenario(L, env, mode, dump=False):
     new_run_ok = len(panel_ents()) == 1 and panel_ents()[0] != old_ent and "SK DEV" in draw()
     total_board_clicks_on_panel = clicks_after_clip
 
-    # Simulate an actual menu button ID from MODLIST; the hook adds Back + legend.
-    g.mk_menu_but("2. SK Rework", 0, 0, 80, 12)
+
+    def has(fragment):
+        return any(fragment in line for line in captured)
+
+    # ---- Build 8 item 5: the mod-list screen (run-6 complaints) ------------
+    g.ingame = False
+    saved_modlist = g.MODLIST
+    titles = ["SK Rework", "Disgraced Justice", "Glacies Module Terminal",
+              "Glacies' Collection", "The Magnificent Quartz Army",
+              "Military Tactics -The Art of War-"]
+    active0 = [True, True, False, False, False, True]
+    g.MODLIST = to_lua(L, [
+        {"title": t, "name": t.lower(), "num": i + 1, "active": a, "loaded": (True if a else None)}
+        for i, (t, a) in enumerate(zip(titles, active0))])
+    nmods = len(titles)
+
+    def mm_ents():
+        n = len(g.ents)
+        return [g.ents[i] for i in range(1, n + 1)
+                if g.ents[i] is not None and g.ents[i].sk_modmenu and not g.ents[i].dead]
+
+    def legend_texts():
+        del draw_log[:]
+        for e in mm_ents():
+            e.dr(e, e.x, e.y)
+        return [d for d in draw_log if d[0] == "t"]
+
+    def row(k):          # the visible row entry of mod position k
+        return g.menu[3 * k + 1]
+
+    def back_btn():
+        return g.menu[nmods * 3 + 3]
+
+    def press(entry):    # what a click does: entry.over, then act_menu(id)
+        entry.over = True
+        g.act_menu(entry.id)
+        if g.menu is not None:
+            for i in range(1, len(g.menu) + 1):
+                if g.menu[i] is not None: g.menu[i].over = None
+
+    g.open_menu(None, "mods")
+    frame(200, 100)
+    legend_created = len(mm_ents()) == 1 and not mm_ents()[0].button
+    texts = legend_texts()
+    tstr = [t[1] for t in texts]
+    legend_layout = ("WHITE = ON" in tstr and "DARK = OFF" in tstr and "CLICK A NAME" in tstr
+                     and all(t[2] < 104 for t in texts) and all(t[4] == "pico" for t in texts)
+                     and all(" " not in t[1] or len(t[1]) <= 23 for t in texts)
+                     and g.font() != "pico")
+    # far-left, vertically centred around MCH/2
+    ys = [t[3] for t in texts]
+    legend_centred = bool(ys) and abs((min(ys) + max(ys)) / 2 - 90) <= 12
+    predicted = "E1 TERMINAL IS OFF" in tstr and "E3 COLLECTION IS OFF" in tstr and "AUTO-FIX" in tstr
+
+    # (1) click a mod name -> its ON/OFF TEXT follows (run 6: only the colour did)
+    quartz_row = row(5)
+    press(quartz_row)
+    toggled_text_on = g.__fake_text(row(5)).startswith(" ON | 5. The Magnificent")
+    back_after_on = back_btn().id == "reboot"
+    # (2) back to the boot state -> Back is Back again (run 6: stuck on reboot)
+    press(row(5))
+    toggled_text_off = g.__fake_text(row(5)).startswith("OFF | 5. The Magnificent")
+    back_restored = (back_btn().id == "back" and g.__fake_text(back_btn()) == "Back"
+                     and g.menu[nmods * 3 + 2].lock is True)
+    press(back_btn())
+    frame(200, 100)
+    back_returns = (g.__fake.play_opened == 1 and g.__fake.reboots == 0
+                    and len(mm_ents()) == 0)
+
+    # (3) reorder arrows: names follow positions; undo restores Back
+    g.open_menu(None, "mods")
+    press(g.menu[3])                       # down arrow of mod 1
+    moved_names = (g.__fake_text(row(1)).startswith(" ON | 1. Disgraced Justice")
+                   and g.__fake_text(row(2)).startswith(" ON | 2. SK Rework")
+                   and back_btn().id == "reboot")
+    press(g.menu[5])                       # up arrow of mod 2
+    move_undone = (g.__fake_text(row(1)).startswith(" ON | 1. SK Rework")
+                   and back_btn().id == "back")
+
+    # (4) AUTO-FIX through the gamepad_ctrl hook (no engine button involved)
+    closes_before = g.__fake.closes
+    ok_click = click("AUTO-FIX")
+    order = [g.MODLIST[i].title for i in range(1, nmods + 1)]
+    autofix_order = order == ["SK Rework", "Glacies' Collection", "Military Tactics -The Art of War-",
+                              "Disgraced Justice", "The Magnificent Quartz Army",
+                              "Glacies Module Terminal"]
+    autofix_enabled = (g.MODLIST[2].active is True and g.MODLIST[6].active is True
+                       and g.MODLIST[5].active is False)
+    frame(200, 100)
+    tstr2 = [t[1] for t in legend_texts()]
+    autofix_ok = (ok_click and autofix_order and autofix_enabled
+                  and g.__fake.closes == closes_before + 1 and len(mm_ents()) == 1
+                  and back_btn().id == "reboot" and "DEPENDENCIES OK" in tstr2
+                  and "AUTO-FIX" not in tstr2 and g.mcl is False)
+    # (5) engine Reset restores the boot list and Back
+    press(g.menu[nmods * 3 + 2])
+    reset_ok = ([g.MODLIST[i].title for i in range(1, nmods + 1)] == titles
+                and g.MODLIST[3].active is None and back_btn().id == "back")
+    # (6) order-only problems: Terminal ON but above Art of War, Collection below it
+    g.MODLIST = to_lua(L, [
+        {"title": "Glacies Module Terminal", "num": 1, "active": True, "loaded": True},
+        {"title": "Military Tactics -The Art of War-", "num": 2, "active": True, "loaded": True},
+        {"title": "Glacies' Collection", "num": 3, "active": True, "loaded": True}])
+    nmods = 3
+    act_menu_close = g.close_menu(None)
+    g.open_menu(None, "mods")
+    order_codes = has("SKUI|modmenu|sync=open|back=back|issues=2|codes=E2,E4")
+    g.close_menu(None)
+    frame(200, 100)
+    g.MODLIST = saved_modlist
+    g.menu = None
+    g.ingame = True
     text = "\n".join(FAKE_ENGINE_LINES + captured) + "\n"
 
     def has(fragment):
         return any(fragment in line for line in captured)
 
     # Ensure the promised marker precedes every static §0.7 dump.
-    ready_idx = next((i for i, line in enumerate(captured) if "READY build=8" in line), -1)
+    ready_idx = next((i for i, line in enumerate(captured) if f"READY build={BUILD_NO}" in line), -1)
     probe_idx = next((i for i, line in enumerate(captured) if line.startswith("SKCF|")), -1)
 
     # Model self-check: the fake engine MUST reject unconfirmed buttons the
@@ -713,7 +921,7 @@ def run_scenario(L, env, mode, dump=False):
 
     checks = [
         ("fake engine models the fatal btn() contract", fatal_button_model),
-        ("build-6 load banner", has("SK-REWORK: BUILD=8 loaded (mod_index=2)")),
+        ("build-6 load banner", has(f"SK-REWORK: BUILD={BUILD_NO} loaded (mod_index=2)")),
         ("MODLIST self-check", has("SKA2|mod_found=yes|active=true")),
         ("MODLIST entry dump", has("SKM|2|title=SK Rework")),
         ("Lua function wrappers/API checks", has("SKA|append|no") and has("SKA|_log|YES")
@@ -736,8 +944,7 @@ def run_scenario(L, env, mode, dump=False):
                                                and not has("SKI|btn|left=")
                                                and not has("SKI|btn|mouse4=")
                                                and not has("SKI|btn|wheel=")),
-        ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")
-                                 and has("SKI|menu_but|n=1|id=SK Rework")),
+        ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")),
         ("mod sandbox: no refused global writes", env["violations"] == []),
         ("panel controls (Build 8)", has("SKUI|panel|entity=created|fresh_run=true")
                                   and has("SKUI|panel|open=true|via=tab")
@@ -789,17 +996,28 @@ def run_scenario(L, env, mode, dump=False):
                                                    and has("SKE|call|inc_ammo=blocked|reason=safe_mode")),
         ("engine-call intent logging", has("SKE|call|inc_ammo=start")
                                        and has("SKE|call|inc_ammo=ok|r=")),
-        ("native mod-menu Back + legend on real ids", has("SKUI|menu|widgets_added=true|entry=mods|back=true")
-                                          and back is not None),
-        ("unrelated menu id attaches nothing", not has("widgets_added=true|entry=SK Rework")),
-        ("back click returns through init_menu", has("SKUI|menu|back_clicked=true")
-                                                 and env["init_menu_calls"][0] == 1),
+        ("mod menu: legend is a plain far-left entity (no button)", legend_created
+                                    and legend_layout and legend_centred
+                                    and has("SKUI|modmenu|legend=created|dp=4")),
+        ("RUN-6 BUG: clicking a mod name updates its ON/OFF text", toggled_text_on
+                                    and toggled_text_off and back_after_on),
+        ("RUN-6 BUG: on->off again restores Back (no forced reboot)", back_restored
+                                    and back_returns and has("SKUI|modmenu|legend=removed")),
+        ("reorder arrows keep names in sync; undo restores Back", moved_names and move_undone),
+        ("dependency check predicts the red boot texts", predicted
+                                    and has("SKUI|modmenu|sync=open|back=back|issues=2|codes=E1,E3")
+                                    and has("SKUI|modcheck|boot|issues=0|codes=none")),
+        ("AUTO-FIX: dependency order + needed mods ON, menu rebuilt", autofix_ok
+                                    and has("SKUI|modmenu|autofix=true|moved=")
+                                    and has("enabled=COLLECTION,TERMINAL")),
+        ("engine Reset restores boot list and Back", reset_ok),
+        ("order-only problems flagged (Terminal not last, Collection below)", order_codes),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
         ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
                                     and has("SKA2|probe|souls=done") and has("SKA2|probe|bank=done")
                                     and has("SKA2|probe|input=done")),
-        ("probe done marker", has("SK-REWORK: PROBE done build=8")),
+        ("probe done marker", has(f"SK-REWORK: PROBE done build={BUILD_NO}")),
         ("ammo cheat changes state", ammo_after == before_ammo + 3),
     ]
     bad = [name for name, ok in checks if not ok]
@@ -808,8 +1026,8 @@ def run_scenario(L, env, mode, dump=False):
     import parse_log
     d = parse_log.parse_text(text)
     parser_checks = [
-        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 8
-                              and d["ready"] is not None and d["ready"]["build"] == 8),
+        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == BUILD_NO
+                              and d["ready"] is not None and d["ready"]["build"] == BUILD_NO),
         ("parser hooks", len(d["hooks"]) >= 15),
         ("parser world samples", len(d["world"]) >= 2),
         ("parser cards", len(d["cards"]) == 4),

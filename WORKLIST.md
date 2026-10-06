@@ -32,7 +32,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (Build 8 live validation first)
+## 🟠 Next features (Build 9 live validation first)
 
 - [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
       are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
@@ -99,15 +99,22 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       panel through a fake `gamepad_ctrl`; **59/59** ×4. Mutation-checked:
       removing the click consume, the new-run rebuild, or adding a
       non-replaceable write each fails exactly its check.
-- [ ] **Owner live-run Build 8** — INSTALL Step 5 from step 4 (list in
-      HANDOFF §5).
-- [ ] **Build 8 item 4 (awaiting approval)** — the 100% tool writes per-mod
-      `.bnk` gun unlocks; complete the throne-like modes' gun lists with
-      the 9 base guns (`game/decoded/code/modes/throne.lua`).
-- [ ] **Build 8 item 5 (awaiting approval)** — mod-menu polish: legend as
-      small chunks centred on the far-left, live ON/OFF text, Back after
-      on→off toggles.
-- [ ] **Build 8 item 6 (awaiting approval)** — rewrite the test checklist.
+- [x] **Build 8 item 4 → Build 9** — Quartz Throne / Fairy Endless /
+      Nightmare / Card Lab carry the 9 base Throne guns; Quartz + Fairy
+      unlock all guns in-game and save their bank. **Quartz never called
+      `savbnk()`, so its unlocks were lost on every boot; that's fixed.**
+      The 100% tool deliberately does NOT write mod banks (mods can't read
+      the base unlocks, and an offline write would have been lost on the
+      next Quartz boot). `tools/mode_guns_check.py` 29/29.
+- [x] **Build 8 item 5 → Build 9** — mod menu: live ON/OFF row text, Back
+      restored after undoing changes, far-left centred legend (no hover),
+      E1–E4 load-order codes + AUTO-FIX; red text = error codes
+      (`notes/red-warnings.md`, `parse_log.py` §1b). Smoke 64/64 ×4 with a
+      verbatim port of the engine's mod-menu code; mutation-checked.
+- [x] **Build 8 item 6 → Build 9** — INSTALL Step 5 rewritten as the test
+      list only (A1–A6 mod menu, B1–B4 modes, C1–C8 panel).
+- [ ] **Owner live-run Build 9** — INSTALL Step 4 (rebuild), then the Step 5
+      test list.
 - [ ] **Guessed signatures now marked + validated at runtime** — `goto_sq`
       (both plausible argument orders tried, result validated, `hero.sq`
       fallback), `get_nearest_free_square(px,py)` (only called when it exists,
@@ -283,7 +290,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
   `game/decoded/` (54 files).
 - ✅ Build 8 items 1–3 shipped and sandbox-verified (smoke 59/59 ×4, parser
   44/44, codec 2/2, all 37 mod Lua files compile under LuaJIT 2.1).
-- ⏭ Next: owner live-run Build 8; then items 4–6 once approved.
+- ✅ Items 4–6 approved and shipped as **Build 9**: Throne-like gun lists +
+  Quartz bank save, mod-menu rework (live text, Back, legend, E1–E4,
+  AUTO-FIX), red-text error codes, a new Step 5 test list. Smoke 64/64 ×4,
+  `mode_guns_check` 29/29, parser 49/49, codec 2/2.
+- ⏭ Next: owner live-run Build 9 (INSTALL Step 4, then Step 5).
 
 **2026-10-05 (session 9 — run 5 absorbed; Build 7 shipped):**
 - ✅ **Run 5 (build 6) parsed and absorbed**: 22 min in play, clean shutdown,
@@ -554,11 +565,13 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       `live testing result/SUMMARY.md`.**
 2. ~~Apply Build 5 / playtest~~ **done (run 4/5)**; Build 6 is retired.
 3. ~~Apply Build 7~~ **done (run 6)**.
-3b. **Apply Build 8 and playtest it** (INSTALL Step 4 onwards): rebuild with
-      `build-dist.ps1`; in a run click the bottom-left `SK DEV` tab, then
-      CLIP+ (king must NOT move), +3 AMMO, RELOAD, CARD NOW, CARDS > (take
-      one, FILT), SPAWN > (knight), GOD:on + a lethal hit, DMG:on + DMG+/CRIT+
-      and fire, SAFE, CLOSE (turn continues); level up once (tab hides, then
-      returns); start a new run (tab is back); turn all mods ON once (no
-      red load-order warnings). Then `apply.ps1 -GetInsights`.
+3b. **Apply Build 9 and playtest it**: rebuild with `build-dist.ps1`
+      (INSTALL Step 4), then the INSTALL Step 5 tests:
+      - A1–A6 mod menu: legend at the far left, live ON/OFF, Back after
+        on→off, AUTO-FIX, no red text with all mods ON;
+      - B1–B4: 9 guns in Quartz/Fairy/Nightmare/Card Lab, with Quartz and
+        Fairy unlocks surviving a relaunch;
+      - C1–C8: the panel.
+
+      Then run `apply.ps1 -GetInsights`.
 4. At deployment: flip private; optionally scrub history; or archive repo

@@ -1,4 +1,4 @@
--- SK-REWORK build 8 — overlay Dev panel (owns no engine buttons)
+-- SK-REWORK build 9 — overlay Dev panel + reworked mod menu
 -- =====================================================================
 -- Build 7 was run live on 2026-10-05 (run 6). Bank read-back and the menu
 -- widgets were proven, but clicking SK DEV then CLIP+ moved the king and
@@ -12,8 +12,13 @@
 --     false) before any board button updates. Smaller pico-font buttons, a
 --     modal box over the board like the card-choice screen, an "SK DEV" tab
 --     in the bottom-left corner. Details in section 4.
---   * destroy_group() now uses kl(group) (the old del(ents, child) removed
---     nothing - the child lives in group.ents).
+--   * MOD MENU (item 5): clicking a mod name now updates its ON/OFF text;
+--     Back comes back when the list returns to its boot state; the legend is
+--     a non-interactive block at the far-left centre with a live dependency
+--     check (codes E1-E4 = the red boot texts, notes/red-warnings.md) and an
+--     AUTO-FIX zone (dependency order + required mods ON). Section 5.
+--   * MOD MODES (item 4, dist-overlay): full 9-gun Throne list everywhere,
+--     Quartz/Fairy unlock all guns and finally flush their bank.
 -- ---------------------------------------------------------------------
 -- Build 6 was run live on 2026-10-04 (run 5, ~22 min, clean shutdown) and
 -- every Build-6 question was answered. Build 7 absorbs that evidence:
@@ -72,20 +77,23 @@
 --
 -- Safety rules:
 --   * No loadfile. Every value is nil/boolean-safe via sv(). pcall is used
---     ONLY around the Build 8 panel and only if type(pcall)=="function"
---     (logged as SKUI|panel|...|pcall=); engine-side fatals such as
+--     ONLY around the Build 8 panel / mod-menu code and only if
+--     type(pcall)=="function" (logged as SKUI|panel|...|pcall=); engine-side
+--     fatals such as
 --     btn(<unknown id>) quit the game outside Lua and cannot be caught.
 --   * ENGINE CALLS TAKE ONLY CONFIRMED ARGUMENTS. A wrong argument to some
 --     engine functions is fatal and unrecoverable (run 4: btn("left")).
 --   * No global on_* or upd dispatcher. Engine integration is append() /
---     prepend() only; `e.upd` is not used (the panel entity only has `dr`).
+--     prepend() only; `e.upd` is not used (the panel and the mod-menu
+--     legend entities only have `dr`; their lifetime is run from the
+--     gamepad_ctrl hook).
 --   * Probe loops and output are capped. Static §0.7 probes run only after
 --     the READY marker so their failure cannot hide the load verdict, and
 --     every block ends with an SKA2|probe|<name>=done checkpoint.
 --   * The gameplay buttons are opt-in. No gameplay code runs unless clicked.
 -- =====================================================================
 
-local BUILD = 8
+local BUILD = 9
 local CAP_FIRST = 30
 local CAP_EVERY = 25
 local MAX_FIELDS = 16
@@ -514,30 +522,8 @@ local function hookf(target, fn, id, use_prepend)
 	return true
 end
 
--- Removes one of OUR mk_text_but groups. kl() on the group itself is the
--- engine's own removal (code.lua kl: del from the parent's ents, dead=true);
--- the child button lives in group.ents and goes with it. (Builds 6-7 called
--- del(ents, child) - the child was never in `ents`, so nothing was removed.)
-local function destroy_group(group)
-	if type(group) ~= "table" then return end
-	if type(kl) == "function" then
-		kl(group)
-	elseif type(del) == "function" and type(ents) == "table" then
-		del(ents, group)
-	end
-end
-
 -- ---------- 4. Dev panel (Build 8): cheats + self-drawn overlay ----------
--- native_button is kept ONLY for the main-menu widgets (section 5); the
--- in-run panel below no longer creates engine buttons at all.
-local function native_button(x, y, w, label, fn, store)
-	if type(mk_text_but) ~= "function" then return nil end
-	local group = mk_text_but(x, y, w, label, fn)
-	if store and type(group) == "table" then
-		store[#store + 1] = group
-	end
-	return group
-end
+-- Neither the panel nor the mod-menu legend creates engine buttons.
 
 local function cheat_ammo_reserve()
 	local before = ammo
@@ -1100,65 +1086,348 @@ local function panel_reset(reason)
 end
 
 
--- ---------- 5. Mod-menu legend + Back via native menu hook -------------
--- Run 5 harvested the REAL menu button ids: play, options, codex, credits,
--- quit, mods, throne, endless, chase, charnier, tutorial, back, save_back,
--- plus the mod-list rows " ON "/"OFF " and the arrow glyphs. The Build-6
--- trigger compared MODLIST titles to ids, which can never match (that is
--- why SKUI|menu|widgets_added never appeared in the log). v7 arms on the
--- ids that actually exist, so the legend finally shows up.
-local menu_widgets_created = false
-local menu_widget_groups = {}
-local pending_menu_button = false
-local pending_menu_button_id = nil
-local menu_armed = false
+-- ---------- 5. Mod menu: live names, honest Back, legend, dep check ------
+-- Build 9 (owner's Build 8 item 5). Engine facts (game code/menu.lua + code/lang.lua):
+--  * open_menu(a, "mods") builds menu = {eraser, (up, down, row) x
+--    #MODLIST, reset, back}; row.id = " ON | 3. Title" / "OFF | ..." /
+--    "EMP | ...".
+--  * mk_menu_but's draw does e.name = lang[e.id] or e.name or e.id and
+--    e.name was frozen at creation (get_lang returns the id itself), so
+--    act_menu's toggle/move rewrite row.id and the colour but the TEXT never
+--    changed (owner, run 6: "why the mods cant turn the name off to on").
+--  * Any toggle/move turns Back into "Save and Reboot" for good, even when
+--    the list is back to its boot state (owner, run 6: Quartz on -> off).
+--  * The red main-menu texts come from the Glacies family's own load-order
+--    scans at boot (code table: notes/red-warnings.md).
+-- Design: append-only hooks on open_menu/act_menu re-sync row names and the
+-- Back/Reset buttons after every engine action. A plain draw entity (NO
+-- button, so no hover colour) shows the legend and a live dependency check
+-- at the far-left. AUTO-FIX is a self-hit-tested zone in the gamepad_ctrl
+-- hook - not an engine button, because act_menu maps clicks to mods by
+-- position in `menu`, and an extra entry there would break that.
+local MM_DP = 4          -- below hint_box (DP_INTER=5): a mod hint covers it
+local MM_X = 4
+local MM_LINE = 7
+local MM_WRAP = 23       -- pico glyphs are 4 px; row arrows start at x>=104
+local MM_TITLES = {
+	sk = "SK Rework", coll = "Glacies' Collection", xf = "Glacies' Extra Features",
+	aow = "Military Tactics -The Art of War-", dj = "Disgraced Justice",
+	retry = "Retry after Death", lab = "Royal Card Lab", gren = "Grenade Predictor",
+	codex = "Better Codex", night = "Nightmare Mode", fairy = "Fairy Pieces for SGK",
+	quartz = "The Magnificent Quartz Army", shoot = "Shootout: the Rifle King Adventure",
+	term = "Glacies Module Terminal",
+}
+local MM_SHORT = {sk = "SK", coll = "COLLECTION", xf = "EXTRA FEAT", aow = "ART OF WAR",
+	dj = "DISGRACED", retry = "RETRY", lab = "CARD LAB", gren = "GRENADE PRED",
+	codex = "CODEX", night = "NIGHTMARE", fairy = "FAIRY", quartz = "QUARTZ",
+	shoot = "SHOOTOUT", term = "TERMINAL"}
+-- same order as tools/build-dist.ps1 §3b; unknown mods go just above Terminal
+local MM_ORDER = {"sk", "coll", "xf", "aow", "dj", "retry", "lab", "gren", "codex",
+	"night", "fairy", "quartz", "shoot"}
+local MM_NEEDS_TERM = {"coll", "aow", "dj", "retry", "lab", "gren"}
+local MM_NEEDS_COLL = {"aow", "dj"}
+local MM_KEY = {}
+for k, title in pairs(MM_TITLES) do MM_KEY[title] = k end
 
-local MENU_ARM_IDS = {["mods"] = true, ["save_back"] = true, [" ON "] = true,
-	["OFF "] = true, ["é"] = true, ["è"] = true, ["back"] = true}
-local MENU_DISARM_IDS = {["play"] = true, ["options"] = true, ["codex"] = true,
-	["credits"] = true, ["quit"] = true, ["throne"] = true, ["endless"] = true,
-	["chase"] = true, ["charnier"] = true, ["tutorial"] = true}
-
-local function menu_id_is(id, set)
-	if id == nil then return false end
-	local id_s = sv(id)
-	if set[id_s] then return true end
-	-- tolerate a numeric prefix like "2. mods" or a trimmed variant
-	local trimmed = id_s:gsub("^%d+%.%s*", ""):gsub("^%s+", ""):gsub("%s+$", "")
-	return set[trimmed] == true
+-- local helpers: no live proof that the sandbox exposes the table/math
+-- libraries, so only string methods (proven in Build 7) are used
+local function mm_join(t, sep)
+	local s = ""
+	for i = 1, #t do s = (i == 1) and sv(t[i]) or (s .. sep .. sv(t[i])) end
+	return s
 end
 
-local function clear_menu_widgets()
-	for i = 1, 4 do
-		local group = menu_widget_groups[i]
-		if group == nil then break end
-		-- Only ever our own text buttons: the del() route is used here (NOT
-		-- remove_buts, which would wipe the engine's own menu buttons).
-		destroy_group(group)
-		menu_widget_groups[i] = nil
+local mm = {ent = nil, fix_rect = nil, hot = false, click_lock = false,
+	issues = {}, changed = false, last_sig = nil, errors = 0}
+
+-- Predicts the red texts the NEXT boot will print for a mod list
+-- (active flags + order). Codes E1-E4 = notes/red-warnings.md.
+local function modcheck(list)
+	local issues = {}
+	if type(list) ~= "table" then return issues end
+	local pos, act = {}, {}
+	for i, mod in ipairs(list) do
+		local k = type(mod) == "table" and MM_KEY[mod.title] or nil
+		if k then pos[k] = i; act[k] = mod.active and true or false end
 	end
-	menu_widgets_created = false
-end
-
-local function add_mod_menu_widgets(id)
-	if menu_widgets_created then return end
-	if not menu_armed then return end
-	if type(mk_text_but) ~= "function" then return end
-	menu_widgets_created = true
-	local sw = (type(MCW) == "number" and MCW) or 320
-	local back = native_button(2, 2, 42, "< BACK", function()
-		if type(init_menu) == "function" then
-			ecall("init_menu", init_menu)
+	local function add_issue(code, head, who, fixable)
+		issues[#issues + 1] = {code = code, head = head, who = who, fixable = fixable}
+	end
+	local off, above = {}, {}
+	for _, k in ipairs(MM_NEEDS_TERM) do
+		if act[k] then
+			if not act.term then off[#off + 1] = MM_SHORT[k]
+			elseif pos.term < pos[k] then above[#above + 1] = MM_SHORT[k] end
 		end
-		log("SKUI|menu|back_clicked=true")
-	end, menu_widget_groups)
-	local legend = native_button(48, 2, sw - 52, "WHITE=ON  BLACK=OFF  (UP/DN=LOAD ORDER)",
-		function() end, menu_widget_groups)
-	-- The Terminal/Royal-Card-Lab pattern for a non-interactive native label.
-	if legend and type(legend.ents) == "table" and legend.ents[1] then
-		legend.ents[1].button = false
 	end
-	log("SKUI|menu|widgets_added=true|entry=" .. sv(id) .. "|back=" .. sv(back ~= nil))
+	if #off > 0 then
+		add_issue("E1", pos.term and "TERMINAL IS OFF" or "TERMINAL MISSING", off, pos.term ~= nil)
+	end
+	if #above > 0 then add_issue("E2", "TERMINAL NOT LAST", above, true) end
+	local coff, cbelow = {}, {}
+	for _, k in ipairs(MM_NEEDS_COLL) do
+		if act[k] then
+			if not act.coll then coff[#coff + 1] = MM_SHORT[k]
+			elseif k == "aow" and pos.coll > pos.aow then cbelow[#cbelow + 1] = MM_SHORT[k] end
+		end
+	end
+	if #coff > 0 then
+		add_issue("E3", pos.coll and "COLLECTION IS OFF" or "COLLECTION MISSING", coff, pos.coll ~= nil)
+	end
+	if #cbelow > 0 then add_issue("E4", "COLLECTION BELOW", cbelow, true) end
+	return issues
+end
+
+local function issues_codes(issues)
+	local c = {}
+	for i, it in ipairs(issues) do c[i] = it.code end
+	return #c > 0 and mm_join(c, ",") or "none"
+end
+
+local function log_issues(where, issues)
+	log("SKUI|modcheck|" .. where .. "|issues=" .. #issues .. "|codes=" .. issues_codes(issues))
+	for _, it in ipairs(issues) do
+		log("SKUI|modcheck|code=" .. it.code .. "|head=" .. it.head .. "|mods="
+			.. mm_join(it.who, ",") .. "|fixable=" .. sv(it.fixable))
+	end
+end
+
+-- true when the list differs from what this boot loaded (order or ON/OFF)
+local function modlist_changed()
+	if type(MODLIST) ~= "table" then return false end
+	for i, mod in ipairs(MODLIST) do
+		if type(mod) == "table" then
+			if mod.num ~= nil and mod.num ~= i then return true end
+			if (mod.active and true or false) ~= (mod.loaded and true or false) then return true end
+		end
+	end
+	return false
+end
+
+local function mm_sync(reason)
+	if not inmods or type(menu) ~= "table" then return end
+	local back, reset = nil, nil
+	for i = 1, #menu do
+		local e = menu[i]
+		if type(e) == "table" and type(e.id) == "string" then
+			local p = e.id:sub(1, 6)
+			if p == " ON | " or p == "OFF | " or p == "EMP | " then
+				e.name = e.id   -- the live ON/OFF text (draw re-reads e.name)
+			elseif e.id == "back" or e.id == "reboot" then
+				back = e
+			elseif e.id == "reset" then
+				reset = e
+			end
+		end
+	end
+	mm.changed = modlist_changed()
+	if back then
+		if mm.changed then
+			back.id, back.name = "reboot", "Save and Reboot"
+		else
+			back.id, back.name = "back", "Back"
+		end
+	end
+	if reset then reset.lock = (not mm.changed) and true or nil end
+	mm.issues = modcheck(MODLIST)
+	local sig = (mm.changed and "reboot" or "back") .. "|" .. issues_codes(mm.issues)
+	if sig ~= mm.last_sig then
+		mm.last_sig = sig
+		log("SKUI|modmenu|sync=" .. sv(reason) .. "|back=" .. (mm.changed and "reboot" or "back")
+			.. "|issues=" .. #mm.issues .. "|codes=" .. issues_codes(mm.issues))
+	end
+end
+
+-- "FOR A, B, C" wrapped to `width`, never splitting a mod name
+local function wrap_names(prefix, names, width)
+	local out, line = {}, prefix
+	for i = 1, #names do
+		local tok = names[i] .. ((i < #names) and "," or "")
+		if line == "" or line == prefix then
+			line = line .. tok
+		elseif #line + 1 + #tok <= width then
+			line = line .. " " .. tok
+		else
+			out[#out + 1] = line
+			line = tok
+		end
+	end
+	if line ~= "" then out[#out + 1] = line end
+	return out
+end
+
+local function mm_lines()
+	local L = {
+		{"MOD MENU", 4}, false,
+		{"WHITE = ON", 4}, {"DARK = OFF", 3}, false,
+		{"CLICK A NAME", 3}, {"TO TOGGLE IT", 3}, false,
+		{"ARROWS = LOAD ORDER", 3}, false,
+	}
+	if #mm.issues == 0 then
+		L[#L + 1] = {"DEPENDENCIES OK", 4}
+	else
+		L[#L + 1] = {"RED TEXT AT BOOT:", 5}
+		for _, it in ipairs(mm.issues) do
+			L[#L + 1] = {it.code .. " " .. it.head, 5}
+			for _, w in ipairs(wrap_names("FOR ", it.who, MM_WRAP)) do
+				L[#L + 1] = {w, 3}
+			end
+		end
+	end
+	if mm.changed then
+		L[#L + 1] = false
+		L[#L + 1] = {"CHANGED: BACK IS NOW", 3}
+		L[#L + 1] = {"SAVE AND REBOOT", 3}
+	end
+	return L
+end
+
+local function mm_fixable()
+	for _, it in ipairs(mm.issues) do if it.fixable then return true end end
+	return false
+end
+
+local function mm_draw_inner()
+	if not inmods or type(menu) ~= "table" then return end
+	local _, sh = panel_scr()
+	local lines = mm_lines()
+	local fix = mm_fixable()
+	local h = #lines * MM_LINE + (fix and (BTN_H + 4) or 0)
+	local y = sh / 2 - h / 2
+	y = y - y % 1
+	for _, ln in ipairs(lines) do
+		if ln then lprint(ln[1], MM_X, y, ln[2]) end
+		y = y + MM_LINE
+	end
+	if fix then
+		local r = {x = MM_X, y = y + 2, w = 56, h = BTN_H}
+		mm.fix_rect = r
+		rectfill(r.x, r.y, r.x + r.w - 1, r.y + r.h - 1, 1)
+		rect(r.x - 1, r.y - 1, r.x + r.w, r.y + r.h, mm.hot and 4 or 3)
+		lprint("AUTO-FIX", r.x + r.w / 2, r.y + 2, 4, 1)
+	else
+		mm.fix_rect = nil
+	end
+end
+
+local function mm_draw()
+	if type(lprint) ~= "function" or type(rectfill) ~= "function" then return end
+	local sav = nil
+	if type(font) == "function" then
+		sav = font()
+		font("pico")
+	end
+	if has_pcall then
+		local ok, err = pcall(mm_draw_inner)
+		if not ok then
+			mm.errors = mm.errors + 1
+			if mm.errors <= 3 then log("SKUI|modmenu|draw_error=" .. sv(err)) end
+		end
+	else
+		mm_draw_inner()
+	end
+	if sav ~= nil then font(sav) end
+end
+
+-- Reorders MODLIST like build-dist.ps1 and switches ON the dependencies of
+-- every active mod, then rebuilds the screen the way the engine's own Reset
+-- does (close_menu -> open_menu(nil, "mods")). Nothing is written to disk
+-- until the player clicks Save and Reboot (engine write_mod_list).
+local function mm_autofix()
+	if type(MODLIST) ~= "table" then return end
+	local rank = {}
+	for i, k in ipairs(MM_ORDER) do rank[k] = i end
+	local entries = {}
+	for i, mod in ipairs(MODLIST) do
+		local k = type(mod) == "table" and MM_KEY[mod.title] or nil
+		local r = (k == "term") and 1000 or (k and rank[k]) or 500
+		entries[#entries + 1] = {mod = mod, r = r}
+	end
+	for a = 2, #entries do  -- stable insertion sort
+		local e, b = entries[a], a - 1
+		while b >= 1 and entries[b].r > e.r do entries[b + 1] = entries[b]; b = b - 1 end
+		entries[b + 1] = e
+	end
+	local moved = 0
+	for i, e in ipairs(entries) do
+		if MODLIST[i] ~= e.mod then moved = moved + 1 end
+		MODLIST[i] = e.mod
+	end
+	local byk = {}
+	for _, mod in ipairs(MODLIST) do
+		local k = type(mod) == "table" and MM_KEY[mod.title] or nil
+		if k then byk[k] = mod end
+	end
+	local enabled = {}
+	local function need(k)
+		local m = byk[k]
+		if m and not m.active and not m.empty then
+			m.active = true
+			enabled[#enabled + 1] = MM_SHORT[k]
+		end
+	end
+	for _, k in ipairs(MM_NEEDS_COLL) do if byk[k] and byk[k].active then need("coll") end end
+	for _, k in ipairs(MM_NEEDS_TERM) do if byk[k] and byk[k].active then need("term") end end
+	log("SKUI|modmenu|autofix=true|moved=" .. moved .. "|enabled="
+		.. (#enabled > 0 and mm_join(enabled, ",") or "none"))
+	if type(sfx) == "function" then sfx("menu_in") end
+	if type(close_menu) == "function" and type(open_menu) == "function" then
+		close_menu(function() open_menu(nil, "mods") end)
+	else
+		mm_sync("autofix")
+	end
+end
+
+local function mm_open(a, kind)
+	if kind ~= "mods" or type(mke) ~= "function" then return end
+	if mm.ent ~= nil and not mm.ent.dead and type(kl) == "function" then kl(mm.ent) end
+	local e = mke(0, 0, 0)
+	e.dp = MM_DP
+	e.dr = mm_draw
+	e.sk_modmenu = true
+	mm.ent, mm.fix_rect, mm.hot, mm.click_lock = e, nil, false, false
+	mm.last_sig = nil
+	mm_sync("open")
+	log("SKUI|modmenu|legend=created|dp=" .. MM_DP .. "|rows=" .. sv(type(MODLIST) == "table" and #MODLIST))
+end
+
+local function mm_frame()
+	if mm.ent ~= nil and (mm.ent.dead or not inmods or type(menu) ~= "table") then
+		if not mm.ent.dead and type(kl) == "function" then kl(mm.ent) end
+		mm.ent, mm.fix_rect, mm.hot = nil, nil, false
+		log("SKUI|modmenu|legend=removed")
+	end
+	if mm.ent == nil or mm.fix_rect == nil then
+		mm.click_lock = false
+		return
+	end
+	local r = mm.fix_rect
+	local over = in_rect(mx, my, r.x, r.y, r.w, r.h)
+	if over ~= mm.hot then
+		mm.hot = over
+		if over and type(sfx) == "function" then sfx("tic", .5) end
+	end
+	if not over then
+		mm.click_lock = false
+		return
+	end
+	local clicked = (mcl and not mm.click_lock) and true or false
+	mm.click_lock = mcl and true or false
+	mcl = false
+	mcr = false
+	mlb = false
+	if clicked then mm_autofix() end
+end
+
+local function mm_guard(name, fn)
+	return function(...)
+		if not has_pcall then return fn(...) end
+		local ok, err = pcall(fn, ...)
+		if not ok then
+			mm.errors = mm.errors + 1
+			if mm.errors <= 3 then log("SKUI|modmenu|" .. name .. "_error=" .. sv(err)) end
+		end
+	end
 end
 
 -- ---------- 6. base diagnostic hooks ----------------------------------
@@ -1385,10 +1654,9 @@ for _, fn_name in ipairs({"mk_bullet", "ev_hit", "damage", "damages", "fx_dmg",
 	hook_damage_probe(fn_name)
 end
 
--- Menu state probe + direct native menu button hook. The ID is logged so the
--- live run can validate detection of actual MODLIST-entry buttons.
+-- Menu probes (read-only, capped) + the Build 8 mod-menu hooks (section 5).
 if known["init_menu"] then
-	-- SK-REWORK: init_menu hooks log menu state and clear stale native helper buttons.
+	-- SK-REWORK: append init_menu - capped menu-state probe (read-only).
 	hookf("init_menu", function(...)
 		local n = capped("menu_state")
 		if n then
@@ -1397,47 +1665,37 @@ if known["init_menu"] then
 			if type(mMenu) == "table" then dump_fields("mMenu", mMenu, 16, "SKUI") end
 		end
 	end, "sk-rework:menu-state")
-	-- SK-REWORK: init_menu hooks log menu state and clear stale native helper buttons.
-	hookf("init_menu", function(...)
-		clear_menu_widgets()
-	end, "sk-rework:menu-clear", true)
 end
 if known["mk_menu_but"] then
-	-- SK-REWORK: prepend mk_menu_but to capture the upcoming native menu button.
-	hookf("mk_menu_but", function(id, x, y, w, h, ...)
-		pending_menu_button = true
-		pending_menu_button_id = id
-	end, "sk-rework:menu-button-before", true)
-	-- SK-REWORK: append add to inspect the actual menu button fields (Terminal pattern).
-	if known["add"] then
-		-- SK-REWORK: cap the actual menu-button field probe while preserving the captured ID.
-		hookf("add", function(tbl, e, ...)
-			if not pending_menu_button then return end
-			pending_menu_button = false
-			local n = capped("menu_button_fields")
-			if not n then return end
-			log("SKI|menu_but|n=" .. sv(n) .. "|id=" .. sv(pending_menu_button_id))
-			dump_fields("menu_but_" .. sv(n), e, 24, "SKI")
-		end, "sk-rework:menu-button-fields")
-	end
-	-- SK-REWORK: append mk_menu_but to probe IDs and attach native Back/legend widgets.
+	-- SK-REWORK: append mk_menu_but - capped id probe (read-only).
 	hookf("mk_menu_but", function(id, x, y, w, h, ...)
 		local n = capped("menu_button")
 		if n then
 			log("SKI|menu_button|n=" .. sv(n) .. "|id=" .. sv(id) .. "|x=" .. sv(x)
 				.. "|y=" .. sv(y) .. "|w=" .. sv(w) .. "|h=" .. sv(h))
 		end
-		pending_menu_button = false
-		if menu_id_is(id, MENU_DISARM_IDS) then
-			clear_menu_widgets()
-			menu_armed = false
-		elseif menu_id_is(id, MENU_ARM_IDS) then
-			-- the mod-list scene is on screen (or being built): show helper
-			menu_armed = true
-			add_mod_menu_widgets(id)
-		end
-	end, "sk-rework:mod-menu-ui")
+	end, "sk-rework:menu-button-probe")
 end
+-- SK-REWORK: append open_menu / act_menu - live row names, honest Back,
+-- legend + dependency check on the mod-list screen (section 5).
+if type(open_menu) == "function" then
+	hookf("open_menu", mm_guard("open", mm_open), "sk-rework:modmenu-open")
+else
+	log("SKUI|modmenu|available=false|reason=open_menu_missing")
+end
+if type(act_menu) == "function" then
+	hookf("act_menu", mm_guard("act", function(id)
+		mm_sync("act:" .. sv(id))
+	end), "sk-rework:modmenu-act")
+else
+	log("SKUI|modmenu|available=false|reason=act_menu_missing")
+end
+if type(gamepad_ctrl) == "function" then
+	-- SK-REWORK: append gamepad_ctrl - legend lifetime + AUTO-FIX click zone.
+	hookf("gamepad_ctrl", mm_guard("frame", mm_frame), "sk-rework:modmenu-frame")
+end
+-- What the CURRENT list will print in red (this boot already did).
+log_issues("boot", modcheck(MODLIST))
 
 -- ---------- 7. READY — anything below is post-marker probe work --------
 log("SK-REWORK: READY build=" .. sv(BUILD) .. " hooks=" .. sv(hooks_ok)
