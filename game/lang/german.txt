@@ -1,0 +1,1693 @@
+font>>Terminus
+font_size>>12
+font_line_height>>12
+font_offset_y>>8
+
+  -- Please only ever modify the part to the right of '::'.
+
+  -- In all texts, '|' indicates a linebreak for the game.
+
+  -- The game replaces instances of $0, $1, etc with relevant numbers.
+
+  -- instances of (s) are replaced with an 's' if the number associated is above 1, otherwise it is simply removed. The following alternatives are supported: (you can still use (s) if relevant)
+  -- (es) for Spanish
+  -- (y) for Polish
+  -- (и) for Ukrainian
+  -- (n), (er) and (e) for German
+  -- Additionally if none of these are helpful you can set a word between braces to tell the game to replace it according to a specific pluralization rule you specified at the end of this file. For example instead of writing "$0 man(s)" which makes no sense, I would write "$0 [man]" and the game will know to replace it with either "man" or "men" (defined at the very end of this file) depending on whether $0 is replaced with a 1 or something above. Make sure to write the singular version of the word inside the braces.
+  -- Even more specific pluralization rules can be defined at the end of this file, including rules for specific numbers.
+  -- In all cases outside of percentages, all numbers can safely be assumed to be below 10. For unnumberred plurals, (eg: knight(s) get +2 HP) the game always uses the number 999 internally.
+
+
+
+--NEW in v1.6
+
+
+  -- GAME MODE
+  -- Charnier is a new gamemode where the player raids villages which get more and more difficult, amassing corpses and cinders. Charnier is a french word which we kept in English. If it sounds too weird in your language, you can use Rampage, Carnage, Reaving...
+charnier::Charnier
+  -- brands are stat upgrades, bought with "cinders", which are won by winning raids.
+charnier_desc::Charnier Modus|Überfalle loyale Dörfer|- Zeig keine Gnade|- Hinterlasse einen schönen Leichenberg|- Schwierigkeit steigt mit jedem überfallenen Dorf|- Sammle Lohen um den Tod zu überlisten oder kaufe Brandmale
+  -- Beat rank 5 or above. Please match the format of the old key "endless_lock" (further down in this file)
+charnier_lock::Schließe den Thronmodus auf Rang 5+ ab, um den Charnier Modus freizuschalten.
+
+
+  -- CHARNIER
+  -- The next keys are used in the new Charnier mode
+  -- short for "Are you sure?", used when resigning
+sure::Sicher?
+next raid::Nächster Überfall
+  -- brands are upgrades, the word should be fire-themed, to go with cinders.
+brands::Brandmale
+  -- used for buying brands with cinders
+claim::Einbrennen
+  -- Cinders are the rewards for burning village in charnier mode.
+cinders::Lohen
+  -- Cinders left to spend, or keep
+cinders_lefts::Verbleibende Lohen
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- tunnel is for cards that dig holes on the board
+tag_tunnels::Tunnel
+  -- ally is for cards that give access to additional black pieces
+tag_ally::Verbündete
+  -- on_hit is for cards that give bullets additional effects on hits
+tag_on_hit::Treffereffekt
+
+  -- Used in the codex to specify that multiple tags have to be in play for a card to appear.
+  -- eg: While playing a game gather cards with the tags Mission and Cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation for "and" if your language uses whitespaces.
+_and_:: und 
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, shown when relevent. They need to remain as short as possible. (ideally 8 characters or less)
+
+  -- Shown on selected pieces that can dodge pellets, as: "Dodge|[percentage change of dodging bullets]"
+dodge::Ausweichen
+  -- Shown on selected pieces that are protected and can't take more than x damage
+dmg cap::Sch.Limit
+
+  -- Short version of grenade damage
+g_dmg::G.-Sch.
+
+
+  -- ADDITIONAL INGAME
+  -- This is added below soul_desc for warden souls specifically (wardens are a new chess piece added in v1.6)
+warden_soul::Schützt dich vor dem Tod bis benutzt
+  --Player has won a raid in the Charnier game mode.
+raid_won::Überfall gewonnen!
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+  
+anarchy::Anarchie!
+  -- The next two keys are used when a piece dies, and other pieces with same type burn with anger for revenge.
+revenge_0::Rache!
+revenge_1::Mörder!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+heresy::Ketzerei!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+purge::Säuberung!
+  -- Used when bishop excommunicate a card
+exile::Ins Exil!!
+  -- Used when the Boss promote a pawn
+regal_ascent::Königlicher Aufstieg
+  -- Used when the Boss call 3 royal guards
+royal_guards::Wache!
+
+  -- Briefly shown above pieces when they dodge a pellet.
+miss::verfehlt
+  -- Briefly shown above a piece that was set free from prison by the black king.
+free::frei
+  -- Briefly shown above a piece that was converted over to the black army
+defect::desertiert
+
+
+  -- NEW PIECES
+  -- These are additional chess pieces, added in v1.6
+  -- Alternatives for slayer: assassin, ninja, hired killer, killer
+piece_12::Söldner
+  -- The warden is an armored piece that can protect the king. Alternatives: champion, thane
+piece_13::Wächter
+
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+  -- Alternatively, you can use "[black]" with brackets and define custom plurals for "black" at the end of this file. (we unfortunately do not have a solution for adjective gendering)
+black_piece::schwarzen $0
+black_leader::Schwarzer König
+
+
+  -- SHORT PIECE
+short_piece_12::Söldner
+short_piece_13::Wächter
+
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+  -- Renamed (and reworked) from the old Unfaithful Steed card.
+Faithful Steed::Treues Ross
+  -- Alternatives for Right-Hand: Advisor, Counsel
+Right-hand::Rechte Hand
+Warhorse::Schlachtross
+Bastion::Bastion
+  -- Lets you move further in one turn. Alternative: Dash.
+Sprint::Sprint
+  -- Soul Projection lets the player literally project a soul onto the board as a new black piece.
+Soul Projection::Seelenprojektion
+Onboarding Party::Onboarding Party
+Small Key::Kleiner Schlüssel
+Rapunzel::Rapunzel
+Wand of Treachery::Stab des Verrats
+Guerilla Tactics::Guerillataktiken
+Shovel::Schaufel
+Grindstone::Schleifstein
+Death Mark::Todesmal
+Shrapnel::Splitter
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Latecomer::Nachzügler
+Vendetta::Blutrache
+Stoning::Steinigung
+Anarchy::Anarchie
+  -- Auto-da-fe was a punishment for heretics by the spanish inquisition. It means "act of faith". Feel free to look up what they call it in your language on Wikipedia and use that: https://en.wikipedia.org/wiki/Auto-da-f%C3%A9
+Auto-da-fe::Autodafé
+  -- Late for Dinner delays the arrival of a few pieces, making the black king wait.
+Late for dinner::Verspätung
+Excommunication::Exkommunikation
+  -- Refers to a queen/woman being burned at the stake by the bishops for acts of sexual deviancy
+Pyre of Lust::Scheiterhaufen der Lust
+Gatehouse::Torhaus
+  -- Lightfoot lets pawns jump over other pieces. Can be replaced with your language's version of the children's game of leapfrog, if you feel it's relevant to your language's culture.
+Lightfoot::Bockspringen
+Loyalist March::Loyalistenaufmarsch
+Trench War::Schützengraben
+Catacombs::Katakomben
+Flesh Wall::Bauermauer
+Hired Blade::Landsknecht
+Oathkeeper::Eidgebunden
+  -- Redemption as in the religious practice of making up for past wrongs.
+Redemption::Wiedergutmachung
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- $delay is replaced with either the at_delay key, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final" key, which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+  -- eg: Add 1 pawn every 4 turns
+  -- modified in v1.6, from: "Add $0 $1s $delay"
+add_piece::Fügt $final $delay $0 $1s hinzu
+
+  -- Same but without the delay.
+  -- eg: Add 2 knights
+  -- modified in v1.6, from: "Add $0 $1s"
+add_piece_nodelay::Fügt $final $0 $1s hinzu
+
+  -- eg: 2 knights
+pieces::$0 $1s
+
+  -- Add/remove a group of pieces, $0 is replaced using the 'pieces' key above.
+add_group::Füge $final $delay $0 hinzu
+rem_group::Entferne $0
+
+  -- this is used to describe effects that are only active on the final floor of a raid in charnier mode.
+at_final::in der letzten Schlacht
+
+  -- The following are the names of different stats as used in other card effects or in shotgun stats.
+reload_grenade::Granaten nachladen
+butcher::Schlächter
+sheath::Todesmal
+
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- Effects that were modified in v1.6:
+  -- used to be: "$leader swaps positions with a <piece> whenever he's about to take damage"
+effect_castle::Der <head> und <piece> tauschen die Position, wenn der <head> Schaden erleiden würde
+
+  -- used to be: "When you reach the waypoint choose a disruption effect and play an extra turn"
+effect_waypoint::Erreiche den Wegpunkt um die Weiße Armee zu Schwächen
+
+  -- used to be: "<pieces> can't attack you" (the black king is no longer the only piece that can be attacked)
+effect_peace::<pieces> können nicht angreifen
+
+  -- used to be: "<pieces> can only be hit when moving"
+effect_wraith::<pieces> können nur getroffen werden, wenn sie sich bewegen oder wenn sie dich bedrohen
+
+  -- used to be: "+1 fright radius|When you kill a non-pawn piece, every piece in the radius is scared. They can't attack you and flee on their next move"
+effect_fearsome::+1 Furcht-Radius|Wenn eine Figur (außer Bauern) eliminiert wird, werden Figuren um den Schwarzen König von Furcht gepackt. Sie können dich nicht angreifen und benutzen ihren nächsten Zug um zu fliehen
+
+  -- used to be: "+1 spy among the pawns|Reach the spy to choose a disruption effect and play an extra turn"
+effect_spy::+1 Spionenmaske|Finde und erreiche einen Spion um die Weiße Armee zu schwächen|* Spione werden schwarz wenn sie umgewandelt werden
+
+  -- used to be: "Create a hologram when you use a soul"
+effect_holoking::Erschaffe ein Hologramm wenn du eine Seele benutzt|Wird das Hologram in den nächsten 2 Zügen von einer Figur getötet, wird diese betäubt
+
+  -- used to be: "<pieces> can fire a projectile at you instead of moving" (the action is now on a separate cooldown)
+effect_catapult::<pieces> können ein Projektil auf dich schießen
+
+  -- used to be: "<pieces> can't move or attack if near a <target_piece>"
+effect_prison::<pieces> sind gefangen, wenn sie sich in der Nähe von 1 <target_piece> befinden|(Gefangene Figuren können sich nicht bewegen oder angreifen und andere Figuren können sich durch sie hindurchbewegen)
+
+  -- used to be: "+$0 flagstone|Jump to a flagstone at any time"
+effect_flagstones::+$0 Wegstein(e)|Springe jederzeit zu einem Wegstein|+1 Feuerkraft während du auf einem Wegstein stehst
+
+  
+  -- New effects in v1.6
+  -- Pieces carry their king with them when they move
+effect_carryking::<pieces> bewegen den <head> wenn er sich neben ihnen befindet
+  -- Used as "Move range: +1"
+effect_sprint::Bewegungsreichweite: $1
+effect_summoner::Falls du keine Verbündeten hast, kannst du eine Seele benutzen um einen zu erschaffen
+  -- Welcome Gift is a card's name, please match it with your translation for that card.
+effect_onboarding::Wende Begrüßungsgeschenk zurück wenn ein Bauer umgewandelt wird oder wenn eine Backup-Figur, die kein Bauer ist, das Spielfeld betritt
+effect_small_key::Klicke einmal pro Etage auf einen nahen Turm um ihn zu entfernen oder auf eine nahe Gefangene Figur um sie zu konvertieren|Dann Schwäche die Weiße Armee
+  -- with a controller, you have to select the piece instead of just clicking it.
+effect_small_key_console::Wähle einmal pro Etage einen nahen Turm aus um ihn zu entfernen oder eine nahe Gefangene Figur um sie zu konvertieren|Dann Schwäche die Weiße Armee
+effect_rapunzel::Bekomme eine Schwarze Dame wenn du zum ersten Mal einen Turm tötest
+effect_anarchy::Armeeformation durchmischen|Wandle 2 zufällige Figuren zu irgendwelchen anderen Figuren um
+effect_censor::Wenn 1 <piece> dich bedroht, markiere entweder eine zufällige schwarze Karte oder wende alle markierten Karten
+effect_exile::Falls ein Läufer in oder nach Runde $0 immer noch am Leben ist, wende diese Karte
+effect_spawn::<pieces> können 1 <target_piece> erschaffen anstatt zu ziehen
+effect_lightfoot::<pieces> können in jede Richtung über Hindernisse springen
+effect_hole_cover::Figuren in einem Schützen- oder Burggraben haben eine 50% Chance, Kugeln auszuweichen
+effect_hole_start::Grabe $0 [Loch] im Schlachtfeld
+effect_tunnels::Wenn du dich nahe an einem Loch befindest, kannst du zu jedem anderen Loch reisen
+effect_hole_solid::Löcher stürzen nicht ein wenn du durch sie reist
+  -- pieces that have 0hp remain standing and only die when the turn ends.
+effect_block::<pieces> werden bis zum Ende des Zuges nicht sterben
+effect_jumpy::Wende diese Karte wenn du deine Flinte nachlädst
+  -- which card is kept is random
+effect_extra_white_choice::Kartenauswahl beinhaltet eine zusätzliche weiße Karte, aber nur eine wird behalten
+  -- Charnier mode: Each house represents a floor, and villages represent raids. This effect adds one more floor to the next raids.
+effect_extra_floor::Dörfer haben ein zusätzliches Haus
+effect_stoning::<pieces> werfen Steine auf den Schwarzen König
+effect_vendetta::Wenn du eine Figur tötest, bewegen sich alle gleichen Figuren bei ihrem nächsten Zug
+effect_reload_grenade::Benutze Schrotflintenmunition um Granaten nachzuladen
+effect_reform::Wende diese Karte wenn ein Bauer umgewandelt wird
+  -- the royal promote effect should be kept as short as possible
+effect_royal_promote::Boss wandelt Bauern um
+effect_sheath::Schrot markiert Figuren bei einem Treffer|Markierte Figuren erleiden 1 Schaden wenn du nachlädst
+effect_redemption::Wenn eine schwarze Figur stirbt, stelle eine gleiche weiße Figur auf das Spielbrett
+  -- Shrapnels are shot out of the shotgun along with the regular pellets. "pellet effects" are bleed, mark, etc.
+effect_shrapnel::Splitter: $1|Splitter fügen 0 Schaden zu, aber lösen Schrot-Effekte aus
+  -- With the Butcher effect, blade can be used to inflict damage, instead of being restricted to finishing pieces off.
+effect_butcher::Die Klinge ist nicht mehr darauf beschränkt Figuren den letzten Hieb zu geben
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+stat_g_dmg::Schaden zugefügt durch Granaten
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+  -- modified in v1.6:
+  -- used to be: "Strafe mode: Right click a target to fire at it on your next moves"
+  -- +15° arc refers to the firearc; shots are less accurate.
+special_strafe::Deckungsfeuer: Rechtsklicke auf ein Ziel um es bei deinen nächsten Bewegungen mit +15° Streuung zu beschießen
+special_strafe_console::Deckungsfeuer: Drücke $0, um ein Ziel auszuwählen und es bei deinen nächsten Bewegungen mit +15° Streuung zu beschießen
+
+  -- used to be: "Right click: arc -45$ and range +1|Resets on each move or reload"
+special_scope::Rechtsklick: Streuung -45$ und Schussdistanz +2|Wird bei jeder Bewegung oder Nachladen zurückgesetzt
+special_scope_console::Drücke $0: Streuung -45$ und Schussdistanz +2|Wird bei jeder Bewegung oder Nachladen zurückgesetzt
+
+  -- new in v1.6:
+  -- holes can be used to move to any other hole.
+special_dig::Rechtsklicke ein nahes Feld um ein Loch zu graben
+special_dig_console::Drücke $0, um ein nahes Feld auszuwählen und ein Loch zu graben
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+  -- modified in v1.6, from: "Repel all white pieces northward"
+wand_4::Dränge alle weißen Figuren in nördliche Richtung zurück|Verzögere ihren nächsten Zug um zwei Züge
+  -- new in v1.6
+wand_8::Konvertiere eine nahe Figur
+
+
+  -- SHOTGUN NAMES
+  -- The shotguns are named after historical leaders. Only translate if these names are usually spelled differently in your language.
+Solomon::Salomo
+Victoria::Victoria
+Ramesses II::Ramses II
+Richard III::Richard III
+Makeda::Makeda
+Alexander::Alexander
+Yvan IV::Yvan IV
+Attila::Attila
+Montezuma::Montezuma
+
+  -- SHOTGUN ACHIEVEMENTS
+  -- Please match these with the names above
+ach_ATTILA::Attila
+ach_MONTEZUMA::Montezuma
+
+  -- SHOTGUN UNLOCKS
+  -- this is a puzzle for the players, they have to figure out that R6F8H7 refers to: Rank 6 (in throne mode), Floor 8, H7 chess coordinates. The player has to dig a hole there using the shovel card. Please keep the composition of the code and only replace R and F with the first letter of your translations for "Rank" and "Floor".
+shotgun_unlock_7::Auf dem leeren Waffenkoffer|ist der Code "R6E8H7" eingraviert...
+  -- "Death Marks" refers to the card Death Mark
+shotgun_unlock_8::Füge 2 Todesmale zu|um diese Schrotflinte freizuschalten
+
+
+
+  -- ACHIEVEMENTS
+ach_KING_WARBAND::Des Königs Trupp
+ach_OVERPOPULATION::Überbevölkerung
+ach_OBSCURANTISM::Obskurantismus
+ach_EXPULSION::Ausschluss
+ach_UNITED_HANDS::Vereinte Hände
+ach_DEATH_SENTENCE::Todesurteil
+ach_KINDLED_ATROCITY::Entfachter Schrecken
+ach_ARCHITECT_OF_RUIN::Architekt der Zerstörung
+ach_SOVEREIGN_OF_THE_MASS_GRAVE::Herrscher des Massengrabes
+ach_CINDERLORD::Lohenherr
+
+
+  -- ACHIEVEMENT CONDITIONS
+  -- "allies" as in extra black pieces
+ach_KING_WARBAND_desc::Habe einen Springer, einen Läufer und einen Turm als Verbündete
+  -- "generate" refers to the Gatehouse card which can create knights from rooks.
+ach_OVERPOPULATION_desc::Generiere mehr als 12 Springer auf einer einzigen Ebene
+  -- "turned face down" as in flipped, deactivated
+ach_OBSCURANTISM_desc::Habe 6 umgewandte schwarze Karten
+  -- "Send back" as in removing them indirectly by deactivating white cards.
+ach_EXPULSION_desc::Auf einer einzigen Ebene, sende 4+ Figuren zurück, die keine Bauern sind
+  -- "type" as in knight, rook, king, etc
+ach_UNITED_HANDS_desc::Habe 8 verschiedene Figurenypen gleichzeitig auf dem Spielfeld
+  -- for this next achievement, the player has to use the new death mark effect that some cards have
+ach_DEATH_SENTENCE_desc::Töte 4+ Figuren nur mit dem Nachladen deiner Schrotflinte
+ach_KINDLED_ATROCITY_desc::Brenne 6 Dörfer nieder im Charnier Modus
+ach_ARCHITECT_OF_RUIN_desc::Brenne 10 Dörfer nieder im Charnier Modus
+ach_SOVEREIGN_OF_THE_MASS_GRAVE_desc::Brenne 15 Dörfer nieder im Charnier Modus
+  -- "hoard" as in accumulate cinders without using them.
+ach_CINDERLORD_desc::Horte 5+ Lohen
+
+
+  -- MISSING
+  -- These keys existed previously but weren't translated. Maybe it was intended, but please give it a quick look to make sure.
+credits::Credits
+start::Start
+sfx::SFX
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+crt::CRT
+speedrun::Speedrun
+best_score::Highscore:
+  -- mission is for Undercover Mission and The Mole
+tag_mission::Mission
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+tutorial::Tutorial
+degree_symbol::°
+  -- Shown as "final countdown:[turns remaining]"
+final_countdown::Final Countdown
+piece_6::Boss
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+piece_8::$leader
+  -- Boss is used for the big white king on the last level of Throne mode.
+short_piece_6::Boss
+Revolution::Revolution
+Saboteur::Saboteur
+  -- If you're afraid "Drag Queen" won't be understood in your culture, you can go for something else related to queer or transgender rights. Do not use slurs and try to keep it positive please.
+Genderqueer::Drag Queen
+Karma::Karma
+Bunker::Bunker
+Guillotine::Guillotine
+Mausoleum::Mausoleum
+Sokoban::Sokoban
+Final Countdown::Final Countdown
+Inquisition::Inquisition
+ach_LEGION::Legion
+ach_HAREM::Harem
+ach_RELIGION::Religion
+ach_INQUISITION::Inquisition
+ach_CLIFFHANGER::Cliffhanger
+ach_NINJA::Ninja
+  -- Please match these with the names above
+ach_SOLOMON::Salomo
+ach_VICTORIA::Victoria
+ach_RAMESSES_II::Ramses II
+ach_RICHARD_III::Richard III
+ach_MAKEDA::Makeda
+ach_BLITZ::Blitz
+ach_ALEXANDER::Alexander
+ach_YVAN_IV::Yvan IV
+
+
+--OLD
+
+
+
+  -- MENU
+  -- These are displayed on buttons in the game's various menus.
+play::Spielen
+options::Optionen
+codex::Kodex
+quit::Beenden
+back::Zurück
+resign::Aufgeben
+
+  -- The next four keys are used in Charnier mode
+
+  -- Appears in the pause menu while in the tutorial. Could be translated as "end tutorial".
+skip_tutorial::Tutorial überspringen
+
+  -- This is shown on the titlescreen when using mouse and keyboard.
+click_start::Zum Starten klicken
+  -- This is shown on the titlescreen when using a controller.
+press_start::Zum Starten $0 drücken
+
+  -- OPTIONS
+music::Musik
+fullscren::Vollbild
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+shields::Schilde
+scr.shake::Bildrütteln
+scr.flash::Blitzeffekt
+  -- Language. Use something short enough to fit on the same button with your language's name.
+lang::Sprache
+  -- Should be your language's name.
+lang_endonym::Deutsch
+  -- Controller vibrations
+rumble::Vibration
+on::An
+off::Aus
+  -- GAMEMODE MENU
+  -- On gamemode selection screen, shows highscore for selected mode
+  -- eg: Best floor: 8
+  -- Note: the value after the colon is always a number in numerals
+best_floor::Höchste Etage:
+best_rank::Bester Rang:
+best_time::Beste Zeit
+
+  -- The following describe each gamemode.
+throne_desc::Thronmodus|Erobere deinen Thron zurück, indem du Etage 12 des Schlossturms erreichst!
+endless_desc::Endlosmodus|Kämpfe dich durch ein nicht enden wollendes Verlies und schlage die weiße Armee so lange zurück, wie du kannst!
+chase_desc::Jagdmodus|Fliehe aus dem Schwarzen Schloss!|- Überlebe, solange du kannst!|- Wachen erscheinen kontinuierlich am Rand!|- Miliz aktiv, Umwandlung inaktiv.|- Für jeden toten König gibt es 1 schwarze Karte.|- Du kannst nur 5 Karten behalten.|- Hol dir Munitionskisten, um deine Waffe nachzuladen.
+tutorial_desc::Tutorial|So funktioniert das Spiel!
+
+  -- These are unlock conditions for gamemodes that are not available from the start.
+endless_lock::Schließe den Thronmodus auf einem beliebigen Rang ab, um den Endlosmodus freizuschalten.
+chase_lock::Erreiche Etage 15 im Endlosmodus, um den Jagdmodus freizuschalten.
+
+  -- This is used for rank selection (=difficulty selection)
+rank::Rang
+
+
+  -- Used to confirm an action such as giving up or wiping the player's save
+ask_confirm::Bist du dir sicher?
+
+
+  -- CODEX
+  -- The codex is the collection of cards the player has seen and used. The achievements also share this interface.
+  -- $0 is replaced with the actual progress percentage.
+ui_codex::Kodex: $0 %
+ui_achievements::Erfolge: $0 %
+
+  -- Played and love are stats about the cards. "played is shown as "Played:3" for example, and love as "Love: 50%". Love is the preference stat of picking this card over another when given the choice.
+codex_played::Gespielt
+codex_love::Favorit:
+
+  -- Here $0 is replaced with a list of cards that need to be in play before the selected card can appear for the first time. $1 is replaced with the card's name.
+codex_gather::Sammle beim Spielen $0 für die Chance, dass „$1“ erscheint
+
+  -- Here $0 is replaced with one or multiple tags (eg: "leader or grenade") that need to be in play before the card can appear for the first time. And $1 is replaced with the card's name. Tags are essentially keywords associated with certain cards.
+codex_gather_tags::Sammle beim Spielen Karten mit der Kennzeichnung $0 für die Chance, dass „$1“ erscheint
+
+  -- Used to list the tags associated with a card. Shown as "tags: [list of tags]"
+codex_tags::Kennzeichungen
+
+  -- Shown as "Needs card: [Card name]", meaning the selected card needs this card to be in play before it can appear in game.
+codex_need_card::Braucht Karte
+
+  -- Shown as "Needs tag: [tag]", meaning the selected card needs this tag to be in play before it can appear in game.
+codex_need_tag::Braucht Kennzeichnung
+
+  -- Shown as "Excludes tag: [tag]", meaning that while this card is in play, cards that have the denoted tag cannot appear.
+codex_exclude_tag::Schliesst diese Kennzeichnung aus
+
+  -- Shown on a button that resets the player's progress on discovering cards.
+codex_reset::Fortschritt zurücksetzen
+
+  -- Show for cards that have secret conditions for appearing in game for the first time.
+codex_secret::Diese Karte ist geheim und erscheint nur in bestimmten Situationen
+
+  -- Here $0 and $1 are replaced with a number and a stat respectively. Indicates a condition for a card to appear for the first time.
+  -- Eg: This card needs at least 6 firepower to appear
+codex_need::Diese Karte benötigt mindestens $0 $1 um zu erscheinen
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- leader is for any card that affects white kings or whichever piece which has the crown
+tag_leader::Anführer
+
+  -- mission is for Undercover Mission and The Mole
+
+  -- cloak is for any card that lets you get into stealth mode
+tag_cloak::Tarnung
+
+  -- bleed is for any card that allows you to inflict bleeding
+tag_bleed::Blutung
+
+  -- orb is for the Seer's Orb
+tag_orb::Kristallkugel
+
+  -- jump is for cards which let you jump over pieces, inflicting them one damage (like Taunting Hop)
+tag_jump::Sprung
+
+  -- grenade is for cards that give you explosive grenades
+tag_grenade::Granate
+
+  -- blade is for cards that allow you to slash at low-hp enemy pieces
+tag_blade::Klinge
+
+  -- GAME MODE
+  -- These are gamemode names, used in the gamemode selection menu.
+  -- Tutorial is the tutorial, teaches the player how to play the game.
+  -- Throne is the main, campaign mode where the goal is to reclaim the black king's throne.
+  -- Endless is an arcade-style highscore-chasing mode, it goes on until you lose.
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+throne::Thron
+endless::Endlos
+chase::Jagd
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, either shown are at all time or when relevent.
+
+  -- Floor is the current game level, eg: "Floor: 4"
+floor_::Etage:
+
+  -- eg: "Score: 12"
+score_::Punkte:
+
+  -- Shown on selected pieces that are poisoned, as: "Poison|[number of turns until not poisoned anymore]". Poison makes pieces go slower.
+poison::Gift
+
+  -- The following need to be very short to fit the space to the left of the checkboard. Use no more than 8 characters. Prefer 7 or less. Feel free to use abreviations.
+  -- short version of firepower
+power::Schaden
+
+  -- short version of range
+range::Distanz
+
+  -- short version of fire arc
+f_arc::Streuung
+
+  -- short version of knockback (percentage of chance to push pieces backwards when they're hit)
+knock::Stoß
+
+  -- short version of pierce (percentage of chance that pellets will not stop after hitting a first target)
+pierc::Durchdr.
+
+  -- short version of blade/sword/cutting (ability to cut down pieces that have low-enough health)
+blade::Klinge
+
+  -- short version of fright/scariness/terror (radius in which killing a piece will scare other pieces)
+fright::Furcht
+
+  -- short version of jump (number of times you can jump over other pieces before ending your turn)
+jump::Sprung
+
+
+
+  -- Current turn, eg: "Turn: 13"
+turn_::Zug:
+
+  -- Displayed when the player is pressing "shift" to ignore folly shields (which prevent you from putting yourself in a gameover position)
+unsafe_mode::Unsicherer Modus
+
+  -- Shown at the bottom of the screen when losing because of a classic chess checkmate
+checkmate::Schachmatt
+
+  -- Shown after the gameover to ask if the player wants to restart.
+try_again::Noch mal?
+  -- Yes//No buttons
+yes::Ja
+no::Nein
+
+  -- Used in endless mode past level 11. Instead of getting new cards, the white army is improved with one of these effects at random: (in piece_join, $0 is the replaced with the name of a piece, eg: "A knight joins the white army")
+blood_bowl::Schwarzes Blut|Alle weißen Figuren erhalten +1 LP
+pawns_join::2 Bauern schließen sich der weißen Armee an
+piece_join::1 $0 schließt sich der weißen Armee an
+
+  -- Shown when hovering the mouse cursor on wands. Wands are magic abilities the player can have.
+click_to_use::Zum Benutzen klicken
+
+  -- Shown instead when using a controller.
+press_to_use::Zum Benutzen $0 drücken
+
+  -- Shown on wands that have already been used this floor.
+replenish_floor::Ab der nächsten Etage wieder verwendbar
+
+  -- Folly shields descriptor, shown on hovering folly shields below the shotgun. They automatically protect you from making moves that would lead you to your immediate death, consuming one shield every time.
+folly_shield::Schild des Narren|Schützt vor selbstmörderischen Zügen|Füllt sich nach jedem Zug auf
+
+  -- Shown on hovering a piece's soul, placed at the right of the checkboard after killing a noble piece. (knight, rook, bishop or queen) $0 is replaced with the piece's name.
+soul_desc::$0-Seele|Bewege dich wie diese Figur
+
+  -- Used when playing with a controller. $1 is replaced with a button name.
+soul_desc_console::$0-Seele|Drücke $1, um dich wie diese Figur zu bewegen
+
+  -- This is added below soul_desc when Sacred Crown is in play.
+crow_turn::und spiele 1 Extrazug
+
+
+  -- This is shown instead of soul_desc when the soul slot is empty. Killing a noble piece will fill this slot with its soul.
+soul_slot::Seelen-Feld|Besiege einen adligen Gegner, um dessen Seele zu stehlen
+
+  -- These are shown specifically on pawn souls, which can be obtained with the card "Cannon Fodder". $0 is always replaced with the translation for "Pawn".
+pawn_soul_desc::$0-Seele|Benutze sie, um +2 Feuerkraft für deinen nächsten Schuss zu erhalten
+pawn_soul_desc_console::$0-Seele|Drücke $1, um +2 Feuerkraft für deinen nächsten Schuss zu erhalten
+
+  -- This is shown when trying to reload your shotgun but it's already loaded.
+already_loaded::Schrotflinte ist bereits geladen!
+
+  -- This is shown when attempting to use the Wand of Wrath but there's no valid target for it.
+not_target_wrath::Kein gültiges Ziel für Zorn!
+
+  -- This is shown when attempting to use the Wand of Wings but no move is possible.
+cant_move::Du kannst dich nicht bewegen!
+
+  -- This shown when hovering on the shotgun at the top of the screen. $0 is replaced with a number of shells, and $1s is replaced with the translation for "shell". It is pluralized automatically when relevant. (look to the bottom of this file to define specific pluralization rules)
+reload_shotgun_desc::Klicken, um die Schrotflinte mit $0 $1s zu laden
+
+  -- Used in the previous line.
+shell::Patrone(n)
+
+  -- Player has lost.
+game_over::Game Over!
+
+
+  -- Shown at the bottom of the screen when trying to reload or use abilities but it's not possible.
+no_ammo_left::Munition verbraucht
+no_shell_loaded::Schrotflinte nicht geladen
+no_grenade_left::Keine Granate übrig
+  -- Only one grenade can be thrown per turn.
+one_grenade_per_turn::Nur eine Granate pro Zug
+  -- Scope is one of the abilities.
+scope_on::Zielfernrohr ist bereits montiert
+
+  -- Shown when a card is inactive. (not necessarily used up) $0 is replaced with with one of the next two lines.
+card_exhausted::Diese Karte ist verbraucht. Sie wird erneuert, $0
+refresh_when::wenn du die nächste Etage erreichst
+  -- ammo boxes have to be reached and picked up on the checkboard.
+refresh_when_chase::wenn du eine Munitionskiste einsammelst
+
+  -- Shown when a card is temporarily inactive because of a condition stated in the card's description. $0 is replaced with one of the keys under "CONDITIONS" further down in this file.
+  -- eg: the High Focus card will deactivate "because a piece is adjacent to you".
+card_exhausted_bc::Diese Karte ist deaktiviert, weil $0
+
+  -- Shown at the bottom of the screen during the animation where the heir is chosen at the start of a floor.
+hiding_heir::Verstecke Thronfolger ...
+
+  -- Shown above the soul slots to the right of the checkboard
+souls::Seelen
+
+  -- Used with angles. eg: "Fire arc: +30°"
+
+  -- Used when unlocking a new shotgun or a new rank, or completing an achievement. $0 is replaced with the name of the shotgun/rank/achievement.
+unlocked::$0 freigeschaltet!
+
+  -- Used on the disrupt menu which lets you disrupt the white side with a negative effect.
+choose_disrupt::wähle einen Störeffekt
+
+  -- Shown at the bottom of the screen when the countdown is on and the player has to finish the floor in a number of turns.
+  -- Shown as "final countdown:[turns remaining]"
+
+  -- Used when there's no possible target/victim for an ability the player is trying to use.
+no_valid_target::Kein gültiges Ziel
+
+  -- Select a piece as target for an ability
+select_a_piece::Wähle eine Figur
+
+  -- Used with the Wand of Wings which lets you move further away from your position.
+choose_destination::Wähle dein Ziel
+
+
+  -- NEW!
+  -- Shown at the bottom of the screen when two pieces swap positions.
+swap::Positionswechsel!
+
+  -- Shown at the bottom of the screen in a very specific situation where the King's Look-Alike false king is revealed and subsequently becomes the real king, because the real king was removed when sabotaging the King's Look-Alike with a disruption effect.
+crowning::Krönung
+
+  -- Not used currently but would be used at the bottom of the screen when giving the player free random souls
+free_soul::Kostenlose Seele!
+
+  -- Shown at the bottom of the screen during the sabotage disruption effect
+select_white_card::Wähle eine weiße Karte
+
+  -- Shown at the bottom of the screen when using the card Bold Plan
+replace_white_card::Tausche eine weiße Karte
+
+
+
+  -- LEVEL_UP
+choose_set::Wähle ein Kartenset
+
+  -- Used for a specific menu that allows you to choose one card among all possible cards.
+choose_any_card::Wähle eine Karte
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+
+  -- Used when a pawn promotes to another piece.
+promote::Umwandlung
+
+  -- Used when a knight protects the white king, making it impossible to kill the latter.
+knight_guard::Wache
+
+  -- Used when the white king and a rook swap positions. Refers to the "Castle" move in classic chess.
+castle::Rochade
+
+  -- Used when white pieces arrive sometime after the floor started.
+backup::Verstärkung
+
+  -- Used when white pieces don't receive full damage because they are close to a piece that protects them. eg: rooks with the Cathedral card.
+cover::Deckung
+
+  -- The heir pawn is being promoted to king
+heir_promote::Thronfolger!
+
+  -- Used to describe some card unlocks, eg: "This card needs at least 1 Heir to appear"
+heir::Thronfolger
+
+  -- Used to describe some card unlocks, same as heir.
+spy::Spion
+
+  -- Used to describe some card unlocks.
+soul::Seele(n)
+
+  -- The player has found the spy in the white army, allowing them to disrupt the white side.
+meet_spy::Geheimtreffen!
+
+  -- The player can take another action.
+extra_turn::Extrazug
+
+  -- Used when disguising as a pawn with the card Low-Cost Disguise.
+disguised::getarnt!
+
+  -- Used when the player leaves stealth mode because they exposed themselves.
+visible::aufgedeckt!
+
+  -- Used when the white army disables a mission waypoint with the "investigate" card effect. The "mission" normally allows you to disrupt the white side when completed.
+abort_mission::Mission abbrechen!
+
+  -- Used when the white army finds and kills the spy in their ranks with the "investigate" card effect.
+spy_executed::Spion hingerichtet!
+
+  -- Used on the white king when he gets hit and it promotes the nearest pawn with the "Emergency Call" card.
+help::Hilfe!
+
+  -- Used when shooting the white king's look-alike, revealing them for a knight instead.
+usurper::Thronräuber!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+
+  -- BOSS LINES (also emotes)
+  -- This is used for a secret boss. The black bishop cries "Justice!" (for all the evil the black king has done) before fighting the black king.
+black_bishop_warcry::Gerechtigkeit!
+
+  -- The following two lines are used for a secret boss: after the big white king dies, the iron queen grows tentacles and speaks these two lines. Then you have to fight her.
+  -- It has to be two lines, they should be relatively short.
+come_to_me::komm zu mir
+my_love::meine Liebe
+
+  -- These are used for a secret boss. They are the names of the four horsemen of the apocalypse. Please make sure to translate the correct names.
+apo_name_0::Pestilenz
+apo_name_1::Krieg
+apo_name_2::Hunger
+apo_name_3::Tod
+
+  -- The following five lines are used for a secret ending where the four horsemen of the apocalypse show up, but the shotgun king takes the fourth horse and kills the other 3 horsemen before leaving the screen.
+  -- It has to be five lines, they are shown one after the other, and they should be relatively short.
+apo_threat_0::Legt
+apo_threat_1::euch
+apo_threat_2::nicht mit
+apo_threat_3::dem König an!
+apo_threat_4::Fürchtet mich
+
+  -- Used in a secret event where the white king gets disabled and their usurper knight becomes king instead.
+  -- Has to be 3 lines, they are shown in succession, they should be relatively short.
+power_people_0::alle
+power_people_1::Macht
+power_people_2::dem Volk!
+
+
+
+
+
+
+  -- PIECES
+  -- These are used in card descriptions and other interface elements.
+piece_0::Bauer
+piece_1::Springer
+piece_2::Läufer
+piece_3::Turm
+piece_4::Dame
+piece_5::König
+piece_7::Alle Figuren
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+
+
+  -- SHORT PIECE
+  -- These are used on the panel to the left of the checkboard when inspecting a white piece. Space is limited, please only use 7 characters or fewer for each.
+short_piece_0::Bauer
+short_piece_1::Spring.
+short_piece_2::Läufer
+short_piece_3::Turm
+short_piece_4::Dame
+short_piece_5::König
+  -- Boss is used for the big white king on the last level of Throne mode.
+  -- Blight is the name for the secret queen boss. The point is simply that she's scary, feel free to use whatever conveys that and fits the space constraint.
+short_piece_10::Plage
+  -- Rider is shown for the secret horsemen of the apocalypse bosses. Ideally should be different to the name for knights, you can also use a word/abreviation for "apocalypse" instead.
+short_piece_11::Reiter
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+
+Ermine Belt::Hermelingürtel
+Elite Gem::Juwel der Elite
+Extra Barrel::Zusätzlicher Lauf
+Royal Loafers::Königliche Mokassins
+Majestic Censer::Königliches Rauchfass
+Sacred Crown::Heilige Krone
+Blunderbuss::Donnerbüchse
+Engraved Scope::Zielfernrohr
+Holy Gunpowder::Heiliges Schwarzpulver
+Ritual Dagger::Ritualdolch
+August Presence::Majestätische Aura
+Crow's Blessing::Segen der Krähe
+The Moat::Burggraben
+Rightful Curtsy::Hofknicks
+Wand of Downpour::Stab des Wolkenbruchs
+Wand of Frenzy::Stab der Raserei
+Wand of Wrath::Stab des Zorns
+Wand of Wings::Stab der Schwingen
+Wand of Gust::Stab der Winde
+Wand of Hypnosis::Stab der Hypnose
+Kingdom Wealth::Reichsvermögen
+Gradual Absolution::Allmähliche Absolution
+Taunting Hop::Spöttischer Sprung
+Unjust Decree::Ungerechter Erlass
+Kingly Alms::Königliche Almosen
+Subtle Poison::Schwaches Gift
+Small Fry Harvest::Bauernernte
+A Piercing Truth::Durschlagender Erfolg
+Black Mist::Schwarzer Nebel
+King's Shoulders::Auf des Königs Schultern
+High Focus::Fester Fokus
+Courteous Jousting::Höfisches Turnier
+Cornered Despot::Bedrängter Despot
+Sawed-off Justice::Kurz und schmerzvoll
+Welcome Gift::Begrüßungsgeschenk
+Cannon Fodder::Kanonenfutter
+Possessed::Besessen
+Philanthropy::Philantropie
+Imperial Shot Put::Königliches Kugelstoßen
+Egotic Maelstrom::Ego-Mahlstrom
+Church Organ::Kirchenorgel
+Black Plague::Schwarzer Tod
+Ravenous Rats::Gefräßige Ratten
+Deep Water::Tiefe Wasser
+Unholy Call::Gottloser Ruf
+Undercover Mission::Undercover-Mission
+Caltrops::Krähenfüße
+Nightbane::Fluch der Nacht
+Bushido::Bushidō
+Bloodless Coups::Blutloser Coup
+Presbyopia::Weitsichtigkeit
+Golden Aging::Goldenes Altern
+Fool Companion::Närrischer Gefährte
+Force-feeding::Zwangsfütterung
+Seer's Orb::Wahrsagung
+Fearsome::Furchteinflößend
+Human Shield::Menschlicher Schild
+Reign of Terror::Schreckensherrschaft
+Monarch's Confidence::Königliches Selbstbewusstsein
+The Mole::Der Maulwurf
+Elusive::Schwer zu fassen
+Holoking::Holokönig
+Cloaking Device::Tarnmantel
+Low-Cost Disguise::Billige Verkleidung
+Wand of Souls::Stab der Seelen
+Wand of Execution::Stab der Hinrichtung
+Patience::Geduld
+Bold Plan::Gewagter Plan
+Silencer::Schalldämpfer
+Ambush::Hinterhalt
+Ancient Flagstone::Uralter Wegstein
+Tearing Bullets::Blutspende
+Indelible Memories::Bleibende Erinnerungen
+Mystic Shackles::Mystische Fesseln
+Secret Move::Spezialmanöver
+Sacred Light::Blendgranate
+Workshop::Werkstatt
+Selective Listening::Selektives Hören
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Backups::Verstärkung
+Cavalry::Kavallerie
+Conclave::Konklave
+Entitle::Beförderung
+Cardinal::Kardinal
+Remparts::Bollwerk
+Pillage::Raubzug
+Crusades::Kreuzzüge
+Peace::Frieden
+King's Mistress::Des Königs Mätresse
+Bodyguard::Leibwache
+Ruins::Ruinen
+Assault::Angriff
+Kite Shield::Drachenschild
+Zealots::Fanatiker
+Militia::Miliz
+Ammunition Depot::Munitionsdepot
+Scouting::Späher
+Pikemen::Pikeniere
+Ascension::Aufstieg
+Castle::Schloss
+Conscription::Einberufung
+Theocracy::Theokratie
+Iron Maiden::Eiserne Jungfrau
+Court of the King::Des Königs Hof
+The Red Book::Das rote Buch
+Homecoming::Heimkehr
+Overthrown Theocracy::Gestürzte Theokratie
+Lookout Tower::Wachturm
+Throne Room::Thronsaal
+The Secret Heir::Heimlicher Thronfolger
+  -- If you're afraid "Drag Queen" won't be understood in your culture, you can go for something else related to queer or transgender rights. Do not use slurs and try to keep it positive please.
+Undead Armies::Untote Armee
+Shortage::Knappheit
+Succubus::Sukkubus
+Sanctity::Heiligkeit
+  -- This card makes knights ethereal/ghost-like. Could be translated to something along the lines of Spectral Cavalry if there's no way to translate the Knightmare pun.
+Knightmare::Geisterreiter
+Highest Dungeon::Höchstes Verlies
+Cathedral::Kathedrale
+The Bridge::Die Brücke
+Divine Healing::Göttliche Heilung
+Last Guardian::Letzter Wächter
+Trowel::Kelle
+Full Plate Armor::Vollharnisch
+Military Academy::Militärakademie
+Witch's Curse::Hexenfluch
+Saddle::Sattel
+The Jester::Der Hofnarr
+Analysis Paralysis::Entscheidungsparalyse
+Plumed Knight::Dekorierter Reiter
+Emergency Call::Notruf
+Mangonel::Mange
+Governess::Gouvernante
+Reverend Mother::Mutter Oberin
+Tag Team::Zweierteam
+Unicorn::Einhorn
+Lady in the Tower::Die Dame im Turm
+  -- Can be translated as Nomadism. Please do not use potentially offensive terms.
+Nomad Life::Nomadisches Leben
+Prison::Gefängnis
+King's Look-alike::Königlicher Doppelgänger
+The Royal Hunt::Königliche Jagd
+Tragic Homecoming::Tragische Heimkehr
+  -- Limos (or Limus in latin, take your pick) is the name of the third Horseman of the Apocalypse, the one wearing the shield (/buckler) in the secret boss version of the horsemen in the game. This card gives the shield to the white king, protecting him to some extent. The Limos reference doesn't have to be kept if you can find a better name for that card in your language.
+Buckler of Limos::Limos' Buckler
+Vampirism::Vampirismus
+Commoner's Reign::Herrschaft des Pöbels
+Bouncy Castle::Hüpfburg
+Fallen Dynasty::Gefallene Dynastie
+Self-Defense::Selbstverteidigung
+Unsettled Throne::Leerer Thron
+
+
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- eg: Remove 2 pawns
+rem_piece::Entfernt $0 $1s
+
+  -- Same thing but $delay is replaced with either the at_delay key below, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final", which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+
+  -- Same but without the delay.
+
+
+
+
+  -- Used with add_piece. Also used under this form: "after/every N turns: [other effect]". $0 is replaced with a number.
+at_delay::nach $0 Zügen
+every_x_turn::alle $0 Züge
+
+  -- The following are the name of different stats as used in other card effects or in shotgun stats.
+ammo_max::max. Munition
+grenades_max::Granate(n)
+ammo_regen::Munitionsnachschub
+firepower::Feuerkraft
+firerange::Schussdistanz
+chamber_max::[Lauf]
+pierce::Durchdringung
+spread::Streuung
+  -- "Search" as in "Looking for something". The search stat lets you reroll card choices N times. Can also translate as "Reroll" if it makes more sense in your language.
+search::Durchsuchen
+knockback::Rückstoß
+hp::LP
+
+
+  -- Special descriptions for the Homecoming card, whcih always appears on the third level-up.
+queen_escape::Du entkommst ihr nicht ...
+queen_everywhere::... Sie ist überall!
+
+  -- Even more special descriptions for when you try to reroll the Homecoming card.
+queen_escape_tragic::Das hättest du besser gelassen ...
+queen_everywhere_tragic::... jetzt ist sie richtig sauer!
+
+  -- Used to describe conditions under which a card deactivates. $0 is replaced with one of the conditions under CONDITIONS further below.
+flip_if::Die Karte wird gewendet, wenn $0
+
+  -- Used to denote a group of pieces in effect descriptions. Is used to replace some instances of <pieces>.
+  -- eg with effect_prison: Knights and bishops can't move or attack if near a rook.
+and::und
+
+  -- Actually used in the codex to specify multiple possible tags that can let a card appear.
+  -- eg: While playing a game gather cards with the tag mission or cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation of "or" if your language uses whitespaces.
+_or_:: oder 
+
+  -- Used when an effect is limited to a square color. $1 is replaced with the effect, and $0 with the color as written just below.
+  -- eg: -1 firepower on white squares
+standing::$1 auf $0 Feldern
+white::weißen
+black::schwarzen
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- these next 3 are new and might need reviewing
+effect_ammo_max::$1 max. Munition
+effect_grenades_max::$1 Granate(n)
+effect_ammo_regen::$1 Munitionsnachschub
+
+effect_chamber_max::Lade deine Schrotflinte zusätzlich mit $0 Patrone(n).
+effect_soul_slot::Fügt $0 extra Seelenfeld(er) hinzu
+effect_soul_sink::Entfernt 1 Seelenfeld
+effect_crown::Nach einem Seelenkarten-Zug kannst du einen weiteren Zug machen.
+effect_presence::Keine gegnerische Figur außer dem König kann sich deinem eigenen König nähern
+effect_moat::Nur Springer können den Burggraben in 1 Zug überwinden
+effect_hp::<pieces>: <inc> LP
+effect_hprc::<pieces>: $0% LP
+effect_tempo::<pieces>: <inc> Geschwindigkeit
+effect_shell::Erhalte $0 Munition für alle eliminierten <pieces>
+effect_poison::Zuglimit für <pieces>: 1 Feld für $0 Züge
+effect_cage::Bewegungslimit für <pieces>: $0 Feld(er)
+effect_shield::<pieces> erhalten einen Schild, der einmalig allen Schaden abhält
+effect_flying::<pieces> können über Hindernisse ziehen und angreifen
+effect_iron::<pieces> können nicht sterben
+effect_orth::<pieces> können wie ein Turm ziehen (nicht angreifen)
+effect_joust::Spiele 1 Extrazug, wenn du 1 <piece> eliminierst
+effect_recoil::Du wirst beim Schießen zurückgeworfen
+effect_firepower::$1 Feuerkraft
+effect_firerange::$1 Schussdistanz
+effect_pawnreap::Nutze Bauernseelen, um +2 Feuerkraft für den nächsten Schuss zu erhalten
+effect_freegren::Wirf einmal pro Zug eine Granate, ohne dass dein Zug endet
+effect_grenade_dmg::$1 Granatenschaden
+effect_sanctity::Seelen von <pieces> können nicht geerntet werden
+effect_plague::Am Ende jedes Zuges erleidet eine zufällige Figur 1 Schaden
+effect_rats::Wenn du eine Figur eliminierst, beißt eine Ratte das nächste Ziel für 1 Schaden
+effect_deepwater::Figuren im Burggraben können dich nicht angreifen
+effect_pentagrams::Füge dem Brett $0 Pentagramme hinzu. Löse eines aus, um einen Extrazug zu erhalten. Löse alle aus, um +2 Feuerkraft zu erhalten
+effect_blade::Klinge: $1
+effect_blade_console::Klinge: $1 Schaden
+effect_blade_old::Exekutiere Figuren auf angrenzenden Feldern, deren LP gleich oder geringer als dein Klingenschaden sind
+effect_bushido::Exekutiere einmal pro Zug eine Figur mit deiner Klinge, ohne dass dein Zug endet
+effect_minr::<pieces> können dich auf eine Distanz von weniger als $0 nicht angreifen
+effect_carry::<pieces> tragen beim Ziehen Figuren, die keine Türme oder Springer sind
+effect_nocarry::<pieces> können nicht von anderen Figuren getragen werden
+  -- for free = without spending the turn
+effect_freelift::<pieces> können gepackt und geworfen werden ohne einen Zug zu verbrauchen
+effect_jester_guard::Hofnarren können sich in alle Richtungen bewegen und folgen immer dem $leader. Erhalte einen Extrazug, wenn du einen Hofnarren eliminierst
+effect_bodyguard::$leader kann nicht eliminiert werden, solange noch min. 1 <piece> lebt
+effect_knockback::$1% Chance, Gegner zurückzustoßen
+  -- here the second $ is replaced with the degree_symbol key.
+effect_spread::$1$ Streuung
+effect_absolution::$1 Feuerkraft für jedes freie Seelenfeld
+effect_hop::Sprung: $1 (Springe über eine angrenzende Figur ohne deinen Zug zu beenden)
+effect_pierce::Deine Kugeln haben eine $0% Chance, Ziele zu durchdringen
+effect_mist::Bewahrt dich einmal pro Etage vor dem Tod
+effect_grab::Hebe einmal pro Etage eine nahe Figur auf die Schultern des Königs und wirf sie in eine beliebige Richtung
+effect_grab_console::Schnapp dir einmal pro Etage eine nahe Figur und wirf sie in eine beliebige Richtung
+effect_assault::<pieces> können sich bei ihrem ersten Zug 1 extra Feld bewegen
+effect_militia::Bauern können in 4 Richtungen ziehen und angreifen
+effect_bad_shells::Verdoppelt die Streuung für $0 Patrone(n)
+effect_heir::Thronfolger: $1|(Wenn der König stirbt, wird er durch den heimlichen Thronfolger ersetzt)
+effect_nothing::Keine Modifikatoren
+effect_manual_reload::Lädt nur eine Patrone pro Zug nach
+  -- <pieces> and <piece> are not necessarily the same piece type.
+effect_protect::Nicht-<piece> Figuren nahe <pieces> können nicht mehr als 2 Schaden pro Zug erleiden
+effect_bridge::Öffne einen Weg im Burggraben
+effect_healer::<pieces> können Verbündete in der Nähe heilen, anstelle sich zu bewegen
+  -- the last one = the last one alive/remaining
+effect_lastg::Wenn du 1 <piece> eliminierst und danach nur noch eine gleiche Figur übrigbleibt, wird diese umgewandelt
+effect_curse::Diese Karte wird gewendet, wenn 1 <piece> eliminiert wird
+effect_jester::Hofnarren können sich diagonal bewegen und haben +2 Tempo|Sie geben den Hut weiter, wenn sie sterben
+effect_free_souls::Fügt am Anfang jeder Etage $0 zufällige Seele(n) hinzu
+effect_plumed::1 <piece> bekommt +3 LP und kann diagonal angreifen
+effect_emergency::Das erste Mal wenn du 1 <piece> triffst, bekommt die Figur +1 Tempo und wandelt den nächsten Bauern um
+effect_despair::Wenn 1 <piece> eliminiert wird, werden alle anderen Figuren von Furcht gepackt. Sie können dich nicht angreifen und benutzen ihren nächsten Zug um zu fliehen
+effect_force_promote::Bauern werden immer zu <target_pieces> umgewandelt
+effect_leaderbond::Wenn 1 <piece> eliminiert wird, erleiden <leaders> $0 Schaden
+effect_humanshield::Furcht wird auch von eliminierten Bauern ausgelöst
+effect_terrorism::Furcht wird auch im Radius um die eliminierte Figur ausgelöst
+effect_search::Durchsuchen: $1
+effect_tactic::Weiß kann nicht mehr als $0 [Typ] von Figuren pro Zug bewegen
+effect_confidence::+1 Feuerkraft pro fehlender Patrone im Lauf deiner Schrotflinte
+effect_push::<pieces> können Figuren bis zu $0 mal bewegen
+effect_swap::<pieces> können ihre Position mit 1 <target_piece> tauschen
+  -- can charge your king = can run towards your king (this is used for the Unicorn card, which lets knights ram you down)
+effect_charge::<pieces> können deinen König umrennen anstelle sich zu bewegen. Dabei wird der König um 1 Feld zurückgestossen
+  -- white pieces ready to move = about to move
+effect_elusive::Weiße Figuren, die gerade bereit sind sich zu bewegen, können dich nicht angreifen
+  -- a piece that would kill you instead gets promoted to a queen
+effect_killprom::Wenn <pieces> den schwarzen König exekutieren würden, werden sie anstelle zu Damen umgewandelt
+effect_holocloak::Tarne dich für 6 Züge, jedes Mal wenn du ein Hologramm erschaffst
+effect_holoreveal::Verliere deine Tarnung wenn dein Hologramm zerstört wird
+  -- a countdown starts when there are only 6 pieces left. If you don't end the floor within the countdown, you die.
+effect_deathcount::Du hast $0 [Zug] um die letzten 6 Figuren zu eliminieren
+effect_disguise::Wenn 1 <piece> eliminiert wird, tarne dich für $0 [Zug]
+effect_promote::<pieces> können umgewandelt werden, wenn sie die letzte Reihe erreichen
+effect_bully::-1 Feuerkraft pro bedrohender <piece>
+effect_investigate::<pieces> exekutieren aufgeflogene Spione und brechen Missionen ab
+effect_false_king::Tausche den falschen König mit einem Springer aus, wenn er Schaden erleidet
+effect_full_firerange::$1 Schussdistanz wenn deine Schrotflinte voll geladen ist
+effect_full_firepower::$1 Feuerkraft wenn deine Schrotflinte voll geladen ist
+  -- browse the entire deck and pick your card the next time you're getting a black card
+effect_browse::Das nächste Mal wenn du eine schwarze Karte ziehst, durchsuche das ganze Deck und wähle eine Karte
+effect_replace_white_card::Tausche eine weiße Karte durch eine andere aus
+effect_pike::<pieces> können die 2 Felder vor ihnen angreifen
+effect_reformed::<pieces> können ihren Standardangriff nicht benutzen
+effect_armorgap::<pieces> können nicht mehr als $0 Schaden pro Zug erleiden
+effect_bow::<pieces> schießen Pfeile gegen dich|+1 Schießgeschwindigkeit für <pieces>
+  -- fire = shoot your shotgun
+effect_silencer::Du kannst schießen ohne deine Tarnung aufzudecken
+effect_knockweak::<pieces> haben +50% Chance, zurückgeworfen zu werden
+effect_uncover::<pieces> können dich auch angreifen wenn du getarnt bist
+effect_tearing::Figuren, die von deinen Kugeln getroffen werden, bluten|(Blutende Figuren erleiden +1 Schaden wenn sie getroffen werden)
+effect_bleed_slow::-1 Tempo für blutende Figuren
+effect_caltrops::+$0% Chance dass Figuren anfangen zu bluten wenn sie sich bewegen|(Blutende Figuren erleiden +1 Schaden wenn sie getroffen werden)
+effect_grenade_center_dmg::$1 Schaden auf dem Feld in der Mitte einer explodierenden Granate
+effect_grenade_bleed::Figuren, die von einer Granatenexplosion getroffen werden, bluten|(Blutende Figuren erleiden +1 Schaden wenn sie getroffen werden)
+effect_vampire::<pieces> sind immun gegen Blutungen|<pieces> heilen sich wenn nahe Figuren bluten und stoppen die Blutung
+effect_rep::Ersetze <pieces> durch <target_pieces> wenn sie sterben
+  -- orb = Seer's Orb, special ability that lets you place an orb over a piece to know its next move
+effect_shackles::Die Figur die unter dem Einfluss der Kristallkugel steht, kann ihre Bewegung nicht ändern und erhält -1 Tempo
+effect_ruler::Gewinne wenn alle <target_pieces> eliminiert wurden
+effect_hop_dmg::Sprungschaden:$1
+  -- use up all your jumps available in a turn
+effect_botte::Verbrauche all deine verfügbaren Sprünge um für deinen nächsten Schuss extra Feuerkraft in der Höhe deines Sprungwerts zu erhalten
+effect_fitness::<pieces> können sich wie Springer bewegen (nicht angreifen)
+effect_grenade_proof::Du bist immun gegen Granatenschaden
+effect_grenade_stun::Granaten betäuben Figuren für $0 [Zug]
+effect_trampoline::Figuren die vom Brett fallen, kommen voll geheilt zurück|Granaten springen mehr
+  -- Replaces Theocracy and Hippocracy descriptions on the boss level, where you have to beat the big white king instead. Royalty shall prevail = royalty shall have the last word = royalty was fated to make a comeback
+effect_fallen::Sie haben vor langer Zeit regiert ...|Doch das Schicksal wird das Königshaus wieder auferstehen lassen
+  -- Produce = generate. Used with every_x_turn key
+  -- eg: Every 10 turns: Produce 1 grenade
+effect_mk_grenades::Produziere $0 Granate(n)
+effect_mk_ammo::Produziere $0 Munition
+effect_heirprom::Thronfolger werden zu Königen umgewandelt
+effect_freereload::Nachladen bei Tötung
+effect_overload::Wenn du nachlädst, ohne dich zu bewegen, kannst du eine zusätzliche Patrone in die Schrotflinte stopfen, selbst wenn sie schon voll ist
+effect_delay_mult::Alle Kartenverzögerungen sind um $0% länger
+effect_paralysis::Du kannst für $0 [Zug], oder bis du im Schach stehst, nicht spielen
+effect_cannonball::Fügt dem Schachbrett $0 Kanonenkugel(n) hinzu|Kanonenkugeln können aufgehoben und nach Figuren geworfen werden
+  -- backups refer to cards that add pieces after a number of turns
+effect_alarm::Die weiße Verstärkung kommt für jede Figur, die du eliminierst, $0 [Zug] früher
+  -- Here "strategy" refers to the difficulty level of the algorithm deciding the white side's moves. Shows as: "White Strategy:+1"
+  -- "White Strategy" can also be translated as "AI Intelligence", "AI Cleverness", or "White Tactics". Take your pick
+effect_ai_lvl::Weiße Strategie: $1
+
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+  -- $0 is always replaced with the number for that stat, except with range.
+  -- Range is how far you can shoot before your pellets disintegrate, but it's slightly randomized so we give two numbers, a minimum and a maximum, thus $0 is replaced with "3-5" for example.
+  -- For stat_blade and stat_jump, "nearby" means on one of the 8 squares around your king, including corner squares.
+stat_firepower::Jede Patrone in deiner Schrotflinte feuert $0 Geschoss(e) ab, und jedes davon verursacht 1 Schaden
+stat_range::Die Reichweite deiner Kugeln beträgt $0 Felder
+stat_f_arc::Die Streuung deiner Kugeln beträgt $0
+stat_knock::Deine Kugeln haben eine $0% Chance, Figuren zurückzuwerfen
+stat_pierce::Deine Kugeln haben eine $0% Chance, Figuren zu durchdringen
+  -- [You can / you are allowed to] kill a nearby piece with...
+stat_blade::Eliminiere ein Ziel in der Nähe, das maximal $0 LP hat, ohne eine Patrone zu verbrauchen
+stat_fearsome::Wenn du eine Figur eliminierst, sind alle anderen Figuren innerhalb deines Furchtradius verängstigt, und fliehen mit ihrer nächsten Bewegung
+  -- [You can / you are allowed to] jump over a nearby piece...
+stat_jump::Springe über eine angrenzende Figur bis zu $0 mal ohne deinen Zug zu beenden
+
+  -- CONDITIONS
+  -- These are used with the flip_if and card_exhausted_bc keys.
+  -- $0 is replaced with a piece name, $0s is replaced with the pluralized version of that piece name. You can use one or the other.
+cond_contact::eine Figur an dich angrenzt
+cond_inner::dein König nicht am Brettrand steht
+cond_first-reload::deine Schrotflinte nachgeladen wurde
+cond_no_piece::keine $0s auf dem Brett stehen
+cond_only_pieces::nur $0s auf dem Brett stehen
+cond_not_cloaked::dein König nicht getarnt ist
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+
+
+special_decree::Rechtsklicke um alle geladenen Patronen abzufeuern
+special_decree_console::Drücke $0 bevor du schießt um alle geladenen Patronen abzufeuern
+
+special_grenade::Rechtsklick: Granate werfen
+special_grenade_console::$0 drücken: Granate werfen
+
+special_orb::Rechtsklicke auf eine Figur um ihre nächste Bewegung vorauszusehen
+special_orb_console::Drücke $0 um eine Figur auszuwählen und ihre nächste Bewegung vorauszusehen
+
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+wand_0::Füge zufälligen Gegnern $0 Schaden zu
+wand_1::Fülle deine Munition auf und lade deine Waffe nach
+  -- in wand_2, $0 gets replaced with the translation for "firepower"
+  -- non-$leader target -> prompts the player to choose the target when activating this ability
+wand_2::Füge einem Ziel (mit Ausnahme $leader) $0-Schaden zu
+wand_3::Bewege dich bis zu $0 Felder in alle Richtungen
+wand_5::Spiele eine weiße Figur deiner Wahl
+wand_6::Betäube eine Figur für 3 Züge und stiehl ihre Seele 
+  -- refill = regenerate = can be used again
+wand_7::Zerstöre einen Bauern|Kann wieder benutzt werden nachdem du eine andere Figur (außer Bauern) eliminierst
+
+  -- DISRUPTION
+  -- These are effects available to the player on reaching a special tile when they have the Undercover Mission.
+  -- "their" always refers to the white army
+  -- the name for each effect is always shown with the corresponding description below, and with an icon to illustrate.
+disrupt_effect_name_0::Weiße Armee sabotieren
+disrupt_effect_name_1::Wasser vergiften
+disrupt_effect_name_2::Munition stehlen
+disrupt_effect_name_3::Weißen König erstechen
+disrupt_effect_name_4::Schuhe festkleben
+disrupt_effect_name_5::Umgekehrtes Karma
+disrupt_effect_name_6::Wachen entwaffnen
+disrupt_effect_name_7::Umgekehrter Final Countdown
+
+disrupt_effect_desc_0::1 weiße Karte deiner Wahl deaktivieren
+disrupt_effect_desc_1::-1 LP für alle weißen Figuren
+disrupt_effect_desc_2::Munition auffüllen und Waffe nachladen
+disrupt_effect_desc_3::Füge dem König 3 Schaden zu
+disrupt_effect_desc_4::-1 Tempo für alle weißen Figuren
+  -- refers to a card called Karma which usually gives different maluses depending on what square color you're standing on.
+disrupt_effect_desc_5::Negative Karmaeffekte werden zu positiven Effekten
+disrupt_effect_desc_6::Bauern können dich nicht mehr angreifen
+  -- refers to a card called Final Countdown which usually kills you if you fail to win the level in a specific number of turns
+disrupt_effect_desc_7::Zerstöre alle weißen Figuren am Ende des Final Countdowns
+
+  -- SHOTGUN NAMES
+
+  -- SHOTGUN UNLOCKS
+  -- These are the conditions to unlock each shotgun.
+shotgun_unlock_1::Schrotflinte freischalten:|Erreiche 6+ Schussdistanz
+shotgun_unlock_2::Schrotflinte freischalten:|Erreiche 100% Rückstoß-Chance
+shotgun_unlock_3::Schrotflinte freischalten:|Erreiche 4+ Patronenkapazität
+shotgun_unlock_4::Schrotflinte freischalten:|Erreiche 4+ Klinge
+  -- Here search refers to the search stat/mechanic which allows the player to reroll card choices.
+shotgun_unlock_5::Schrotflinte freischalten:|Durchsuche das Deck 4 mal um neue Karten zu ziehen 
+shotgun_unlock_6::Schrotflinte freischalten:|Erreiche 0-2 Schussdistanz
+
+  -- CONSOLE
+  -- This is used on consoles only. (please translate it anyway)
+  -- Switch profile = Switch to a different account on the console
+switch_profile::Nutzer wechseln
+
+  -- TUTORIAL
+  -- These are all used in the tutorial. (easy to test once you're done, yay!)
+  -- 'ctrl_tuto_' keys are always followed by a pictogram of the controls whose function is being described.
+
+objectives_tuto::Ziele:
+objective_tuto_1::- Vermeide den Weißen Läufer|- Geh ins Schloss
+  -- get = pick up = obtain
+objective_tuto_2::- Hol dir die Schrotflinte
+objective_tuto_3::- Besiege den Turm
+objective_tuto_4::- Besiege beide Springer
+objective_tuto_5::- Besiege den Weißen König
+chess_tuto_1::Die Läufer bewegen sich diagonal
+ctrl_tuto_1_1::Ziel wählen mit:
+ctrl_tuto_1_2::Bestätigen mit:
+chess_tuto_3::Die Türme bewegen sich orthogonal
+ctrl_tuto_3_1::Zielen mit:
+ctrl_tuto_3_2::Feuern mit:
+ctrl_tuto_3_3::Schrotflinte nachladen durch Bewegen oder Drücken von:
+  -- '| |' is intended, makes a double linebreak
+chess_tuto_4::Die Springer bewegen sich in L-Form| |Achtung: Sie können über Figuren springen!
+ctrl_tuto_4_1::Du kannst Infos zur Figur jederzeit anzeigen mit:
+ctrl_tuto_4_2::Spiel anhalten mit:
+chess_tuto_5_1::Damen können sich in alle Richtungen bewegen
+chess_tuto_5_2::Bauern bewegen sich nur einen Schritt vorwärts, aber sie greifen diagonal an!
+ctrl_tuto_5_1::Das Ziel jeder Etage ist es, den Weißen König zu besiegen
+ctrl_tuto_5_2::Text jeder Karte erneut anzeigen mit:
+  -- dangers display = visual warnings = show dangerous squares
+ctrl_tuto_5_3::Gefahrenanzeige ein- und ausschalten mit:
+tuto_barrels::Läufe:|Deine Schrotflinte ist aktuell mit dieser Munition geladen. Du kannst schießen, solange noch Munition übrig ist.|Um nachzuladen, mache einfach einen Zug mit deinem König oder drücke $0.
+tuto_ammo::Munition:|Dies ist dein Munitionsvorrat.|Du erhältst neue Munition wenn du dich mit vollen Läufen bewegst oder wenn du gar keine Munition mehr hast.
+tuto_folly_shields::Schild des Narren:|Von jetzt an kannst du sterben, wenn du nicht aufpasst! Zum Glück bewahren dich diese Schilde, die sich nach jedem Zug wieder auffüllen, vor Fehlern.| |Die Anzahl der Schilde kannst du in den Optionen ändern.
+tuto_card_black::Jedes Mal, wenn du eine Etage beendest, erhältst du eine Aufwertung ...
+tuto_card_white::... dein Gegner allerdings auch! Viel Glück!
+
+  -- TUTORIAL DIALOGUES
+  -- These are the names as displayed at the beginning of dialog boxes.
+black_king::Schwarzer König:
+black_bishop::Schwarzer Läufer:
+
+  -- Black Bishop:
+dialogue_tuto_1_1::Eure Majestät, alle haben Euch verlassen – nur ich bin noch da, um Euch mit Rat und Hilfe zur Seite zu stehen. Darf ich einen taktischen Rückzug vorschlagen?
+  -- [White bishop appears]
+  -- Black king:
+dialogue_tuto_1_2::Verräter!!! Ihr seht absurd aus in Weiß!
+  -- Black bishop:
+dialogue_tuto_1_3::Majestät, ich fürchte, wir sind dem nicht gewappnet. Bitte, lasst uns in Eure Festung zurückkehren.
+  -- B King:
+dialogue_tuto_1_4::Wohlan. Ich habe ohnehin schon eine Idee, wie ich diese Schande wiedergutmachen kann.
+  -- [Both get into the castle. Next screen is in a room with a shotgun on a pedestral.]
+  -- B King:
+dialogue_tuto_2_1::Da ist sie ja, meine treueste Dienerin ...
+  -- B Bishop:
+dialogue_tuto_2_2::Majestät? Was ... was habt Ihr vor?
+  -- B King:
+dialogue_tuto_2_3::Meine königliche Schrotflinte!!! Lasst uns diesen verräterischen Schuften gegenübertreten.
+  -- B Bishop: (distressed)
+dialogue_tuto_2_4::Euer Hoheit, bitte, ich flehe Euch an! Mit Verlaub, Ihr übertreibt es. Das kann ich nicht gutheißen.
+  -- B King:
+dialogue_tuto_2_5::Haltet Euer Schandmaul und bleibt hier. Ich brauche weder Euch noch Eure Billigung.
+  -- [Back outside in front of the castle. A white rook is there.]
+  -- B King: (can replace this line with any sort of gratuitous threat that plays on words with the rook piece or with the castle in the background)
+dialogue_tuto_3_1::Na, kleines Türmchen! Bewundert Ihr meine Mauern!? Kommt näher, ich zeige Euch etwas!!!
+  -- B King, after shooting once at the rook, needs to reload their shotgun:
+dialogue_tuto_3_2::Ihr nutzloser Ziegelhaufen, müsst Ihr mich zum Nachladen zwingen?
+  -- B King has killed the rook, and now two knights come onto the board.
+  -- B King: (snarky remark on knights' weird L-shape movement in chess)
+dialogue_tuto_4_1::Ah, hier kommt die königliche Kavallerie. Habt ihr Pferdeknutscher mittlerweile gelernt, Euch in geraden Linien zu bewegen?
+  -- B Bishop, explaining you can see enemy piece's info in the interface.
+dialogue_tuto_4_2::Mein König, ich habe einige Informationen über Eure einstigen Untertanen zusammengetragen, auf dass Ihr Euch mit ihnen vertraut machen möget – darunter ihre Bewegungsmuster sowie ihre Gesundheit und ihr Tempo.
+  -- B King: (callback to the first time the king told the bishop to shut up)
+dialogue_tuto_4_3::Habe ich Euch nicht gesagt, Ihr sollt Euer Schandmaul halten!?
+  -- Both knights are blown to pieces by the Black King.
+  -- B King:
+dialogue_tuto_powerup::Es gibt nichts Schöneres als den Geruch von Schwarzpulver und den Anblick zerfetzter Verräter, die durch die Luft fliegen! Ich fühle mich von Minute zu Minute lebendiger!
+  -- The white king and queen come onto the board with a few pawns.
+  -- B King: (lead hail refers to the shotgun's pellets. can replace this with any vaguely threatening pun/joke about rival royalty)
+dialogue_tuto_5_1::Pah, auf das königliche Paar, was? Ja, gleich gibt's was auf das königliche Paar, und zwar einen Hagel aus Blei, ha!!!
+  -- Still B King, to himself: ("gets it" = dies. Needs to convey that the white side will give up if their king dies)
+dialogue_tuto_5_2::Diese Feiglinge werden garantiert meinen Rasen verlassen, sobald ihr geliebter Weißer König ins Gras beißt.
+  -- The B King defeats the small white army.
+  -- Narrator, with illustrations: (continuation from vig_1, to be found further below, which is actually displayed at the start of the tutorial, and this is shown after the tutorial is completed)
+  -- (the "claim over thyne former subjects' souls" is about the game's mechanic of stealing piece's souls when they die to move like them.)
+  -- (B Bishop prophesizes that the B King's anger will lead him to his demise)
+vig_2_tuto::Nun, da die Weiße Armee nicht mehr da war, trat der Schwarze Läufer schweren Mutes vor den Schwarzen König, um mit diesen Worten seinen Dienst zu quittieren: „Eure Majestät, obschon Ihr ein Herrscher übelster Sorte seid, ist Eure Hoheitsgewalt immer noch heilig. Ihr behaltet das Anrecht auf die Seelen Eurer früheren Untertanen, die noch immer Anlass haben, Euren Zorn zu fürchten. Doch seid gewarnt: Der Zorn eines Mannes, so gottesfürchtig er auch sein mag, wird ihm immer zum Verhängnis werden!“
+vig_3_tuto::Und so ward der Schwarze König wirklich von allen verlassen – nicht ein Turm blieb an seiner Seite. Alles, was er noch hatte, waren seine königliche Schrotflinte, ein letztes bisschen Würde und das auflodernde Feuer des ihm prophezeiten Zorns. „Mein Zorn soll mir zum Verhängnis werden? Pah! Was habe ich denn noch zu verlieren?!“ Und so kam es, dass der König vor blinder Wut einmal mehr zu seiner Schrotflinte griff, um seinem finalen Schachmatt entgegenzugehen.
+
+  -- ACHIEVEMENT NAMES
+  -- please check directly in game in the codex for the signification of each achievement
+ach_FULL_SET::Voller Satz
+ach_WIZARD::Zauberer
+ach_COMPLETE::Komplett
+
+  -- This is given when the player defeats the secret bishop boss
+ach_AVENGED::Gerächt
+  -- This is given when the player defeats the secret bishop boss and shoots at the red book which gave his powers to the black bishop
+ach_EXORCISED::Verbannt
+
+ach_SWARM::Schwarm
+ach_SNIPER::Scharfschütze
+ach_ASSASSIN::Attentäter
+ach_STEROID::Doping
+ach_TRIGGER_HAPPY::Schießwütig
+ach_SCAVENGER::Plünderer
+ach_SOCIAL_DISTANCING::Sicherheitsabstand
+ach_SECRET::Geheimnis
+ach_SECURITY_SERVICE::Sicherheitsdienst
+ach_MOBILITY::Mobilität
+ach_BOUNDARIES::Grenzen
+ach_MACHINE_GUN::Maschinengewehr
+ach_SURVIVOR::Überlebenskünstler
+ach_DEMOLITION::Abriss
+ach_HORSEMEN_OF_THE_APOCALYPSE::Apokalyptische Reiter
+ach_ROYAL_RETAINER::Königliches Gefolge
+ach_THE_FLOOR_IS_LAVA::Der Boden ist Lava
+ach_EMPEROR::Kaiser
+ach_LATE_TO_THE_PARTY::Wer zu spät kommt ...
+ach_UNEXPECTED_ENTRANCE::Überraschungsauftritt
+ach_SWORDMAN::Schwertkämpfer
+ach_SLAUGHTER::Gemetzel
+ach_BENEVOLENCE::Wohlwollen
+ach_BUILDER::Baumeister
+
+ach_MERCIFUL_RULER::Barmherziger Regent
+ach_A_VELVET_GLOVE::Samthandschuh
+ach_DELETED::Gelöscht
+ach_SQUARE_ALLEGIANCE::Farbtreue
+ach_INCARNATION::Inkarnation
+ach_LIKE_FATHER_LIKE_SON::Wie der Vater, so der Sohn
+ach_HUMILIATION::Demütigung
+
+  -- This achievement is given for throwing an iron queen off of the checkboard
+ach_HASTA_LA_VISTA_BABY::Hasta La Vista, Baby
+
+ach_HOW_IT_SHOULD_BE::So soll es sein
+ach_SHE_IS_EVERYWHERE::Sie ist überall
+ach_MORTAL_PERIL::Todesgefahr
+ach_PROJECTILE_DYSFUNCTION::Projektile Dysfunktion
+ach_HOPE_THIS_HITS::Mal schauen ob das trifft
+ach_NINE_LIVES::Neun Leben
+ach_YOUR_WIFE_MY_WIFE::Eure Gemahlin, meine Gemahlin
+ach_A_MIGHTY_FORTRESS::Mächtige Festung
+ach_UNDERPRESSURE_AMMO::Unterdruckmunition
+ach_GLUTTONY::Völlerei
+ach_IRON_KING::Eiserner König
+ach_WIDOW::Witwe
+ach_YOU_SHALL_NOT_PASS::Durchgang verboten
+ach_BULLET::Patrone
+ach_SUICIDE_PACT::Selbstmordpakt
+ach_OH_NO::Oh nein!
+ach_MR_PRESIDENT::Herr Präsident!
+ach_LIFEGUARD::Rettungsschwimmer
+ach_MMMMH_DELICIEUX::Délicieux!
+
+  -- $0 is replaced with the number for each rank, this is the achievement given for completing them
+ach_rank::Rang $0
+
+ach_DANGEROUS_LIFE::Gefährliches Leben
+ach_NIGHTMARE_ERA::Alptraum-Epoche
+ach_DRAUGHTS::Muss der Wind gewesen sein
+ach_PUPPET_MASTER::Puppenspieler
+ach_HIDDEN_CONSPIRATOR::Versteckter Verschwörer
+ach_DECEIVER::Täuscher
+ach_STARBURST::Blendendes Licht
+ach_DETENTION::In Gewahrsam
+ach_OUT_OF_TIME::Zeitdruck
+ach_JEALOUSY::Eifersucht
+ach_DISCREET_HOST::Unauffällig
+ach_FIRST_AID::Erste Hilfe
+
+  -- More shotgun names
+
+
+  -- This one is for defeating the secret queen boss
+ach_MARITAL_PEACE::Ehefrieden
+  -- This one is for defeating the secret 4 horsemen of the apocalypse boss
+ach_END_OF_THE_WORLD::Das Ende der Welt
+  -- And this one is for getting the secret ending where the black king steals one of the apocalypse horsemen's horses
+ach_NEW_JOB::Neuer Job
+
+ach_WORKPLACE_ACCIDENT::Arbeitsunfall
+ach_BULLFIGHTING::Stierkampf
+ach_BURIED_ALIVE::Lebendig begraben
+ach_COLD_REGICIDE::Kaltblütiger Königsmord
+ach_FINAL_ESCAPE::Finale Flucht
+ach_HIPPOCRACY::Hippokratie
+ach_BLOODBATH::Blutbad
+ach_ANARCHY::Anarchie
+ach_WARDEN::Wächter
+ach_MIDNIGHT_DANCE::Letzter Tanz
+
+
+  -- ACHIEVEMENT DESCS
+ach_FULL_SET_desc::Habe 10 schwarze Karten
+ach_WIZARD_desc::Habe 3 Zauberstäbe
+ach_COMPLETE_desc::Töte den Weißen König
+ach_AVENGED_desc::Töte den Schwarzen Läufer
+ach_EXORCISED_desc::Töte das Rote Buch
+
+  -- $0, $1 and $2 are replaced with card names.
+ach_cards_desc::Gewinne mit: $0, $1 und $2
+
+  -- same description for all shotgun achievements.
+ach_gun_desc::Bewältige den Thron-Modus mit dieser Schrotflinte
+
+ach_MERCIFUL_RULER_desc::Schließe eine Etage ab, ohne einen Bauern zu töten
+ach_A_VELVET_GLOVE_desc::Schließe eine Etage ab, ohne eine Figur außer dem Anführer zu töten
+ach_DELETED_desc::Beende eine Etage vor dem 6. Zug
+ach_SQUARE_ALLEGIANCE_desc::Schließe eine Etage ab, ohne auf ein weißes Feld zu treten
+ach_INCARNATION_desc::Schließe eine Etage ab, indem du nur mit Seelen ziehst
+ach_LIKE_FATHER_LIKE_SON_desc::Töte den Weißen König, indem du seinen Erben auf ihn wirfst
+  -- hopping = jumping
+ach_HUMILIATION_desc::Töte den weißen König, indem du auf ihn springst
+ach_HASTA_LA_VISTA_BABY_desc::Töte eine Eiserne Dame
+ach_HOW_IT_SHOULD_BE_desc::Habe 2 Springer, 2 Türme, 2 Läufer, 1 Dame, 1 König und 8 Bauern auf dem gegnerischen Feld
+ach_SHE_IS_EVERYWHERE_desc::Habe 5+ Damen gleichzeitig auf dem Brett
+ach_MORTAL_PERIL_desc::Werde von 4 Figuren gleichzeitig bedroht
+ach_PROJECTILE_DYSFUNCTION_desc::Habe mehr Munition im Magazin als in deinem maximalen Vorrat
+ach_HOPE_THIS_HITS_desc::Erreiche eine Streuung von 120° oder höher
+ach_NINE_LIVES_desc::Aktiviere 9-mal Schwarzer Nebel
+ach_YOUR_WIFE_MY_WIFE_desc::Schnapp dir die Dame und bring sie auf das Feld, auf dem du die Runde beginnst
+ach_A_MIGHTY_FORTRESS_desc::Habe 6+ Türme gleichzeitig auf dem Brett
+ach_UNDERPRESSURE_AMMO_desc::Habe eine Feuerkraft von 1
+ach_GLUTTONY_desc::Habe 20+ Munition
+ach_IRON_KING_desc::Bewältige den Thron-Modus, ohne einen Schild des Narren zu verwenden
+ach_WIDOW_desc::Bewältige den Thron-Modus, ohne eine Dame zu töten
+ach_YOU_SHALL_NOT_PASS_desc::Bewältige den Thron-Modus, ohne einen Bauern umwandeln zu lassen
+ach_BLITZ_desc::Bewältige den Thron-Modus in weniger als 5 Minuten
+ach_BULLET_desc::Bewältige den Thron-Modus in weniger als 2 Minuten
+ach_SUICIDE_PACT_desc::Erledige einen Weißen König und den Schwarzen König mit einer Granate
+ach_OH_NO_desc::Komme durch deine eigene Granate um
+ach_MR_PRESIDENT_desc::Lass einen Turm den König vor einer fliegenden Figur retten
+ach_LIFEGUARD_desc::Stoße eine Figur aus dem Burggraben
+ach_MMMMH_DELICIEUX_desc::Lass dich vom Weißen König fressen
+
+  -- finish throne = finish throne mode. $0 is replaced with rank number.
+ach_rank_desc::Schließe den Thron-Modus mit Rang $0 ab
+
+ach_MARITAL_PEACE_desc::Töte die Plage
+ach_END_OF_THE_WORLD_desc::Töte die vier apokalyptischen Reiter
+ach_NEW_JOB_desc::Stiehl den Job eines apokalyptischen Reiters
+ach_WORKPLACE_ACCIDENT_desc::Wirf eine Figur (außer Bauern) vom Brett
+ach_BULLFIGHTING_desc::Lass ein Einhorn sich selber töten
+ach_BURIED_ALIVE_desc::Töte den König nur mit Mausoleum-Schaden
+ach_COLD_REGICIDE_desc::Töte den König während du getarnt bist
+ach_FINAL_ESCAPE_desc::Bewältige eine Etage, ohne während dem Final Countdown eine Figur zu verletzen
+ach_HIPPOCRACY_desc::Lass die Springer die weiße Armee anführen
+ach_BLOODBATH_desc::Habe 12+ blutende Figuren gleichzeitig auf dem Brett
+ach_ANARCHY_desc::Habe 4+ Könige gleichzeitig auf dem Brett
+ach_WARDEN_desc::Habe 8+ Figuren gleichzeitig im Gefängnis
+ach_MIDNIGHT_DANCE_desc::Erhalte +4 Feuerkraft von Spezialmanöver
+
+
+
+
+
+  -- LIVE SPECIFIC
+  -- Used only on Xbox.
+HERO_BestThroneRank::Bester Rang im Thron-Modus
+HERO_BestThroneTime::Beste Zeit im Thron-Modus (beliebiger Rang)
+HERO_BestEndless::Höchste Etage im Endlos-Modus
+HERO_HighscoreChase::Highscore im Jagdmodus
+  -- Shown as player's status.
+Presence_RP_menu::Im Menü
+Presence_RP_tutorial::Im Tutorial
+Presence_RP_throne::Im Thron-Modus – Rang {0}
+Presence_RP_endless::Im Endlos-Modus – Auf Etage {0}
+Presence_RP_chase::Im Jagdmodus
+
+  -- PSN SPECIFIC
+  -- Used only on PS4 & PS5
+ach_PLATINIUM::Der Gott mit der Schrotflinte
+ach_PLATINIUM_desc::Alle Trophäen erhalten
+ui_trophies::Trophäen: $0%
+
+  -- STORIES
+  -- Intro to throne mode (vig_1 is also used for the tutorial, and the tutorial ends with a variation of vig_2 and vig_3)
+vig_1::Der Schwarze König herrschte einst mit großer Härte und wenig Verstand. Die Jahre zogen ins Land, und mehr und mehr seiner Untertanen schlossen sich dem gütigen Weißen König an, der ihnen bessere Arbeit bei höherem Sold bot. Und so war es nur eine Frage der Zeit, bis der Schwarze König auch sein Schloss verlor und die letzten treuen Ritter ihm den Dienst quittierten. Am Ende verließ ihn selbst die Königin.
+  -- Black bishop prophesizes the king's anger will lead him to his demise. Also mentions "the claim over thyne subjects' souls" referring to getting the pieces' souls when you kill them in the game.
+vig_2::Bevor auch er dem Schwarzen König den Rücken zukehrte, wandte sich sein letzter Läufer mit mahnenden Worten an seinen Regenten: „Eure Majestät, obschon Ihr ein schlechter Herrscher wart, ist Eure Hoheitsgewalt immer noch heilig. Ihr behaltet das Anrecht auf die Seelen Eurer früheren Untertanen, die noch immer Anlass haben, Euren Zorn zu fürchten. Doch seid gewarnt: Der Zorn eines Mannes, so gottesfürchtig er auch sein mag, wird ihm immer zum Verhängnis werden!“
+  -- Black King angry.
+vig_3::Und so wurde der Schwarze König von allen verlassen – nicht ein Turm blieb an seiner Seite. Alles, was ihm noch blieb, waren seine königliche Schrotflinte, ein letztes bisschen Würde und das auflodernde Feuer des ihm prophezeiten Zorns. „Mein Zorn soll mir zum Verhängnis werden? Pah! Was habe ich denn noch zu verlieren?!“ Und so kam es, dass der König vor blinder Wut zu seiner Schrotflinte griff, um seinem finalen Schachmatt entgegenzugehen.
+
+  -- Transition to the boss big white king.
+vig_4::So viele Jahre hatte der Weiße König sich redlich bemüht, den Neuankömmlingen ein sicheres und schönes Leben zu ermöglichen ... Und nun sollte ein irrer, mit einer Schrotflinte bewaffneter Monarch alles in Schutt und Asche legen? „Nicht eine weitere Etage wird dieser selbstgefällige Psychopath erobern!“ Mit diesen Worten zog der wutentbrannte Weiße König in die Schlacht.
+  -- Variant for when the Theocracy card is in play. The White King takes back the rule from the bishops.
+vig_5::So viele Jahre hatte der Weiße König sich redlich bemüht, den Neuankömmlingen ein sicheres und schönes Leben zu ermöglichen ... Und nun sollte ein irrer, mit einer Schrotflinte bewaffneter Monarch alles in Schutt und Asche legen? Nein, der Weiße König konnte nicht tatenlos dabei zusehen, wie die Konklave sein Königreich in den Abgrund stürzte! „Nicht eine weitere Etage wird dieser selbstgefällige Psychopath erobern!“ Mit diesen Worten zog der wutentbrannte Weiße König in die Schlacht.
+
+  -- Normal win
+vig_6::Und so kam es schließlich, dass sein Zorn den Schwarzen König zum Sieg trug. Nun war es an ihm, die Schlösser und Untertanen des Weißen Königs an sich zu reißen, auf dass sie einmal mehr seine Schreckensherrschaft erdulden mögen ...
+vig_7::„Seht es positiv!“, sagte er nur. „Immerhin wurdet ihr nicht in Stücke geschossen!“, spottete er hämisch lachend mit erhobener Schrotflinte. Er fühlte sich unbesiegbar und hatte nicht das Geringste dazugelernt. Es dürfte allerdings nicht lange dauern, bis sich ein neuer Weißer König erhebt und die ganze Geschichte wieder von vorne beginnt ...
+
+  -- SECRET ENDINGS
+  -- On killing the Black Bishop:
+vig_8::„Hah! Wie war das noch gleich mit dem Verhängnis?!“, brüllte der König mit der Schrotflinte. Doch als der Läufer seinen letzten Atemzug tat, glitt ihm das Buch aus den Händen und schwebte von dort aus gen Himmel ...
+  -- The following is only used if a secret condition is respected of killing the bishop. Otherwise the normal ending is shown instead after this.
+
+vig_9::„Nicht so schnell!“, rief der König, nahm das Buch mit seiner bereits geladenen Schrotflinte ins Visier ...
+vig_10::... schoss, und verwandelte es in einen Haufen flatternder, zerfetzter Seiten. „Heilige Schrift ... von wegen!“, sagte er. „Nichts und niemand ist heiliger als ich und meine Schrotflinte!“
+vig_12::„Seht es positiv! Immerhin wurdet ihr nicht in Stücke geschossen!“, spottete er boshaft lachend mit erhobener Schrotflinte. „Und nun wird es Zeit für einen neuen Erlass! Für euch sind Bücher jetzt tabu! Weg mit den heiligen Schmökern! Von nun an bin ich euer Gott, der Gott mit der Schrotflinte!“ Und wenn seine Untertanen nicht gestorben sind, dann leben sie noch heute unter seiner Schreckensherrschaft.
+
+  -- Shown after defeating the secret boss queen. ("The Blight")
+  -- Should read as not-so-subtle freaky erotica. Don't use direct sexual words but lean hard into the double-entendres. Have fun with it!
+  -- Don't make it too long. The original text is already quite close to the limit of what can be displayed at once.
+vig_13::Diese Tentakeln ... Sie werden dem König noch manche schlaflose Nacht bereiten. Allein der Gedanke wie diese knochenlosen, schleimigen Arme über seine Haut fahren und ihn ins Bett drücken. Seine Lebenskraft aus ihm saugen. Die Dame war schon immer eine gierige Kreatur doch nun muss er sich mit dem einsamen Spiel mit seiner Schrotflinte begnügen.
+  -- Then the normal ending is shown.
+
+  -- Shown after the black king steals a horse from one of the secret boss horsemen of the apocalypse and leaves the board.
+  -- The black king found a "job opening" as a horseman of the apocalypse, leaving his old role of king.
+vig_14::Wer hat wohl eine Stelle als wortwörtlich biblische Plage bekommen? Schluss mit dem öden Zufriedenstellen von erbärmlichen, wertlosen Untertanen, endlich ein Job passend für den König! "Tod und Zerstörung, so gefällt mir das!" triumphiert er. Der Teufel hüte sich, hat doch der Schrotflintenkönig die unheilige Karriereleiter bestiegen.
+
+  -- Shown after defeating the secret boss Horsemen of the Apocalypse
+  -- Should mention the artifacts because they are shown in the accompanying illustration. Please do your best to translate the last joke about the horsemen's Last Judgement/Apocalypse being the black king's "thursday". (i.e. a day like any other)
+vig_15::"Reiter der Apokalypse? Hatten wohl alle lahme Pferde!" grinste der König als er die Artefakte in seinen Throphäenraum brachte. Der Läufer hatte ihn vor den Boten des letzten Gerichts, den Vollstreckern der Endzeit, gewarnt gehabt, doch den König hatte das nie interessiert. Für die Reiter war es das letzte Gericht, doch für den Schrotflintenkönig war es nur ein Donnerstag.
+
+
+  -- PLURALS
+  -- This is where you define pluralization rules!
+  -- The first rule defines the default behaviour for any word.
+  -- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+
+*
+*:s:
+*:s:
+
+  -- For any word that is spelt differently when pluralized, use either of these syntaxes:
+  -- child:s:children
+  -- child:2:children
+  -- Use this second version to define a puralization for a specific number. (here 2) Outside percentages the game only uses numbers below 10, so there's no need to define rules for numbers above 10. In case of unnumbered plurals (eg: "knight(s) get +2 HP") then the game internally uses the number 999. So you can write a specific rule for 999 for these cases like so:
+  -- knight:999:knights
+  -- Both versions of the word should be in your language. The original word should be identical to how you wrote it previously in this file, including capitalization(!).
+
+  -- This is used for piece names (full names, not the short versions), for the translation for "shell", and for any words you might have set between braces so you could write its proper plural form here.
+
+man:s:men
+Läufer:s:Läufer
+Bauer:s:Bauern
+Dame:s:Damen
+Turm:s:Türme
+Springer:s:Springer
+König:s:Könige
+Zug:s:Züge
+Patrone:s:Patronen
+Lauf:s:Läufe
+Typ:s:Typen
+schwarzer:s:schwarze
+Loch:s:Löcher
+

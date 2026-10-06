@@ -1,0 +1,1695 @@
+font>>Terminus
+font_size>>12
+font_line_height>>12
+font_offset_y>>8
+
+  -- Please only ever modify the part to the right of '::'.
+
+  -- In all texts, '|' indicates a linebreak for the game.
+
+  -- The game replaces instances of $0, $1, etc with relevant numbers.
+
+  -- instances of (s) are replaced with an 's' if the number associated is above 1, otherwise it is simply removed. The following alternatives are supported: (you can still use (s) if relevant)
+  -- (es) for Spanish
+  -- (y) for Polish
+  -- (и) for Ukrainian
+  -- (n), (er) and (e) for German
+  -- Additionally if none of these are helpful you can set a word between braces to tell the game to replace it according to a specific pluralization rule you specified at the end of this file. For example instead of writing "$0 man(s)" which makes no sense, I would write "$0 [man]" and the game will know to replace it with either "man" or "men" (defined at the very end of this file) depending on whether $0 is replaced with a 1 or something above. Make sure to write the singular version of the word inside the braces.
+  -- Even more specific pluralization rules can be defined at the end of this file, including rules for specific numbers.
+  -- In all cases outside of percentages, all numbers can safely be assumed to be below 10. For unnumberred plurals, (eg: knight(s) get +2 HP) the game always uses the number 999 internally.
+
+
+
+--NEW in v1.6
+
+
+  -- GAME MODE
+  -- Charnier is a new gamemode where the player raids villages which get more and more difficult, amassing corpses and cinders. Charnier is a french word which we kept in English. If it sounds too weird in your language, you can use Rampage, Carnage, Reaving...
+charnier::Charnier
+  -- brands are stat upgrades, bought with "cinders", which are won by winning raids.
+charnier_desc::Modo Charnier|Asalta aldeas de los leales.|- No tengas piedad.|- Deja un buen montón de cadáveres.|- La dificultad aumenta con cada aldea asaltada.|- Consigue cenizas para sobrevivir a la muerte o comprar marcas.
+  -- Beat rank 5 or above. Please match the format of the old key "endless_lock" (further down in this file)
+charnier_lock::Completa el modo Trono con rango 5 o superior para desbloquear el modo Charnier.
+
+
+  -- CHARNIER
+  -- The next keys are used in the new Charnier mode
+  -- short for "Are you sure?", used when resigning
+sure::¿Seguro?
+next raid::Siguiente asalto
+  -- brands are upgrades, the word should be fire-themed, to go with cinders.
+brands::Marcas
+  -- used for buying brands with cinders
+claim::Obtener
+  -- Cinders are the rewards for burning village in charnier mode.
+cinders::Cenizas
+  -- Cinders left to spend, or keep
+cinders_lefts::Cenizas restantes
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- tunnel is for cards that dig holes on the board
+tag_tunnels::Túneles
+  -- ally is for cards that give access to additional black pieces
+tag_ally::Alianza
+  -- on_hit is for cards that give bullets additional effects on hits
+tag_on_hit::Al impactar
+
+  -- Used in the codex to specify that multiple tags have to be in play for a card to appear.
+  -- eg: While playing a game gather cards with the tags Mission and Cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation for "and" if your language uses whitespaces.
+_and_:: y 
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, shown when relevent. They need to remain as short as possible. (ideally 8 characters or less)
+
+  -- Shown on selected pieces that can dodge pellets, as: "Dodge|[percentage change of dodging bullets]"
+dodge::Esquivar
+  -- Shown on selected pieces that are protected and can't take more than x damage
+dmg cap::Daño máx.
+
+  -- Short version of grenade damage
+g_dmg::Daño g.
+
+
+  -- ADDITIONAL INGAME
+  -- This is added below soul_desc for warden souls specifically (wardens are a new chess piece added in v1.6)
+warden_soul::Te protege de la muerte hasta que se use
+  --Player has won a raid in the Charnier game mode.
+raid_won::¡Asalto ganado!
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+  
+anarchy::¡Anarquía!
+  -- The next two keys are used when a piece dies, and other pieces with same type burn with anger for revenge.
+revenge_0::¡Venganza!
+revenge_1::¡Asesino!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+heresy::¡Herejía!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+purge::¡Purga!
+  -- Used when bishop excommunicate a card
+exile::¡Exilio!
+  -- Used when the Boss promote a pawn
+regal_ascent::Ascenso regio
+  -- Used when the Boss call 3 royal guards
+royal_guards::¡Guardias!
+
+  -- Briefly shown above pieces when they dodge a pellet.
+miss::fallo
+  -- Briefly shown above a piece that was set free from prison by the black king.
+free::libre
+  -- Briefly shown above a piece that was converted over to the black army
+defect::cambio
+
+
+  -- NEW PIECES
+  -- These are additional chess pieces, added in v1.6
+  -- Alternatives for slayer: assassin, ninja, hired killer, killer
+piece_12::Asesino
+  -- The warden is an armored piece that can protect the king. Alternatives: champion, thane
+piece_13::Campeón
+
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+  -- Alternatively, you can use "[black]" with brackets and define custom plurals for "black" at the end of this file. (we unfortunately do not have a solution for adjective gendering)
+black_piece::$0 de color negro
+black_leader::Rey negro
+
+
+  -- SHORT PIECE
+short_piece_12::Asesino
+short_piece_13::Campeón
+
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+  -- Renamed (and reworked) from the old Unfaithful Steed card.
+Faithful Steed::Corcel leal
+  -- Alternatives for Right-Hand: Advisor, Counsel
+Right-hand::Mano derecha
+Warhorse::Caballo de guerra
+Bastion::Bastión
+  -- Lets you move further in one turn. Alternative: Dash.
+Sprint::Carrera
+  -- Soul Projection lets the player literally project a soul onto the board as a new black piece.
+Soul Projection::Proyección de alma
+Onboarding Party::Fiesta de bienvenida
+Small Key::Llave pequeña
+Rapunzel::Rapunzel
+Wand of Treachery::Vara de la traición
+Guerilla Tactics::Tácticas de guerrilla
+Shovel::Pala
+Grindstone::Muela
+Death Mark::Marca de la muerte
+Shrapnel::Metralla
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Latecomer::Impuntual
+Vendetta::Vendetta
+Stoning::Lapidación
+Anarchy::Anarquía
+  -- Auto-da-fe was a punishment for heretics by the spanish inquisition. It means "act of faith". Feel free to look up what they call it in your language on Wikipedia and use that: https://en.wikipedia.org/wiki/Auto-da-f%C3%A9
+Auto-da-fe::Auto de fe
+  -- Late for Dinner delays the arrival of a few pieces, making the black king wait.
+Late for dinner::Tarde a cenar
+Excommunication::Excomunión
+  -- Refers to a queen/woman being burned at the stake by the bishops for acts of sexual deviancy
+Pyre of Lust::Pira de lujuria
+Gatehouse::Casa del guarda
+  -- Lightfoot lets pawns jump over other pieces. Can be replaced with your language's version of the children's game of leapfrog, if you feel it's relevant to your language's culture.
+Lightfoot::Correcalles
+Loyalist March::Marcha leal
+Trench War::Guerra de trincheras
+Catacombs::Catacumbas
+Flesh Wall::Muro de carne
+Hired Blade::Mercenario
+Oathkeeper::Juramentado
+  -- Redemption as in the religious practice of making up for past wrongs.
+Redemption::Redención
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- $delay is replaced with either the at_delay key, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final" key, which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+  -- eg: Add 1 pawn every 4 turns
+  -- modified in v1.6, from: "Add $0 $1s $delay"
+add_piece::Añade $0 $1s $delay.
+
+  -- Same but without the delay.
+  -- eg: Add 2 knights
+  -- modified in v1.6, from: "Add $0 $1s"
+add_piece_nodelay::Añade $0 $1s.
+
+  -- eg: 2 knights
+pieces::$0 $1s
+
+  -- Add/remove a group of pieces, $0 is replaced using the 'pieces' key above.
+add_group::Añade $0 $delay $final
+rem_group::Quita $0
+
+  -- this is used to describe effects that are only active on the final floor of a raid in charnier mode.
+at_final::en la batalla final
+
+  -- The following are the names of different stats as used in other card effects or in shotgun stats.
+reload_grenade::Recargar granadas
+butcher::Carnicero
+sheath::Marca de la muerte
+
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- Effects that were modified in v1.6:
+  -- used to be: "$leader swaps positions with a <piece> whenever he's about to take damage"
+effect_castle::Una pieza de tipo <head> intercambia su posición con una de tipo <piece> cuando vaya a sufrir daño.
+
+  -- used to be: "When you reach the waypoint choose a disruption effect and play an extra turn"
+effect_waypoint::Llega al punto de interés para sabotear al Ejército Blanco.
+
+  -- used to be: "<pieces> can't attack you" (the black king is no longer the only piece that can be attacked)
+effect_peace::Las piezas de tipo <piece> no te pueden atacar.
+
+  -- used to be: "<pieces> can only be hit when moving"
+effect_wraith::Tan solo se puede dañar a las piezas de tipo <piece> cuando se muevan o te amenacen.
+
+  -- used to be: "+1 fright radius|When you kill a non-pawn piece, every piece in the radius is scared. They can't attack you and flee on their next move"
+effect_fearsome::+1 de radio de Terror.|Cuando matas a una pieza que no sea un peón, se acobardan todas las piezas en torno al rey negro. No te atacan y usarán su siguiente movimiento para huir.
+
+  -- used to be: "+1 spy among the pawns|Reach the spy to choose a disruption effect and play an extra turn"
+effect_spy::+1 máscara de espía.|* Encuentra y haz frente a un espía para sabotear al Ejército Blanco.|* Los espías se vuelven negros al ascender.
+
+  -- used to be: "Create a hologram when you use a soul"
+effect_holoking::Crea un holograma al usar un alma.|El holograma aturde a cualquier pieza que lo mate durante 2 turnos.
+
+  -- used to be: "<pieces> can fire a projectile at you instead of moving" (the action is now on a separate cooldown)
+effect_catapult::Las piezas de tipo <piece> pueden lanzarte un proyectil.
+
+  -- used to be: "<pieces> can't move or attack if near a <target_piece>"
+effect_prison::Las piezas de tipo <piece> que estén cerca de 1 <target_piece> se ven apresadas.|(Las piezas apresadas no pueden moverse o atacar, pero pueden ser atravesadas).
+
+  -- used to be: "+$0 flagstone|Jump to a flagstone at any time"
+effect_flagstones::+$0 losa(s).|Muévete a una losa en cualquier momento.|+1 de potencia de fuego mientras estás en una losa.
+
+  
+  -- New effects in v1.6
+  -- Pieces carry their king with them when they move
+effect_carryking::Las piezas de tipo <piece> mueven al <head> si está adyacente.
+  -- Used as "Move range: +1"
+effect_sprint::Rango de movimiento: $1
+effect_summoner::Si no tienes ningún aliado, puedes gastar un alma para crear uno.
+  -- Welcome Gift is a card's name, please match it with your translation for that card.
+effect_onboarding::Da la vuelta a Regalo de bienvenida cuando un peón asciende o cuando un no peón entra en el tablero como apoyo.
+effect_small_key::Una vez por piso, haz clic en una torre cercana para eliminarla o en una pieza encarcelada cercana para convertirla.|Luego, interrumple al Ejército Blanco.
+  -- with a controller, you have to select the piece instead of just clicking it.
+effect_small_key_console::Una vez por piso, ataca a una torre cercana para eliminarla o en una pieza encarcelada cercana para convertirla.|Luego, interrumple al Ejército Blanco.
+effect_rapunzel::La primera vez que mates a una torre, se genera una reina negra.
+effect_anarchy::Formación del ejército al azar.|Asciende a dos piezas al azar a cualquier otro tipo.
+effect_censor::Cuando una pieza de tipo <piece> te amenace, marca una carta negra al azar o da la vuelta a todas las cartas marcadas.
+effect_exile::Si un alfil sigue con vida en el turno $0 o posterior, se le da la vuelta a esta carta.
+effect_spawn::Las piezas de tipo <piece> pueden crear una pieza de tipo <target_piece> en vez de moverse.
+effect_lightfoot::Las piezas de tipo <piece> pueden saltar los obstáculos en cualquier dirección.
+effect_hole_cover::La piezas en una trinchera o en un foso tienen una probabilidad del 50 % de esquivar las balas.
+effect_hole_start::Excava $0 hoyo(s) en el campo de batalla.
+effect_tunnels::Puedes viajar a cualquier hoyo si estás cerca de uno.
+effect_hole_solid::Los hoyos no se vienen abajo si los usas para viajar.
+  -- pieces that have 0hp remain standing and only die when the turn ends.
+effect_block::Las piezas de tipo <piece> no morirán hasta el final del turno.
+effect_jumpy::Dale la vuelta a esta carta al recargar el arma.
+  -- which card is kept is random
+effect_extra_white_choice::Las elecciones de carta incluyen una carta blanca adicional, pero solo se conserva una.
+  -- Charnier mode: Each house represents a floor, and villages represent raids. This effect adds one more floor to the next raids.
+effect_extra_floor::Las aldeas tienen una casa extra.
+effect_stoning::Las piezas de tipo <piece> le lanzan piedras al rey negro.
+effect_vendetta::Al matar a una pieza, todas las de ese tipo se mueven en el turno siguiente.
+effect_reload_grenade::Usa munición de escopeta para recargar las granadas.
+effect_reform::Dale la vuelta a esta carta cuando se ascienda a un peón.
+  -- the royal promote effect should be kept as short as possible
+effect_royal_promote::El jefe asciende a los peones.
+effect_sheath::Al impactar, los perdigones marcan a las piezas.|Las piezas marcadas sufren 1 de daño cuando recargas.
+effect_redemption::Al morir una pieza negra, se añade una pieza blanca del mismo tipo en el tablero.
+  -- Shrapnels are shot out of the shotgun along with the regular pellets. "pellet effects" are bleed, mark, etc.
+effect_shrapnel::Metralla: $1|La metralla inflige 0 de daño, pero activa efectos de perdigón.
+  -- With the Butcher effect, blade can be used to inflict damage, instead of being restricted to finishing pieces off.
+effect_butcher::La espada ya no se ve limitada a los golpes finales.
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+stat_g_dmg::Daño infligido por las granadas.
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+  -- modified in v1.6:
+  -- used to be: "Strafe mode: Right click a target to fire at it on your next moves"
+  -- +15° arc refers to the firearc; shots are less accurate.
+special_strafe::Modo desplazamiento: Haz clic derecho en un objetivo para dispararle en tus próximos movimientos con una dispersión de +15°.
+special_strafe_console::Modo desplazamiento: Pulsa $0 para seleccionar un objetivo y dispárale en tus próximos movimientos con una dispersión de +15°.
+
+  -- used to be: "Right click: arc -45$ and range +1|Resets on each move or reload"
+special_scope::Clic derecho: -45$ de dispersión y +2 de alcance.|Se reinicia con cada movimiento o recarga.
+special_scope_console::Pulsa $0: -45$ de dispersión y +2 de alcance.|Se reinicia con cada movimiento o recarga.
+
+  -- new in v1.6:
+  -- holes can be used to move to any other hole.
+special_dig::Haz clic derecho en una casilla cercana para excavar un hoyo.
+special_dig_console::Pulsa $0 para seleccionar una casilla cercana y excavar un hoyo.
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+  -- modified in v1.6, from: "Repel all white pieces northward"
+wand_4::Desplaza a todas las piezas blancas al norte.|Su siguiente movimiento se retrasa dos turnos.
+  -- new in v1.6
+wand_8::Convierte una pieza cercana.
+
+
+  -- SHOTGUN NAMES
+  -- The shotguns are named after historical leaders. Only translate if these names are usually spelled differently in your language.
+Solomon::Salomón
+Victoria::Victoria
+Ramesses II::Ramsés II
+Richard III::Ricardo III
+Makeda::Makeda
+Alexander::Alejandro
+Yvan IV::Yvan IV
+Attila::Atila
+Montezuma::Montezuma
+
+  -- SHOTGUN ACHIEVEMENTS
+  -- Please match these with the names above
+ach_SOLOMON::Salomón
+ach_RAMESSES_II::Ramsés II
+ach_RICHARD_III::Ricardo III
+ach_ATTILA::Atila
+ach_MONTEZUMA::Montezuma
+
+  -- SHOTGUN UNLOCKS
+  -- this is a puzzle for the players, they have to figure out that R6F8H7 refers to: Rank 6 (in throne mode), Floor 8, H7 chess coordinates. The player has to dig a hole there using the shovel card. Please keep the composition of the code and only replace R and F with the first letter of your translations for "Rank" and "Floor".
+shotgun_unlock_7::El código "R6N8H7" está grabado|en la funda vacía...
+  -- "Death Marks" refers to the card Death Mark
+shotgun_unlock_8::Consigue 2 marcas de la muerte|para desbloquear esta escopeta.
+
+
+
+  -- ACHIEVEMENTS
+ach_KING_WARBAND::Rey caballero
+ach_OVERPOPULATION::Sobrepoblación
+ach_OBSCURANTISM::Oscurantismo
+ach_EXPULSION::Expulsión
+ach_UNITED_HANDS::Colaboración
+ach_DEATH_SENTENCE::Sentencia de muerte
+ach_KINDLED_ATROCITY::Atrocidad prendida
+ach_ARCHITECT_OF_RUIN::Arquitecto de la ruina
+ach_SOVEREIGN_OF_THE_MASS_GRAVE::Soberano de la fosa común
+ach_CINDERLORD::Señor de las cenizas
+
+
+  -- ACHIEVEMENT CONDITIONS
+  -- "allies" as in extra black pieces
+ach_KING_WARBAND_desc::Ten un caballo, un alfil y una torre como aliados.
+  -- "generate" refers to the Gatehouse card which can create knights from rooks.
+ach_OVERPOPULATION_desc::Genera más de 12 caballos en un mismo piso.
+  -- "turned face down" as in flipped, deactivated
+ach_OBSCURANTISM_desc::Ten 6 cartas negras boca abajo.
+  -- "Send back" as in removing them indirectly by deactivating white cards.
+ach_EXPULSION_desc::Envia 4 o más piezas que no sean peones a un mismo piso.
+  -- "type" as in knight, rook, king, etc
+ach_UNITED_HANDS_desc::Ten 8 tipos de piezas a la vez en el tablero.
+  -- for this next achievement, the player has to use the new death mark effect that some cards have
+ach_DEATH_SENTENCE_desc::Mata a 4 piezas o más recargando tu escopeta.
+ach_KINDLED_ATROCITY_desc::Quema 6 aldeas en el modo Charnier.
+ach_ARCHITECT_OF_RUIN_desc::Quema 10 aldeas en el modo Charnier.
+ach_SOVEREIGN_OF_THE_MASS_GRAVE_desc::Quema 15 aldeas en el modo Charnier.
+  -- "hoard" as in accumulate cinders without using them.
+ach_CINDERLORD_desc::Amasa 5 o más cenizas en el modo Charnier.
+
+
+  -- MISSING
+  -- These keys existed previously but weren't translated. Maybe it was intended, but please give it a quick look to make sure.
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+crt::CRT
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+tutorial::Tutorial
+no::No
+degree_symbol::°
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+piece_8::$leader
+Karma::Karma
+ach_NINJA::Ninja
+ach_VICTORIA::Victoria
+ach_MAKEDA::Makeda
+ach_BLITZ::Blitz
+ach_ALEXANDER::Alexander
+ach_YVAN_IV::Yvan IV
+
+
+  -- EXTRA KEYS
+  -- These keys were previously defined in your language, but do not exist in the english file.
+  -- Keys starting with "effect_" may have been created to deal with a specific case of an effect configuration. Please update these if necessary.
+  -- Other keys must have been removed from the game, please remove them from this file also. Thank you!
+Unfaithful Steed::Corcel desleal
+effect_steed::Alcance de movimiento: +1.
+ach_ALEXANDER_desc::Supera el Modo Trono con esta escopeta.
+ach_YVAN_IV_desc::Supera el Modo Trono con esta escopeta.
+
+
+
+--OLD
+
+
+
+  -- MENU
+  -- These are displayed on buttons in the game's various menus.
+play::Jugar
+options::Opciones
+codex::Códice
+credits::Créditos
+quit::Salir
+back::Atrás
+resign::Abandonar
+start::Empezar
+
+  -- The next four keys are used in Charnier mode
+
+  -- Appears in the pause menu while in the tutorial. Could be translated as "end tutorial".
+skip_tutorial::Sin tutorial
+
+  -- This is shown on the titlescreen when using mouse and keyboard.
+click_start::Haz clic para empezar
+  -- This is shown on the titlescreen when using a controller.
+press_start::Pulsa $0 para empezar
+
+  -- OPTIONS
+music::Música
+sfx::Ef. sonido
+fullscren::Pant. completa
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+speedrun::«Speedrun»
+shields::Escudos
+scr.shake::Sacudida
+scr.flash::Parpadeo
+  -- Language. Use something short enough to fit on the same button with your language's name.
+lang::Lenguaje
+  -- Should be your language's name.
+lang_endonym::Español
+  -- Controller vibrations
+rumble::Vibración
+on::Sí
+off::No
+  -- GAMEMODE MENU
+  -- On gamemode selection screen, shows highscore for selected mode
+  -- eg: Best floor: 8
+  -- Note: the value after the colon is always a number in numerals
+best_floor::Mejor nivel:
+best_score::Récord:
+best_rank::Mejor rango:
+best_time::Mejor tiempo:
+
+  -- The following describe each gamemode.
+throne_desc::Modo Trono|Reclama tu trono llegando al nivel 12 de la torre principal del castillo.
+endless_desc::Modo Infinito|Escala una mazmorra sin fin y haz retroceder al Ejército Blanco todo lo que puedas.
+chase_desc::Modo Persecución|¡Escapa del castillo negro!|- Sobrevive todo lo que puedas.|- Aparecen guardias constantemente desde los bordes.|- La milicia está activa, la coronación no.|- Cada rey muerto te otorga una carta negra.|- Solo puedes quedarte con 5 cartas.|- Recoge cajas de munición para recargar tus cartuchos.
+tutorial_desc::Tutorial|¡Aprende a jugar!
+
+  -- These are unlock conditions for gamemodes that are not available from the start.
+endless_lock::Termina el Modo Trono en cualquier rango para desbloquear el modo infinito.
+chase_lock::Alcanza el nivel 15 en el modo Infinito para desbloquear el modo persecución.
+
+  -- This is used for rank selection (=difficulty selection)
+rank::Rango
+
+
+  -- Used to confirm an action such as giving up or wiping the player's save
+ask_confirm::¿Confirmar?
+
+
+  -- CODEX
+  -- The codex is the collection of cards the player has seen and used. The achievements also share this interface.
+  -- $0 is replaced with the actual progress percentage.
+ui_codex::Códice: $0%
+ui_achievements::Logros: $0%
+
+  -- Played and love are stats about the cards. "played is shown as "Played:3" for example, and love as "Love: 50%". Love is the preference stat of picking this card over another when given the choice.
+codex_played::Jugada
+codex_love::Favorita:
+
+  -- Here $0 is replaced with a list of cards that need to be in play before the selected card can appear for the first time. $1 is replaced with the card's name.
+codex_gather::Durante una partida, obtén $0 para tener opciones de que aparezca $1.
+
+  -- Here $0 is replaced with one or multiple tags (eg: "leader or grenade") that need to be in play before the card can appear for the first time. And $1 is replaced with the card's name. Tags are essentially keywords associated with certain cards.
+codex_gather_tags::Durante una partida, obtén cartas con la etiqueta $0 para tener opciones de que aparezca $1.
+
+  -- Used to list the tags associated with a card. Shown as "tags: [list of tags]"
+codex_tags::Etiquetas
+
+  -- Shown as "Needs card: [Card name]", meaning the selected card needs this card to be in play before it can appear in game.
+codex_need_card::Carta necesaria
+
+  -- Shown as "Needs tag: [tag]", meaning the selected card needs this tag to be in play before it can appear in game.
+codex_need_tag::Etiqueta necesaria
+
+  -- Shown as "Excludes tag: [tag]", meaning that while this card is in play, cards that have the denoted tag cannot appear.
+codex_exclude_tag::Etiqueta vetada
+
+  -- Shown on a button that resets the player's progress on discovering cards.
+codex_reset::Reiniciar estadísticas
+
+  -- Show for cards that have secret conditions for appearing in game for the first time.
+codex_secret::Esta carta es secreta. Solo aparece en una situación concreta.
+
+  -- Here $0 and $1 are replaced with a number and a stat respectively. Indicates a condition for a card to appear for the first time.
+  -- Eg: This card needs at least 6 firepower to appear
+codex_need::Esta carta necesita al menos $0 $1 para aparecer.
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- leader is for any card that affects white kings or whichever piece which has the crown
+tag_leader::Líder
+
+  -- mission is for Undercover Mission and The Mole
+tag_mission::Misión
+
+  -- cloak is for any card that lets you get into stealth mode
+tag_cloak::Sigilosa
+
+  -- bleed is for any card that allows you to inflict bleeding
+tag_bleed::Sangrante
+
+  -- orb is for the Seer's Orb
+tag_orb::Orbe
+
+  -- jump is for cards which let you jump over pieces, inflicting them one damage (like Taunting Hop)
+tag_jump::Saltarina
+
+  -- grenade is for cards that give you explosive grenades
+tag_grenade::Granada
+
+  -- blade is for cards that allow you to slash at low-hp enemy pieces
+tag_blade::Espada
+
+  -- GAME MODE
+  -- These are gamemode names, used in the gamemode selection menu.
+  -- Tutorial is the tutorial, teaches the player how to play the game.
+  -- Throne is the main, campaign mode where the goal is to reclaim the black king's throne.
+  -- Endless is an arcade-style highscore-chasing mode, it goes on until you lose.
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+throne::Trono
+endless::Infinito
+chase::Persecución
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, either shown are at all time or when relevent.
+
+  -- Floor is the current game level, eg: "Floor: 4"
+floor_::Nivel:
+
+  -- eg: "Score: 12"
+score_::Puntos:
+
+  -- Shown on selected pieces that are poisoned, as: "Poison|[number of turns until not poisoned anymore]". Poison makes pieces go slower.
+poison::Veneno
+
+  -- The following need to be very short to fit the space to the left of the checkboard. Use no more than 8 characters. Prefer 7 or less. Feel free to use abreviations.
+  -- short version of firepower
+power::Potencia
+
+  -- short version of range
+range::Alcance
+
+  -- short version of fire arc
+f_arc::Dispersión
+
+  -- short version of knockback (percentage of chance to push pieces backwards when they're hit)
+knock::Retroc.
+
+  -- short version of pierce (percentage of chance that pellets will not stop after hitting a first target)
+pierc::Perfor.
+
+  -- short version of blade/sword/cutting (ability to cut down pieces that have low-enough health)
+blade::Espada
+
+  -- short version of fright/scariness/terror (radius in which killing a piece will scare other pieces)
+fright::Terror
+
+  -- short version of jump (number of times you can jump over other pieces before ending your turn)
+jump::Salto
+
+
+
+  -- Current turn, eg: "Turn: 13"
+turn_::Turno:
+
+  -- Displayed when the player is pressing "shift" to ignore folly shields (which prevent you from putting yourself in a gameover position)
+unsafe_mode::Modo inseguro
+
+  -- Shown at the bottom of the screen when losing because of a classic chess checkmate
+checkmate::¡Jaque mate!
+
+  -- Shown after the gameover to ask if the player wants to restart.
+try_again::¿Volver a intentarlo?
+  -- Yes//No buttons
+yes::Sí
+
+  -- Used in endless mode past level 11. Instead of getting new cards, the white army is improved with one of these effects at random: (in piece_join, $0 is the replaced with the name of a piece, eg: "A knight joins the white army")
+blood_bowl::Cuenco sanguíneo|Todas las piezas blancas ganan 1 PV.
+pawns_join::Dos peones se unen al ejército blanco.
+piece_join::1 $0 se une al ejército blanco.
+
+  -- Shown when hovering the mouse cursor on wands. Wands are magic abilities the player can have.
+click_to_use::Clic para usarla
+
+  -- Shown instead when using a controller.
+press_to_use::Pulsa $0 para usarla
+
+  -- Shown on wands that have already been used this floor.
+replenish_floor::Se restablece en el próximo nivel.
+
+  -- Folly shields descriptor, shown on hovering folly shields below the shotgun. They automatically protect you from making moves that would lead you to your immediate death, consuming one shield every time.
+folly_shield::Escudos de la insensatez|Te protege de tus instintos suicidas.|Se recuperan en cada turno.
+
+  -- Shown on hovering a piece's soul, placed at the right of the checkboard after killing a noble piece. (knight, rook, bishop or queen) $0 is replaced with the piece's name.
+soul_desc::Alma de $0|Úsala para moverte como $0
+
+  -- Used when playing with a controller. $1 is replaced with a button name.
+soul_desc_console::Alma de $0|Pulsa $1 para moverte como $0
+
+  -- This is added below soul_desc when Sacred Crown is in play.
+crow_turn::y juega un turno extra
+
+
+  -- This is shown instead of soul_desc when the soul slot is empty. Killing a noble piece will fill this slot with its soul.
+soul_slot::Un espacio de alma|Derrota a una pieza noble para robarle el alma
+
+  -- These are shown specifically on pawn souls, which can be obtained with the card "Cannon Fodder". $0 is always replaced with the translation for "Pawn".
+pawn_soul_desc::Alma de $0|Úsala para sumar 2 de potencia de fuego a tu próximo disparo
+pawn_soul_desc_console::Alma de $0|Oprime $1 para sumar 2 de potencia de fuego a tu próximo disparo
+
+  -- This is shown when trying to reload your shotgun but it's already loaded.
+already_loaded::¡Escopeta ya cargada!
+
+  -- This is shown when attempting to use the Wand of Wrath but there's no valid target for it.
+not_target_wrath::¡No hay objetivos válidos para la cólera!
+
+  -- This is shown when attempting to use the Wand of Wings but no move is possible.
+cant_move::¡No te puedes mover!
+
+  -- This shown when hovering on the shotgun at the top of the screen. $0 is replaced with a number of shells, and $1s is replaced with the translation for "shell". It is pluralized automatically when relevant. (look to the bottom of this file to define specific pluralization rules)
+reload_shotgun_desc::Clic para cargar $0 $1s en la escopeta
+
+  -- Used in the previous line.
+shell::cartucho
+
+  -- Player has lost.
+game_over::Fin del juego
+
+
+  -- Shown at the bottom of the screen when trying to reload or use abilities but it's not possible.
+no_ammo_left::No queda munición
+no_shell_loaded::No hay cartuchos cargados
+no_grenade_left::No quedan granadas
+  -- Only one grenade can be thrown per turn.
+one_grenade_per_turn::Solo una granada por turno
+  -- Scope is one of the abilities.
+scope_on::Mira telescópica ya activada
+
+  -- Shown when a card is inactive. (not necessarily used up) $0 is replaced with with one of the next two lines.
+card_exhausted::Esta carta está inactiva. Se recuperará $0
+refresh_when::en el siguiente nivel
+  -- ammo boxes have to be reached and picked up on the checkboard.
+refresh_when_chase::cuando se obtenga una caja de munición
+
+  -- Shown when a card is temporarily inactive because of a condition stated in the card's description. $0 is replaced with one of the keys under "CONDITIONS" further down in this file.
+  -- eg: the High Focus card will deactivate "because a piece is adjacent to you".
+card_exhausted_bc::Esta carta está inactiva porque $0
+
+  -- Shown at the bottom of the screen during the animation where the heir is chosen at the start of a floor.
+hiding_heir::Ocultando heredero
+
+  -- Shown above the soul slots to the right of the checkboard
+souls::Almas
+
+  -- Used with angles. eg: "Fire arc: +30°"
+
+  -- Used when unlocking a new shotgun or a new rank, or completing an achievement. $0 is replaced with the name of the shotgun/rank/achievement.
+unlocked::¡Se ha desbloqueado: $0!
+
+  -- Used on the disrupt menu which lets you disrupt the white side with a negative effect.
+choose_disrupt::Elige un sabotaje
+
+  -- Shown at the bottom of the screen when the countdown is on and the player has to finish the floor in a number of turns.
+  -- Shown as "final countdown:[turns remaining]"
+final_countdown::Contrarreloj
+
+  -- Used when there's no possible target/victim for an ability the player is trying to use.
+no_valid_target::No hay objetivos válidos
+
+  -- Select a piece as target for an ability
+select_a_piece::Elige una pieza
+
+  -- Used with the Wand of Wings which lets you move further away from your position.
+choose_destination::Elige un destino
+
+
+  -- NEW!
+  -- Shown at the bottom of the screen when two pieces swap positions.
+swap::¡Intercambio!
+
+  -- Shown at the bottom of the screen in a very specific situation where the King's Look-Alike false king is revealed and subsequently becomes the real king, because the real king was removed when sabotaging the King's Look-Alike with a disruption effect.
+crowning::Coronación
+
+  -- Not used currently but would be used at the bottom of the screen when giving the player free random souls
+free_soul::¡Alma gratis!
+
+  -- Shown at the bottom of the screen during the sabotage disruption effect
+select_white_card::Selecciona una carta blanca
+
+  -- Shown at the bottom of the screen when using the card Bold Plan
+replace_white_card::Sustituye a cualquier carta blanca
+
+
+
+  -- LEVEL_UP
+choose_set::Elige un grupo de cartas
+
+  -- Used for a specific menu that allows you to choose one card among all possible cards.
+choose_any_card::Elige una carta
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+
+  -- Used when a pawn promotes to another piece.
+promote::Ascenso
+
+  -- Used when a knight protects the white king, making it impossible to kill the latter.
+knight_guard::Guardia
+
+  -- Used when the white king and a rook swap positions. Refers to the "Castle" move in classic chess.
+castle::Enroque
+
+  -- Used when white pieces arrive sometime after the floor started.
+backup::Refuerzo
+
+  -- Used when white pieces don't receive full damage because they are close to a piece that protects them. eg: rooks with the Cathedral card.
+cover::Cobertura
+
+  -- The heir pawn is being promoted to king
+heir_promote::¡Heredero!
+
+  -- Used to describe some card unlocks, eg: "This card needs at least 1 Heir to appear"
+heir::Heredero
+
+  -- Used to describe some card unlocks, same as heir.
+spy::Espía
+
+  -- Used to describe some card unlocks.
+soul::alma(s)
+
+  -- The player has found the spy in the white army, allowing them to disrupt the white side.
+meet_spy::¡Reunión secreta!
+
+  -- The player can take another action.
+extra_turn::Turno extra
+
+  -- Used when disguising as a pawn with the card Low-Cost Disguise.
+disguised::¡Disfrazado!
+
+  -- Used when the player leaves stealth mode because they exposed themselves.
+visible::¡Expuesto!
+
+  -- Used when the white army disables a mission waypoint with the "investigate" card effect. The "mission" normally allows you to disrupt the white side when completed.
+abort_mission::¡Misión abortada!
+
+  -- Used when the white army finds and kills the spy in their ranks with the "investigate" card effect.
+spy_executed::¡Espía ejecutado!
+
+  -- Used on the white king when he gets hit and it promotes the nearest pawn with the "Emergency Call" card.
+help::¡Socorro!
+
+  -- Used when shooting the white king's look-alike, revealing them for a knight instead.
+usurper::¡Farsante!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+
+  -- BOSS LINES (also emotes)
+  -- This is used for a secret boss. The black bishop cries "Justice!" (for all the evil the black king has done) before fighting the black king.
+black_bishop_warcry::¡Justicia!
+
+  -- The following two lines are used for a secret boss: after the big white king dies, the iron queen grows tentacles and speaks these two lines. Then you have to fight her.
+  -- It has to be two lines, they should be relatively short.
+come_to_me::Ven a mí,
+my_love::amor mío
+
+  -- These are used for a secret boss. They are the names of the four horsemen of the apocalypse. Please make sure to translate the correct names.
+apo_name_0::Peste
+apo_name_1::Guerra
+apo_name_2::Hambre
+apo_name_3::Muerte
+
+  -- The following five lines are used for a secret ending where the four horsemen of the apocalypse show up, but the shotgun king takes the fourth horse and kills the other 3 horsemen before leaving the screen.
+  -- It has to be five lines, they are shown one after the other, and they should be relatively short.
+apo_threat_0::¡No
+apo_threat_1::vaciléis
+apo_threat_2::al
+apo_threat_3::rey!
+apo_threat_4::Temedme
+
+  -- Used in a secret event where the white king gets disabled and their usurper knight becomes king instead.
+  -- Has to be 3 lines, they are shown in succession, they should be relatively short.
+power_people_0::¡Poder
+power_people_1::para el
+power_people_2::pueblo!
+
+
+
+
+
+
+  -- PIECES
+  -- These are used in card descriptions and other interface elements.
+piece_0::Peón
+piece_1::Caballo
+piece_2::Alfil
+piece_3::Torre
+piece_4::Reina
+piece_5::Rey
+piece_6::Jefe
+piece_7::Todas las piezas
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+
+
+  -- SHORT PIECE
+  -- These are used on the panel to the left of the checkboard when inspecting a white piece. Space is limited, please only use 7 characters or fewer for each.
+short_piece_0::Peón
+short_piece_1::Caballo
+short_piece_2::Alfil
+short_piece_3::Torre
+short_piece_4::Reina
+short_piece_5::Rey
+  -- Boss is used for the big white king on the last level of Throne mode.
+short_piece_6::Jefe
+  -- Blight is the name for the secret queen boss. The point is simply that she's scary, feel free to use whatever conveys that and fits the space constraint.
+short_piece_10::Epidemia
+  -- Rider is shown for the secret horsemen of the apocalypse bosses. Ideally should be different to the name for knights, you can also use a word/abreviation for "apocalypse" instead.
+short_piece_11::Jinete
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+
+Ermine Belt::Cinturón de armiño
+Elite Gem::Gema de élite
+Extra Barrel::Cañón extra
+Royal Loafers::Mocasines regios
+Majestic Censer::Incensario majestuoso
+Sacred Crown::Corona sagrada
+Blunderbuss::Trabuco
+Engraved Scope::Mira telescópica
+Holy Gunpowder::Pólvora sagrada
+Ritual Dagger::Daga ritual
+August Presence::Presencia augusta
+Crow's Blessing::Bendición corvina
+The Moat::El foso
+Rightful Curtsy::Merecida cortesía
+Wand of Downpour::Varita pluvial
+Wand of Frenzy::Varita frenética
+Wand of Wrath::Varita colérica
+Wand of Wings::Varita alada
+Wand of Gust::Varita eólica
+Wand of Hypnosis::Varita hipnótica
+Kingdom Wealth::Abundancia del reino
+Gradual Absolution::Absolución gradual
+Taunting Hop::Salto acrobático
+Unjust Decree::Decreto injusto
+Kingly Alms::Limosna regia
+Subtle Poison::Veneno sutil
+Small Fry Harvest::Cosecha del mindundi
+A Piercing Truth::Una verdad perforante
+Black Mist::Niebla negra
+King's Shoulders::Los hombros del rey
+High Focus::Alta concentración
+Courteous Jousting::Justa cortés
+Cornered Despot::Déspota arrinconado
+Sawed-off Justice::Justicia recortada
+Welcome Gift::Regalo de bienvenida
+Cannon Fodder::Carne de cañón
+Possessed::Poseído
+Philanthropy::Filantropía
+Imperial Shot Put::Lanzamiento imperial
+Egotic Maelstrom::Vorágine egoísta
+Church Organ::Órgano eclesial
+Black Plague::Peste negra
+Ravenous Rats::Ratas voraces
+Deep Water::Aguas profundas
+Unholy Call::Llamada sacrílega
+Undercover Mission::Misión encubierta
+Caltrops::Abrojos
+Nightbane::Nocturna
+Bushido::«Bushidō»
+Bloodless Coups::Golpe limpio
+Presbyopia::Presbicia
+Golden Aging::Dulce envejecer
+Fool Companion::Compañero bromista
+Force-feeding::Sobrecarga forzada
+Seer's Orb::Orbe de vidente
+Fearsome::Temible
+Human Shield::Escudo humano
+Reign of Terror::Reino de terror
+Monarch's Confidence::Confianza del monarca
+The Mole::El Topo
+Elusive::Esquivo
+Holoking::Rey-presentación holográfica
+Cloaking Device::Artefacto de invisibilidad
+Low-Cost Disguise::Disfraz barato
+Wand of Souls::Varita de las almas
+Wand of Execution::Varita verduga
+Patience::Paciencia
+Bold Plan::Plan audaz
+Silencer::Silenciador
+Ambush::Emboscada
+Ancient Flagstone::Laja ancestral
+Tearing Bullets::Perdigones desgarradores
+Indelible Memories::Memorias indelebles
+Mystic Shackles::Grilletes místicos
+Secret Move::Movimiento secreto
+Sacred Light::Luz sagrada
+Workshop::Taller
+Selective Listening::Escucha selectiva
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Backups::Refuerzos
+Cavalry::Caballería
+Conclave::Cónclave
+Entitle::Titulación
+Cardinal::Cardenal
+Remparts::Murallas
+Pillage::Pillaje
+Crusades::Cruzadas
+Peace::Paz
+King's Mistress::Amante del rey
+Revolution::Revolución
+Bodyguard::Guardaespaldas
+Ruins::Ruinas
+Assault::Asalto
+Kite Shield::Escudo de lágrima
+Zealots::Entusiastas
+Militia::Milicia
+Ammunition Depot::Polvorín
+Scouting::Avanzadilla
+Pikemen::Lanceros
+Ascension::Ascensión
+Castle::Enroque
+Conscription::Reclutamiento
+Theocracy::Teocracia
+Iron Maiden::Doncella de hierro
+Court of the King::Corte del rey
+The Red Book::El libro rojo
+Homecoming::Regreso a Casa
+Overthrown Theocracy::Teocracia derrocada
+Saboteur::Saboteador
+Lookout Tower::Torre de vigilancia
+Throne Room::Salón del trono
+The Secret Heir::El heredero arcano
+  -- If you're afraid "Drag Queen" won't be understood in your culture, you can go for something else related to queer or transgender rights. Do not use slurs and try to keep it positive please.
+Genderqueer::«Drag Queen»
+Undead Armies::Ejércitos de no muertos
+Shortage::Escasez
+Succubus::Súcubo
+Bunker::Búnker
+Sanctity::Santidad
+  -- This card makes knights ethereal/ghost-like. Could be translated to something along the lines of Spectral Cavalry if there's no way to translate the Knightmare pun.
+Knightmare::Espectro ecuestre
+Highest Dungeon::Torreón
+Cathedral::Catedral
+The Bridge::El puente
+Divine Healing::Curación divina
+Last Guardian::Último guardián
+Trowel::Palustre
+Full Plate Armor::Armadura completa
+Military Academy::Academia militar
+Witch's Curse::Maldición de la bruja
+Saddle::Sillín
+The Jester::El bufón
+Guillotine::Guillotina
+Analysis Paralysis::Parálisis de análisis
+Plumed Knight::Caballo enplumado
+Emergency Call::Llamada de emergencia
+Mangonel::Mangana
+Governess::Institutriz
+Mausoleum::Mausoleo
+Reverend Mother::Madre reverenda
+Sokoban::Encargado
+Tag Team::Lucha en pareja
+Unicorn::Unicornio
+Lady in the Tower::La dama en la torre
+Final Countdown::Contrarreloj
+  -- Can be translated as Nomadism. Please do not use potentially offensive terms.
+Nomad Life::Vida nómada
+Prison::Prisión
+Inquisition::Inquisición
+King's Look-alike::Doble del rey
+The Royal Hunt::La caza real
+Tragic Homecoming::Trágico regreso a casa
+  -- Limos (or Limus in latin, take your pick) is the name of the third Horseman of the Apocalypse, the one wearing the shield (/buckler) in the secret boss version of the horsemen in the game. This card gives the shield to the white king, protecting him to some extent. The Limos reference doesn't have to be kept if you can find a better name for that card in your language.
+Buckler of Limos::Rodela de limos
+Vampirism::Vampirismo
+Commoner's Reign::Reinado plebeyo
+Bouncy Castle::Castillo saltarín
+Fallen Dynasty::Dinastía caída
+Self-Defense::Defensa personal
+Unsettled Throne::Trono agitado
+
+
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- eg: Remove 2 pawns
+rem_piece::Quita $0 $1s.
+
+  -- Same thing but $delay is replaced with either the at_delay key below, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final", which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+
+  -- Same but without the delay.
+
+
+
+
+  -- Used with add_piece. Also used under this form: "after/every N turns: [other effect]". $0 is replaced with a number.
+at_delay::después de $0 turno(s)
+every_x_turn::cada $0 turno(s)
+
+  -- The following are the name of different stats as used in other card effects or in shotgun stats.
+ammo_max::Munición máxima
+grenades_max::Granada(s)
+ammo_regen::Munición regenerada
+firepower::Potencia de fuego
+firerange::Alcance
+chamber_max::Cañón(es)
+pierce::Perforación
+spread::Dispersión
+  -- "Search" as in "Looking for something". The search stat lets you reroll card choices N times. Can also translate as "Reroll" if it makes more sense in your language.
+search::Búsqueda
+knockback::Retroceso
+hp::PV
+
+
+  -- Special descriptions for the Homecoming card, whcih always appears on the third level-up.
+queen_escape::No puedes escapar de ella…
+queen_everywhere::... ¡Está por todas partes!
+
+  -- Even more special descriptions for when you try to reroll the Homecoming card.
+queen_escape_tragic::Te hubiera sido mejor no intentarlo...
+queen_everywhere_tragic::... ¡Se ve que está enfadada!
+
+  -- Used to describe conditions under which a card deactivates. $0 is replaced with one of the conditions under CONDITIONS further below.
+flip_if::Carta desactivada si $0
+
+  -- Used to denote a group of pieces in effect descriptions. Is used to replace some instances of <pieces>.
+  -- eg with effect_prison: Knights and bishops can't move or attack if near a rook.
+and::y
+
+  -- Actually used in the codex to specify multiple possible tags that can let a card appear.
+  -- eg: While playing a game gather cards with the tag mission or cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation of "or" if your language uses whitespaces.
+_or_:: o 
+
+  -- Used when an effect is limited to a square color. $1 is replaced with the effect, and $0 with the color as written just below.
+  -- eg: -1 firepower on white squares
+standing::$1 Solo en escaques $0.
+white::blancos
+black::negros
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- these next 3 are new and might need reviewing
+effect_ammo_max::$1 de munición máxima.
+effect_grenades_max::$1 granada(s).
+effect_ammo_regen::$1 de regeneración de munición.
+
+effect_chamber_max::Carga $0 cartucho(s) adicional(es) en tu escopeta.
+effect_soul_slot::Añade $0 espacio(s) de alma extra.
+effect_soul_sink::Elimina 1 espacio de alma.
+effect_crown::Tendrás un turno extra al moverte con una carta de alma.
+effect_presence::No podrá acercarse a tu rey ninguna pieza que no sea el rey.
+effect_moat::Solo los caballos podrán cruzar el foso en un solo movimiento.
+effect_hp::<piece>: <inc> PV.
+effect_hprc::<piece>: $0 % PV.
+effect_tempo::<piece>: <inc> de velocidad.
+effect_shell::Consigue $0 de munición cada vez que matas <pieces>.
+effect_poison::Límite de movimientos de <piece>: 1 escaque durante $0 turno(s).
+effect_cage::Los movimientos de <pieces> están limitados a $0 escaque(s).
+effect_shield::Las piezas de tipo <piece> tienen un escudo que absorbe todo el daño una vez.
+effect_flying::Las piezas de tipo <piece> pueden moverse y atacar a través de cualquier obstáculo.
+effect_iron::Las piezas de tipo <piece> no pueden morir.
+effect_orth::Las piezas de tipo <piece> pueden moverse (pero no atacar) ortogonalmente.
+effect_joust::Tienes un turno extra al matar a una pieza de tipo <piece>.
+effect_recoil::Retrocedes al disparar.
+effect_firepower::$1 de potencia de fuego.
+effect_firerange::$1 de alcance.
+effect_pawnreap::Usa las almas de los peones para sumar 2 de potencia de fuego a tu próximo disparo.
+effect_freegren::Una vez por turno, lanzas una granada sin terminar el turno.
+effect_grenade_dmg::$1 de daño de granada.
+effect_sanctity::Las almas de <pieces> no se pueden cosechar.
+effect_plague::Al final de cada turno, una pieza al azar sufre 1 de daño.
+effect_rats::Cuando matas a una pieza, una rata muerde al enemigo más cercano, infligiéndole 1 de daño.
+effect_deepwater::Las piezas que estén dentro del foso no pueden atacarte.
+effect_pentagrams::Añade $0 pentagramas al tablero. Activa uno para obtener un turno extra. Actívalos todos para sumar 2 de potencia de fuego.
+effect_blade::Espada: $1.
+effect_blade_console::Espada: $1 de daño.
+effect_blade_old::Ejecuta piezas adyacentes con PV de igual o menor valor que tu espada.
+effect_bushido::Una vez por turno, ejecuta a una pieza con tu espada sin terminar tu turno.
+effect_minr::Las piezas de tipo <piece> no te pueden atacar a menos de $0 de distancia.
+effect_carry::Las piezas de tipo <piece> transportan toda pieza que no sea torre o caballo al moverse.
+effect_nocarry::Las piezas de tipo <piece> no pueden ser transportadas por otras piezas.
+  -- for free = without spending the turn
+effect_freelift::Las piezas de tipo <piece> pueden ser cargadas y arrojadas sin terminar tu turno.
+effect_jester_guard::Los bufones pueden moverse en todas direcciones y siempre siguen a su $leader. Obtienes un turno extra al matar a un bufón.
+effect_bodyguard::No se puede matar a una pieza de tipo $leader si hay $0 con vida.
+effect_knockback::Aumenta la probabilidad de hacer retroceder al enemigo en un $1 %.
+  -- here the second $ is replaced with the degree_symbol key.
+effect_spread::Dispersión: $1$.
+effect_absolution::$1 de potencia de fuego por cada espacio de alma vacío.
+effect_hop::Salto: $1 (salta sobre una pieza adyacente sin terminar tu turno).
+effect_pierce::Tus proyectiles tienen un $0 % de probabilidad de perforar enemigos.
+effect_mist::Te protege de la muerte una vez por nivel.
+effect_grab::Una vez por nivel, arrastra una pieza adyacente hacia tu rey y arrójala en cualquier dirección.
+effect_grab_console::Una vez por nivel, arrastra una pieza adyacente y arrójala en cualquier dirección.
+effect_assault::Las piezas de tipo <piece> pueden moverse un escaque adicional en su primer movimiento.
+effect_militia::Los peones pueden moverse y atacar en cuatro direcciones.
+effect_bad_shells::Duplica la dispersión de $0 proyectil(es).
+effect_heir::Heredero: $1.|(El heredero secreto reemplaza al rey si muere).
+effect_nothing::Sin modificaciones.
+effect_manual_reload::Recarga un solo cartucho por turno.
+  -- <pieces> and <piece> are not necessarily the same piece type.
+effect_protect::Las piezas que no sean <pieces> que estén cerca de piezas de tipo <piece> no pueden sufrir más de 2 de daño por turno.
+effect_bridge::Abre un camino en el foso.
+effect_healer::Las piezas de tipo <piece> pueden sanar a aliados cercanos en vez de moverse.
+  -- the last one = the last one alive/remaining
+effect_lastg::Al matar a 1 <piece>, se corona a otra pieza de tipo <piece> si es la última que queda.
+effect_curse::Se le da la vuelta a esta carta cuando muera 1 <piece>.
+effect_jester::Los bufones pueden moverse en diagonal y tienen +2 de velocidad. Los bufones pasan su gorro al morir.
+effect_free_souls::Se añaden $0 alma(s) al azar al inicio de cada nivel.
+effect_plumed::Una pieza de tipo <piece> obtiene +3 PV y la capacidad de atacar en diagonal.
+effect_emergency::La primera vez que dañes a 1 <piece>, obtendrá +1 de velocidad y el peón más próximo será coronado.
+effect_despair::Cuando 1 <piece> muere, todas las demás se acobardan. No te atacan y usarán su siguiente movimiento para huir.
+effect_force_promote::Los peones siempre se coronan en <target_pieces>.
+effect_leaderbond::Cuando 1 <piece> muere, las piezas de tipo $leader sufren $0 de daño.
+effect_humanshield::El Terror también se infunde al matar peones.
+effect_terrorism::El Terror también se infunde alrededor de las piezas muertas.
+effect_search::Búsqueda:$1.
+effect_tactic::Las piezas blancas no pueden mover más de $0 tipo(s) de pieza en cada turno.
+effect_confidence::+1 de potencia de fuego por cada munición que falte en el cañón de la escopeta.
+effect_push::Las piezas de tipo <piece> pueden empujar hacia delante a otras piezas hasta $0 veces.
+effect_swap::Las piezas de tipo <piece> pueden cambiar su posición con las de tipo <target_piece>.
+  -- can charge your king = can run towards your king (this is used for the Unicorn card, which lets knights ram you down)
+effect_charge::Las piezas de tipo <piece>, en vez de moverse, pueden embestir a tu rey y empujarlo un escaque.
+  -- white pieces ready to move = about to move
+effect_elusive::Las piezas blancas que estén a punto de moverse no te pueden atacar.
+  -- a piece that would kill you instead gets promoted to a queen
+effect_killprom::Las piezas de tipo <piece> se coronan como reinas en vez de ejecutar al rey negro.
+effect_holocloak::Cada vez que creas un holograma, entras en modo sigilo durante 6 turnos.
+effect_holoreveal::Sales del modo sigilo si tu holograma es destruido.
+  -- a countdown starts when there are only 6 pieces left. If you don't end the floor within the countdown, you die.
+effect_deathcount::Tienes $0 turno(s) para eliminar las últimas seis piezas.
+effect_disguise::Cuando mates a 1 <piece>, entras en modo sigilo durante $0 turno(s).
+effect_promote::Las piezas de tipo <piece> pueden coronarse si llegan a la última línea.
+effect_bully::-1 de potencia de fuego por cada <piece> que te tenga en jaque.
+effect_investigate::Las piezas de tipo <piece> ejecutan a los espías expuestos y cancelan misiones.
+effect_false_king::Reemplaza al doble del rey con un caballo cuando sufra daños.
+effect_full_firerange::$1 de alcance cuando tengas el arma llena.
+effect_full_firepower::$1 de potencia de fuego cuando tu arma esté llena.
+  -- browse the entire deck and pick your card the next time you're getting a black card
+effect_browse::Para tu siguiente carta negra, busca y elige una del mazo entero.
+effect_replace_white_card::Reemplaza una carta blanca con otra diferente.
+effect_pike::Las piezas de tipo <piece> atacan en los dos escaques que tienen enfrente.
+effect_reformed::Las piezas de tipo <piece> no pueden usar su ataque estándar.
+effect_armorgap::Las piezas de tipo <piece> no pueden sufrir más de $0 de daño en un solo turno.
+effect_bow::Las piezas de tipo <piece> pueden dispararte flechas.|+1 a su velocidad de tiro.
+  -- fire = shoot your shotgun
+effect_silencer::Cuando estés en modo sigilo, dispara sin revelarte.
+effect_knockweak::Las piezas de tipo <piece> tienen un 50 % más de probabilidad de ser empujadas.
+effect_uncover::Las piezas de tipo <piece> pueden atacarte incluso cuando estés en modo sigilo.
+effect_tearing::Las piezas impactadas por tus proyectiles sufrirán hemorragia. (Las piezas con hemorragia sufren 1 de daño extra en cada impacto recibido).
+effect_bleed_slow::-1 de velocidad en las piezas con hemorragia.
+effect_caltrops::+$0 % de probabilidad de provocar hemorragia a enemigos que se muevan.|(Las piezas con hemorragia sufren 1 de daño extra en cada impacto recibido).
+effect_grenade_center_dmg::$1 de daño en el escaque central de la granada.
+effect_grenade_bleed::Las granadas provocan hemorragia.|(Las piezas con hemorragia sufren 1 de daño extra en cada impacto recibido).
+effect_vampire::Las piezas de tipo <piece> son inmunes a la hemorragia.|Las piezas de tipo <piece> se curan cerca de las piezas con hemorragia y detienen su sangrado.
+effect_rep::Reemplaza a las piezas de tipo <piece> con 1 <target_piece> cuando mueran.
+  -- orb = Seer's Orb, special ability that lets you place an orb over a piece to know its next move
+effect_shackles::La pieza bajo el orbe no puede modificar su movimiento y tiene -1 de velocidad.
+effect_ruler::Gana si mueren todas las piezas de tipo <target_piece>.
+effect_hop_dmg::Daño del salto: $1.
+  -- use up all your jumps available in a turn
+effect_botte::Utiliza todos tus saltos para obtener una potencia de fuego equivalente a la estadística de salto en el próximo disparo.
+effect_fitness::Las piezas de tipo <piece> pueden moverse como caballos (pero no atacar).
+effect_grenade_proof::Eres inmune al daño de granadas.
+effect_grenade_stun::Las granadas aturden piezas durante $0 turno(s).
+effect_trampoline::Las piezas que caigan del tablero vuelven como nuevas.|Las granadas rebotan más.
+  -- Replaces Theocracy and Hippocracy descriptions on the boss level, where you have to beat the big white king instead. Royalty shall prevail = royalty shall have the last word = royalty was fated to make a comeback
+effect_fallen::Gobernaron hace mucho tiempo…|Mas la realeza ha de prevalecer.
+  -- Produce = generate. Used with every_x_turn key
+  -- eg: Every 10 turns: Produce 1 grenade
+effect_mk_grenades::Produce $0 granada(s).
+effect_mk_ammo::Produce $0 cartucho(s).
+effect_heirprom::Los herederos se coronan como reyes.
+effect_freereload::Recargas al matar.
+effect_overload::Recargar sin moverte te permite meter un cartucho más en la escopeta cuando esté llena.
+effect_delay_mult::Todas las esperas de cartas se alargan un $0 %.
+effect_paralysis::No puedes jugar durante $0 turnos o hasta que estés en jaque.
+effect_cannonball::Añade $0 bala(s) de cañón.|Las balas de cañón se pueden coger y arrojar a las piezas.
+  -- backups refer to cards that add pieces after a number of turns
+effect_alarm::Los refuerzos blancos aparecen $0 turno(s) antes por cada pieza que matas.
+  -- Here "strategy" refers to the difficulty level of the algorithm deciding the white side's moves. Shows as: "White Strategy:+1"
+  -- "White Strategy" can also be translated as "AI Intelligence", "AI Cleverness", or "White Tactics". Take your pick
+effect_ai_lvl::Nivel táctico de Blancas: $1
+
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+  -- $0 is always replaced with the number for that stat, except with range.
+  -- Range is how far you can shoot before your pellets disintegrate, but it's slightly randomized so we give two numbers, a minimum and a maximum, thus $0 is replaced with "3-5" for example.
+  -- For stat_blade and stat_jump, "nearby" means on one of the 8 squares around your king, including corner squares.
+stat_firepower::Cada cartucho de tu escopeta despide $0 perdigones. Cada uno de ellos inflige 1 de daño.
+stat_range::Tus perdigones tienen un alcance de $0 escaques.
+stat_f_arc::Tus perdigones se dispersan $0.
+stat_knock::Tus perdigones tienen un $0 % de probabilidad de hacer retroceder a las piezas.
+stat_pierce::Tus perdigones tienen un $0 % de probabilidad de perforar piezas.
+  -- [You can / you are allowed to] kill a nearby piece with...
+stat_blade::Mata a una pieza adyacente con $0 de vida o menos sin gastar ningún cartucho.
+stat_fearsome::Cuando mates a una pieza, todas las que estén al alcance del Terror se acobardan y huyen en su próximo movimiento.
+  -- [You can / you are allowed to] jump over a nearby piece...
+stat_jump::Salta por encima de piezas adyacentes hasta $0 veces sin terminar tu turno.
+
+  -- CONDITIONS
+  -- These are used with the flip_if and card_exhausted_bc keys.
+  -- $0 is replaced with a piece name, $0s is replaced with the pluralized version of that piece name. You can use one or the other.
+cond_contact::hay una pieza adyacente a ti.
+cond_inner::tu rey no está en el borde del tablero.
+cond_first-reload::se ha recargado la escopeta.
+cond_no_piece::no hay piezas de tipo $0 en el tablero.
+cond_only_pieces::solo hay $0s en el tablero.
+cond_not_cloaked::tu rey no está en modo sigilo.
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+
+
+special_decree::Haz clic derecho para disparar todos los cartuchos cargados.
+special_decree_console::Pulsa $0 antes de disparar para usar todos los cartuchos cargados.
+
+special_grenade::Haz clic derecho para lanzar una granada.
+special_grenade_console::Pulsa $0 para lanzar una granada.
+
+special_orb::Haz clic derecho sobre una pieza para predecir su próximo movimiento.
+special_orb_console::Pulsa $0 para seleccionar una pieza y predecir su próximo movimiento.
+
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+wand_0::Inflige $0 de daño a enemigos al azar.
+wand_1::Rellena tu munición y recarga el arma.
+  -- in wand_2, $0 gets replaced with the translation for "firepower"
+  -- non-$leader target -> prompts the player to choose the target when activating this ability
+wand_2::Un objetivo que no sea $leader sufre un daño equivalente al valor $0
+wand_3::Muévete hasta $0 escaques en cualquier dirección.
+wand_5::Mueve una pieza blanca de tu elección.
+wand_6::Aturde a una pieza durante tres turnos y róbale el alma.
+  -- refill = regenerate = can be used again
+wand_7::Elimina a un peón.|Se recarga cuando mates una pieza que no sea peón.
+
+  -- DISRUPTION
+  -- These are effects available to the player on reaching a special tile when they have the Undercover Mission.
+  -- "their" always refers to the white army
+  -- the name for each effect is always shown with the corresponding description below, and with an icon to illustrate.
+disrupt_effect_name_0::Sabotea al ejército blanco
+disrupt_effect_name_1::Envenena el agua.
+disrupt_effect_name_2::Roba su munición.
+disrupt_effect_name_3::Apuñala al rey blanco.
+disrupt_effect_name_4::Pega sus zapatos.
+disrupt_effect_name_5::Invierte el karma.
+disrupt_effect_name_6::Desarma a los guardias.
+disrupt_effect_name_7::Invierte la cuenta atrás.
+
+disrupt_effect_desc_0::Desactiva una carta blanca de tu elección.
+disrupt_effect_desc_1::-1 del máximo de PV a todas las piezas blancas.
+disrupt_effect_desc_2::Rellena tu munición y recarga el arma.
+disrupt_effect_desc_3::Inflige 4 de daño al rey.
+disrupt_effect_desc_4::-1 de velocidad a todas las piezas blancas.
+  -- refers to a card called Karma which usually gives different maluses depending on what square color you're standing on.
+disrupt_effect_desc_5::Los efectos negativos del karma pasan a ser positivos.
+disrupt_effect_desc_6::Los peones ya no pueden atacarte.
+  -- refers to a card called Final Countdown which usually kills you if you fail to win the level in a specific number of turns
+disrupt_effect_desc_7::Destruye todas las piezas blancas cuando la contrarreloj llegue a su fin.
+
+  -- SHOTGUN NAMES
+
+  -- SHOTGUN UNLOCKS
+  -- These are the conditions to unlock each shotgun.
+shotgun_unlock_1::Obtén +6 de alcance|para desbloquear esta escopeta.
+shotgun_unlock_2::Obtén 100 % de probabilidad de retroceso|para desbloquear esta escopeta.
+shotgun_unlock_3::Obtén una capacidad de +4 cartuchos|para desbloquear esta escopeta.
+shotgun_unlock_4::Obtén +4 de espada|para desbloquear esta escopeta.
+  -- Here search refers to the search stat/mechanic which allows the player to reroll card choices.
+shotgun_unlock_5::Cambia tus cartas 4 veces|para desbloquear esta escopeta.
+shotgun_unlock_6::Obtén 0-2 de alcance|para desbloquear esta escopeta.
+
+  -- CONSOLE
+  -- This is used on consoles only. (please translate it anyway)
+  -- Switch profile = Switch to a different account on the console
+switch_profile::Cambiar de perfil
+
+  -- TUTORIAL
+  -- These are all used in the tutorial. (easy to test once you're done, yay!)
+  -- 'ctrl_tuto_' keys are always followed by a pictogram of the controls whose function is being described.
+
+objectives_tuto::Objetivos:
+objective_tuto_1::- Evita al alfil blanco.|- Entra en el castillo.
+  -- get = pick up = obtain
+objective_tuto_2::- Obtén la escopeta.
+objective_tuto_3::- Derrota a la torre.
+objective_tuto_4::- Derrota a ambos caballos.
+objective_tuto_5::- Derrota al rey blanco.
+chess_tuto_1::Los alfiles se mueven en diagonal.
+ctrl_tuto_1_1::Elige adónde moverte con:
+ctrl_tuto_1_2::Y confirma pulsando:
+chess_tuto_3::Las torres se mueven ortogonalmente.
+ctrl_tuto_3_1::Apunta con:
+ctrl_tuto_3_2::Y dispara con:
+ctrl_tuto_3_3::Recarga la escopeta al moverte o pulsa:
+  -- '| |' is intended, makes a double linebreak
+chess_tuto_4::Los caballos se mueven en forma de L| |¡Cuidado, que pueden saltar por encima de piezas!
+ctrl_tuto_4_1::Puedes leer la información de las piezas en cualquier momento con:
+ctrl_tuto_4_2::Puedes pausar el juego con:
+chess_tuto_5_1::Las reinas se pueden mover en cualquier dirección.
+chess_tuto_5_2::Los peones tan solo se mueven un escaque hacia delante, pero ¡atacan en diagonal!
+ctrl_tuto_5_1::El objetivo de cada nivel es derrotar un rey blanco.
+ctrl_tuto_5_2::Puedes volver a leer las descripciones de las cartas con:
+  -- dangers display = visual warnings = show dangerous squares
+ctrl_tuto_5_3::Puedes alternar las marcas de amenaza con:
+tuto_barrels::Cañones:|Esta es la munición que tienes en la escopeta ahora mismo. Podrás seguir disparando mientras tengas munición.|Para recargar, bastará con que muevas al rey o pulses $0.
+tuto_ammo::Munición:|Esta es tu reserva de munición.|Obtienes nueva munición al moverte con los cañones llenos o cuando no te queda nada.
+tuto_folly_shields::Escudos de la insensatez:|¡De ahora en adelante, podrás morir si no tienes cuidado! Por suerte, estos escudos te protegerán de tus errores inmediatos. Se recuperan en cada turno.| |Puedes cambiar la cantidad de escudos en las opciones.
+tuto_card_black::Cada vez que termines un nivel, obtendrás una mejora...
+tuto_card_white::... pero ¡el enemigo también! ¡Buena suerte!
+
+  -- TUTORIAL DIALOGUES
+  -- These are the names as displayed at the beginning of dialog boxes.
+black_king::Rey Negro:
+black_bishop::Alfil Negro:
+
+  -- Black Bishop:
+dialogue_tuto_1_1::Vuestra Majestad, habéis sido abandonados por todos, solo quedo yo para ayudaros y aconsejaros. ¿Puedo sugerir una retirada táctica?
+  -- [White bishop appears]
+  -- Black king:
+dialogue_tuto_1_2::¡¡¡Traidor!!! ¡Qué mal te queda el blanco!
+  -- Black bishop:
+dialogue_tuto_1_3::Señor, me temo que somos demasiado vulnerables para esto. Por favor, regresemos a vuestra fortaleza.
+  -- B King:
+dialogue_tuto_1_4::Sí, vámonos. En todo caso, tengo una idea de cómo remediar esta desgracia.
+  -- [Both get into the castle. Next screen is in a room with a shotgun on a pedestral.]
+  -- B King:
+dialogue_tuto_2_1::Ahí está, mi servidor más fiel…
+  -- B Bishop:
+dialogue_tuto_2_2::¿Señor? ¿Qué… pretendéis?
+  -- B King:
+dialogue_tuto_2_3::¡¡¡Mi Escopeta Real!!! A ver qué carita ponen ahora esos traidores desgraciados.
+  -- B Bishop: (distressed)
+dialogue_tuto_2_4::Vuestra Majestad, os lo ruego y pido de favor… Considero que esto es harto extremo, no puedo aprobarlo.
+  -- B King:
+dialogue_tuto_2_5::Cerrad vuestra boca de marioneta y quedaros aquí. Tampoco es que os necesite ni a vos ni vuestra aprobación.
+  -- [Back outside in front of the castle. A white rook is there.]
+  -- B King: (can replace this line with any sort of gratuitous threat that plays on words with the rook piece or with the castle in the background)
+dialogue_tuto_3_1::¡Eh, tú! ¡Sí, tú, novatorre! ¡¿Has venido a admirar mis muros?! ¡¡Acércate, que te mostraré lo que es bueno!!
+  -- B King, after shooting once at the rook, needs to reload their shotgun:
+dialogue_tuto_3_2::Montón de ladrillos inútil, ¿me vas a obligar a recargar?
+  -- B King has killed the rook, and now two knights come onto the board.
+  -- B King: (snarky remark on knights' weird L-shape movement in chess)
+dialogue_tuto_4_1::Ah, aquí llega la caballería real. ¿Descubristeis ya cómo moveros en línea recta, estúpidos equinos?
+  -- B Bishop, explaining you can see enemy piece's info in the interface.
+dialogue_tuto_4_2::Mi Rey, he recopilado para vos información de vuestros súbditos anteriores, para que los conozcáis. Esto incluye sus patrones de movimiento, así como su salud y velocidad.
+  -- B King: (callback to the first time the king told the bishop to shut up)
+dialogue_tuto_4_3::¿No os dije que cerrarais vuestra boca de marioneta?
+  -- Both knights are blown to pieces by the Black King.
+  -- B King:
+dialogue_tuto_powerup::¡No hay nada como el olor de la pólvora después de ver volar por los aires a súbditos traidores! ¡Me siento cada vez más vivo!
+  -- The white king and queen come onto the board with a few pawns.
+  -- B King: (lead hail refers to the shotgun's pellets. can replace this with any vaguely threatening pun/joke about rival royalty)
+dialogue_tuto_5_1::¡Hala! ¡Saludemos todos a la pareja real! Os saludaré, claro, pero… ¡a balazos! ¡¡¡Ja, ja!!!
+  -- Still B King, to himself: ("gets it" = dies. Needs to convey that the white side will give up if their king dies)
+dialogue_tuto_5_2::Seguro que estos cobardes saldrán huyendo de mi jardín en cuanto su preciado rey blanco caiga…
+  -- The B King defeats the small white army.
+  -- Narrator, with illustrations: (continuation from vig_1, to be found further below, which is actually displayed at the start of the tutorial, and this is shown after the tutorial is completed)
+  -- (the "claim over thyne former subjects' souls" is about the game's mechanic of stealing piece's souls when they die to move like them.)
+  -- (B Bishop prophesizes that the B King's anger will lead him to his demise)
+vig_2_tuto::Con el ejército blanco derrotado, el Alfil Negro se acercó al Rey Negro, le presentó afligido su dimisión y le dijo: «Habéis sido un rey de la peor calaña, mas vuestro reinado sigue siendo sagrado. Las almas de vuestros antiguos súbditos siguen siendo vuestras, por lo que no podremos temer menos vuestra cólera. Por tanto, prestad atención a mi advertencia: “La ira de un hombre, por poderoso que sea, es siempre su perdición”».
+vig_3_tuto::Y así fue que el Rey Negro fue abandonado por todos, sin una sola torre a su nombre. Tan solo le quedaba su preciada escopeta real, los jirones de su dignidad y la creciente llama de la cólera profetizada. «¡¿Que la ira va a ser mi perdición?! ¡Mi perdición, dice! ¡Como si me quedara algo que perder!». En su oscura locura, el Rey recargó su escopeta una vez más y fue a jugar su última partida.
+
+  -- ACHIEVEMENT NAMES
+  -- please check directly in game in the codex for the signification of each achievement
+ach_FULL_SET::Conjunto Completo
+ach_WIZARD::Mago
+ach_COMPLETE::Completado
+
+  -- This is given when the player defeats the secret bishop boss
+ach_AVENGED::Vengado
+  -- This is given when the player defeats the secret bishop boss and shoots at the red book which gave his powers to the black bishop
+ach_EXORCISED::Exorcizado
+
+ach_SWARM::Enjambre
+ach_LEGION::Legión
+ach_SNIPER::Francotirador
+ach_ASSASSIN::Asesino
+ach_STEROID::Esteroide
+ach_TRIGGER_HAPPY::Gatillo fácil
+ach_SCAVENGER::Recolector
+ach_HAREM::Harén
+ach_SOCIAL_DISTANCING::Distanciamento social
+ach_RELIGION::Religión
+ach_SECRET::Secretos
+ach_SECURITY_SERVICE::Servicio de seguridad
+ach_INQUISITION::Inquisición
+ach_MOBILITY::Movilidad
+ach_BOUNDARIES::Límites
+ach_MACHINE_GUN::Ametralladora
+ach_SURVIVOR::Superviviente
+ach_DEMOLITION::Demolición
+ach_HORSEMEN_OF_THE_APOCALYPSE::Jinetes del Apocalipsis
+ach_ROYAL_RETAINER::Criados reales
+ach_THE_FLOOR_IS_LAVA::El suelo es lava
+ach_EMPEROR::Emperador
+ach_LATE_TO_THE_PARTY::Llega tarde a la fiesta
+ach_UNEXPECTED_ENTRANCE::Entrada inesperada
+ach_SWORDMAN::Espadachín
+ach_CLIFFHANGER::Tenso suspense
+ach_SLAUGHTER::Masacre
+ach_BENEVOLENCE::Benevolencia
+ach_BUILDER::Albañilería
+
+ach_MERCIFUL_RULER::Dirigente misericordioso
+ach_A_VELVET_GLOVE::Guante de seda
+ach_DELETED::Erradicado
+ach_SQUARE_ALLEGIANCE::Fidelidad al escaque
+ach_INCARNATION::Encarnación
+ach_LIKE_FATHER_LIKE_SON::De tal palo, tal astilla
+ach_HUMILIATION::Humillación
+
+  -- This achievement is given for throwing an iron queen off of the checkboard
+ach_HASTA_LA_VISTA_BABY::Hasta la vista, «baby»
+
+ach_HOW_IT_SHOULD_BE::Cómo debería ser
+ach_SHE_IS_EVERYWHERE::Está por doquier
+ach_MORTAL_PERIL::Peligro mortal
+ach_PROJECTILE_DYSFUNCTION::Disfunción próyectil
+ach_HOPE_THIS_HITS::Espero y darle
+ach_NINE_LIVES::Nueve vidas
+ach_YOUR_WIFE_MY_WIFE::Tu esposa, mi esposa
+ach_A_MIGHTY_FORTRESS::Una poderosa fortaleza
+ach_UNDERPRESSURE_AMMO::Munición de infrapresión
+ach_GLUTTONY::Glotonería
+ach_IRON_KING::Rey de hierro
+ach_WIDOW::Viuda
+ach_YOU_SHALL_NOT_PASS::¡No… puedes… pasar!
+ach_BULLET::Bala
+ach_SUICIDE_PACT::Pacto suicida
+ach_OH_NO::¡Oh, no!
+ach_MR_PRESIDENT::¡Señor presidente!
+ach_LIFEGUARD::Salvavidas
+ach_MMMMH_DELICIEUX::Mmm, ¡«délicieux»!
+
+  -- $0 is replaced with the number for each rank, this is the achievement given for completing them
+ach_rank::Rango $0
+
+ach_DANGEROUS_LIFE::Vida Peligrosa
+ach_NIGHTMARE_ERA::Tiempos de pesadilla
+ach_DRAUGHTS::Damas inglesas
+ach_PUPPET_MASTER::Titiritero
+ach_HIDDEN_CONSPIRATOR::Conspirador clandestino
+ach_DECEIVER::Burlador
+ach_STARBURST::Aureola cegadora
+ach_DETENTION::Detención
+ach_OUT_OF_TIME::Pidiendo la hora
+ach_JEALOUSY::Envidia
+ach_DISCREET_HOST::Anfitrión discreto
+ach_FIRST_AID::Primeros auxilios
+
+  -- More shotgun names
+
+
+  -- This one is for defeating the secret queen boss
+ach_MARITAL_PEACE::Paz marital
+  -- This one is for defeating the secret 4 horsemen of the apocalypse boss
+ach_END_OF_THE_WORLD::Fin del mundo
+  -- And this one is for getting the secret ending where the black king steals one of the apocalypse horsemen's horses
+ach_NEW_JOB::Nuevo trabajo
+
+ach_WORKPLACE_ACCIDENT::Accidente laboral
+ach_BULLFIGHTING::Toreo
+ach_BURIED_ALIVE::Enterrado vivo
+ach_COLD_REGICIDE::Regicidio a sangre fría
+ach_FINAL_ESCAPE::Escape final
+ach_HIPPOCRACY::Hipicracia
+ach_BLOODBATH::Baño sangriento
+ach_ANARCHY::Anarquía
+ach_WARDEN::Celador
+ach_MIDNIGHT_DANCE::Danza de medianoche
+
+
+  -- ACHIEVEMENT DESCS
+ach_FULL_SET_desc::Obtén 10 cartas negras.
+ach_WIZARD_desc::Ten 3 varitas mágicas.
+ach_COMPLETE_desc::Mata al Rey Blanco.
+ach_AVENGED_desc::Mata al Alfil Negro.
+ach_EXORCISED_desc::Mata al Libro Rojo.
+
+  -- $0, $1 and $2 are replaced with card names.
+ach_cards_desc::Gana con $0, $1 y $2.
+
+  -- same description for all shotgun achievements.
+ach_gun_desc::Completa el Modo Trono con esta escopeta.
+
+ach_MERCIFUL_RULER_desc::Termina un nivel sin matar a peones.
+ach_A_VELVET_GLOVE_desc::Termina un nivel sin matar a piezas que no sean líderes.
+ach_DELETED_desc::Termina un nivel antes del turno 6.
+ach_SQUARE_ALLEGIANCE_desc::Termina un nivel sin moverte a un escaque blanco.
+ach_INCARNATION_desc::Termina un nivel moviéndote sólo con almas.
+ach_LIKE_FATHER_LIKE_SON_desc::Mata a un rey blanco arrojándole a su heredero.
+  -- hopping = jumping
+ach_HUMILIATION_desc::Mata a un rey blanco saltándole encima.
+ach_HASTA_LA_VISTA_BABY_desc::Mata a una Doncella de Hierro.
+ach_HOW_IT_SHOULD_BE_desc::Ten 2 caballos, 2 torres, 2 alfiles, 1 reina, 1 rey y 8 peones en el campo enemigo.
+ach_SHE_IS_EVERYWHERE_desc::Ten 5 o mas reinas en el tablero al mismo tiempo.
+ach_MORTAL_PERIL_desc::Sé amenazado por 4 piezas al mismo tiempo.
+ach_PROJECTILE_DYSFUNCTION_desc::Ten más munición en tu cargador que en tu reserva máxima.
+ach_HOPE_THIS_HITS_desc::Ten una dispersión de 120° o más.
+ach_NINE_LIVES_desc::Activa la niebla negra 9 veces.
+ach_YOUR_WIFE_MY_WIFE_desc::Coge a la reina y llévala al escaque en el que comenzaste el nivel.
+ach_A_MIGHTY_FORTRESS_desc::Ten 6 o más torres en el tablero al mismo tiempo.
+ach_UNDERPRESSURE_AMMO_desc::Ten una potencia de fuego igual a 1.
+ach_GLUTTONY_desc::Ten 20 o más de munición.
+ach_IRON_KING_desc::Supera el Modo Trono sin usar Escudos de la Insensatez.
+ach_WIDOW_desc::Supera el Modo Trono sin matar a una reina.
+ach_YOU_SHALL_NOT_PASS_desc::Supera el Modo Trono sin que ningún peón se corone.
+ach_BLITZ_desc::Supera el Modo Trono en menos de 5 minutos.
+ach_BULLET_desc::Supera el Modo Trono en menos de 2 minutos.
+ach_SUICIDE_PACT_desc::Destruye a un rey blanco y al Rey Negro con una granada.
+ach_OH_NO_desc::Muere por tu propia granada.
+ach_MR_PRESIDENT_desc::Haz que una torre salve al rey de una pieza voladora.
+ach_LIFEGUARD_desc::Empuja a una pieza fuera del foso.
+ach_MMMMH_DELICIEUX_desc::Que te coma el rey blanco.
+
+  -- finish throne = finish throne mode. $0 is replaced with rank number.
+ach_rank_desc::Supera el Modo Trono con el rango $0.
+
+ach_MARITAL_PEACE_desc::Acaba con la Epidemia.
+ach_END_OF_THE_WORLD_desc::Acaba con los cuatro jinetes del Apocalipsis.
+ach_NEW_JOB_desc::Róbale el trabajo a un jinete.
+ach_WORKPLACE_ACCIDENT_desc::Haz que una pieza que no sea un peón se caiga del tablero.
+ach_BULLFIGHTING_desc::Haz que un unicornio se suicide.
+ach_BURIED_ALIVE_desc::Asesina al rey únicamente con daño del mausoleo.
+ach_COLD_REGICIDE_desc::Asesina al rey mientras estás en modo sigilo.
+ach_FINAL_ESCAPE_desc::Termina un nivel sin dañar ninguna pieza durante la contrarreloj final.
+ach_HIPPOCRACY_desc::Haz que los caballos lideren al ejército blanco.
+ach_BLOODBATH_desc::Ten 12 o más piezas con hemorragia en el tablero al mismo tiempo.
+ach_ANARCHY_desc::Ten 4 o más reyes en el tablero al mismo tiempo.
+ach_WARDEN_desc::Ten 8 o más piezas en prisión.
+ach_MIDNIGHT_DANCE_desc::Obtén +4 de potencia gracias a un movimiento secreto.
+
+
+
+
+
+  -- LIVE SPECIFIC
+  -- Used only on Xbox.
+HERO_BestThroneRank::Mejor rango en el Modo Trono
+HERO_BestThroneTime::Mejor tiempo en el Modo Trono (cualquier rango)
+HERO_BestEndless::Mejor nivel en el Modo Infinito
+HERO_HighscoreChase::Mejor puntuación en el Modo Persecución
+  -- Shown as player's status.
+Presence_RP_menu::En el menú
+Presence_RP_tutorial::En el tutorial
+Presence_RP_throne::En el Modo Trono - Rango {0}
+Presence_RP_endless::En el Modo Infinito - Nivel {0}
+Presence_RP_chase::En el Modo Persecución
+
+  -- PSN SPECIFIC
+  -- Used only on PS4 & PS5
+ach_PLATINIUM::El dios de la escopeta
+ach_PLATINIUM_desc::¡Has conseguido todos los trofeos!
+ui_trophies::Trofeos: $0 %
+
+  -- STORIES
+  -- Intro to throne mode (vig_1 is also used for the tutorial, and the tutorial ends with a variation of vig_2 and vig_3)
+vig_1::El Rey Negro había sido un gobernante extravagante y desagradable. Con el paso de los años, el Rey Blanco consiguió cada vez más súbditos, a los que ofreció salarios más altos y un trabajo decente. Y, con el tiempo, asaltaron su castillo. Sus caballos renunciaron a seguir sirviéndole. Lo abandonó hasta su esposa, la reina.
+  -- Black bishop prophesizes the king's anger will lead him to his demise. Also mentions "the claim over thyne subjects' souls" referring to getting the pieces' souls when you kill them in the game.
+vig_2::Antes de irse, el último alfil negro se acercó al Rey Negro y le dijo: «Habéis sido un rey de la peor calaña, mas vuestro reinado sigue siendo sagrado. Las almas de vuestros antiguos súbditos siguen siendo vuestras, por lo que no podremos temer menos vuestra cólera. Por tanto, prestad atención a mi advertencia: “La ira de un hombre, por poderoso que sea, es siempre su perdición”».
+  -- Black King angry.
+vig_3::Y así fue que el Rey Negro fue abandonado por todos, sin una sola torre a su nombre. Tan solo le quedaba su preciada escopeta real, los jirones de su dignidad y la creciente llama de la cólera profetizada. «¡¿Que la ira va a ser mi perdición?! ¡Mi perdición, dice! ¡Como si me quedara algo que perder!». En su oscura locura, el rey recargó su escopeta una vez más y fue a jugar su última partida.
+
+  -- Transition to the boss big white king.
+vig_4::«Tantos años de nuevos súbditos..., tanto trabajo para hacerlos sentir bienvenidos y seguros... Todo reducido a añicos por culpa de un maldito rey psicópata con una escopeta». El Rey Blanco no permitiría esto, ni un piso más. Con una rabia desbordante, partió hacia la batalla para aplastar a este maníaco egoísta.
+  -- Variant for when the Theocracy card is in play. The White King takes back the rule from the bishops.
+vig_5::«Tantos años de nuevos súbditos..., tanto trabajo para hacerlos sentir bienvenidos y seguros... Todo reducido a añicos por culpa de un maldito rey psicópata con una escopeta». El Rey Blanco ni quería ni podía mantenerse al margen y dejar que el Cónclave llevara a su reino a la ruina total. Con una rabia desbordante, partió hacia la batalla para aplastar a este maníaco egoísta.
+
+  -- Normal win
+vig_6::Y así fue como la ira del Rey Negro finalmente lo llevó a la victoria. ¡Ahora le tocaba a él robar los castillos y súbditos del Rey Blanco! Tendrían que soportar su terrible gobierno una vez más...
+vig_7::«¡Alegraos!», les diría. «¡Al menos vosotros no volasteis en pedazos!», les gritaba mientras alzaba su escopeta en alto y se reía a carcajadas. Estaba invicto y no había aprendido nada. Mucho tiempo no pasaría antes de que surgiera un nuevo Rey Blanco y que comenzara de nuevo toda la historia.
+
+  -- SECRET ENDINGS
+  -- On killing the Black Bishop:
+vig_8::«¡Ja! Al final, ¡¿quién se ha encontrado con su perdición?!», gritó el Rey. Pero tan pronto como murió el Alfil, el Libro se fue de sus manos y ascendió del tablero hacia el seguro asilo del cielo.
+  -- The following is only used if a secret condition is respected of killing the bishop. Otherwise the normal ending is shown instead after this.
+
+vig_9::«¡No tan rápido!», gritó. Con su escopeta ya cargada, el Rey apuntó...
+vig_10::... y disparó al Libro, convirtiéndolo en un montón de páginas destrozadas que salieron volando. «¡Santas palabras mis narices!», dijo. «¡Nada es más sagrado que un servidor y que esta señora escopeta!».
+vig_12::«¡Alegraos!», les diría. «¡Al menos vosotros no volasteis en pedazos!», les gritaba mientras alzaba su escopeta en alto. «Y, ahora, ¡un nuevo edicto! ¡No más libros! ¡Quedan prohibidos! ¡Los libros sagrados, fuera! De ahora en adelante, yo seré vuestro dios. ¡El Dios de la Escopeta!». Su gobierno sería despiadado y temido por todos durante el resto de sus días.
+
+  -- Shown after defeating the secret boss queen. ("The Blight")
+  -- Should read as not-so-subtle freaky erotica. Don't use direct sexual words but lean hard into the double-entendres. Have fun with it!
+  -- Don't make it too long. The original text is already quite close to the limit of what can be displayed at once.
+vig_13::Esos tentáculos permanecerían en la mente del Rey durante muchas tórridas noches en vela. Ya solo la imaginarse cómo esos brazos deshuesados y resbaladizos se deslizaban por su cuerpo, agarrándolo y presionándolo con una fuerza voluptuosa, drenándole la fuerza vital... La reina siempre había sido una criatura ávida... Ahora, el Rey tendría que contentarse con los fríos cañones de su escopeta y su solitaria acción de bombeo.
+  -- Then the normal ending is shown.
+
+  -- Shown after the black king steals a horse from one of the secret boss horsemen of the apocalypse and leaves the board.
+  -- The black king found a "job opening" as a horseman of the apocalypse, leaving his old role of king.
+vig_14::¿A que no sabéis quién encontró trabajo como una puñetera amenaza bíblica? Cansado de complacer a súbditos patéticos e inútiles, por fin apareció un trabajo para alguien con las cualidades del Rey. No habría presagios sobre él, tan solo muerte y destrucción, dondequiera que su demónico corcel lo llevara. ¡Cuidado, Satanás! El Rey de la Escopeta acaba de escalar por la impía escalera corporativa.
+
+  -- Shown after defeating the secret boss Horsemen of the Apocalypse
+  -- Should mention the artifacts because they are shown in the accompanying illustration. Please do your best to translate the last joke about the horsemen's Last Judgement/Apocalypse being the black king's "thursday". (i.e. a day like any other)
+vig_15::«¿Jinetes del Apocalipsis? ¡Apenas llegáis a lamebotas!», dijo el Rey Negro sonriendo con aires de suficiencia mientras montaba los artefactos en su sala de trofeos. El Alfil lo había prevenido, para su completo desinterés real, de los heraldos del Juicio Final, los que provocarían el Fin de los Tiempos. Y, para ellos, bien pudo haber sido el Juicio Final, pero, para el Rey, no fue más que otro jueves cualquiera.
+
+
+  -- PLURALS
+  -- This is where you define pluralization rules!
+  -- The first rule defines the default behaviour for any word.
+  -- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+
+*
+*:s:s
+
+  -- For any word that is spelt differently when pluralized, use either of these syntaxes:
+  -- child:s:children
+  -- child:2:children
+  -- Use this second version to define a puralization for a specific number. (here 2) Outside percentages the game only uses numbers below 10, so there's no need to define rules for numbers above 10. In case of unnumbered plurals (eg: "knight(s) get +2 HP") then the game internally uses the number 999. So you can write a specific rule for 999 for these cases like so:
+  -- knight:999:knights
+  -- Both versions of the word should be in your language. The original word should be identical to how you wrote it previously in this file, including capitalization(!).
+
+  -- This is used for piece names (full names, not the short versions), for the translation for "shell", and for any words you might have set between braces so you could write its proper plural form here.
+
+man:s:men
+cañón:s:cañones
+vez:s:veces
+Peón:s:Peones
+Alfil:s:Alfiles
+Rey:s:Reyes
+proyectil:s:proyectiles
+cartucho:s:cartuchos
+adicional:s:adicionales
+
+

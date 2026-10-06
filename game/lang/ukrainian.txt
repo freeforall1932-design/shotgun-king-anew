@@ -1,0 +1,1866 @@
+font>>LanaPixel
+font_size>>11
+font_line_height>>14
+font_offset_y>>8
+
+  -- Please only ever modify the part to the right of '::'.
+
+  -- In all texts, '|' indicates a linebreak for the game.
+
+  -- The game replaces instances of $0, $1, etc with relevant numbers.
+
+  -- instances of (s) are replaced with an 's' if the number associated is above 1, otherwise it is simply removed. The following alternatives are supported: (you can still use (s) if relevant)
+  -- (es) for Spanish
+  -- (y) for Polish
+  -- (и) for Ukrainian
+  -- (n), (er) and (e) for German
+  -- Additionally if none of these are helpful you can set a word between braces to tell the game to replace it according to a specific pluralization rule you specified at the end of this file. For example instead of writing "$0 man(s)" which makes no sense, I would write "$0 [man]" and the game will know to replace it with either "man" or "men" (defined at the very end of this file) depending on whether $0 is replaced with a 1 or something above. Make sure to write the singular version of the word inside the braces.
+  -- Even more specific pluralization rules can be defined at the end of this file, including rules for specific numbers.
+  -- In all cases outside of percentages, all numbers can safely be assumed to be below 10. For unnumberred plurals, (eg: knight(s) get +2 HP) the game always uses the number 999 internally.
+
+
+
+--NEW in v1.6
+
+
+  -- GAME MODE
+  -- Charnier is a new gamemode where the player raids villages which get more and more difficult, amassing corpses and cinders. Charnier is a french word which we kept in English. If it sounds too weird in your language, you can use Rampage, Carnage, Reaving...
+charnier::Терор
+  -- brands are stat upgrades, bought with "cinders", which are won by winning raids.
+charnier_desc::Режим терору|- Здійснюйте набіги на селища лоялістів|- Не щадіть нікого|- Йдіть до перемоги по трупах|- Складність збільшується після кожного набігу|- Збирайте жаринки, щоб уникати смерті або отримувати клейма
+  -- Beat rank 5 or above. Please match the format of the old key "endless_lock" (further down in this file)
+charnier_lock::Пройдіть режим престолу на складності 5+, щоб розблокувати режим терору
+
+
+  -- CHARNIER
+  -- The next keys are used in the new Charnier mode
+  -- short for "Are you sure?", used when resigning
+sure::Ви впевнені?
+next raid::Наступний набіг
+  -- brands are upgrades, the word should be fire-themed, to go with cinders.
+brands::Клейма
+  -- used for buying brands with cinders
+claim::Обміняти
+  -- Cinders are the rewards for burning village in charnier mode.
+cinders::Жаринки
+  -- Cinders left to spend, or keep
+cinders_lefts::Ваші жаринки
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- tunnel is for cards that dig holes on the board
+tag_tunnels::Тунелі
+  -- ally is for cards that give access to additional black pieces
+tag_ally::Союзник
+  -- on_hit is for cards that give bullets additional effects on hits
+tag_on_hit::При попаданні
+
+  -- Used in the codex to specify that multiple tags have to be in play for a card to appear.
+  -- eg: While playing a game gather cards with the tags Mission and Cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation for "and" if your language uses whitespaces.
+_and_:: і 
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, shown when relevent. They need to remain as short as possible. (ideally 8 characters or less)
+
+  -- Shown on selected pieces that can dodge pellets, as: "Dodge|[percentage change of dodging bullets]"
+dodge::Ухилення
+  -- Shown on selected pieces that are protected and can't take more than x damage
+dmg cap::Ліміт шк.
+
+  -- Short version of grenade damage
+g_dmg::Шкода гр.
+
+
+  -- ADDITIONAL INGAME
+  -- This is added below soul_desc for warden souls specifically (wardens are a new chess piece added in v1.6)
+warden_soul::Захищає від смерті, поки не буде використана
+  --Player has won a raid in the Charnier game mode.
+raid_won::Ви перемогли!
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+  
+anarchy::Анархія!
+  -- The next two keys are used when a piece dies, and other pieces with same type burn with anger for revenge.
+revenge_0::помста!
+revenge_1::вбивця!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+heresy::єресь!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+purge::очищення!
+  -- Used when bishop excommunicate a card
+exile::вигнання!!
+  -- Used when the Boss promote a pawn
+regal_ascent::Підвищення
+  -- Used when the Boss call 3 royal guards
+royal_guards::Охорона!
+
+  -- Briefly shown above pieces when they dodge a pellet.
+miss::промах
+  -- Briefly shown above a piece that was set free from prison by the black king.
+free::на свободі
+  -- Briefly shown above a piece that was converted over to the black army
+defect::дезертир
+
+
+  -- NEW PIECES
+  -- These are additional chess pieces, added in v1.6
+  -- Alternatives for slayer: assassin, ninja, hired killer, killer
+piece_12::Душогуб 
+  -- The warden is an armored piece that can protect the king. Alternatives: champion, thane
+piece_13::Лицар
+
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+  -- Alternatively, you can use "[black]" with brackets and define custom plurals for "black" at the end of this file. (we unfortunately do not have a solution for adjective gendering)
+black_piece::$0 чорного кольору
+black_leader::Чорний Король
+
+
+  -- SHORT PIECE
+short_piece_12::Душогуб
+short_piece_13::Лицар
+
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+  -- Renamed (and reworked) from the old Unfaithful Steed card.
+Faithful Steed::Вірний скакун
+  -- Alternatives for Right-Hand: Advisor, Counsel
+Right-hand::Десниця
+Warhorse::Бойовий кінь
+Bastion::Бастіон
+  -- Lets you move further in one turn. Alternative: Dash.
+Sprint::Ривок
+  -- Soul Projection lets the player literally project a soul onto the board as a new black piece.
+Soul Projection::Проекція душі
+Onboarding Party::Церемонія посвяти
+Small Key::Маленький ключ
+Rapunzel::Рапунцель
+Wand of Treachery::Жезл підступності
+Guerilla Tactics::Партизанська тактика
+Shovel::Лопата
+Grindstone::Точильний круг
+Death Mark::Мітка смерті
+Shrapnel::Шрапнель
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Latecomer::Запізднення
+Vendetta::Помста
+Stoning::Каменування
+Anarchy::Анархія
+  -- Auto-da-fe was a punishment for heretics by the spanish inquisition. It means "act of faith". Feel free to look up what they call it in your language on Wikipedia and use that: https://en.wikipedia.org/wiki/Auto-da-f%C3%A9
+Auto-da-fe::Аутодафе
+  -- Late for Dinner delays the arrival of a few pieces, making the black king wait.
+Late for dinner::Затримка в дорозі
+Excommunication::Відлучння від церкви
+  -- Refers to a queen/woman being burned at the stake by the bishops for acts of sexual deviancy
+Pyre of Lust::Хтиве багаття
+Gatehouse::Сторожка
+  -- Lightfoot lets pawns jump over other pieces. Can be replaced with your language's version of the children's game of leapfrog, if you feel it's relevant to your language's culture.
+Lightfoot::Довга лоза
+Loyalist March::Марш лоялістів
+Trench War::Окопна війна
+Catacombs::Катакомби
+Flesh Wall::Стіна плоті
+Hired Blade::Наємний клинок
+Oathkeeper::Хранитель клятви
+  -- Redemption as in the religious practice of making up for past wrongs.
+Redemption::Спокута
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- $delay is replaced with either the at_delay key, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final" key, which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+  -- eg: Add 1 pawn every 4 turns
+  -- modified in v1.6, from: "Add $0 $1s $delay"
+add_piece::[Приєднується]: $0 $1s $delay
+
+  -- Same but without the delay.
+  -- eg: Add 2 knights
+  -- modified in v1.6, from: "Add $0 $1s"
+add_piece_nodelay::[Приєднується]: $0 $1s
+
+  -- eg: 2 knights
+pieces::$0 $1s
+
+  -- Add/remove a group of pieces, $0 is replaced using the 'pieces' key above.
+add_group::[Приєднується]: $0 $delay $final
+rem_group::[Втікає]: $0
+
+  -- this is used to describe effects that are only active on the final floor of a raid in charnier mode.
+at_final::в останній битві 
+
+  -- The following are the names of different stats as used in other card effects or in shotgun stats.
+reload_grenade::Відновлення гранат
+butcher::Кат
+sheath::Мітка смерті
+
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- Effects that were modified in v1.6:
+  -- used to be: "$leader swaps positions with a <piece> whenever he's about to take damage"
+effect_castle::Якщо <head> має отримати шкоду, то <piece> обмінюється з ним полями
+
+  -- used to be: "When you reach the waypoint choose a disruption effect and play an extra turn"
+effect_waypoint::Досягніть відмітки, щоб провести диверсію проти Білої Армії
+
+  -- used to be: "<pieces> can't attack you" (the black king is no longer the only piece that can be attacked)
+effect_peace::<pieces> не можуть атакувати
+
+  -- used to be: "<pieces> can only be hit when moving"
+effect_wraith::<pieces> можуть отримати шкоду лише коли вони вам загрожують чи збираються рухатись
+
+  -- used to be: "+1 fright radius|When you kill a non-pawn piece, every piece in the radius is scared. They can't attack you and flee on their next move"
+effect_fearsome::Радіус страху: +1|Коли Ви вбиваєте фігуру, яка не є пішаком, то всі навколо Вас жахаються. Вони не зможуть атакувати Вас і втечуть під час свого наступного ходу
+
+  -- used to be: "+1 spy among the pawns|Reach the spy to choose a disruption effect and play an extra turn"
+effect_spy::+1 шпигунська маска|* Доберіться до шпигуна, щоб провести диверсію|* Після перетворення, шпигуни змінюють колір на чорний
+
+  -- used to be: "Create a hologram when you use a soul"
+effect_holoking::Під час використання душі, Ви створюєте голограму|Голограма оглушить фігуру, яка її вб'є, на 2 ходи
+
+  -- used to be: "<pieces> can fire a projectile at you instead of moving" (the action is now on a separate cooldown)
+effect_catapult::<pieces> можуть вистрілити у Вас снарядом
+
+  -- used to be: "<pieces> can't move or attack if near a <target_piece>"
+effect_prison::Коли <pieces> опиняються поблизу фігури типу «<target_piece>», вони стають в'язнями|(В'язні не можуть рухатися або атакувати, а ще крізь них можна проходити)
+
+  -- used to be: "+$0 flagstone|Jump to a flagstone at any time"
+effect_flagstones::+$0 [плита]|На плиту можна стрибнути в будь-який момент|Поки Ви знаходитесь на плиті, вогнева міць: +1
+
+  
+  -- New effects in v1.6
+  -- Pieces carry their king with them when they move
+effect_carryking::<piece> переносить свого лідера, коли той знаходиться поряд
+  -- Used as "Move range: +1"
+effect_sprint::Дальність руху: $1
+effect_summoner::Якщо у Вас немає жодного союзника, то Ви можете використати душу, щоб створити його
+  -- Welcome Gift is a card's name, please match it with your translation for that card.
+effect_onboarding::Переверніть Гостинець назад, коли будь-який пішак перетвориться або на дошці з'явиться підмога, яка не є пішаком
+effect_small_key::Раз на поверх клацніть сусідню фігуру. Якщо це тура, видаліть її. А якщо це в'язень, то завербуйте його|Потім здійсніть диверсію
+  -- with a controller, you have to select the piece instead of just clicking it.
+effect_small_key_console::Раз на поверх виберіть сусідню туру, щоб видалити її, або сусіднього в'язня, щоб завербувати його|Потім здійсніть диверсію
+effect_rapunzel::Коли Ви вб'єте першу туру, призвіть чорну королеву
+effect_anarchy::Перемішайте порядок розташування фігур|Перетворіть дві випадкові фігури на фігури іншого типу
+effect_censor::Коли вам загрожує <piece>, позначте випадкову чорну карту міткою або переверніть усі відмічені карти
+effect_exile::Переверніть цю карту, якщо під час або після $0-го ходу на дошці залишається слон
+effect_spawn::<pieces> можуть створити фігуру типу «<target_piece>» замість руху
+effect_lightfoot::<pieces> можуть перестрибувати перешкоди в будь-якому напрямку
+effect_hole_cover::Фігури в окопах або ямах мають 50% шанс уникнути кулі
+effect_hole_start::Викопайте ями на полі бою: $0 шт.
+effect_tunnels::Коли Ви знаходитесь біля ями, Ви можете миттєво перейти до будь-якої іншої ями 
+effect_hole_solid::Ями не обвалюються після використання з метою переміщення
+  -- pieces that have 0hp remain standing and only die when the turn ends.
+effect_block::<pieces> не помруть, поки хід не буде завершено
+effect_jumpy::Переверніть цю карту, як тільки перезарядите зброю
+  -- which card is kept is random
+effect_extra_white_choice::Вибір білих карт розширюється на 1. З усіх білих карт залишиться лише одна
+  -- Charnier mode: Each house represents a floor, and villages represent raids. This effect adds one more floor to the next raids.
+effect_extra_floor::У селищах з'являється додаткова хатина
+effect_stoning::<pieces> жбурляють камінням у Чорного Короля
+effect_vendetta::Якщо Ви вб'єте фігуру, то всі інші фігури того самого типу почнуть рухатися під час наступного ходу
+effect_reload_grenade::Використовуйте набої з дробовика для відновлення гранат
+effect_reform::Переверніть цю карту, коли будь-який пішак перетвориться
+  -- the royal promote effect should be kept as short as possible
+effect_royal_promote::Бос перетворює пішаків
+effect_sheath::Дробини помічають уражені фігури|Відмічені вороги отримують 1 шкоди після кожного Вашого перезаряджання
+effect_redemption::Коли чорна фігура помирає, на дошці з'являється біла фігура того самого типу
+  -- Shrapnels are shot out of the shotgun along with the regular pellets. "pellet effects" are bleed, mark, etc.
+effect_shrapnel::Шрапнель: $1|Шрапнель не завдає шкоди, але викликає ті ж самі ефекти, що і дріб
+  -- With the Butcher effect, blade can be used to inflict damage, instead of being restricted to finishing pieces off.
+effect_butcher::Клинок можна використовувати не тільки для добивання
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+stat_g_dmg::Шкода, яку завдають гранати
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+  -- modified in v1.6:
+  -- used to be: "Strafe mode: Right click a target to fire at it on your next moves"
+  -- +15° arc refers to the firearc; shots are less accurate.
+special_strafe::Режим обстрілу. Оберіть ціль за допомогою ПКМ, щоб під час наступних ходів стріляти у неї з кутом розкиду +15 градусів
+special_strafe_console::Режим обстрілу. Натисніть $0, щоб вибрати ціль. Під час наступних ходів Ви будете стріляти у неї з кутом розкиду +15 градусів
+
+  -- used to be: "Right click: arc -45$ and range +1|Resets on each move or reload"
+special_scope::Клацніть ПКМ: кут розкиду -45$ і дальність +2.|Цей бонус скидається під час руху або перезаряджання
+special_scope_console::Натисніть $0: кут розкиду -45$ і дальність +2.|Цей бонус скидається під час руху або перезаряджання
+
+  -- new in v1.6:
+  -- holes can be used to move to any other hole.
+special_dig::Клацніть ПКМ на сусідню клітину, щоб викопати яму
+special_dig_console::Натисніть $0, щоб вибрати сусідню клітину і викопати яму
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+  -- modified in v1.6, from: "Repel all white pieces northward"
+wand_4::Відштовхніть усі білі фігури на північ|Затримайте їх наступний рух на два ходи
+  -- new in v1.6
+wand_8::Завербуйте сусідню фігуру
+
+
+  -- SHOTGUN NAMES
+  -- The shotguns are named after historical leaders. Only translate if these names are usually spelled differently in your language.
+Solomon::Соломон
+Victoria::Вікторія
+Ramesses II::Рамзес II
+Richard III::Річард III
+Makeda::Македа
+Alexander::Александр
+Yvan IV::Грозний
+Attila::Аттіла
+Montezuma::Монтесума
+
+  -- SHOTGUN ACHIEVEMENTS
+  -- Please match these with the names above
+ach_SOLOMON::Соломон
+ach_VICTORIA::Вікторія 
+ach_RAMESSES_II::Рамзес II
+ach_RICHARD_III::Річард III
+ach_MAKEDA::Македа
+ach_ALEXANDER::Александр
+ach_YVAN_IV::Грозний
+ach_ATTILA::Аттіла
+ach_MONTEZUMA::Монтесума
+
+  -- SHOTGUN UNLOCKS
+  -- this is a puzzle for the players, they have to figure out that R6F8H7 refers to: Rank 6 (in throne mode), Floor 8, H7 chess coordinates. The player has to dig a hole there using the shovel card. Please keep the composition of the code and only replace R and F with the first letter of your translations for "Rank" and "Floor".
+shotgun_unlock_7::На порожньому футлярі вигравіювано код «R6F8H7»...
+  -- "Death Marks" refers to the card Death Mark
+shotgun_unlock_8::Цей дробовик відкриється|якщо Ви отримаєте 2 мітки смерті
+
+
+
+  -- ACHIEVEMENTS
+ach_KING_WARBAND::Королівський почет
+ach_OVERPOPULATION::Перенаселення
+ach_OBSCURANTISM::Мракобісся
+ach_EXPULSION::Вигнання
+ach_UNITED_HANDS::Пліч-о-пліч
+ach_DEATH_SENTENCE::Смертний вирок
+ach_KINDLED_ATROCITY::Запальна лють
+ach_ARCHITECT_OF_RUIN::Архітектор попелищ
+ach_SOVEREIGN_OF_THE_MASS_GRAVE::Володар братської могили
+ach_CINDERLORD::Жар-лорд
+
+
+  -- ACHIEVEMENT CONDITIONS
+  -- "allies" as in extra black pieces
+ach_KING_WARBAND_desc::Майте коня, слона і туру серед союзників
+  -- "generate" refers to the Gatehouse card which can create knights from rooks.
+ach_OVERPOPULATION_desc::Створіть понад 12 коней на одному поверсі
+  -- "turned face down" as in flipped, deactivated
+ach_OBSCURANTISM_desc::Майте 6 чорних карт, перевернутих сорочкою догори
+  -- "Send back" as in removing them indirectly by deactivating white cards.
+ach_EXPULSION_desc::Виженіть 4 або більше фігур(окрім пішаків) на одному поверсі
+  -- "type" as in knight, rook, king, etc
+ach_UNITED_HANDS_desc::Майте на дошці 8 різних типів фігур одночасно
+  -- for this next achievement, the player has to use the new death mark effect that some cards have
+ach_DEATH_SENTENCE_desc::Вбийте 4 або більше фігур, перезаряджаючи свій дробовик
+ach_KINDLED_ATROCITY_desc::Спаліть 6 селищ у режимі терору
+ach_ARCHITECT_OF_RUIN_desc::Спаліть 10 селищ у режимі терору
+ach_SOVEREIGN_OF_THE_MASS_GRAVE_desc::Спаліть 15 селищ у режимі терору
+  -- "hoard" as in accumulate cinders without using them.
+ach_CINDERLORD_desc::Накопичте 5 або більше жаринок у режимі терору
+
+
+  -- MISSING
+  -- These keys existed previously but weren't translated. Maybe it was intended, but please give it a quick look to make sure.
+degree_symbol::°
+  -- Not used currently but would be used at the bottom of the screen when giving the player free random souls
+free_soul::Дармова душа!
+  -- Used to describe some card unlocks.
+soul::[душа]
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+piece_8::$leader
+  -- On killing the Black Bishop:
+vig_8::"Hah! Who's undone now!!" the Shotgun King yelled. But just as the Bishop died, the book left his hands and lifted off the board and into the sky's safe haven...
+
+
+  -- EXTRA KEYS
+  -- These keys were previously defined in your language, but do not exist in the english file.
+  -- Keys starting with "effect_" may have been created to deal with a specific case of an effect configuration. Please update these if necessary.
+  -- Other keys must have been removed from the game, please remove them from this file also. Thank you!
+Unfaithful Steed::Зрадливий скакун
+effect_steed::+1 до дальності руху
+ach_ALEXANDER_desc::Пройдіть режим престолу з цим дробовиком
+ach_YVAN_IV_desc::Пройдіть режим престолу з цим дробовиком
+vig_8:::«Ги-ги! І хто тепер невдаха?» — закричав Король-з-Дробовиком. Однак коли Єпископ помер, книга вилетіла з його рук і полетіла геть з дошки, в безпечний небесний рай…
+
+
+
+--OLD
+
+
+
+  -- MENU
+  -- These are displayed on buttons in the game's various menus.
+play::Грати
+options::Налаштування
+codex::Кодекс
+credits::Автори
+quit::Вийти
+back::Назад
+resign::Здатися
+start::Почати
+
+  -- The next four keys are used in Charnier mode
+
+  -- Appears in the pause menu while in the tutorial. Could be translated as "end tutorial".
+skip_tutorial::Пропустити навчання
+
+  -- This is shown on the titlescreen when using mouse and keyboard.
+click_start::Клацніть, щоб почати
+  -- This is shown on the titlescreen when using a controller.
+press_start::Натисніть $0, щоб почати
+
+  -- OPTIONS
+music::Музика
+sfx::Звуки
+fullscren::Повний екран
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+crt::Фільтр
+speedrun::Таймер
+shields::Щити
+scr.shake::Тремтіння
+scr.flash::Спалахи
+  -- Language. Use something short enough to fit on the same button with your language's name.
+lang::Мова
+  -- Should be your language's name.
+lang_endonym::Українська
+  -- Controller vibrations
+rumble::Вібрація
+on::Увімк.
+off::Вимк.
+  -- GAMEMODE MENU
+  -- On gamemode selection screen, shows highscore for selected mode
+  -- eg: Best floor: 8
+  -- Note: the value after the colon is always a number in numerals
+best_floor::Найкращий поверх:
+best_score::Найкращий рахунок:
+best_rank::Найвища складність:
+best_time::Найкращий час:
+
+  -- The following describe each gamemode.
+throne_desc::Режим престолу|Досягніть 12-го поверху головної вежі замку, щоб повернути свій трон
+endless_desc::Режим вічності|Пробирайтеся через нескінченне підземелля, відбиваючи білу армію так далеко, як можете
+chase_desc::Режим погоні|Врятуйтеся з чорного замку! |- Тримайтеся якомога довше|- Вартові постійно з'являються з усіх боків|- Ополчення активовано, пішаки не перетворюються|- За кожного вбитого короля Ви отримаєте чорну карту|- Одночасно можна мати лише 5 карт|- Збирайте коробки боєприпасів, щоб відновлювати набої
+tutorial_desc::Навчання|Опануйте гру!
+
+  -- These are unlock conditions for gamemodes that are not available from the start.
+endless_lock::Пройдіть режим престолу на будь-якій складності, щоб розблокувати режим вічності
+chase_lock::Досягніть 15-го поверху в режимі вічності, щоб розблокувати режим погоні
+
+  -- This is used for rank selection (=difficulty selection)
+rank::Складність
+
+
+  -- Used to confirm an action such as giving up or wiping the player's save
+ask_confirm::Упевнені?
+
+
+  -- CODEX
+  -- The codex is the collection of cards the player has seen and used. The achievements also share this interface.
+  -- $0 is replaced with the actual progress percentage.
+ui_codex::Кодекс: $0%
+ui_achievements::Досягнення: $0%
+
+  -- Played and love are stats about the cards. "played is shown as "Played:3" for example, and love as "Love: 50%". Love is the preference stat of picking this card over another when given the choice.
+codex_played::Зіграно
+codex_love::Любов:
+
+  -- Here $0 is replaced with a list of cards that need to be in play before the selected card can appear for the first time. $1 is replaced with the card's name.
+codex_gather::Граючи, зберіть $0, тоді $1 може появитися
+
+  -- Here $0 is replaced with one or multiple tags (eg: "leader or grenade") that need to be in play before the card can appear for the first time. And $1 is replaced with the card's name. Tags are essentially keywords associated with certain cards.
+codex_gather_tags::Граючи, зберіть карти з міткою $0, тоді $1 може появитися
+
+  -- Used to list the tags associated with a card. Shown as "tags: [list of tags]"
+codex_tags::Мітки
+
+  -- Shown as "Needs card: [Card name]", meaning the selected card needs this card to be in play before it can appear in game.
+codex_need_card::Потрібна карта
+
+  -- Shown as "Needs tag: [tag]", meaning the selected card needs this tag to be in play before it can appear in game.
+codex_need_tag::Потрібна мітка
+
+  -- Shown as "Excludes tag: [tag]", meaning that while this card is in play, cards that have the denoted tag cannot appear.
+codex_exclude_tag::Унеможливлює мітку
+
+  -- Shown on a button that resets the player's progress on discovering cards.
+codex_reset::Скинути статистику
+
+  -- Show for cards that have secret conditions for appearing in game for the first time.
+codex_secret::Це секретна карта. Вона з'являється тільки за особливих обставин
+
+  -- Here $0 and $1 are replaced with a number and a stat respectively. Indicates a condition for a card to appear for the first time.
+  -- Eg: This card needs at least 6 firepower to appear
+codex_need::Потрібно щонайменше $0 $1, аби ця карта з'явилася
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- leader is for any card that affects white kings or whichever piece which has the crown
+tag_leader::Лідер
+
+  -- mission is for Undercover Mission and The Mole
+tag_mission::Операція
+
+  -- cloak is for any card that lets you get into stealth mode
+tag_cloak::Камуфляж
+
+  -- bleed is for any card that allows you to inflict bleeding
+tag_bleed::Кровотеча
+
+  -- orb is for the Seer's Orb
+tag_orb::Кулька
+
+  -- jump is for cards which let you jump over pieces, inflicting them one damage (like Taunting Hop)
+tag_jump::Стрибок
+
+  -- grenade is for cards that give you explosive grenades
+tag_grenade::Граната
+
+  -- blade is for cards that allow you to slash at low-hp enemy pieces
+tag_blade::Клинок
+
+  -- GAME MODE
+  -- These are gamemode names, used in the gamemode selection menu.
+  -- Tutorial is the tutorial, teaches the player how to play the game.
+  -- Throne is the main, campaign mode where the goal is to reclaim the black king's throne.
+  -- Endless is an arcade-style highscore-chasing mode, it goes on until you lose.
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+tutorial::Навчання
+throne::Престол
+endless::Вічність
+chase::Погоня
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, either shown are at all time or when relevent.
+
+  -- Floor is the current game level, eg: "Floor: 4"
+floor_::Поверх:
+
+  -- eg: "Score: 12"
+score_::Рахунок:
+
+  -- Shown on selected pieces that are poisoned, as: "Poison|[number of turns until not poisoned anymore]". Poison makes pieces go slower.
+poison::Отрута
+
+  -- The following need to be very short to fit the space to the left of the checkboard. Use no more than 8 characters. Prefer 7 or less. Feel free to use abreviations.
+  -- short version of firepower
+power::Міць
+
+  -- short version of range
+range::Відстань
+
+  -- short version of fire arc
+f_arc::Кут
+
+  -- short version of knockback (percentage of chance to push pieces backwards when they're hit)
+knock::Відкид
+
+  -- short version of pierce (percentage of chance that pellets will not stop after hitting a first target)
+pierc::Пробиття
+
+  -- short version of blade/sword/cutting (ability to cut down pieces that have low-enough health)
+blade::Клинок
+
+  -- short version of fright/scariness/terror (radius in which killing a piece will scare other pieces)
+fright::Страх
+
+  -- short version of jump (number of times you can jump over other pieces before ending your turn)
+jump::Стрибок
+
+
+
+  -- Current turn, eg: "Turn: 13"
+turn_::Хід:
+
+  -- Displayed when the player is pressing "shift" to ignore folly shields (which prevent you from putting yourself in a gameover position)
+unsafe_mode::Небезпечний режим
+
+  -- Shown at the bottom of the screen when losing because of a classic chess checkmate
+checkmate::Шах і мат!
+
+  -- Shown after the gameover to ask if the player wants to restart.
+try_again::Спробуєте ще раз?
+  -- Yes//No buttons
+yes::Так
+no::Ні
+
+  -- Used in endless mode past level 11. Instead of getting new cards, the white army is improved with one of these effects at random: (in piece_join, $0 is the replaced with the name of a piece, eg: "A knight joins the white army")
+blood_bowl::Чаша крові|Всі білі фігури отримують +1 ОЗ
+pawns_join::До білої армії приєднуються два пішаки
+piece_join::У білій армії з'являється $0
+
+  -- Shown when hovering the mouse cursor on wands. Wands are magic abilities the player can have.
+click_to_use::Клацніть, щоб використати
+
+  -- Shown instead when using a controller.
+press_to_use::Натисніть $0, щоб використати
+
+  -- Shown on wands that have already been used this floor.
+replenish_floor::Відновиться на наступному поверсі
+
+  -- Folly shields descriptor, shown on hovering folly shields below the shotgun. They automatically protect you from making moves that would lead you to your immediate death, consuming one shield every time.
+folly_shield::Щити глупоти|Захищають Вас від Ваших суїцидальних інстинктів|Відновлюються що ходу
+
+  -- Shown on hovering a piece's soul, placed at the right of the checkboard after killing a noble piece. (knight, rook, bishop or queen) $0 is replaced with the piece's name.
+soul_desc::Душа: $0|Використайте, щоб рухатися як $0
+
+  -- Used when playing with a controller. $1 is replaced with a button name.
+soul_desc_console::Душа: $0|Натисніть $1, щоб рухатися як $0
+
+  -- This is added below soul_desc when Sacred Crown is in play.
+crow_turn::потім зіграйте додатковий хід
+
+
+  -- This is shown instead of soul_desc when the soul slot is empty. Killing a noble piece will fill this slot with its soul.
+soul_slot::Чарунка душі|Убийте благородного противника, щоб украсти його душу
+
+  -- These are shown specifically on pawn souls, which can be obtained with the card "Cannon Fodder". $0 is always replaced with the translation for "Pawn".
+pawn_soul_desc::Душа: $0|Використайте, щоб отримати +2 вогневої моці до наступного пострілу
+pawn_soul_desc_console::Душа: $0|Натисніть $1, щоб отримати +2 вогневої моці до наступного пострілу
+
+  -- This is shown when trying to reload your shotgun but it's already loaded.
+already_loaded::Дробовик уже заряджено!
+
+  -- This is shown when attempting to use the Wand of Wrath but there's no valid target for it.
+not_target_wrath::Немає належної цілі для гніву!
+
+  -- This is shown when attempting to use the Wand of Wings but no move is possible.
+cant_move::Ви не можете рухатися!
+
+  -- This shown when hovering on the shotgun at the top of the screen. $0 is replaced with a number of shells, and $1s is replaced with the translation for "shell". It is pluralized automatically when relevant. (look to the bottom of this file to define specific pluralization rules)
+reload_shotgun_desc::Натисніть, щоб зарядити $0 $1s у свій дробовик
+
+  -- Used in the previous line.
+shell::[набій]
+
+  -- Player has lost.
+game_over::Ви програли!
+
+
+  -- Shown at the bottom of the screen when trying to reload or use abilities but it's not possible.
+no_ammo_left::Не залишилося набоїв
+no_shell_loaded::Не заряджено набоїв
+no_grenade_left::Не залишилося гранат
+  -- Only one grenade can be thrown per turn.
+one_grenade_per_turn::Тільки одна граната на хід
+  -- Scope is one of the abilities.
+scope_on::Приціл уже ввімкнено
+
+  -- Shown when a card is inactive. (not necessarily used up) $0 is replaced with with one of the next two lines.
+card_exhausted::Карту виснажено. Вона відновиться, $0
+refresh_when::коли Ви досягнете наступного поверху
+  -- ammo boxes have to be reached and picked up on the checkboard.
+refresh_when_chase::коли Ви отримаєте коробку боєприпасів
+
+  -- Shown when a card is temporarily inactive because of a condition stated in the card's description. $0 is replaced with one of the keys under "CONDITIONS" further down in this file.
+  -- eg: the High Focus card will deactivate "because a piece is adjacent to you".
+card_exhausted_bc::Цю карту виснажено, оскільки $0
+
+  -- Shown at the bottom of the screen during the animation where the heir is chosen at the start of a floor.
+hiding_heir::Ховаємо спадкоємця
+
+  -- Shown above the soul slots to the right of the checkboard
+souls::Душі
+
+  -- Used with angles. eg: "Fire arc: +30°"
+
+  -- Used when unlocking a new shotgun or a new rank, or completing an achievement. $0 is replaced with the name of the shotgun/rank/achievement.
+unlocked::Розблоковано: $0!
+
+  -- Used on the disrupt menu which lets you disrupt the white side with a negative effect.
+choose_disrupt::Виберіть тип диверсії
+
+  -- Shown at the bottom of the screen when the countdown is on and the player has to finish the floor in a number of turns.
+  -- Shown as "final countdown:[turns remaining]"
+final_countdown::Фінальний відлік
+
+  -- Used when there's no possible target/victim for an ability the player is trying to use.
+no_valid_target::Нема слушної цілі
+
+  -- Select a piece as target for an ability
+select_a_piece::Виберіть фігуру
+
+  -- Used with the Wand of Wings which lets you move further away from your position.
+choose_destination::Виберіть кінцеву точку
+
+
+  -- NEW!
+  -- Shown at the bottom of the screen when two pieces swap positions.
+swap::Міняємося!
+
+  -- Shown at the bottom of the screen in a very specific situation where the King's Look-Alike false king is revealed and subsequently becomes the real king, because the real king was removed when sabotaging the King's Look-Alike with a disruption effect.
+crowning::Коронація
+
+  -- Not used currently but would be used at the bottom of the screen when giving the player free random souls
+
+  -- Shown at the bottom of the screen during the sabotage disruption effect
+select_white_card::Виберіть білу карту
+
+  -- Shown at the bottom of the screen when using the card Bold Plan
+replace_white_card::Замініть будь-яку білу карту
+
+
+
+  -- LEVEL_UP
+choose_set::Оберіть набір карт
+
+  -- Used for a specific menu that allows you to choose one card among all possible cards.
+choose_any_card::Оберіть карту
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+
+  -- Used when a pawn promotes to another piece.
+promote::Перетворення
+
+  -- Used when a knight protects the white king, making it impossible to kill the latter.
+knight_guard::Вартовий
+
+  -- Used when the white king and a rook swap positions. Refers to the "Castle" move in classic chess.
+castle::Рокіровка
+
+  -- Used when white pieces arrive sometime after the floor started.
+backup::Резерв
+
+  -- Used when white pieces don't receive full damage because they are close to a piece that protects them. eg: rooks with the Cathedral card.
+cover::Прикриття
+
+  -- The heir pawn is being promoted to king
+heir_promote::Спадкоємець!
+
+  -- Used to describe some card unlocks, eg: "This card needs at least 1 Heir to appear"
+heir::Спадкоємець
+
+  -- Used to describe some card unlocks, same as heir.
+spy::Шпигун
+
+  -- Used to describe some card unlocks.
+
+  -- The player has found the spy in the white army, allowing them to disrupt the white side.
+meet_spy::Секретна зустріч!
+
+  -- The player can take another action.
+extra_turn::Додатковий хід
+
+  -- Used when disguising as a pawn with the card Low-Cost Disguise.
+disguised::Переодягнутий!
+
+  -- Used when the player leaves stealth mode because they exposed themselves.
+visible::Викритий!
+
+  -- Used when the white army disables a mission waypoint with the "investigate" card effect. The "mission" normally allows you to disrupt the white side when completed.
+abort_mission::Операцію скомпрометовано!
+
+  -- Used when the white army finds and kills the spy in their ranks with the "investigate" card effect.
+spy_executed::Шпигуна страчено!
+
+  -- Used on the white king when he gets hit and it promotes the nearest pawn with the "Emergency Call" card.
+help::Допоможіть!
+
+  -- Used when shooting the white king's look-alike, revealing them for a knight instead.
+usurper::самозванець!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+
+  -- BOSS LINES (also emotes)
+  -- This is used for a secret boss. The black bishop cries "Justice!" (for all the evil the black king has done) before fighting the black king.
+black_bishop_warcry::Справедливість!
+
+  -- The following two lines are used for a secret boss: after the big white king dies, the iron queen grows tentacles and speaks these two lines. Then you have to fight her.
+  -- It has to be two lines, they should be relatively short.
+come_to_me::Іди до мене,
+my_love::любове моя!
+
+  -- These are used for a secret boss. They are the names of the four horsemen of the apocalypse. Please make sure to translate the correct names.
+apo_name_0::Чума
+apo_name_1::Війна
+apo_name_2::Голод
+apo_name_3::Смерть
+
+  -- The following five lines are used for a secret ending where the four horsemen of the apocalypse show up, but the shotgun king takes the fourth horse and kills the other 3 horsemen before leaving the screen.
+  -- It has to be five lines, they are shown one after the other, and they should be relatively short.
+apo_threat_0::Не
+apo_threat_1::плутайтесь
+apo_threat_2::під ногами
+apo_threat_3::Короля!
+apo_threat_4::Бійтесь мене
+
+  -- Used in a secret event where the white king gets disabled and their usurper knight becomes king instead.
+  -- Has to be 3 lines, they are shown in succession, they should be relatively short.
+power_people_0::Усю
+power_people_1::владу
+power_people_2::народу!
+
+
+
+
+
+
+  -- PIECES
+  -- These are used in card descriptions and other interface elements.
+piece_0::Пішак
+piece_1::Кінь
+piece_2::Слон
+piece_3::Тура
+piece_4::Королева
+piece_5::Король
+piece_6::Бос
+piece_7::Усі фігури
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+
+
+  -- SHORT PIECE
+  -- These are used on the panel to the left of the checkboard when inspecting a white piece. Space is limited, please only use 7 characters or fewer for each.
+short_piece_0::Пішак
+short_piece_1::Кінь
+short_piece_2::Слон
+short_piece_3::Тура
+short_piece_4::Королева
+short_piece_5::Король
+  -- Boss is used for the big white king on the last level of Throne mode.
+short_piece_6::Бос
+  -- Blight is the name for the secret queen boss. The point is simply that she's scary, feel free to use whatever conveys that and fits the space constraint.
+short_piece_10::Розруха 
+  -- Rider is shown for the secret horsemen of the apocalypse bosses. Ideally should be different to the name for knights, you can also use a word/abreviation for "apocalypse" instead.
+short_piece_11::Вершник
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+
+Ermine Belt::Горностаєвий пояс
+Elite Gem::Коштовний камінь
+Extra Barrel::Додаткове дуло
+Royal Loafers::Королівські мешти
+Majestic Censer::Величне кадило
+Sacred Crown::Сакральна корона
+Blunderbuss::Мушкетон
+Engraved Scope::Гравійований приціл
+Holy Gunpowder::Святий порох
+Ritual Dagger::Ритуальний ніж
+August Presence::Монарша присутність
+Crow's Blessing::Благословіння ворона
+The Moat::Рів
+Rightful Curtsy::Силувана ґречність
+Wand of Downpour::Жезл зливи
+Wand of Frenzy::Жезл сказу
+Wand of Wrath::Жезл гніву
+Wand of Wings::Жезл польоту
+Wand of Gust::Жезл пориву
+Wand of Hypnosis::Жезл гіпнозу
+Kingdom Wealth::Статки королівства
+Gradual Absolution::Відпущення гріхів
+Taunting Hop::Глузливі стрибки
+Unjust Decree::Несправедливий указ
+Kingly Alms::Королівська милостиня
+Subtle Poison::Витончена отрута
+Small Fry Harvest::Жнива черні
+A Piercing Truth::Пронизлива правда
+Black Mist::Чорний туман
+King's Shoulders::Королівські плечі
+High Focus::Концентрація
+Courteous Jousting::Чесне лицарство
+Cornered Despot::Деспот у куті
+Sawed-off Justice::Куце правосуддя
+Welcome Gift::Гостинець
+Cannon Fodder::Гарматне м'ясо
+Possessed::Одержимий
+Philanthropy::Філантропія
+Imperial Shot Put::Імперське штовхання ядра
+Egotic Maelstrom::Вир егоїзму
+Church Organ::Церковний орган
+Black Plague::Чорна чума
+Ravenous Rats::Хижі щури
+Deep Water::Глибокі води
+Unholy Call::Нечестивий заклик
+Undercover Mission::Таємна операція
+Caltrops::Триволи
+Nightbane::Ночезгуб
+Bushido::Бушідо
+Bloodless Coups::Мирний переворот
+Presbyopia::Пресбіопія
+Golden Aging::Золоте старіння
+Fool Companion::Компаньйон-дурепа
+Force-feeding::Примусове годування
+Seer's Orb::Кулька ясновидця
+Fearsome::Погроза
+Human Shield::Живий щит
+Reign of Terror::Царство терору
+Monarch's Confidence::Упевненість монарха
+The Mole::Кріт
+Elusive::Невловимий 
+Holoking::Голокороль
+Cloaking Device::Маскувальний пристрій
+Low-Cost Disguise::Маскування за безцінь
+Wand of Souls::Жезл душ
+Wand of Execution::Жезл страти
+Patience::Терпіння
+Bold Plan::Зухвалий план
+Silencer::Глушник
+Ambush::Засідка
+Ancient Flagstone::Древня плита
+Tearing Bullets::Експансивна куля
+Indelible Memories::Незгладимі спогади
+Mystic Shackles::Містичні кайданки
+Secret Move::Таємний рух
+Sacred Light::Священне світло
+Workshop::Майстерня
+Selective Listening::Вибіркове прослуховування
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Backups::Резерви
+Cavalry::Кавалерія
+Conclave::Конклав
+Entitle::Нобілітація
+Cardinal::Кардинал
+Remparts::Вал
+Pillage::Грабіж
+Crusades::Хрестові походи
+Peace::Мир
+King's Mistress::Фаворитка
+Revolution::Революція
+Bodyguard::Прибічна сторожа
+Ruins::Руїни
+Assault::Напад
+Kite Shield::Франкійський щит
+Zealots::Фанатики
+Militia::Ополчення
+Ammunition Depot::Склад боєприпасів
+Scouting::Розвідка
+Pikemen::Пікінер
+Ascension::Вознесіння
+Castle::Рокіровка
+Conscription::Військова повинність
+Theocracy::Теократія
+Iron Maiden::Залізна діва
+Court of the King::Двір короля
+The Red Book::Червона книга
+Homecoming::Повернення додому
+Overthrown Theocracy::Скинута теократія
+Saboteur::Саботажник
+Lookout Tower::Оглядова вежа
+Throne Room::Престольна світлиця
+The Secret Heir::Секретний спадкоємець
+  -- If you're afraid "Drag Queen" won't be understood in your culture, you can go for something else related to queer or transgender rights. Do not use slurs and try to keep it positive please.
+Genderqueer::Дреґ-королева
+Karma::Карма
+Undead Armies::Війська немертвих
+Shortage::Дефіцит
+Succubus::Сукуб
+Bunker::Бункер
+Sanctity::Святість
+  -- This card makes knights ethereal/ghost-like. Could be translated to something along the lines of Spectral Cavalry if there's no way to translate the Knightmare pun.
+Knightmare::Зникінь
+Highest Dungeon::Донжон
+Cathedral::Собор
+The Bridge::Міст
+Divine Healing::Божественне зцілення
+Last Guardian::Останній на варті
+Trowel::Кельма
+Full Plate Armor::Лати
+Military Academy::Військова академія
+Witch's Curse::Прокляття відьми
+Saddle::Сідло
+The Jester::Блазень
+Guillotine::Гільйотина
+Analysis Paralysis::Аналітичний параліч
+Plumed Knight::Кінь обріс пір'ям
+Emergency Call::Аварійний виклик
+Mangonel::Требушет
+Governess::Гувернантка
+Mausoleum::Мавзолей
+Reverend Mother::Превелебна матір
+Sokoban::Сокобан
+Tag Team::Збірна з реслінгу
+Unicorn::Єдиноріг
+Lady in the Tower::Леді у вежі
+Final Countdown::Фінальний відлік
+  -- Can be translated as Nomadism. Please do not use potentially offensive terms.
+Nomad Life::Кочове життя
+Prison::В'язниця
+Inquisition::Інквізиція
+King's Look-alike::Двійник короля
+The Royal Hunt::Королівське полювання
+Tragic Homecoming::Трагічне повернення додому
+  -- Limos (or Limus in latin, take your pick) is the name of the third Horseman of the Apocalypse, the one wearing the shield (/buckler) in the secret boss version of the horsemen in the game. This card gives the shield to the white king, protecting him to some extent. The Limos reference doesn't have to be kept if you can find a better name for that card in your language.
+Buckler of Limos::Баклер Лімоса
+Vampirism::Вампіризм
+Commoner's Reign::Правління люду
+Bouncy Castle::Пружний замок
+Fallen Dynasty::Повалена династія
+Self-Defense::Самооборона
+Unsettled Throne::Неосілий престол
+
+
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- eg: Remove 2 pawns
+rem_piece::[Втікає] $0 $1s 
+
+  -- Same thing but $delay is replaced with either the at_delay key below, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final", which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+
+  -- Same but without the delay.
+
+
+
+
+  -- Used with add_piece. Also used under this form: "after/every N turns: [other effect]". $0 is replaced with a number.
+at_delay::після $0-го ходу
+every_x_turn::що $0 ходів
+
+  -- The following are the name of different stats as used in other card effects or in shotgun stats.
+ammo_max::Запас набоїв
+grenades_max::[Граната]
+ammo_regen::Відновлення набоїв
+firepower::Вогнева міць
+firerange::Дальність стрільби
+chamber_max::[дуло]
+pierce::Пробивання
+spread::Кут розкиду
+  -- "Search" as in "Looking for something". The search stat lets you reroll card choices N times. Can also translate as "Reroll" if it makes more sense in your language.
+search::Пошук
+knockback::Відкидання
+hp::ОЗ
+
+
+  -- Special descriptions for the Homecoming card, whcih always appears on the third level-up.
+queen_escape::Від неї не втекти…
+queen_everywhere::Вона повсюди!
+
+  -- Even more special descriptions for when you try to reroll the Homecoming card.
+queen_escape_tragic::Не варто було це робити…
+queen_everywhere_tragic::Тепер вона засмучена!
+
+  -- Used to describe conditions under which a card deactivates. $0 is replaced with one of the conditions under CONDITIONS further below.
+flip_if::Переверніть цю карту, якщо $0
+
+  -- Used to denote a group of pieces in effect descriptions. Is used to replace some instances of <pieces>.
+  -- eg with effect_prison: Knights and bishops can't move or attack if near a rook.
+and::та
+
+  -- Actually used in the codex to specify multiple possible tags that can let a card appear.
+  -- eg: While playing a game gather cards with the tag mission or cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation of "or" if your language uses whitespaces.
+_or_:: або 
+
+  -- Used when an effect is limited to a square color. $1 is replaced with the effect, and $0 with the color as written just below.
+  -- eg: -1 firepower on white squares
+standing::$1 на $0 клітинах
+white::білих
+black::чорних
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- these next 3 are new and might need reviewing
+effect_ammo_max::запас набоїв: $1
+effect_grenades_max::$1 [граната]
+effect_ammo_regen::відновлення набоїв: $1
+
+effect_chamber_max::Зарядіть $0 [додатковий набій]
+effect_soul_slot::Додається $0 [чарунка душі]
+effect_soul_sink::Забирається 1 чарунку душі
+effect_crown::Ви можете зіграти додатковий хід після використання карти душі
+effect_presence::Лише королі можуть наблизитися до Вашого короля
+effect_moat::Лише кінь може перетнути рів за один хід
+effect_hp::<piece>: <inc> ОЗ
+effect_hprc::<piece>: $0% ОЗ
+effect_tempo::<piece>: швидкість: <inc> 
+effect_shell::Отримуйте $0 [набій] за кожну вбиту фігуру типу «<piece>»
+effect_poison::На протязі $0 [хід] <piece> рухається не далі, ніж на 1 клітину
+effect_cage::<piece> рухається не далі, ніж на $0 [клітину]
+effect_shield::<pieces> мають щит, який поглинає всю шкоду один раз
+effect_flying::<pieces> можуть рухатися й атакувати через усі перешкоди
+effect_iron::<pieces> не можуть загинути
+effect_orth::<pieces> можуть рухатися (не атакувати) по прямій
+effect_joust::Зіграйте додатковий хід за кожну вбиту фігуру типу «<piece>»
+effect_recoil::Стрільба відкидає Вас назад
+effect_firepower::Вогнева міць: $1
+effect_firerange::Дальність стрільби: $1 
+effect_pawnreap::Використовуйте душі пішаків для отримання +2 до вогневої моці у наступному пострілі
+effect_freegren::Один раз на хід кидайте гранату, хід не закінчуйте
+effect_grenade_dmg::Шкода гранати: $1
+effect_sanctity::<piece> не віддає душу після смерті
+effect_plague::Наприкінці кожного ходу випадкова фігура отримує 1 шкоду
+effect_rats::Коли Ви вбиваєте фігуру, з'являється щур, який кусає найближчу ціль і завдає їй 1 шкоду
+effect_deepwater::Лише кінь може атакувати Вас з рову
+effect_pentagrams::$0 [пентаграма з'являється] на дошці. Активуйте одну, щоб отримати додатковий хід. Активуйте всі та отримайте +2 до вогневої моці
+effect_blade::Клинок: $1
+effect_blade_console::Шкода клинка: $1
+effect_blade_old::Вбийте фігури ближнього бою з ОЗ рівним або меншим, ніж Ваш клинок
+effect_bushido::Один раз на хід вбийте фігуру клинком без завершення ходу
+effect_minr::<pieces> не можуть атакувати Вас, якщо відстань до Вас менша, ніж $0
+effect_carry::Під час руху, <pieces> переносять фігури, які не є конем або турою
+effect_nocarry::<pieces> не піддаються носінню
+  -- for free = without spending the turn
+effect_freelift::<pieces>: їх можна підняти та кинути просто так
+effect_jester_guard::Блазні рухаються в будь-якому напрямку. Їх завжди веде $leader. Якщо вб'єте блазня, робіть додатковий хід
+effect_bodyguard::$leader не може померти, якщо на дошці є <piece>
+effect_knockback::Шанс відкинути ворогів: $1%
+  -- here the second $ is replaced with the degree_symbol key.
+effect_spread::Кут розкиду: $1$
+effect_absolution::$1 вогневої моці за кожну пусту чарунку душі
+effect_hop::Стрибок: $1 (перестрибніть сусідню фігуру без завершення ходу)
+effect_pierce::Ваші кулі отримують $0% шанс пробити цілі
+effect_mist::Захищає Вас від смерті один раз на поверх
+effect_grab::Раз на поверх перетягніть сусідню фігуру на свого короля і жбурніть її в будь-якому напрямку
+effect_grab_console::Раз на поверх перетягніть сусідню фігуру на свого короля і жбурніть її в будь-якому напрямку
+effect_assault::Під час свого першого ходу, <pieces> можуть пройти на 1 клітину більше
+effect_militia::Пішаки можуть рухатися й атакувати у чотирьох напрямках
+effect_bad_shells::Подвоює кут розкиду для $0 [дробини]
+effect_heir::$1 [спадкоємець] |(Секретний спадкоємець підмінює короля, коли той помирає)
+effect_nothing::Без модифікаторів
+effect_manual_reload::Перезарядіть лише один набій за хід
+  -- <pieces> and <piece> are not necessarily the same piece type.
+effect_protect::<piece> не може отримати більше, ніж 2 шкоди за хід, якщо поблизу є <piece>
+effect_bridge::Відкривається шлях через рів
+effect_healer::Замість руху <pieces> можуть зцілювати союзників поблизу
+  -- the last one = the last one alive/remaining
+effect_lastg::Якщо гине передостанній <piece>, то останній <piece> перетворюється
+effect_curse::Переверніть цю карту, коли помирає <piece>
+effect_jester::Блазні рухаються по діагоналі, швидкість +2. Після смерті блазні передають ковпак
+effect_free_souls::Отримайте $0 [випадкову душу] на початку кожного поверху
+effect_plumed::Одна фігура типу «<piece>» отримує +3 ОЗ і можливість атакувати по діагоналі
+effect_emergency::Коли <piece> вперше отримає шкоду, збільшіть швидкість цієї фігури на 1 і перетворіть найближчого пішака
+effect_despair::Коли <piece> помирає, всі інші фігури жахаються. Вони не можуть атакувати Вас і втечуть під час свого наступного ходу
+effect_force_promote::Після перетворення з пішака завжди стає <target_piece>
+effect_leaderbond::Коли <piece> помирає, $leader отримує $0 [шкоду]
+effect_humanshield::Ефект карти «Погроза» активується також від смерті пішаків
+effect_terrorism::Ефект карти «Погроза» накладається ще й доокола вбитих фігур
+effect_search::Пошук: $1
+effect_tactic::Білі можуть переміщати не більше, ніж $0 [тип] фігур за хід
+effect_confidence::+1 до вогневої міці за кожен відсутній набій у дулах Вашого дробовика
+effect_push::<pieces> можуть штовхати фігури (ліміт: $0 [раз])
+effect_swap::<piece> може помінятись місцями з фігурою типу «<target_piece>»
+  -- can charge your king = can run towards your king (this is used for the Unicorn card, which lets knights ram you down)
+effect_charge::<pieces> можуть врізатись у Вас та штовхнути на одну клітину замість руху
+  -- white pieces ready to move = about to move
+effect_elusive::Готові до руху білі фігури не можуть Вас атакувати
+  -- a piece that would kill you instead gets promoted to a queen
+effect_killprom::Замість страчувати Чорного Короля, <pieces> перетворюються на королев
+effect_holocloak::Скрадайтеся 6 ходів щоразу, як Ви створюєте голограму
+effect_holoreveal::Скрадання скидається після знищення голограми
+  -- a countdown starts when there are only 6 pieces left. If you don't end the floor within the countdown, you die.
+effect_deathcount::Ви мусите вбити останні 6 фігур не більше, ніж за $0 [хід]
+effect_disguise::Коли <piece> гине від Ваших рук, скрадайтеся $0 [хід]
+effect_promote::<pieces> можуть перетворитися, дійшовши до останньої лінії
+effect_bully::<piece>, що атакує Вас, зменшує вогневу міць на 1 
+effect_investigate::<pieces> страчують викритих шпигунів і компрометують операції
+effect_false_king::Після поранення, фальшивий король замінюється конем
+effect_full_firerange::Коли зброя повністю заряджена, дальність стрільби: $1 
+effect_full_firepower::Коли зброя повністю заряджена, то вогнева міць: $1 
+  -- browse the entire deck and pick your card the next time you're getting a black card
+effect_browse::Наступного разу оберіть будь-яку чорну карту із всієї колоди
+effect_replace_white_card::Замініть білу карту на іншу
+effect_pike::<pieces> можуть атакувати дві клітини прямо перед собою 
+effect_reformed::<pieces> втрачають можливість користатись зі своїх звичних атак
+effect_armorgap::<pieces> не можуть отримати більше, ніж $0 [шкоду] на хід
+effect_bow::<pieces> можуть стріляти у Вас снарядами під час руху
+  -- fire = shoot your shotgun
+effect_silencer::Коли Ви скрадаєтеся, стрільба не викриває Вас
+effect_knockweak::<pieces> мають +50% шанс бути відкинутими
+effect_uncover::<pieces> можуть атакувати Вас, навіть якщо Ви скрадаєтеся
+effect_tearing::Фігури, уражені Вашим дробом, кровоточать|(Кровоточиві фігури отримують додаткову шкоду при попаданні)
+effect_bleed_slow::Швидкість кровоточивих фігур: -1 
+effect_caltrops::+$0% шанс викликати кровотечу у ворогів, що рухаються|(Кровоточиві фігури отримують додаткову шкоду при попаданні)
+effect_grenade_center_dmg::Шкода в епіцентрі вибуху: $1
+effect_grenade_bleed::Гранати викликають кровотечу|(Кровоточиві фігури отримують додаткову шкоду при попаданні)
+effect_vampire::<pieces> захищені від кровотечі|<pieces> зцілюються від кровоточивих фігур поблизу та зупиняють їх кровотечу
+effect_rep::<pieces> після смерті відроджуються, як <target_piece> 
+  -- orb = Seer's Orb, special ability that lets you place an orb over a piece to know its next move
+effect_shackles::Фігура під впливом кульки не може змінювати запланований рух, а її швидкість зменшується на 1
+effect_ruler::Ви виграєте, якщо помруть всі <target_pieces>
+effect_hop_dmg::Шкода стрибка: $1
+  -- use up all your jumps available in a turn
+effect_botte::Використайте всі стрибки, щоб при наступному пострілі отримати бонус до вогневої моці, рівний максимальній кількості стрибків
+effect_fitness:: <pieces> можуть рухатися (не атакувати), як кінь
+effect_grenade_proof::Гранати не шкодять Вам
+effect_grenade_stun::Гранати оглушують фігури на $0 [хід]
+effect_trampoline::Фігури, що впали з дошки, повертаються на неї з повним здоров'ям|Гранати стають ще більш стрибучими
+  -- Replaces Theocracy and Hippocracy descriptions on the boss level, where you have to beat the big white king instead. Royalty shall prevail = royalty shall have the last word = royalty was fated to make a comeback
+effect_fallen::Вони правили дуже давно…|Але Ви ще про них почуєте
+  -- Produce = generate. Used with every_x_turn key
+  -- eg: Every 10 turns: Produce 1 grenade
+effect_mk_grenades::Виробляються гранати: $0 шт.
+effect_mk_ammo::Виробляються набої: $0 шт.
+effect_heirprom::Спадкоємці перетворюються на королів
+effect_freereload::Перезарядіться після вбивства
+effect_overload::Перезаряджаючись на місці, Ви можете втиснути ще один набій у повний дробовик
+effect_delay_mult::Усі відстрочки карт тепер довші на $0%
+effect_paralysis::Ви не можете діяти $0 [хід], або доки Вам не поставили шах 
+effect_cannonball::З'являються ядра: $0 шт.|Ядра можна хапати і жбурляти у фігури
+  -- backups refer to cards that add pieces after a number of turns
+effect_alarm::За кожну вбиту фігуру час прибуття білих резервів скорочується на $0 [хід] 
+  -- Here "strategy" refers to the difficulty level of the algorithm deciding the white side's moves. Shows as: "White Strategy:+1"
+  -- "White Strategy" can also be translated as "AI Intelligence", "AI Cleverness", or "White Tactics". Take your pick
+effect_ai_lvl::Інтелект білих: $1
+
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+  -- $0 is always replaced with the number for that stat, except with range.
+  -- Range is how far you can shoot before your pellets disintegrate, but it's slightly randomized so we give two numbers, a minimum and a maximum, thus $0 is replaced with "3-5" for example.
+  -- For stat_blade and stat_jump, "nearby" means on one of the 8 squares around your king, including corner squares.
+stat_firepower::Кожен набій Вашого дробовика містить $0 [дробину], кожна наносить одну шкоду
+stat_range::Ваш дріб досягає до $0 клітин попереду
+stat_f_arc::Ваш дріб розлітається на $0 
+stat_knock::Ваш дріб має $0% шанс відкинути фігури
+stat_pierce::Ваш дріб має $0% шанс пробити фігури
+  -- [You can / you are allowed to] kill a nearby piece with...
+stat_blade::Ви можете вбити сусідню фігуру, в якої $0 ОЗ або менше, не витративши жодного набою
+stat_fearsome::Коли Ви вбиваєте фігуру, всі в радіусі страху жахаються і втікають під час свого наступного ходу
+  -- [You can / you are allowed to] jump over a nearby piece...
+stat_jump::Ви можете перестрибнути сусідню фігуру $0 [раз], не завершуючи хід
+
+  -- CONDITIONS
+  -- These are used with the flip_if and card_exhausted_bc keys.
+  -- $0 is replaced with a piece name, $0s is replaced with the pluralized version of that piece name. You can use one or the other.
+cond_contact::біля Вас є інша фігура
+cond_inner::Ви не на краю дошки
+cond_first-reload::дробовик перезаряджено
+cond_no_piece::на дошці відсутні $0s
+cond_only_pieces::на дошці є тільки $0s
+cond_not_cloaked::Ви не скрадаєтеся
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+
+
+special_decree::Клацніть ПКМ, щоб вистрілити всіма зарядженими набоями
+special_decree_console::Натисніть $0 перед пострілом, щоб вистрілити всіма зарядженими набоями
+
+special_grenade::Клацніть ПКМ, щоб кинути гранату
+special_grenade_console::Натисніть $0, щоб кинути гранату
+
+special_orb::Клацніть ПКМ на фігуру, щоб передбачити її наступний хід
+special_orb_console::Натисніть $0, щоб вибрати фігуру та передбачити її наступний хід
+
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+wand_0::Нанесіть $0 [шкоду] випадковим ворогам
+wand_1::Відновіть набої та перезарядіть зброю
+  -- in wand_2, $0 gets replaced with the translation for "firepower"
+  -- non-$leader target -> prompts the player to choose the target when activating this ability
+wand_2::Вибрана фігура (не $leader) отримує шкоду, яка дорівнює показнику «$0»
+wand_3::Перемістіться в будь-якому напрямку на відстань до $0 [клітини]
+wand_5::Зіграйте будь-якою білою фігурою
+wand_6::Оглушіть фігуру на 3 ходи та вкрадіть її душу
+  -- refill = regenerate = can be used again
+wand_7::Знищьте пішака. Відновлюється при вбивстві фігури, яка не є пішаком.
+
+  -- DISRUPTION
+  -- These are effects available to the player on reaching a special tile when they have the Undercover Mission.
+  -- "their" always refers to the white army
+  -- the name for each effect is always shown with the corresponding description below, and with an icon to illustrate.
+disrupt_effect_name_0::Саботуйте білу армію
+disrupt_effect_name_1::Отруїть їхню воду
+disrupt_effect_name_2::Украдіть їхні боєприпаси
+disrupt_effect_name_3::Штрикніть білого короля
+disrupt_effect_name_4::Приклейте їх чоботи
+disrupt_effect_name_5::Обдуріть карму
+disrupt_effect_name_6::Знешкодьте вартових
+disrupt_effect_name_7::Скасуйте фінальний відлік
+
+disrupt_effect_desc_0::Деактивуйте будь-яку білу карту
+disrupt_effect_desc_1::Зменште запас здоров'я всіх білих фігур на 1
+disrupt_effect_desc_2::Відновіть набої та перезарядіть зброю
+disrupt_effect_desc_3::Нанесіть королю 4 шкоди
+disrupt_effect_desc_4::Зменште швидкість всіх білих фігур на 1
+  -- refers to a card called Karma which usually gives different maluses depending on what square color you're standing on.
+disrupt_effect_desc_5::Замініть негативні ефекти «Карми» на позитивні
+disrupt_effect_desc_6::Забороніть пішакам атакувати Вас
+  -- refers to a card called Final Countdown which usually kills you if you fail to win the level in a specific number of turns
+disrupt_effect_desc_7::Знищьте всі білі фігури, коли закінчиться фінальний відлік
+
+  -- SHOTGUN NAMES
+
+  -- SHOTGUN UNLOCKS
+  -- These are the conditions to unlock each shotgun.
+shotgun_unlock_1::Цей дробовик відкриється|якщо вогнева міць 6+ 
+shotgun_unlock_2::Цей дробовик відкриється|якщо шанс відкидання 100% 
+shotgun_unlock_3::Цей дробовик відкриється|якщо 4+ дул
+shotgun_unlock_4::Цей дробовик відкриється|якщо клинок 4+ 
+  -- Here search refers to the search stat/mechanic which allows the player to reroll card choices.
+shotgun_unlock_5::Цей дробовик відкриється|якщо 4 рази заново потягнути карти
+shotgun_unlock_6::Цей дробовик відкриється|якщо дальність стрільби 0-2
+
+  -- CONSOLE
+  -- This is used on consoles only. (please translate it anyway)
+  -- Switch profile = Switch to a different account on the console
+switch_profile::Змінити профіль
+
+  -- TUTORIAL
+  -- These are all used in the tutorial. (easy to test once you're done, yay!)
+  -- 'ctrl_tuto_' keys are always followed by a pictogram of the controls whose function is being described.
+
+objectives_tuto::Цілі
+objective_tuto_1::Уникайте білого слона.|Увійдіть у замок.
+  -- get = pick up = obtain
+objective_tuto_2::Підберіть дробовик.
+objective_tuto_3::Переможіть туру.
+objective_tuto_4::Переможіть обох коней.
+objective_tuto_5::Переможіть білого короля.
+chess_tuto_1::Слони рухаються по діагоналі
+ctrl_tuto_1_1::Виберіть, куди рухатися
+ctrl_tuto_1_2::І підтвердьте клацанням
+chess_tuto_3::Тури рухаються по прямій
+ctrl_tuto_3_1::Прицілювання
+ctrl_tuto_3_2::Постріл
+ctrl_tuto_3_3::Щоб перезарядити дробовик, перемістіться або натисніть
+  -- '| |' is intended, makes a double linebreak
+chess_tuto_4::Коні рухаються у формі літери «Г»| |Обережно! Вони можуть перестрибувати фігури!
+ctrl_tuto_4_1::Щоб дізнатися о фігурі більше, скористайтесь
+ctrl_tuto_4_2::Щоб поставити гру на паузу, натисніть
+chess_tuto_5_1::Королева може рухатися в будь-якому напрямку
+chess_tuto_5_2::Пішаки просуваються лише на один крок вперед, але вони атакують по діагоналі!
+ctrl_tuto_5_1::Ціль кожного поверху — перемогти білого короля
+ctrl_tuto_5_2::Щоб знову переглянути деталі о карті, скористайтесь
+  -- dangers display = visual warnings = show dangerous squares
+ctrl_tuto_5_3::Ви можете перемикати відображення небезпеки з
+tuto_barrels::Дуло:|Це боєприпаси, які зараз знаходяться у Вашому дробовику. Стріляти можна до останнього набою.|Для перезаряджання почніть рухатися або натисніть $0.
+tuto_ammo::Набої:|Це Ваш запас патронів|Ви отримуєте нові набої, коли рухаєтеся з повними дулами або без набоїв.
+tuto_folly_shields::Щити Глупоти:|Відтепер Ви можете померти, якщо не будете обережні! На щастя, Ви маєте ці щити, які можуть врятувати у разі помилки. Вони відновлюються що ходу.| |Кількість щитів можна змінити у налаштуваннях.
+tuto_card_black::Після кожного поверху Ви отримуєте покращення…
+tuto_card_white::…але не лише Ви! Нехай щастить!…
+
+  -- TUTORIAL DIALOGUES
+  -- These are the names as displayed at the beginning of dialog boxes.
+black_king::Чорний Король
+black_bishop::Чорний Єпископ
+
+  -- Black Bishop:
+dialogue_tuto_1_1::Ваша величносте, Вас було покинуто всіма, лиш Я приспішати Вам готовий порадами. Чи можу запропонувати я тактичний відступ?
+  -- [White bishop appears]
+  -- Black king:
+dialogue_tuto_1_2::Зраднику!! Білий не личить тобі!
+  -- Black bishop:
+dialogue_tuto_1_3::Пане, боюся, заслабкі ми є для цього. Прошу, вернімся у замок.
+  -- B King:
+dialogue_tuto_1_4::Добре, ходімо. Є в мене одна ідея, як виправити це безчестя..
+  -- [Both get into the castle. Next screen is in a room with a shotgun on a pedestral.]
+  -- B King:
+dialogue_tuto_2_1::А ось і ти, найвірніший мій слуго…
+  -- B Bishop:
+dialogue_tuto_2_2::Пане? Що… який це задум Ваша Величність утілить бажає?
+  -- B King:
+dialogue_tuto_2_3::Мій королівський дробовик!! Побачимо, хто тепер сміятись буде, зрадливі виродки.
+  -- B Bishop: (distressed)
+dialogue_tuto_2_4::Ваша Ясносте, волаю Вас, уклякнувши! Це вже понад міру! Я не даю на це добро.
+  -- B King:
+dialogue_tuto_2_5::Заткни свій ниций писок і стій тут. Мені не потрібна ані твоя допомога, ані твоє схвалення.
+  -- [Back outside in front of the castle. A white rook is there.]
+  -- B King: (can replace this line with any sort of gratuitous threat that plays on words with the rook piece or with the castle in the background)
+dialogue_tuto_3_1::Агов, туреня! Стіни мої подобаються?! Підійди ближче! Таке видовище тобі покажу!
+  -- B King, after shooting once at the rook, needs to reload their shotgun:
+dialogue_tuto_3_2::Ти-и-и! Нікчемна купо цегли, змушуєш Мене перезаряджатися??
+  -- B King has killed the rook, and now two knights come onto the board.
+  -- B King: (snarky remark on knights' weird L-shape movement in chess)
+dialogue_tuto_4_1::А ось і королівська кавалерія. Що, конеголові, досі не розібралися, як рухатися по прямій?
+  -- B Bishop, explaining you can see enemy piece's info in the interface.
+dialogue_tuto_4_2::Мій королю, досьє я підготовив про підданих колишніх, щоб були Ви краще підготовлені. Записані тут їх способи пересування, здоров'я та швидкість.
+  -- B King: (callback to the first time the king told the bishop to shut up)
+dialogue_tuto_4_3::Хіба я не казав тобі стулити свій ниций писок?!
+  -- Both knights are blown to pieces by the Black King.
+  -- B King:
+dialogue_tuto_powerup::Що може бути краще за запах пороху та вид шматків зрадників, що летять на всі сторони? Я відчуваю прилив енергії та сил! Ніколи не було мені краще!
+  -- The white king and queen come onto the board with a few pawns.
+  -- B King: (lead hail refers to the shotgun's pellets. can replace this with any vaguely threatening pun/joke about rival royalty)
+dialogue_tuto_5_1::Нумо, обсипмо пошаною королівську пару, еге? Укрийтесь повагою, як дощем... Свинцевим дощем, ха!!
+  -- Still B King, to himself: ("gets it" = dies. Needs to convey that the white side will give up if their king dies)
+dialogue_tuto_5_2::Зуб даю, що ці боягузи повтікають хто куди, тільки-но я покажу Білому Королю що до чого.
+  -- The B King defeats the small white army.
+  -- Narrator, with illustrations: (continuation from vig_1, to be found further below, which is actually displayed at the start of the tutorial, and this is shown after the tutorial is completed)
+  -- (the "claim over thyne former subjects' souls" is about the game's mechanic of stealing piece's souls when they die to move like them.)
+  -- (B Bishop prophesizes that the B King's anger will lead him to his demise)
+vig_2_tuto::Коли біла армія відійшла, Чорний Єпископ, здаючи свій переслідуваний пост, підійшов до Чорного Короля та сказав йому: «Ваша Величність негожим є королем, та престол Ваш святий. Як відновите владу над душами підданих своїх, тоді боятимемося ізнову гніву Вашого. Тож внемліть моїй пересторозі. Гнів мужа, іже благочесного, як Ви, назавжди погубить його».
+vig_3_tuto::І так Чорний Король був покинутий усіма. Жодної тури не знайти було в його замку. Залишилися тільки його найцінніший королівський дробовик, уламки гідності і палкий вогонь передреченого гніву. «Чи це буде моя погибель? Згуба?! Мені більше нічого втрачати!» — почорнілий від шалу Король зарядив дробовик і вирушив назустріч своєму фінальному мату...
+
+  -- ACHIEVEMENT NAMES
+  -- please check directly in game in the codex for the signification of each achievement
+ach_FULL_SET::Повний набір
+ach_WIZARD::Чарівник
+ach_COMPLETE::Завершення
+
+  -- This is given when the player defeats the secret bishop boss
+ach_AVENGED::Помста
+  -- This is given when the player defeats the secret bishop boss and shoots at the red book which gave his powers to the black bishop
+ach_EXORCISED::Екзорцизм
+
+ach_SWARM::Рій
+ach_LEGION::Легіон
+ach_SNIPER::Снайпер
+ach_ASSASSIN::Асасин
+ach_STEROID::Стероїди
+ach_TRIGGER_HAPPY::Палець на гашетці
+ach_SCAVENGER::Сміттяр
+ach_HAREM::Гарем
+ach_SOCIAL_DISTANCING::Соціальне дистанціювання
+ach_RELIGION::Релігія
+ach_SECRET::Таємниця
+ach_SECURITY_SERVICE::Служба безпеки
+ach_INQUISITION::Інквізиція
+ach_MOBILITY::Рухливість
+ach_BOUNDARIES::Кордони
+ach_MACHINE_GUN::Кулемет
+ach_SURVIVOR::Уцілілий
+ach_DEMOLITION::Руйнування
+ach_HORSEMEN_OF_THE_APOCALYPSE::Вершники Апокаліпсису
+ach_ROYAL_RETAINER::Королівський придворний
+ach_THE_FLOOR_IS_LAVA::Підлога — лава
+ach_EMPEROR::Імператор
+ach_LATE_TO_THE_PARTY::Запізнилися на вечірку
+ach_UNEXPECTED_ENTRANCE::Неочікувана поява
+ach_SWORDMAN::Мечник
+ach_CLIFFHANGER::Далі буде
+ach_NINJA::Ніндзя
+ach_SLAUGHTER::Бійня
+ach_BENEVOLENCE::Доброзичливість
+ach_BUILDER::Будівельник
+
+ach_MERCIFUL_RULER::Милосердний правитель
+ach_A_VELVET_GLOVE::Оксамитова рукавичка
+ach_DELETED::Видалено
+ach_SQUARE_ALLEGIANCE::Вірність кольору
+ach_INCARNATION::Втілення
+ach_LIKE_FATHER_LIKE_SON::Яблуко від яблуні
+ach_HUMILIATION::Приниження
+
+  -- This achievement is given for throwing an iron queen off of the checkboard
+ach_HASTA_LA_VISTA_BABY::Аста ла віста, бейбі
+
+ach_HOW_IT_SHOULD_BE::Як і задумано
+ach_SHE_IS_EVERYWHERE::Вона повсюди
+ach_MORTAL_PERIL::Смертельна небезпека
+ach_PROJECTILE_DYSFUNCTION::Набійна дисфункція
+ach_HOPE_THIS_HITS::Тільки б попасти
+ach_NINE_LIVES::Дев'ять життів
+ach_YOUR_WIFE_MY_WIFE::Твоя дружина — моя дружина
+ach_A_MIGHTY_FORTRESS::Грандіозна фортеця
+ach_UNDERPRESSURE_AMMO::Нікудишні набої
+ach_GLUTTONY::Ненажерливість
+ach_IRON_KING::Залізний король
+ach_WIDOW::Удова
+ach_YOU_SHALL_NOT_PASS::Ти не пройдеш
+ach_BLITZ::Бліц
+ach_BULLET::Куля
+ach_SUICIDE_PACT::Парний суїцид
+ach_OH_NO::О ні!
+ach_MR_PRESIDENT::Пане президенте!
+ach_LIFEGUARD::Рятувальник на воді
+ach_MMMMH_DELICIEUX::М-м-м, делікатес!
+
+  -- $0 is replaced with the number for each rank, this is the achievement given for completing them
+ach_rank::Складність: $0
+
+ach_DANGEROUS_LIFE::Небезпечне життя
+ach_NIGHTMARE_ERA::Епоха жахів
+ach_DRAUGHTS::Шашки
+ach_PUPPET_MASTER::Ляльковик
+ach_HIDDEN_CONSPIRATOR::Прихований змовник
+ach_DECEIVER::Ошуканець
+ach_STARBURST::Наднова
+ach_DETENTION::Арешт
+ach_OUT_OF_TIME::Графік
+ach_JEALOUSY::Заздрість
+ach_DISCREET_HOST::Обережний господар
+ach_FIRST_AID::Перша допомога
+
+  -- More shotgun names
+
+
+  -- This one is for defeating the secret queen boss
+ach_MARITAL_PEACE::Мир у шлюбі
+  -- This one is for defeating the secret 4 horsemen of the apocalypse boss
+ach_END_OF_THE_WORLD::Кінець світу
+  -- And this one is for getting the secret ending where the black king steals one of the apocalypse horsemen's horses
+ach_NEW_JOB::Нова посада
+
+ach_WORKPLACE_ACCIDENT::Виробнича травма
+ach_BULLFIGHTING::Тавромахія
+ach_BURIED_ALIVE::Поховання заживо
+ach_COLD_REGICIDE::Холоднокровне королевбиство
+ach_FINAL_ESCAPE::Остання втеча
+ach_HIPPOCRACY::Конекратія
+ach_BLOODBATH::Кривава баня
+ach_ANARCHY::Анархія
+ach_WARDEN::Лицар
+ach_MIDNIGHT_DANCE::Опівнічний танець
+
+
+  -- ACHIEVEMENT DESCS
+ach_FULL_SET_desc::Майте 10 чорних карт
+ach_WIZARD_desc::Майте 3 магічних жезли
+ach_COMPLETE_desc::Убийте Білого Короля
+ach_AVENGED_desc::Убийте Чорного Єпископа
+ach_EXORCISED_desc::Знищьте Червону книгу
+
+  -- $0, $1 and $2 are replaced with card names.
+ach_cards_desc::Виграйте, маючи такі карти: $0, $1, $2
+
+  -- same description for all shotgun achievements.
+ach_gun_desc::Пройдіть режим престолу з цим дробовиком
+
+ach_MERCIFUL_RULER_desc::Пройдіть поверх, не вбивши жодного пішака
+ach_A_VELVET_GLOVE_desc::Пройдіть поверх, не вбивши нікого, окрім лідерів
+ach_DELETED_desc::Пройдіть поверх за 6 ходів
+ach_SQUARE_ALLEGIANCE_desc::Пройдіть поверх, не торкаючись білих клітин
+ach_INCARNATION_desc::Пройдіть поверх, рухаючись тільки за допомогою душ
+ach_LIKE_FATHER_LIKE_SON_desc::Убийте білого короля, поціливши в нього його спадкоємцем
+  -- hopping = jumping
+ach_HUMILIATION_desc::Убийте білого короля стрибком на нього
+ach_HASTA_LA_VISTA_BABY_desc::Убийте залізну королеву
+ach_HOW_IT_SHOULD_BE_desc::Майте 2 коней, 2 тури, 2 слонів, 1 королеву, 1 короля і 8 пішаків на стороні ворога
+ach_SHE_IS_EVERYWHERE_desc::Майте одночасно 5+ королев на дошці
+ach_MORTAL_PERIL_desc::Будьте під атакою від 4 фігур одночасно
+ach_PROJECTILE_DYSFUNCTION_desc::Майте в обоймі більше набоїв, ніж у запасі
+ach_HOPE_THIS_HITS_desc::Майте кут розкиду у 120 або більше градусів
+ach_NINE_LIVES_desc::Активуйте «Чорний туман» 9 разів
+ach_YOUR_WIFE_MY_WIFE_desc::Схопіть королеву і віднесіть на клітинку, де Ви почали раунд
+ach_A_MIGHTY_FORTRESS_desc::Майте одночасно 6+ тур на дошці
+ach_UNDERPRESSURE_AMMO_desc::Майте вогневу міць, яка дорівнює 1
+ach_GLUTTONY_desc::Майте 20+ набоїв
+ach_IRON_KING_desc::Пройдіть режим престолу, не використовуючи щитів глупоти
+ach_WIDOW_desc::Пройдіть режим престолу, не вбивши жодної королеви
+ach_YOU_SHALL_NOT_PASS_desc::Пройдіть режим престолу, не давши пішакам перетворитися
+ach_BLITZ_desc::Пройдіть режим престолу менш ніж за 5 хвилин
+ach_BULLET_desc::Пройдіть режим престолу менш ніж за 2 хвилини
+ach_SUICIDE_PACT_desc::Знищьте білого короля і чорного короля гранатою
+ach_OH_NO_desc::Підірвіться на власній гранаті
+ach_MR_PRESIDENT_desc::Дайте турі врятувати короля від летючої фігури
+ach_LIFEGUARD_desc::Виштовхніть фігуру із рову
+ach_MMMMH_DELICIEUX_desc::Дайте білому королю себе з'їсти
+
+  -- finish throne = finish throne mode. $0 is replaced with rank number.
+ach_rank_desc::Пройдіть режим престолу на $0-му рівні складності
+
+ach_MARITAL_PEACE_desc::Убийте Розруху
+ach_END_OF_THE_WORLD_desc::Убийте чотирьох вершників Апокаліпсису
+ach_NEW_JOB_desc::Займіть місце вершника
+ach_WORKPLACE_ACCIDENT_desc::Скиньте з дошки фігуру, яка не є пішаком
+ach_BULLFIGHTING_desc::Допоможіть єдинорогу вбитися
+ach_BURIED_ALIVE_desc::Убийте короля виключно шкодою від карти «Мавзолей»
+ach_COLD_REGICIDE_desc::Убийте короля, коли скрадаєтеся
+ach_FINAL_ESCAPE_desc::Пройдіть поверх, не нашкодивши нікому під час фінального відліку
+ach_HIPPOCRACY_desc::Дозвольте коням керувати білою армією
+ach_BLOODBATH_desc::Майте одночасно 12+ кровоточивих фігур на дошці
+ach_ANARCHY_desc::Майте одночасно 4+ королів на дошці
+ach_WARDEN_desc::Майте одночасно 8+ фігур у в'язниці
+ach_MIDNIGHT_DANCE_desc::Отримайте +4 вогневої моці від таємного руху
+
+
+
+
+
+  -- LIVE SPECIFIC
+  -- Used only on Xbox.
+HERO_BestThroneRank::Найвища складність у режимі престолу
+HERO_BestThroneTime::Найкращий час у режимі престолу (будь-яка складність)
+HERO_BestEndless::Найкращий поверх у режимі вічності
+HERO_HighscoreChase::Найкращий результат у режимі погоні
+  -- Shown as player's status.
+Presence_RP_menu::У меню
+Presence_RP_tutorial::У навчанні
+Presence_RP_throne::У режимі престолу - Складність {0}
+Presence_RP_endless::У режимі вічності - На поверсі {0}
+Presence_RP_chase::У режимі погоні
+
+  -- PSN SPECIFIC
+  -- Used only on PS4 & PS5
+ach_PLATINIUM::Бог дробовика
+ach_PLATINIUM_desc::Усі призи отримані
+ui_trophies::Призи: $0%
+
+  -- STORIES
+  -- Intro to throne mode (vig_1 is also used for the tutorial, and the tutorial ends with a variation of vig_2 and vig_3)
+vig_1::Чорний Король був навіженим та огидним правителем. Щороку все більше і більше підданих залишали його і переходили до Білого Короля, який пропонував їм кращі умови праці та вищу зарплатню. Потім у Чорного Короля відібрали замок. Кавалерія покинула свій пост. Та навіть його дружина, Королева, пішла від нього.
+  -- Black bishop prophesizes the king's anger will lead him to his demise. Also mentions "the claim over thyne subjects' souls" referring to getting the pieces' souls when you kill them in the game.
+vig_2::Перед відходом, останній Чорний Єпископ підійшов до Чорного Короля та сказав йому: «Ваша Величність негожим є королем, та престол Ваш святий. Як відновите владу над душами підданих своїх, тоді боятимемося ізнову гніву Вашого. Тож внемліть моїй пересторозі. Гнів мужа, іже благочесного, як Ви, назавжди погубить його».
+  -- Black King angry.
+vig_3::І так Чорний Король був покинутий усіма. Жодної тури не знайти було в його замку. Залишилися тільки його найцінніший королівський дробовик, уламки гідності і палкий вогонь передреченого гніву. «Чи це буде моя погибель? Згуба?! Мені більше нічого втрачати!» — почорнілий від шалу Король зарядив дробовик і вирушив назустріч своєму фінальному мату...
+
+  -- Transition to the boss big white king.
+vig_4::Роки пішли на те, щоб зібрати нових підданих… Так багато праці, щоб вони почувалися затишно й безпечно… Все розпалося на друзки через королівського виродка з дробовиком. Білий Король не може потурати цьому. «Ніяких більше поверхів!» — буквально вибухаючи люттю, він вирішив розтрощити пихатого маніяка.
+  -- Variant for when the Theocracy card is in play. The White King takes back the rule from the bishops.
+vig_5::Роки пішли на те, щоб зібрати нових підданих... Так багато праці, щоб вони почувалися затишно й безпечно... Все розпалося на друзки через королівського виродка з дробовиком. Білий Король не може залишитися осторонь і дозволити конклаву привести королівство до знищення. Буквально вибухаючи люттю, Білий Король вирішив розтрощити пихатого маніяка.
+
+  -- Normal win
+vig_6::І так було, що гнів Чорного Короля приніс йому перемогу. Його черга красти коней і слонів у Білого Короля! Вони змушені знову терпіти його жахливе правління…
+vig_7::«Звеселіться! — сказав він їм. — Принаймні вас не рознесло на шматки!» Він підняв свій дробовик і зареготав. Непереможений, він нічого не зрозумів. Рано чи пізно повстане новий Білий Король, і все почнеться знову.
+
+  -- SECRET ENDINGS
+  -- On killing the Black Bishop:
+  -- The following is only used if a secret condition is respected of killing the bishop. Otherwise the normal ending is shown instead after this.
+
+vig_9::«Не так швидко», — сказав він. Тримаючи в руках заряджений дробовик, Король прицілився…
+vig_10::… і розніс книгу, перетворивши її на купу розірваних тріпотливих сторінок. «Підтирався я цими святими словами, — вишкірився він. — Нема нічого святішого, ніж я і мій дробовик!!»
+vig_12::«Звеселіться! Принаймні вас хоч не рознесло на шматки! — мовив він, підіймаючи дробовик, і зайшовся божевільним реготом. — А тепер слухайте новий циркуляр! Жодних книг! Заборонено! Геть усі кодекси та приписи! Відтепер я ваш Бог. Бог дробовика!!» Його правління буде безжалісним і страхітливим для всіх на віки вічні.
+
+  -- Shown after defeating the secret boss queen. ("The Blight")
+  -- Should read as not-so-subtle freaky erotica. Don't use direct sexual words but lean hard into the double-entendres. Have fun with it!
+  -- Don't make it too long. The original text is already quite close to the limit of what can be displayed at once.
+vig_13::Ці щупальця ще довго не даватимуть Королю спокою, і багато безсонних ночей стануть йому пеклом. Одна лише думка про ці м'ясисті, слизькі кінцівки, що ковзають по його тілу, охоплюють його, притискають із чуттєвою силою. Висмоктують з нього життєву силу. Королева завжди була ненаситною
+  -- Then the normal ending is shown.
+
+  -- Shown after the black king steals a horse from one of the secret boss horsemen of the apocalypse and leaves the board.
+  -- The black king found a "job opening" as a horseman of the apocalypse, leaving his old role of king.
+vig_14::Вгадайте, хто просунувся до буквально клятої біблійної загрози? Досить догоджати жалюгідним, нікчемним підданим, нарешті з'явилася робота, що відповідає кваліфікації Короля! Він не буде віщувати — тільки смерть і руйнування, куди б не привів його демонічний кінь. Сатано, стережись, Король-з-дробовиком тільки-но ступив на безбожні корпоративні сходи.
+
+  -- Shown after defeating the secret boss Horsemen of the Apocalypse
+  -- Should mention the artifacts because they are shown in the accompanying illustration. Please do your best to translate the last joke about the horsemen's Last Judgement/Apocalypse being the black king's "thursday". (i.e. a day like any other)
+vig_15::«Вершники Апокаліпсису? Швидше Вершники Ослокаліпсису!» – посміхнувся Чорний Король, прикріплюючи артефакти у своїй кімнаті трофеїв. Єпископ час від часу попереджав його, хоч Королю було і начхати, про провісників кінця світу,  носіїв Судного дня. Для них це, можливо, і був Страшний суд, а от Королю з дробовиком дні, як цей, вже встигли набити оскомину.
+
+
+  -- PLURALS
+  -- This is where you define pluralization rules!
+  -- The first rule defines the default behaviour for any word.
+  -- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+
+*
+*:s:
+
+  -- For any word that is spelt differently when pluralized, use either of these syntaxes:
+  -- child:s:children
+  -- child:2:children
+  -- Use this second version to define a puralization for a specific number. (here 2) Outside percentages the game only uses numbers below 10, so there's no need to define rules for numbers above 10. In case of unnumbered plurals (eg: "knight(s) get +2 HP") then the game internally uses the number 999. So you can write a specific rule for 999 for these cases like so:
+  -- knight:999:knights
+  -- Both versions of the word should be in your language. The original word should be identical to how you wrote it previously in this file, including capitalization(!).
+
+  -- This is used for piece names (full names, not the short versions), for the translation for "shell", and for any words you might have set between braces so you could write its proper plural form here.
+
+man:s:men
+набій:2:набої
+набій:3:набої
+набій:4:набої
+набій:s:набоїв
+граната:2:гранати
+граната:3:гранати
+граната:4:гранати
+граната:s:гранат
+Граната:2:Гранати
+Граната:3:Гранати
+Граната:4:Гранати
+Граната:s:Гранат
+дуло:2:дула
+дуло:3:дула
+дуло:4:дула
+дуло:s:дул
+душа:2:душі
+душа:3:душі
+душа:4:душі
+душа:s:душ
+додатковий набій:2:додаткових набої
+додатковий набій:3:додаткових набої
+додатковий набій:4:додаткових набої
+додатковий набій:s:додаткових набоїв
+чарунка душі:2:чарунки душі
+чарунка душі:3:чарунки душі
+чарунка душі:4:чарунки душі
+чарунка душі:s:чарунок душ
+клітину:2:клітини
+клітину:3:клітини
+клітину:4:клітини
+клітину:s:клітин
+дробини:2:дробин
+дробини:3:дробин
+дробини:4:дробин
+дробини:s:дробин
+випадкову душу:2:випадкові душі
+випадкову душу:3:випадкові душі
+випадкову душу:4:випадкові душі
+випадкову душу:s:випадкових душ
+шкоду:2:шкоди
+шкоду:3:шкоди
+шкоду:4:шкоди
+шкоду:s:шкоди
+тип:2:типи
+тип:3:типи
+тип:4:типи
+тип:s:типів
+раз:2:рази
+раз:3:рази
+раз:4:рази
+раз:s:разів
+хід:2:ходи
+хід:3:ходи
+хід:4:ходи
+хід:s:ходів
+ядро з'являється:2:ядра з'являються
+ядро з'являється:3:ядра з'являються
+ядро з'являється:4:ядра з'являються
+ядро з'являється:s:ядер з'являються
+дробину:2:дробини
+дробину:3:дробини
+дробину:4:дробини
+дробину:s:дробин
+плита:2:плити
+плита:3:плити
+плита:4:плити
+плита:s:плит
+Пішак:2:Пішаки
+Пішак:3:Пішаки
+Пішак:4:Пішаки
+Пішак:999:Пішаки
+Пішак:s:Пішаків
+Кінь:2:Коні
+Кінь:3:Коні
+Кінь:4:Коні
+Кінь:999:Коні
+Кінь:s:Коней
+Слон:2:Слони
+Слон:3:Слони
+Слон:4:Слони
+Слон:999:Слони
+Слон:s:Слонів
+Тура:2:Тури
+Тура:3:Тури
+Тура:4:Тури
+Тура:999:Тури
+Тура:s:Тур
+Королева:2:Королеви
+Королева:3:Королеви
+Королева:4:Королеви
+Королева:999:Королеви
+Королева:s:Королев
+Король:2:Королі
+Король:3:Королі
+Король:4:Королі
+Король:999:Королі
+Король:s:Королів
+король:2:королі
+король:3:королі
+король:4:королі
+король:999:королі
+король:s:королів
+Бос:2:Боси
+Бос:3:Боси
+Бос:4:Боси
+Бос:999:Боси
+Бос:s:Босів
+Розруха:2:Розрухи
+Розруха:3:Розрухи
+Розруха:4:Розрухи
+Розруха:999:Розрухи
+Розруха:s:Розрух
+розруха:2:розрухи
+розруха:3:розрухи
+розруха:4:розрухи
+розруха:999:розрухи
+розруха:s:розрух
+Вершник:2:Вершники
+Вершник:3:Вершники
+Вершник:4:Вершники
+Вершник:999:Вершників
+Вершник:s:Вершників
+вершник:2:вершники
+вершник:3:вершники
+вершник:4:вершники
+вершник:999:вершників
+вершник:s:вершників
+Лицар:2:Лицарі
+Лицар:3:Лицарі
+Лицар:4:Лицарі
+Лицар:999:Лицарі
+Лицар:s:Лицарів
+лицар:2:лицарі
+лицар:3:лицарі
+лицар:4:лицарі
+лицар:999:лицарі
+лицар:s:лицарів
+Душогуб:2:Душогуби
+Душогуб:3:Душогуби
+Душогуб:4:Душогуби
+Душогуб:999:Душогуби
+Душогуб:s:Душогубів
+душогуб:2:душогуби
+душогуб:3:душогуби
+душогуб:4:душогуби
+душогуб:999:душогуби
+душогуб:s:душогубів
+Спадкоємець:2:Спадкоємці
+Спадкоємець:3:Спадкоємці
+Спадкоємець:4:Спадкоємці
+Спадкоємець:999:Спадкоємці
+Спадкоємець:s:Спадкоємців
+спадкоємець:2:спадкоємці
+спадкоємець:3:спадкоємці
+спадкоємець:4:спадкоємці
+спадкоємець:999:спадкоємці
+спадкоємець:s:спадкоємців
+Шпигун:2:Шпигунів
+Шпигун:3:Шпигунів
+Шпигун:4:Шпигунів
+Шпигун:999:Шпигунів
+Шпигун:s:Шпигунів
+Іде:s:Ідуть
+Втікає:s:Втікають
+втікає:s:втікають
+іде:s:ідуть
+Приєднується:s:Приєднуються
+приєднується:s:приєднуються
+з'являється:s:з'являються
+З'являється:s:З'являються
+Виробляється:s:Виробляються
+пентаграма з'являється:2:пентаграми з'являються
+пентаграма з'являється:3:пентаграми з'являються
+пентаграма з'являється:4:пентаграми з'являються
+пентаграма з'являється:s:пентаграм з'являється
+клітини:s:клітин
+
+
