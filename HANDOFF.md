@@ -28,7 +28,7 @@ game's own mod system).
 | **Owner's game copy (unpacked)** | **`game/`** in this branch — exe, dlls, `data.sgr`, `lang/`, `mods/` (workshop originals), `save/`, `log.txt`, `settings.txt`. **Read §2b before touching it** |
 | **Decoded game source** | **`game/decoded/`**: `code.lua` (main, ~15.4k lines), `code/*.lua` (menu, mods sandbox, gamepad, save, codex…), `code/modes/*.lua`, `libs/*.lua`, `lang/`, `assets/gfx/*.png`, shaders. Produced by `tools/sgr_extract.py`; the engine facts are summarised in **`notes/game-internals.md`** |
 | Our mod | `modded/sk-rework/` (**Build 9** = Build 8 panel + the reworked mod menu: live ON/OFF text, Back restored after undoing a change, far-left legend with E1–E4 load-order codes + AUTO-FIX (§5 of script.lua, `notes/red-warnings.md`). **Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids — replaced in Build 9) |
-| Log parser + smoke test | `tools/parse_log.py` (**49/49**: red mod text → error codes §1b, `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mode_guns_check.py` (**29/29**, Throne-like mode gun lists), `tools/mod_smoketest.py` (**64/64** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, re-raises the fatal unknown-id `btn()` error, and runs a verbatim port of the engine's mod-menu `open_menu`/`act_menu`/`close_menu`) |
+| Log parser + smoke test | `tools/parse_log.py` (**49/49**: red mod text → error codes §1b, `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mode_guns_check.py` (**37/37**, Throne-like mode gun lists, Quartz ranks, a sweep of every mod gun list), `tools/mod_smoketest.py` (**66/66** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, re-raises the fatal unknown-id `btn()` error, and runs a verbatim port of the engine's mod-menu `open_menu`/`act_menu`/`close_menu`) |
 | Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–6; raw packs `run 5 i believe or latest run/` and **`run 6 wow/`** (critique, powershell output, log, modlist, save, 4 crash logs) |
 | Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
@@ -230,7 +230,7 @@ load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
        read the base unlocks (`DEN` is forbidden; `bget` is per-mod), and
        an offline write would have been lost on Quartz's next boot anyway.
        The in-mode unlock is more robust. Checked by
-       `tools/mode_guns_check.py` (29 checks). Details:
+       `tools/mode_guns_check.py` (29 checks; 37 after the audit). Details:
        `dist-overlay/README.md`.
    - **Item 5, mod menu** (`script.lua` §5): appends to `open_menu` /
      `act_menu` / `gamepad_ctrl`, and never adds entities to `menu`.
@@ -250,13 +250,50 @@ load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
      `open_menu`/`act_menu`/`close_menu`; mutation-checked: 3 injected bugs
      each caught), `mode_guns_check` 29/29, parser 49/49, codec 2/2, and
      all mod Lua compiles under LuaJIT 2.1.
+7. **Pre-PR audit of Build 9** (owner asked, session 10). Every run-6
+   critique point and every Build 8 item was re-checked against the code.
+   Fixed:
+   - **Dependency rules:** Glacies' Extra Features and Quartz Army also need
+     Glac Terminal (their `info.lua` says so; Terminal dispatches Quartz's
+     `on_bad_spawn` watchtower placement). Neither prints red text, so
+     `MM_NEEDS_TERM` now lists them and E1 is their only warning.
+   - **Quartz ranks** were gated by the same lost bank as its guns
+     (`get_max_rank() = bget(0,1)+1`). `SK_ALL_RANKS = true` opens all 15
+     on `initialize`.
+   - **Item 4 sweep:** Collection's dormant `hook.lua` (not under `modes/`,
+     never loaded) still had the stale 7-gun list; it is patched, and
+     `mode_guns_check` now sweeps every mod file for gun lists.
+   - The Fairy comment no longer claims it never called `savbnk`.
+   - INSTALL Step 5: A4 keeps SK Rework ON, A5 expects no red text after
+     the reboot, and B runs with all mods ON (Terminal included).
+   - Verified: smoke **66/66** ×4 (new: silent Terminal clients named in
+     E1; worst-case legend + AUTO-FIX fits the 180-px screen),
+     `mode_guns_check` **37/37** (new: Quartz ranks; static sweep), parser
+     49/49, codec 2/2, LuaJIT compile 0 bad. Each new check was
+     mutation-tested.
+
+   Checked and left as they are (see `live testing result/SUMMARY.md`):
+   - The run-6 boot had Extra Features OFF. The cause is unknown: the engine
+     never disables mods by itself, and Build 7's widgets were `mk_text_but`
+     entities that were not in `menu`, so they couldn't have shifted it.
+     Report it if it happens again.
+   - Mod-menu modding symbols/icons: the legend is still text-only.
+   - "One unified mod system" was replaced by a default order plus
+     AUTO-FIX.
+   - AUTO-FIX needs the mouse; there's no controller binding.
+   - Main-menu red text can be cut off: an engine limit, so read
+     `log.txt` §1b instead.
+   - Attila stays locked in Quartz/Fairy if `SK_ALL_GUNS = false` (it is a
+     base-Throne dig secret).
+   - Extra Features' own `wep_ban` bug is third-party.
+   - Endless Lab uses one fixed gun (no list to paste).
 
 **Next: owner live run of Build 9.** Rebuild with `build-dist.ps1`
 (INSTALL Step 4), then do INSTALL Step 5:
 - A1–A6: mod-menu legend, live toggle, Back after on→off, the AUTO-FIX
   flow, no red text with all mods ON;
-- B1–B4: 9 guns in Quartz, Fairy, Nightmare and Card Lab; Quartz and Fairy
-  unlocks survive a relaunch;
+- B1–B4: 9 guns in Quartz, Fairy, Nightmare and Card Lab; all 15 Quartz
+  ranks; Quartz and Fairy unlocks survive a relaunch;
 - C1–C8: the Build 8 panel, never run live (CLIP+ must not move the king).
 
 Collect with `apply.ps1 -GetInsights`.
@@ -283,8 +320,11 @@ features in `live testing result/SUMMARY.md` "Still open".
 ## 7. Environment quirks (this sandbox / Arena agent mode)
 
 - **The platform may reset the local branch to the base commit between
-  turns.** Working files survive; commits survive on the remote. Recovery:
-  `git fetch origin && git reset --soft origin/arena/…` then `git reset`.
+  turns.** Commits survive on the remote. In session 10 the reset also
+  wiped the working files and `/tmp`, so commit early. Check `git log -1`
+  first. Recovery: `git fetch origin && git reset --hard origin/arena/…`,
+  then rebuild the venv
+  (`python3 -m venv /tmp/skvenv && /tmp/skvenv/bin/pip install lupa Pillow`).
 - Network: `git`/`api.github.com`/`pypi` reachable. **Blocked:** raw
   GitHub, GitHub release assets, Debian apt mirrors (apt install fails).
 - **No `pwsh`** → PowerShell scripts are static-parsed (tree-sitter) but never

@@ -191,16 +191,16 @@ is ON, is an **error**. Write down the exact words. `log.txt` keeps them, and
 | A1 | Open the mod menu | A small legend at the **far left, vertically centred**, in separate short lines: `MOD MENU` · `WHITE = ON` / `DARK = OFF` · `CLICK A NAME` / `TO TOGGLE IT` · `ARROWS = LOAD ORDER`, then a status line. It doesn't overlap the rows, and hovering over it changes nothing (it never turns red). |
 | A2 | Click any mod's name | Its text flips `OFF` ↔ `ON` (dark ↔ white) **at once**, without leaving the menu. |
 | A3 | Click `The Magnificent Quartz Army` ON, then OFF again | The bottom button first reads `Save and Reboot`, then reads **`Back`** again, and clicking it **returns to the title** (run-6 bug: it stayed stuck). Moving a mod up and then back down behaves the same. |
-| A4 | With everything else OFF, turn **only** `Disgraced Justice` ON | Red legend lines appear: `E1 TERMINAL IS OFF` and `E3 COLLECTION IS OFF`, each followed by `FOR …` naming the mods, plus an `AUTO-FIX` button. |
-| A5 | Click `AUTO-FIX` | The menu reopens in dependency order. `Glacies' Collection` and `Glac Terminal` are now ON, `Glac Terminal` is the **last** row, the legend says `DEPENDENCIES OK`, and the button reads `Save and Reboot`. Click it. |
-| A6 | After the reboot, turn **all** mods ON (AUTO-FIX if any `E` line shows), then Save and Reboot | **No red text** on the main menu or mod menu. |
+| A4 | Keep **`SK Rework` ON** (it runs these tests). Turn every other mod OFF, then turn **only** `Disgraced Justice` ON | Red legend lines appear: `E1 TERMINAL IS OFF` and `E3 COLLECTION IS OFF`, each followed by `FOR …` naming the mods, plus an `AUTO-FIX` button. |
+| A5 | Click `AUTO-FIX` | The menu reopens in dependency order. `Glacies' Collection` and `Glac Terminal` are now ON, `Glac Terminal` is the **last** row, the legend says `DEPENDENCIES OK`, and the button reads `Save and Reboot`. Click it: after the reboot the main menu shows **no red text**. |
+| A6 | Turn **all** mods ON (click AUTO-FIX if any `E` line shows), then Save and Reboot | **No red text** on the main menu or mod menu. Quartz Army and Extra Features need Glac Terminal too: they print no red text of their own, so the legend's `E1` is the only warning for them. |
 
-**B. Throne-like modes** (mods ON: Quartz Army, Fairy Pieces, Nightmare, Royal Card Lab)
+**B. Throne-like modes** (keep all mods ON from A6; Quartz Army and Royal Card Lab need Glac Terminal)
 
 | # | Do | Pass looks like |
 |---|---|---|
-| B1 | Start **Quartz Throne** and open its gun choice | 9 guns (Solomon, Victoria, Ramesses II, Richard III, Makeda, Alexander, Yvan IV, Attila, Montezuma), **all unlocked**, with the right icons. |
-| B2 | Pick a non-default gun, play a level (or quit the run), then **close the game completely and relaunch** | Quartz Throne still has all 9 guns unlocked and remembers your gun. Before Build 9, Quartz lost its unlocks on every boot. |
+| B1 | Start **Quartz Throne** and open its gun and rank choice | 9 guns (Solomon, Victoria, Ramesses II, Richard III, Makeda, Alexander, Yvan IV, Attila, Montezuma), **all unlocked**, with the right icons. **All 15 ranks** are selectable. |
+| B2 | Pick a non-default gun and rank, play a level (or quit the run), then **close the game completely and relaunch** | Quartz Throne still has every gun and rank unlocked and remembers your choice. Before Build 9, Quartz lost its unlocks on every boot. |
 | B3 | Same check in **Fairy Endless** (choose, close the game, relaunch) | 9 guns, all unlocked, still there after the relaunch. |
 | B4 | Start **Nightmare** and **Card Lab** | Both list the same 9 guns, and the gun icons are correct (no wrong or blank sprites). |
 
@@ -228,7 +228,7 @@ so the log names the culprit.
 | `SK-REWORK: BUILD=9 loaded (mod_index=…)` / `READY build=9 hooks=…` | the mod loaded and reached the end of its setup |
 | `SKUI\|modcheck\|boot\|issues=N\|codes=…` | load-order check at boot (`issues=0` = clean) |
 | `SKUI\|modmenu\|sync=…\|back=…\|issues=…\|codes=…` | mod menu: live toggle, Back state, E-codes; `autofix=true\|moved=…\|enabled=…` after AUTO-FIX |
-| `SK-REWORK: Quartz Throne guns=9 newly_unlocked=…` (also `Fairy Endless`) | the mode's all-guns unlock ran |
+| `SK-REWORK: Quartz Throne guns=9 newly_unlocked=…` (also `Fairy Endless`), `… ranks=15 max_rank_was=… now=15` | the mode's all-guns (and Quartz all-ranks) unlock ran |
 | ` !! <red text>` | mod error → code in `notes/red-warnings.md` (`parse_log.py --print`, section 1b) |
 | `SKUI\|panel\|…`, `SKE\|call\|<name>=start` … `=ok`, `SKD\|dmg\|…` | panel state, engine-call trace, damage rolls |
 

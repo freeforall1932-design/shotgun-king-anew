@@ -61,7 +61,7 @@ checks this.
 
 | Mode file | Change |
 |---|---|
-| `the_magnificient_quartz_army/modes/Quartz Throne.lua` | 9-gun list (was 7 rows with three `gid=4` duplicates). `newsrf("weapons","tmqa_weapons.png")` commented out; that sheet is an old 5-gun copy, and the engine's boot-loaded 9-gun `weapons` sheet is used instead. **Save bug fixed:** the mode never called `savbnk()`, so its unlocks lived only in RAM and were lost on every boot. `sk_savbnk()` now follows every `save()`. All guns are unlocked on `initialize` (`SK_ALL_GUNS = true`), and the Montezuma rule `unlock(9)` was added. |
+| `the_magnificient_quartz_army/modes/Quartz Throne.lua` | 9-gun list (was 7 rows with three `gid=4` duplicates). `newsrf("weapons","tmqa_weapons.png")` commented out; that sheet is an old 5-gun copy, and the engine's boot-loaded 9-gun `weapons` sheet is used instead. **Save bug fixed:** the mode never called `savbnk()`, so its unlocks lived only in RAM and were lost on every boot. `sk_savbnk()` now follows every `save()`. All guns are unlocked on `initialize` (`SK_ALL_GUNS = true`), and so are all 15 ranks (`SK_ALL_RANKS = true`). The mode gates ranks through its own bank (`get_max_rank() = bget(0,1)+1`), and that progress was lost on every boot too. The Montezuma rule `unlock(9)` was added. |
 | `some_fairy_pieces/modes/Fairy Endless.lua` | 9-gun list. All guns are unlocked after the bank is created (`SK_ALL_GUNS`). Base unlock rules for guns 6, 7 and 9 were added. `save_preferences` flushes with `sk_savbnk()`. |
 | `nightmare/modes/nightmare.lua` | 9-gun list. Its `newsrf("weapons","weapons.png")` (an old 7-gun sheet) is commented out. |
 | `royal card lab/modes/card lab.lua` | 9-gun list only (the mode has no unlock gate). |
@@ -74,8 +74,14 @@ checks this.
 
 The unlock therefore happens in-game, inside each mode. That fixes
 persistence too, and it works on a fresh install with no tool run. Set
-`SK_ALL_GUNS = false` in the mode file to earn guns normally; earned state is
-now saved.
+`SK_ALL_GUNS = false` (and, in Quartz, `SK_ALL_RANKS = false`) in the mode
+file to earn them normally; earned state is now saved. Attila is the one
+exception: the base Throne unlocks it through a dig secret (rank 6, floor 8),
+and no mod mode copies that rule, so it stays locked when the flag is off.
+
+Quartz Army and Extra Features need Glac Terminal (their `info.lua` says
+so), but print no red text without it. SK Rework's mod-menu check (E1)
+covers them.
 
 ## Load order (written by `tools/build-dist.ps1` into `mods/modlist.lua`)
 

@@ -67,11 +67,15 @@ base={
 intro=true
 
 
--- SK-REWORK (Build 8 item 4): this mode used to keep its gun unlocks only in
--- RAM (it never called savbnk), so every boot started from zero. Flush the
--- mod bank after every save, and - owner's 100% intent - unlock all guns.
--- Set SK_ALL_GUNS = false to earn them again (state is kept in the bank).
+-- SK-REWORK (Build 9, owner's Build 8 item 4): this mode kept its gun AND
+-- rank unlocks only in RAM (it never called savbnk), so every boot started
+-- from zero. Flush the mod bank after every save, and - owner's 100% intent
+-- ("I need to redo the entire thing like the throne") - unlock all guns and
+-- all ranks on initialize. Set SK_ALL_GUNS / SK_ALL_RANKS = false to earn
+-- them normally; progress is saved now either way. (Attila is a base-Throne
+-- dig secret with no rule in this mode, so it stays locked without the flag.)
 local SK_ALL_GUNS = true
+local SK_ALL_RANKS = true
 local function sk_savbnk()
 	if type(savbnk) == "function" then savbnk() end
 end
@@ -84,6 +88,18 @@ local function sk_unlock_all_guns(tag)
 	if changed > 0 then sk_savbnk() end
 	log("SK-REWORK: " .. tag .. " guns=" .. #weapons .. " newly_unlocked=" .. changed)
 end
+-- get_max_rank() = bget(0,1)+1 (best rank won); outro() raises it the same
+-- way. #ranks-1 makes every rank selectable, like a won rank #ranks-1.
+local function sk_unlock_all_ranks(tag)
+	if not SK_ALL_RANKS then return end
+	local top = #ranks - 1
+	local was = bget(0, 1)
+	if was < top then
+		bset(0, 1, top)
+		sk_savbnk()
+	end
+	log("SK-REWORK: " .. tag .. " ranks=" .. #ranks .. " max_rank_was=" .. (was + 1) .. " now=" .. (bget(0, 1) + 1))
+end
 
 function initialize()
 
@@ -92,6 +108,7 @@ function initialize()
 	-- at boot (code.lua:62), and overriding it also broke later modes.
 	-- newsrf("weapons", "tmqa_weapons.png")
 	sk_unlock_all_guns("Quartz Throne")
+	sk_unlock_all_ranks("Quartz Throne")
 	mode.ranks_index=mid(0,bget(0,4),#ranks-1)
 	mode.weapons_index=mid(0,bget(1,4),#weapons-1)
 	

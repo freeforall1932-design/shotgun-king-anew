@@ -29,7 +29,7 @@ Expected harmless ` !! ` lines (engine noise, **not** errors):
 
 | Code | Legend text | Meaning | Red boot text it predicts |
 |---|---|---|---|
-| **E1** | `TERMINAL IS OFF` / `TERMINAL MISSING` · `FOR <mods>` | a mod that needs Glac Terminal is ON, but Terminal is OFF or not installed | T1, T2, A2 |
+| **E1** | `TERMINAL IS OFF` / `TERMINAL MISSING` · `FOR <mods>` | a mod that needs Glac Terminal is ON, but Terminal is OFF or not installed | T1, T2, A2. Quartz Army and Extra Features print **nothing**; they just lose features, so E1 is their only warning. |
 | **E2** | `TERMINAL NOT LAST` · `FOR <mods>` | a Terminal-dependent mod is loaded **below** Glac Terminal | T3, A3, (T1) |
 | **E3** | `COLLECTION IS OFF` / `COLLECTION MISSING` · `FOR <mods>` | Art of War or Disgraced Justice is ON, but Glacies' Collection is OFF or not installed | D1, A1 |
 | **E4** | `COLLECTION BELOW` · `FOR <mods>` | Art of War is loaded **above** Glacies' Collection | A1 |
@@ -65,9 +65,14 @@ the engine prints it through `rlog`.
 
 ## 3. Dependency rules (source of E1–E4 and AUTO-FIX)
 
-- **Glac Terminal** is needed by: Glacies' Collection, The Art of War,
-  Disgraced Justice, Retry after Death, Royal Card Lab, Grenade Predictor.
-  Every one of them must be loaded **above** Terminal, so Terminal goes last.
+- **Glac Terminal** is needed by: Glacies' Collection, Glacies' Extra
+  Features, The Art of War, Disgraced Justice, Retry after Death, Royal Card
+  Lab, Grenade Predictor and The Magnificent Quartz Army. Each `info.lua`
+  says so. Terminal collects their hook functions (`on_bad_spawn`,
+  `draw_N`, `upd`, …) only from mods loaded **above** it, so Terminal goes
+  last. Extra Features and Quartz print no red text when Terminal is
+  missing; they silently lose features (for Quartz, the watchtower
+  placement).
 - **Glacies' Collection** is needed by: The Art of War and Disgraced Justice.
   It must be loaded above both.
 - **Canonical order** (what AUTO-FIX and `build-dist.ps1` §3b write):
@@ -75,6 +80,9 @@ the engine prints it through `rlog`.
   sk-rework → glacies collection → extra features → the art of war →
   disgraced_justice → retry → royal card lab → grenade predictor → codex →
   nightmare → fairy pieces → quartz army → shootout → **glac terminal**
+
+Not tracked (only affects achievements): The Art of War's achievements
+need the separate *Achievement Centre* mod, which isn't installed.
 
 Run 6 (Build 7) hit T1 ×3, T3, A3 and L1 ×21. The order problems came from
 the old alphabetical `modlist.lua`; Build 8 §3b writes the canonical order.

@@ -164,8 +164,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (add_soul/activate_soul/stack.replace_soul/hero.free_souls/
       soul_slot fields/dj_summon pattern) — needs a live probe of soul
       activation flow + slot internals
-- [ ] **Bullet damage & crit system** (owner, 2026-10-04 — PLANNING.md
-      §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
+- [~] 🟡 **Implemented since Build 7, not yet live-tested** (pre-PR audit:
+      run 6 logged `SKUI|cfg|on=0`, so it was never switched on; INSTALL
+      Step 5 test C6 covers it). **Bullet damage & crit
+      system** (owner, 2026-10-04 — PLANNING.md §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
       the damage stat), configurable crit chance + crit damage (crits may
       exceed 2), **pierce auto-crits by default** (`pierce` is a % status,
       `stack.pierce`, A Piercing Truth = 30). All knobs in the cheat
@@ -294,6 +296,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
   Quartz bank save, mod-menu rework (live text, Back, legend, E1–E4,
   AUTO-FIX), red-text error codes, a new Step 5 test list. Smoke 64/64 ×4,
   `mode_guns_check` 29/29, parser 49/49, codec 2/2.
+- ✅ **Pre-PR audit of Build 9** (session 10): Extra Features + Quartz added
+  to the Terminal rule (E1), Quartz all-ranks unlock (`SK_ALL_RANKS`),
+  Collection's dormant `hook.lua` gun list patched + a sweep check, INSTALL
+  A4/A5/B corrected, damage/crit status corrected to "implemented, untested
+  live". Smoke 66/66 ×4, `mode_guns_check` 37/37. Details: HANDOFF §5 item 7.
 - ⏭ Next: owner live-run Build 9 (INSTALL Step 4, then Step 5).
 
 **2026-10-05 (session 9 — run 5 absorbed; Build 7 shipped):**

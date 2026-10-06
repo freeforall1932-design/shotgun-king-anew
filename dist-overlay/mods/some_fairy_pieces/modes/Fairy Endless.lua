@@ -34,10 +34,13 @@ base={
 	gain={3,0,0,0,1,5,2,0},
 }
 
--- SK-REWORK (Build 8 item 4): this mode used to keep its gun unlocks only in
--- RAM (it never called savbnk), so every boot started from zero. Flush the
--- mod bank after every save, and - owner's 100% intent - unlock all guns.
--- Set SK_ALL_GUNS = false to earn them again (state is kept in the bank).
+-- SK-REWORK (Build 9, owner's Build 8 item 4): this mode keeps its gun
+-- unlocks in its OWN bank, so the base Throne's unlocks never applied and
+-- every gun had to be earned again (owner, run 6). Owner's 100% intent:
+-- unlock all guns on initialize. check_unlocks already saved the bank;
+-- save_preferences now flushes it too, so the chosen gun survives a
+-- relaunch. Set SK_ALL_GUNS = false to earn guns normally (Attila is a
+-- base-Throne dig secret with no rule here, so it stays locked then).
 local SK_ALL_GUNS = true
 local function sk_savbnk()
 	if type(savbnk) == "function" then savbnk() end

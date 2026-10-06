@@ -1124,7 +1124,12 @@ local MM_SHORT = {sk = "SK", coll = "COLLECTION", xf = "EXTRA FEAT", aow = "ART 
 -- same order as tools/build-dist.ps1 §3b; unknown mods go just above Terminal
 local MM_ORDER = {"sk", "coll", "xf", "aow", "dj", "retry", "lab", "gren", "codex",
 	"night", "fairy", "quartz", "shoot"}
-local MM_NEEDS_TERM = {"coll", "aow", "dj", "retry", "lab", "gren"}
+-- Terminal clients (each info.lua says "Requires Glac Terminal"; verified
+-- against the vendored scripts). Extra Features and Quartz print NO red text
+-- when Terminal is missing - they just lose features silently (Quartz's
+-- watchtower placement runs through Terminal's on_bad_spawn dispatch), so
+-- this check is the only warning the player gets for them.
+local MM_NEEDS_TERM = {"coll", "xf", "aow", "dj", "retry", "lab", "gren", "quartz"}
 local MM_NEEDS_COLL = {"aow", "dj"}
 local MM_KEY = {}
 for k, title in pairs(MM_TITLES) do MM_KEY[title] = k end

@@ -177,9 +177,14 @@ decoded game source (`notes/game-internals.md`).
 3. **Soul deck "Yu-Gi-Oh style"** (§0.7.8) — 2–3 slots, one slot holds
    many souls, free use/exchange, any soul allowed (pawn behavior stays
    card-driven), summons capped only by board capacity
-4. **Bullet damage & crit system** (§0.7.11) — configurable normal/crit
-   damage + crit chance, pierce auto-crits
-5. **Full button-remap menu** (§0.7.9) + **mod-menu Back button** (§0.7.10)
+4. **Bullet damage & crit system** (§0.7.11): configurable normal/crit
+   damage, crit chance, and pierce auto-crits. 🟡 **Implemented since
+   Build 7** (panel DMG page) but **never switched on live**: run 6 logged
+   `on=0`.
+5. **Full button-remap menu** (§0.7.9): still open. Blocked on whether
+   SUGAR exposes extra mouse buttons at all. The **mod-menu Back button**
+   (§0.7.10) is 🟡 reworked in Build 9 (Back comes back after undoing a
+   change, plus the legend and AUTO-FIX); live test pending.
 
 ## Current follow-up status (2026-10-06, session 10)
 
@@ -197,10 +202,11 @@ dependency-ordered `modlist.lua`, and the 9-gun Throne list in the four
 Throne-like modes, with Quartz's bank now saved.
 
 Sandbox results:
-- smoke test **64/64**, with the real mod-sandbox write rules and the
+- smoke test **66/66** (after the pre-PR audit), with the real mod-sandbox write rules and the
   engine's own mod-menu code modelled, under both `all()` semantics on
   default Lua and LuaJIT 2.1;
-- `mode_guns_check` 29/29;
+- `mode_guns_check` 37/37 (after the audit: Quartz ranks plus a sweep of
+  every mod gun list);
 - parser 49/49;
 - save codec 2/2.
 

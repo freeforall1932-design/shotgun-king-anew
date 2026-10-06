@@ -222,6 +222,9 @@ Get-ChildItem -LiteralPath $modsRoot -Recurse -File -ErrorAction SilentlyContinu
 #     Glac Terminal"; Disgraced Justice silently loses its 5 hooks otherwise.
 #   - The Art of War reads Glacies' Collection from MODS at load -> Collection
 #     must be above it. Disgraced Justice also requires Collection.
+#   - Extra Features and Quartz Army also need Terminal (info.lua), but warn
+#     about nothing; both sit above it in this list. SK Rework's mod-menu
+#     check (E1-E4, script.lua section 5) uses the same rules and order.
 # The old alphabetical sort put "glac terminal" 4th = the 5 red warnings in
 # run 6. Folders not in this list go just above Glac Terminal, alphabetical.
 $loadOrder = @(

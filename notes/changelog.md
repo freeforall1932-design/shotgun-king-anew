@@ -1,3 +1,39 @@
+## 2026-10-06 — Build 9 pre-PR audit (session 10)
+
+- type: fix + docs. The owner asked for a full review before the PR.
+  Every run-6 critique point and every Build 8 item was re-checked against
+  the code, the decoded engine and the third-party mods.
+- **Dependency rule fix:** `MM_NEEDS_TERM` now also covers Glacies' Extra
+  Features and Quartz Army. Both `info.lua` files require Glac Terminal,
+  and Terminal dispatches Quartz's `on_bad_spawn` (watchtower placement).
+  Neither mod prints red text of its own, so E1 is their only warning.
+  `notes/red-warnings.md`, `dist-overlay/README.md` and the `build-dist.ps1`
+  comment were updated to match.
+- **Quartz ranks:** `get_max_rank() = bget(0,1)+1` was gated by the same
+  never-saved bank as the guns. `SK_ALL_RANKS = true` opens all 15 on
+  `initialize` (it logs `ranks=15 max_rank_was=… now=15`).
+- **Item 4 sweep:** `glacies collection/hook.lua` (a mode-shaped file
+  outside `modes/`, never loaded by the engine) still had the stale 7-gun
+  list. It now has the 9-gun Throne list. `mode_guns_check` sweeps every mod
+  file for gun lists.
+- The Fairy comment is fixed (it wrongly said the mode never called
+  `savbnk`).
+- **INSTALL Step 5:** A4 keeps SK Rework ON, A5 expects no red text after
+  the reboot, B runs with all mods ON (Terminal included), and B1/B2 check
+  Quartz ranks.
+- **Status corrections:** damage/crit has been implemented since Build 7
+  but was never switched on live (run 6 logged `on=0`; test C6). HANDOFF §7
+  now says a sandbox reset can wipe working files.
+- **Retracted:** an audit theory that Build 7's widgets shifted the mod
+  menu's index math and turned Extra Features OFF in run 6 is wrong. They
+  were `mk_text_but` entities, which are not in `menu`. The cause is
+  unknown; report it if it recurs.
+- Verified: smoke **66/66** ×4 (new: silent Terminal clients in E1;
+  worst-case legend plus AUTO-FIX inside 180 px, measured y 6–170),
+  `mode_guns_check` **37/37** (new: Quartz ranks; static sweep), parser
+  49/49, codec 2/2, LuaJIT compile 0 bad. Each new check failed against
+  the pre-fix code (mutation-tested).
+
 ## 2026-10-06 — session 10 (cont.): Build 9 = owner's Build 8 items 4–6
 
 - **Item 4, Throne-like gun lists** (`dist-overlay/mods/`): Quartz Throne,

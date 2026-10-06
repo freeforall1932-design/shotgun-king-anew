@@ -11,6 +11,9 @@ checks:
     9-gun base sheet; the mods shipped stale 5-/7-gun copies);
   * Quartz / Fairy: initialize() unlocks every gun in the mod bank and
     flushes it with savbnk(); get_weapons_list() then offers all 9;
+    Quartz also opens every rank (get_max_rank() == #ranks);
+  * every other mod file with a Throne-style weapons={...} list (even ones
+    the engine never loads) matches the Throne list too;
     save_preferences() flushes the bank too (Quartz used to never flush);
   * Nightmare / Card Lab: get_weapons_list() offers all 9 (as before).
 
@@ -94,6 +97,22 @@ def throne_guns():
     return guns
 
 
+def file_guns(path):
+    """(name, absolute firerange) per gun in a mod file's weapons={...} block,
+    or None when the file has no Throne-style gun list."""
+    src = path.read_bytes().decode("utf-8", errors="replace")
+    m = re.search(r"^weapons\s*=\s*\{(.*?)^\}", src, re.S | re.M)
+    if not m or 'name="Solomon"' not in m.group(1):
+        return None
+    guns = []
+    for line in m.group(1).splitlines():
+        n = re.search(r'name="([^"]+)"', line)
+        fr = re.search(r"firerange=(-?\d+)", line)
+        if n and not line.lstrip().startswith("--"):
+            guns.append((n.group(1), int(fr.group(1)) if fr else None))
+    return guns
+
+
 def main():
     L = lj.LuaRuntime(unpack_returned_tuples=True)
     loader = L.execute(STUB_LUA)
@@ -107,6 +126,18 @@ def main():
             fails.append(msg)
 
     check(len(expected) == 9, f"throne.lua gun count {len(expected)} != 9")
+    # Owner: paste the Throne list over EVERY similar gun list - sweep all mod
+    # files (also ones the engine never loads, e.g. Collection's hook.lua).
+    swept = 0
+    for path in sorted(MODS.rglob("*.lua")):
+        guns = file_guns(path)
+        if guns is None:
+            continue
+        swept += 1
+        check(guns == expected,
+              f"{path.relative_to(MODS)}: static gun list {guns} != throne {expected}")
+    check(swept >= len(MODES) + 1, f"sweep found only {swept} gun lists")
+    print(f"  sweep: {swept} mod files carry a gun list")
     for name, (rel, kind) in MODES.items():
         path = MODS / rel
         src = path.read_bytes().decode("utf-8")
@@ -142,6 +173,13 @@ def main():
             check(calls["savbnk"] >= 1, f"{name}: initialize() unlocked guns but never called savbnk()")
             check(any("newly_unlocked=8" in s for s in calls["log"].values()),
                   f"{name}: no 'newly_unlocked=8' log line: {list(calls['log'].values())}")
+            if name == "Quartz Throne":
+                # Quartz also gates ranks: get_max_rank() = bget(0,1)+1
+                nr = len(env["ranks"])
+                check(env["get_max_rank"]() == nr,
+                      f"{name}: get_max_rank() {env['get_max_rank']()} != {nr} (all ranks)")
+                check(any(f"ranks={nr} max_rank_was=1 now={nr}" in s for s in calls["log"].values()),
+                      f"{name}: no rank-unlock log line")
             before = calls["savbnk"]
             env["initialize"]()  # second boot: nothing new to unlock
             check(any("newly_unlocked=0" in s for s in calls["log"].values()),

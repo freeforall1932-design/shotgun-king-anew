@@ -898,6 +898,33 @@ def run_scenario(L, env, mode, dump=False):
     order_codes = has("SKUI|modmenu|sync=open|back=back|issues=2|codes=E2,E4")
     g.close_menu(None)
     frame(200, 100)
+    # (7) silent Terminal clients (audit): Quartz and Extra Features print no
+    # red text of their own, so the legend must name them; and the worst
+    # realistic legend (every Terminal client ON, Terminal OFF, Collection
+    # below Art of War, list changed) must still fit the 180-px screen.
+    all_titles = ["SK Rework", "Glacies' Extra Features", "Military Tactics -The Art of War-",
+                  "Glacies' Collection", "Disgraced Justice", "Retry after Death",
+                  "Royal Card Lab", "Grenade Predictor", "Better Codex", "Nightmare Mode",
+                  "Fairy Pieces for SGK", "The Magnificent Quartz Army",
+                  "Shootout: the Rifle King Adventure", "Glacies Module Terminal"]
+    g.MODLIST = to_lua(L, [
+        {"title": t, "num": i + 1,
+         "active": t not in ("Glacies Module Terminal", "Better Codex"),
+         "loaded": (True if t != "Glacies Module Terminal" else None)}
+        for i, t in enumerate(all_titles)])
+    nmods = len(all_titles)
+    g.open_menu(None, "mods")
+    frame(10, 10)
+    texts7 = legend_texts()
+    t7 = [t[1] for t in texts7]
+    silent_clients = ("E1 TERMINAL IS OFF" in t7 and any("QUARTZ" in t for t in t7)
+                      and any("EXTRA FEAT" in t for t in t7) and "E4 COLLECTION BELOW" in t7
+                      and "SAVE AND REBOOT" in t7)
+    fix7 = [d for d in draw_log if d[0] == "r"]
+    ys7 = [t[3] for t in texts7] + [d[4] for d in fix7]
+    legend_fits = bool(texts7) and min(ys7) >= 0 and max(ys7) <= 179
+    g.close_menu(None)
+    frame(200, 100)
     g.MODLIST = saved_modlist
     g.menu = None
     g.ingame = True
@@ -1012,6 +1039,8 @@ def run_scenario(L, env, mode, dump=False):
                                     and has("enabled=COLLECTION,TERMINAL")),
         ("engine Reset restores boot list and Back", reset_ok),
         ("order-only problems flagged (Terminal not last, Collection below)", order_codes),
+        ("silent Terminal clients (Quartz, Extra Features) named in E1", silent_clients),
+        ("worst-case legend + AUTO-FIX fits the 180-px screen", legend_fits),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
         ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
