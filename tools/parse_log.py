@@ -27,6 +27,7 @@ Line formats it understands (see modded/sk-rework/script.lua):
     SKD|<tag>|k=v|...            Damage & bullet pipeline dump (build 5+)
     SKI|<tag>|k=v|...            Input, mouse & btn() probe (build 5+)
     SKUI|<tag>|k=v|...           Dev panel, mod menu & bank persistence (build 5+)
+    " !! <red text>"               mod error codes T1..B1 (see notes/red-warnings.md)
     SK-REWORK: READY build=5 hooks=15 globals=920
 
 The game wraps every log line in a "  . " (info) / " !! " (warning) marker;
@@ -77,6 +78,60 @@ STRONG_VERBS = ("new_", "init_", "add_", "get_", "set_", "do_", "spend_",
 
 
 # ── parsing ─────────────────────────────────────────────────────────────────
+# ── red text = error codes (owner rule, session 10) ─────────────────────────
+# Every red line a turned-on mod prints on the main menu / mod menu means that
+# mod clashes or is not working as intended. The game writes them to log.txt
+# as " !! <text>" (wlog). Code table, causes and fixes: notes/red-warnings.md.
+# (code, regex, meaning, fix)
+RED_CODES = [
+    ("T1", r"^Glac Terminal is not loaded correctly!",
+     "a Terminal-based mod (Collection / Card Lab / Grenade Predictor) can't see Glac Terminal",
+     "turn Glac Terminal ON and move it to the LAST row (mod menu AUTO-FIX)"),
+    ("T2", r"^Retry after Death: Glac Terminal is not active",
+     "Retry is on but Glac Terminal is off", "turn Glac Terminal ON (AUTO-FIX)"),
+    ("T3", r"^Retry after Death must be loaded above Glac Terminal",
+     "Retry sits below Glac Terminal", "move Glac Terminal to the last row (AUTO-FIX)"),
+    ("A1", r"^Glacies' Collection needs to be loaded above The Art of War",
+     "Art of War sits above Glacies' Collection (or Collection is off)",
+     "Collection ON and above Art of War (AUTO-FIX)"),
+    ("A2", r"^The Art of War: Glac Terminal is not active",
+     "Art of War is on but Glac Terminal is off", "turn Glac Terminal ON (AUTO-FIX)"),
+    ("A3", r"^The Art of War must be loaded above Glac Terminal",
+     "Art of War sits below Glac Terminal", "move Glac Terminal to the last row (AUTO-FIX)"),
+    ("D1", r"^Glacies' Collection must be turned on",
+     "Disgraced Justice is on but Glacies' Collection is off",
+     "turn Glacies' Collection ON, above Disgraced Justice (AUTO-FIX)"),
+    ("C1", r"^Argument .* not found\. Process terminated",
+     "a Glac Terminal command named an argument that does not exist",
+     "re-check the console command; harmless to other mods"),
+    ("C2", r"^Glacies' Collection is not loaded correctly",
+     "a mod can't see Glacies' Collection", "turn Collection ON, above its dependents"),
+    ("S1", r"(Not allowed to change value for index|Attempt to use forbidden)",
+     "a mod touched a value the engine sandbox protects",
+     "that mod is broken on this game version; report the index named in the text"),
+    ("L1", r"didn't match any files",
+     "a mod loaded its art/sound with the old newsrf(\"file\", name) order, so nothing loaded "
+     "(fixed in our dist-overlay copies since Build 8)",
+     "an unpatched workshop copy got in: rebuild with build-dist.ps1 -Clean (Step 4) so the "
+     "dist-overlay copy replaces it"),
+    ("B1", r"^Save seems to be corrupted",
+     "the main save failed its checksum; the game copied it to save/corrupted_save.bnk",
+     "restore save/ from a backup; never hand-edit .bnk files"),
+]
+_RED_RX = [(c, re.compile(rx), m, f) for c, rx, m, f in RED_CODES]
+# codes that only count when printed as a warning (" !! ") — their log()
+# twin on a "  . " line would double-count
+_RED_ANYLINE = {"S1"}
+
+
+def classify_red(text: str):
+    """the RED_CODES entry for one warning text, or None (engine noise)."""
+    for c, rx, m, f in _RED_RX:
+        if rx.search(text):
+            return c, m, f
+    return None
+
+
 def parse_text(text: str) -> dict:
     d = {
         "banner": None, "ready": None, "warnings": [], "globals_visible": None,
@@ -93,6 +148,7 @@ def parse_text(text: str) -> dict:
         "calls": [], "dmg_rolls": [], "panel": [],
         "crash": {"error": None, "frames": [], "quitting": False, "trace_seen": False,
                   "pending_call": None},
+        "red": [], "loading": None, "modmenu": [], "modcheck": [],
         "objects": collections.defaultdict(dict), "object_order": [],
         "world": [], "counts_reported": {}, "other_lines": 0, "tail": [],
     }
@@ -102,12 +158,26 @@ def parse_text(text: str) -> dict:
         # The game wraps info lines as "  . " and warnings as " !! ".
         # After strip(), these are ". …" and "!! …"; handle both so raw and
         # game-wrapped SK-prefixed lines parse identically.
+        is_warn = False
         if s.startswith(". "):
             s = s[2:].strip()
         elif s.startswith("!! "):
-            s = s[3:].strip()
+            s = s[3:].strip(); is_warn = True
         elif s.startswith("! "):
-            s = s[2:].strip()
+            s = s[2:].strip(); is_warn = True
+        m = re.match(r"Loading '(.+)' mod\.$", s)
+        if m:
+            d["loading"] = m.group(1)
+        hit = classify_red(s)
+        if hit and (is_warn or hit[0] in _RED_ANYLINE):
+            code, meaning, fix = hit
+            who = d["loading"]
+            mm = re.search(r"'mods/([^/']+)/", s)
+            if code == "L1" and mm:
+                who = mm.group(1)
+            d["red"].append({"code": code, "text": s, "mod": who,
+                             "meaning": meaning, "fix": fix})
+            continue
         if s.startswith(MAGIC):
             body = s[len(MAGIC):].strip()
             m = re.match(r"BUILD=(\d+) loaded \(mod_index=(-?\d+)\)", body)
@@ -274,6 +344,8 @@ def parse_text(text: str) -> dict:
             tag = s[5:].split("|", 1)[0]
             if tag in ("panel", "card", "spawn", "dodge", "cfg", "api", "menu"):
                 d["panel"].append(s[5:])
+            if tag in ("modmenu", "modcheck"):
+                d[tag].append(s[5:])
             continue
         # Crash detection (run 4): a fatal engine error prints "ERR <msg>",
         # a tab-indented Stack traceback, then "Quitting required.". Without
@@ -373,6 +445,31 @@ def render_markdown(d: dict, src: str) -> str:
               "the run-4 failure mode; check the log tail for `ERR`/`Quitting required`")
     for warn in d["warnings"]:
         w(f"- ⚠️ {warn}")
+    w("")
+
+    # red text = error codes
+    w("## 1b. Red text from mods (error codes)")
+    w("")
+    if not d["red"]:
+        w("- ✅ no mod red text in this log")
+    else:
+        groups = collections.OrderedDict()
+        for r in d["red"]:
+            key = (r["code"], r["mod"] or "?")
+            groups.setdefault(key, {"n": 0, "r": r})["n"] += 1
+        w(f"- ⛔ **{len(d['red'])} red line(s) = {len(groups)} distinct error(s)** — "
+          "each means a turned-on mod clashes or is not working as intended "
+          "(code table: `notes/red-warnings.md`)")
+        w("")
+        w("| code | from mod | times | meaning | fix |")
+        w("|---|---|---|---|---|")
+        for (code, who), g in groups.items():
+            r = g["r"]
+            w(f"| **{code}** | `{who}` | {g['n']} | {r['meaning']} | {r['fix']} |")
+    for ln in d["modcheck"]:
+        w(f"- mod-order check (SK Rework): `SKUI|{ln}`")
+    for ln in d["modmenu"][-6:]:
+        w(f"- mod menu: `SKUI|{ln}`")
     w("")
 
     # API
@@ -779,6 +876,40 @@ def selftest() -> int:
                    and "`cards`" in md3 and "`bank`" in md3))
     checks.append(("crashed-chain warning for run-4 pattern",
                    "stopped before the input block" in md3))
+
+    # red text = error codes (session 10): attribute to the loading mod,
+    # L1 to the folder named in the path, ignore engine noise and log() twins
+    d9 = parse_text(
+        "  . Loading 'glacies collection' mod.\r\n"
+        " !! 'mods/glacies collection/collection_gfx' didn't match any files.\r\n"
+        "  . Glac Terminal is not loaded correctly!\r\n"
+        " !! Glac Terminal is not loaded correctly!\r\n"
+        "  . Loading 'retry' mod.\r\n"
+        " !! Retry after Death must be loaded above Glac Terminal\r\n"
+        " !! Surface 'weapons' already exists, deleting it.\r\n"
+        " !! Could not open file 'save/mods/Shootout.bnk': No such file or directory'.\r\n"
+        "  . Loading 'the art of war' mod.\r\n"
+        " !! Glacies' Collection needs to be loaded above The Art of War!\r\n"
+        "  . Loading 'disgraced_justice' mod.\r\n"
+        " !! 'mods/the art of war/drum1' didn't match any files.\r\n"
+        " !! Glacies' Collection must be turned on!\r\n"
+        "Attempt to use forbidden index 'DEN'\r\n"
+        "  . SKUI|modcheck|boot|issues=2|codes=E1,E3\r\n"
+        "  . SKUI|modmenu|sync=open|back=back|issues=2|codes=E1,E3\r\n"
+    )
+    codes9 = [(r["code"], r["mod"]) for r in d9["red"]]
+    checks.append(("red codes classified + attributed", codes9 == [
+        ("L1", "glacies collection"), ("T1", "glacies collection"), ("T3", "retry"),
+        ("A1", "the art of war"), ("L1", "the art of war"), ("D1", "disgraced_justice"),
+        ("S1", "disgraced_justice")]))
+    md9 = render_markdown(d9, "<selftest-red>")
+    checks.append(("red table in markdown", "Red text from mods" in md9 and "| **T3** | `retry`" in md9
+                   and "7 red line(s)" in md9))
+    checks.append(("modcheck/modmenu SKUI lines", len(d9["modcheck"]) == 1 and len(d9["modmenu"]) == 1
+                   and "mod-order check" in md9))
+    md10 = render_markdown(parse_text("  . Loading 'sk-rework' mod.\r\n !! Surface 'x' already exists, deleting it.\r\n"), "<clean>")
+    checks.append(("clean log says no red text", "no mod red text" in md10))
+    checks.append(("every RED_CODES code is unique", len({c[0] for c in RED_CODES}) == len(RED_CODES)))
 
     bad = [name for name, ok in checks if not ok]
     print(f"selftest: {len(checks) - len(bad)}/{len(checks)} checks passed")

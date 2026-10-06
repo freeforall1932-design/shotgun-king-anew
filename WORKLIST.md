@@ -32,7 +32,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (Build 7 live validation first)
+## 🟠 Next features (Build 9 live validation first)
 
 - [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
       are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
@@ -71,12 +71,50 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Sandbox: smoke **47/47** ×4 variants (incl. the panel's offer-screen guard,
       which stops a stray click from wiping the engine's own level-up buttons),
       parser **44/44**, codec 2/2.
-- [ ] **Owner live-run Build 7** — click each control once in play, then
-      `apply.ps1 -GetInsights`. The log should show: `SKUI|bank|ready=true|
-      magic=505` (read-back across a boot), `SKUI|panel|clear=remove_buts` on
-      CLOSE, `SKD|dmg|…` rolls on shots, `SKE|cheat_reload`/`cheat_clip`,
-      `SKUI|spawn|…|route=…` from the picker, `SKUI|dodge|…|moved=true`, and
-      `SKUI|menu|widgets_added=true` on the mod-list screen.
+- [x] ~~**Owner live-run Build 7**~~ — **RAN 2026-10-05 (run 6)**: bank
+      read-back ✅ and menu widgets ✅, but clicking SK DEV → CLIP+ moved the
+      king and the panel never came back; 4 crash logs (`fairy_cards`
+      surface) and red load-order warnings with all mods ON. Analysis:
+      `live testing result/SUMMARY.md` Run 6.
+- [x] **Game files stored + decoded (session 10)** — the owner's copy is in
+      `game/` (never delete it, HANDOFF §2b); `data.sgr` cracked
+      (`tools/sgr_extract.py` → `game/decoded/`); the engine facts are in
+      `notes/game-internals.md`.
+- [x] **Build 8 item 1 — panel rebuilt as an overlay** — one plain draw
+      entity (dp 15, no `button` flag) and an `append("gamepad_ctrl")` hook
+      that hit-tests and consumes clicks (`mcl/mcr/mlb=false`) before any
+      board button updates. Never calls `remove_buts()`; re-created when
+      `reset()` replaces `ents`; hidden while leveling/pause/menu; smaller
+      pico-font buttons; modal box over the board; bottom-left `SK DEV` tab;
+      live labels. `destroy_group` now uses `kl()`.
+- [x] **Build 8 item 2 — 7 workshop mods patched** to the sandbox's
+      `newsrf(name, "file")` order (Quartz/Shootout re-registered under unique
+      names instead of overriding the base `gfx`/`cards`/`title`/`tutorial`).
+      List: `dist-overlay/README.md`.
+- [x] **Build 8 item 3 — dependency load order** in `build-dist.ps1`:
+      Collection → … → art of war → disgraced_justice → retry/card lab/grenade
+      predictor → … → **Glac Terminal last**.
+- [x] **Smoke test now runs the mod inside the engine's real sandbox rules**
+      (writes reach the engine only for replaceable keys) and drives the
+      panel through a fake `gamepad_ctrl`; **59/59** ×4. Mutation-checked:
+      removing the click consume, the new-run rebuild, or adding a
+      non-replaceable write each fails exactly its check.
+- [x] **Build 8 item 4 → Build 9** — Quartz Throne / Fairy Endless /
+      Nightmare / Card Lab carry the 9 base Throne guns; Quartz + Fairy
+      unlock all guns in-game and save their bank. **Quartz never called
+      `savbnk()`, so its unlocks were lost on every boot; that's fixed.**
+      The 100% tool deliberately does NOT write mod banks (mods can't read
+      the base unlocks, and an offline write would have been lost on the
+      next Quartz boot). `tools/mode_guns_check.py` 29/29.
+- [x] **Build 8 item 5 → Build 9** — mod menu: live ON/OFF row text, Back
+      restored after undoing changes, far-left centred legend (no hover),
+      E1–E4 load-order codes + AUTO-FIX; red text = error codes
+      (`notes/red-warnings.md`, `parse_log.py` §1b). Smoke 64/64 ×4 with a
+      verbatim port of the engine's mod-menu code; mutation-checked.
+- [x] **Build 8 item 6 → Build 9** — INSTALL Step 5 rewritten as the test
+      list only (A1–A6 mod menu, B1–B4 modes, C1–C8 panel).
+- [ ] **Owner live-run Build 9** — INSTALL Step 4 (rebuild), then the Step 5
+      test list.
 - [ ] **Guessed signatures now marked + validated at runtime** — `goto_sq`
       (both plausible argument orders tried, result validated, `hero.sq`
       fallback), `get_nearest_free_square(px,py)` (only called when it exists,
@@ -126,8 +164,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       (add_soul/activate_soul/stack.replace_soul/hero.free_souls/
       soul_slot fields/dj_summon pattern) — needs a live probe of soul
       activation flow + slot internals
-- [ ] **Bullet damage & crit system** (owner, 2026-10-04 — PLANNING.md
-      §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
+- [~] 🟡 **Implemented since Build 7, not yet live-tested** (pre-PR audit:
+      run 6 logged `SKUI|cfg|on=0`, so it was never switched on; INSTALL
+      Step 5 test C6 covers it). **Bullet damage & crit
+      system** (owner, 2026-10-04 — PLANNING.md §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
       the damage stat), configurable crit chance + crit damage (crits may
       exceed 2), **pierce auto-crits by default** (`pierce` is a % status,
       `stack.pierce`, A Piercing Truth = 30). All knobs in the cheat
@@ -242,6 +282,26 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    legend attaching (`SKUI|menu|widgets_added=true`).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-06 (session 10 — run 6 absorbed; game decoded; Build 8 items 1–3):**
+- ✅ Run 6 analysed (panel click-through, `remove_buts` turn break, stale
+  flag after `reset()`; reversed `newsrf` args in 7 mods; alphabetical
+  `modlist.lua`).
+- ✅ `game/` stored from the owner's split zips (315 files, CRCs OK), zips
+  removed; `data.sgr` format solved → `tools/sgr_extract.py`,
+  `game/decoded/` (54 files).
+- ✅ Build 8 items 1–3 shipped and sandbox-verified (smoke 59/59 ×4, parser
+  44/44, codec 2/2, all 37 mod Lua files compile under LuaJIT 2.1).
+- ✅ Items 4–6 approved and shipped as **Build 9**: Throne-like gun lists +
+  Quartz bank save, mod-menu rework (live text, Back, legend, E1–E4,
+  AUTO-FIX), red-text error codes, a new Step 5 test list. Smoke 64/64 ×4,
+  `mode_guns_check` 29/29, parser 49/49, codec 2/2.
+- ✅ **Pre-PR audit of Build 9** (session 10): Extra Features + Quartz added
+  to the Terminal rule (E1), Quartz all-ranks unlock (`SK_ALL_RANKS`),
+  Collection's dormant `hook.lua` gun list patched + a sweep check, INSTALL
+  A4/A5/B corrected, damage/crit status corrected to "implemented, untested
+  live". Smoke 66/66 ×4, `mode_guns_check` 37/37. Details: HANDOFF §5 item 7.
+- ⏭ Next: owner live-run Build 9 (INSTALL Step 4, then Step 5).
 
 **2026-10-05 (session 9 — run 5 absorbed; Build 7 shipped):**
 - ✅ **Run 5 (build 6) parsed and absorbed**: 22 min in play, clean shutdown,
@@ -511,10 +571,14 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 1. ~~Harvest + verification runs 1–3~~ **DONE and consolidated into
       `live testing result/SUMMARY.md`.**
 2. ~~Apply Build 5 / playtest~~ **done (run 4/5)**; Build 6 is retired.
-3. **Apply Build 7 and playtest it**: rebuild with `build-dist.ps1` (or
-      `apply.ps1`) and click each SK DEV control once — +3 AMMO, RELOAD,
-      CLIP+, CARD:AUTO, CARD NOW, CARDS> (take one), SPAWN... (pick a knight),
-      GOD:on (then take a lethal hit), DMG:on + DMG+ + CRIT+ (fire a few
-      shots), SAFE, CLOSE — plus opening the mod menu once for the legend.
-      Then `apply.ps1 -GetInsights`.
+3. ~~Apply Build 7~~ **done (run 6)**.
+3b. **Apply Build 9 and playtest it**: rebuild with `build-dist.ps1`
+      (INSTALL Step 4), then the INSTALL Step 5 tests:
+      - A1–A6 mod menu: legend at the far left, live ON/OFF, Back after
+        on→off, AUTO-FIX, no red text with all mods ON;
+      - B1–B4: 9 guns in Quartz/Fairy/Nightmare/Card Lab, with Quartz and
+        Fairy unlocks surviving a relaunch;
+      - C1–C8: the panel.
+
+      Then run `apply.ps1 -GetInsights`.
 4. At deployment: flip private; optionally scrub history; or archive repo

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build-5 smoke test — run sk-rework against a fake SUGAR environment.
+"""Build-8 smoke test — run sk-rework against a fake SUGAR environment.
 
 The real engine can't run here (no Windows/game), but Lua load-time logic,
 additive hook registration, parser compatibility, native-button callbacks,
@@ -16,12 +16,15 @@ Usage:
 """
 import math
 import os
+import re
 import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 MOD = os.path.join(REPO, "modded", "sk-rework", "script.lua")
+# the build number the mod declares (`local BUILD = N`); log checks follow it
+BUILD_NO = int(re.search(r"^local BUILD = (\d+)", open(MOD, encoding="utf-8").read(), re.M).group(1))
 
 FAKE_ENGINE_LINES = ["SUGAR v0.0.8f (LuaJIT 2.1) boot", "loaded lang/english.txt"]
 
@@ -56,6 +59,145 @@ end
 """
 
 
+# The engine's REAL mod sandbox (game/decoded/code/mods.lua safe_require):
+# a write reaches the engine only for keys in this list; a write to any other
+# EXISTING global is refused with a red rlog ("Not allowed to change value
+# for index ..."); a write to an unused name stays in the mod's own table.
+ENGINE_REPLACEABLE = [
+    "DEV", "START_LVL", "FORCE_WHITE_ARMY", "DUMMY", "FRAGILE", "SHOW_BUTS", "TEST_CARDS",
+    "TEST_SOULS", "OVERWEIGHT", "BOOT", "game_mode", "CARDS", "PIECES", "EXCLUDE",
+    "AUTO_REPLACE", "FIRST_ARMY", "HERO_INIT", "TAGS",
+    "hero", "heir", "leader", "pentasquares", "waypoint", "ammo", "chamber", "grenades",
+    "stack", "scepters", "menu", "bg", "white_army", "perm", "mode", "cards",
+    "mx", "my", "mcl", "mlb", "mcr", "mMenu", "VISION",
+]
+
+# Faithful copy of the engine's mod-list screen (game code/menu.lua:
+# open_menu "mods" branch layout, act_menu's inmods branch verbatim,
+# close_menu). Wrapped the way the real append() wraps a global: the
+# original runs, then every appended hook with the same arguments - and
+# internal recursive calls go through the wrapped global too.
+FAKE_MODMENU_LUA = r"""
+inmods = nil
+__fake = {closes = 0, play_opened = 0, reboots = 0}
+local function get_lang(s) return s end   -- code/lang.lua: unknown id -> id
+local function mkb(id, lock)
+  local e = {id = id, name = get_lang(id), lock = lock, dp = 6}
+  menu[#menu + 1] = e
+  return e
+end
+local function core_open(a, kind)
+  menu = {}
+  menu[1] = {eraser = true}
+  if kind == "mods" then
+    inmods = true
+    for i, mod in ipairs(MODLIST) do
+      local name = (mod.empty and "EMP | " or (mod.active and " ON | " or "OFF | ")) .. i .. ". " .. mod.title
+      mkb("\195\169", i == 1)
+      mkb("\195\168", i == #MODLIST)
+      local m = mkb(name)
+      m.labelc = mod.active and 4 or 2
+    end
+    local res = mkb("reset", true); res.name = "Reset"
+    local bck = mkb("back"); bck.name = "Back"
+  end
+end
+open_menu = function(a, kind) core_open(a, kind); __sk_fire("open_menu", a, kind) end
+close_menu = function(f)
+  if not menu then return end
+  for _, e in ipairs(menu) do e.dead = true end
+  menu = nil
+  inmods = nil
+  __fake.closes = __fake.closes + 1
+  if f then f() end            -- the engine waits 16 frames first
+end
+local function core_act(id)
+  if not menu then return end
+  if inmods then
+    if id == "back" then
+      inmods = nil
+      return act_menu("play")
+    elseif id == "reset" then
+      local list = {}
+      for i, mod in ipairs(MODLIST) do
+        mod.active = mod.loaded
+        list[mod.num] = mod
+      end
+      MODLIST = list
+      inmods = nil
+      act_menu("mods")
+      return
+    elseif id == "reboot" then
+      __fake.reboots = __fake.reboots + 1
+      return
+    end
+    for i, b in ipairs(menu) do
+      if b.over then
+        local i = i - 1
+        local mid = math.ceil(i / 3)
+        local mac = i % 3
+        if mac == 0 then
+          local mod = MODLIST[mid]
+          if mod.empty then return end
+          mod.active = not mod.active
+          b.id = (mod.active and " ON | " or "OFF | ") .. mid .. ". " .. mod.title
+          b.labelc = mod.active and 4 or 2
+        elseif mac == 1 then
+          MODLIST[mid], MODLIST[mid - 1] = MODLIST[mid - 1], MODLIST[mid]
+          menu[1 + mid * 3], menu[1 + mid * 3 - 3] = menu[1 + mid * 3 - 3], menu[1 + mid * 3]
+          menu[1 + mid * 3].id = (MODLIST[mid].active and " ON | " or "OFF | ") .. mid .. ". " .. MODLIST[mid].title
+          menu[1 + mid * 3 - 3].id = (MODLIST[mid - 1].active and " ON | " or "OFF | ") .. (mid - 1) .. ". " .. MODLIST[mid - 1].title
+        elseif mac == 2 then
+          MODLIST[mid], MODLIST[mid + 1] = MODLIST[mid + 1], MODLIST[mid]
+          menu[1 + mid * 3], menu[1 + mid * 3 + 3] = menu[1 + mid * 3 + 3], menu[1 + mid * 3]
+          menu[1 + mid * 3].id = (MODLIST[mid].active and " ON | " or "OFF | ") .. mid .. ". " .. MODLIST[mid].title
+          menu[1 + mid * 3 + 3].id = (MODLIST[mid + 1].active and " ON | " or "OFF | ") .. (mid + 1) .. ". " .. MODLIST[mid + 1].title
+        end
+        menu[#MODLIST * 3 + 2].lock = nil
+        menu[#MODLIST * 3 + 3].id = "reboot"
+        menu[#MODLIST * 3 + 3].name = "Save and Reboot"
+        return
+      end
+    end
+    return
+  end
+  if id == "play" then
+    close_menu(function() __fake.play_opened = __fake.play_opened + 1; menu = {{eraser = true}} end)
+  elseif id == "mods" then
+    close_menu(function() open_menu(nil, "mods") end)
+  end
+end
+act_menu = function(id) local r = core_act(id); __sk_fire("act_menu", id); return r end
+-- what mk_menu_but's draw shows: e.name = lang[e.id] or e.name or e.id
+function __fake_text(e) return e.name or e.id end
+"""
+
+SANDBOX_LUA = """
+function __sk_sandbox_load(src, replaceable)
+    local env = _G
+    local can = {}
+    for _, k in ipairs(replaceable) do can[k] = true end
+    local ctrl = setmetatable({}, {
+        __newindex = function(t, k, v)
+            if can[k] then env[k] = v
+            elseif env[k] == nil then rawset(t, k, v)
+            else __sk_violation(k) end
+        end,
+        __index = function(t, k) return env[k] end,
+    })
+    local f, e
+    if setfenv then
+        f, e = loadstring(src, "=script.lua")
+        if f then setfenv(f, ctrl) end
+    else
+        f, e = load(src, "=script.lua", "t", ctrl)
+    end
+    if not f then error(e) end
+    return f()
+end
+"""
+
+
 def build_env(L, all_mode="value"):
     """Install Lua wrapper functions so fake engine APIs have Lua type=function."""
     g = L.globals()
@@ -73,6 +215,11 @@ def build_env(L, all_mode="value"):
         L.execute(f"{name} = function(...) return __py_{name}(...) end")
 
     bind("_log", lambda s: captured.append(str(s)))
+    violations = []
+    bind("__sk_violation", lambda k: violations.append(str(k)))
+    L.execute(SANDBOX_LUA)
+    g["__sk_fire"] = lambda name, *a: [fn(*a) for fn in hooks.get(name, [])]
+    L.execute(FAKE_MODMENU_LUA)
     L.execute(ALL_VALUE if all_mode == "value" else ALL_PAIR)
 
     g.MODLIST = to_lua(L, [
@@ -239,7 +386,57 @@ def build_env(L, all_mode="value"):
     bind("btnr", engine_btn)
     bind("fx_spawn", lambda p: None)
     # Build 7 engine surface (live-registered globals in run 5).
-    bind("remove_buts", lambda: native_buttons.clear())
+    def engine_remove_buts():
+        # engine: deletes every entity with the `button` flag (code.lua:15107)
+        native_buttons.clear()
+        n = len(g.ents)
+        keep = [g.ents[i] for i in range(1, n + 1) if not g.ents[i].button]
+        for i in range(1, n + 1):
+            g.ents[i] = None
+        for i, e in enumerate(keep, 1):
+            g.ents[i] = e
+    bind("remove_buts", engine_remove_buts)
+
+    # ---- Build 8 panel surface: frame input, entities, drawing ------------
+    g.ingame = True
+    hw = {"x": 0, "y": 0, "click": False}
+    board_clicks = []
+    draw_log = []
+
+    def engine_gamepad_ctrl():
+        # MOUSE branch of the real gamepad_ctrl: read the mouse, then the
+        # append() chain runs; mk_but buttons update AFTER this and see mcl.
+        g.mx, g.my = hw["x"], hw["y"]
+        g.mcl, g.mlb, g.mcr = hw["click"], hw["click"], False
+        fire("gamepad_ctrl")
+        if g.mcl and 96 <= hw["x"] < 224 and 30 <= hw["y"] < 158:
+            board_clicks.append((hw["x"], hw["y"]))
+    bind("gamepad_ctrl", engine_gamepad_ctrl)
+
+    def engine_mke(fr=0, x=0, y=0):
+        e = L.table()
+        e.fr, e.x, e.y, e.dp = fr, x, y, 3
+        add_entity(e)
+        return e
+    bind("mke", engine_mke)
+
+    def engine_kl(e):
+        if e is None: return
+        e.dead = True
+        lua_del(g.ents, e)
+    bind("kl", engine_kl)
+
+    font_state = {"cur": "Terminus"}
+
+    def engine_font(name=None):
+        if name is None: return font_state["cur"]
+        font_state["cur"] = name
+    bind("font", engine_font)
+    bind("lprint", lambda s, x, y, c=None, align=None, o=None:
+         draw_log.append(("t", str(s), x, y, font_state["cur"])))
+    bind("rectfill", lambda x1, y1, x2, y2, c=None: draw_log.append(("r", x1, y1, x2, y2, c)))
+    bind("rect", lambda x1, y1, x2, y2, c=None: draw_log.append(("o", x1, y1, x2, y2, c)))
+    bind("sfx", lambda name, vol=None: None)
     bind("flr", lambda v: int(math.floor(float(v))))
     g.t = 12345.678
     g.get_nearest_free_square = None  # NOT a function in the fake: exercises the fallback
@@ -374,6 +571,10 @@ def build_env(L, all_mode="value"):
         "appends": appends,
         "native_buttons": native_buttons,
         "bank_store": bank_store,
+        "violations": violations,
+        "hw": hw,
+        "board_clicks": board_clicks,
+        "draw_log": draw_log,
         "init_menu_calls": init_menu_calls,
         "globals": g,
     }
@@ -419,106 +620,321 @@ def run_scenario(L, env, mode, dump=False):
             return False
         fire(name, *args)
 
-    # Simulate mod-menu native buttons and validate the Back action.
-    pre_menu = prepends.get("init_menu")
-    if pre_menu: pre_menu()
-    # An unrelated id must NOT attach widgets (W7 regression: the Build-6
-    # MODLIST-title compare matched nothing at all in run 5).
+    # Menu-button id probe (read-only) still logs the real ids.
     g.mk_menu_but("SK Rework", 0, 0, 80, 12)
-    # A real run-5 mod-list id must attach them.
-    g.mk_menu_but("mods", 0, 0, 80, 12)
-    back = call_button(env, "< BACK")
 
-    # Fire init_game, open the Dev panel, then click each control once.
+    # ---- Build 8 panel: drive it the way the engine does -------------------
+    # Every interaction goes through the fake gamepad_ctrl (mouse read ->
+    # append chain -> what the board's mk_but buttons would see), and every
+    # button is located from what the panel actually DRAWS.
+    hw, board_clicks, draw_log = env["hw"], env["board_clicks"], env["draw_log"]
+    g.menu = None
+
+    def frame(x, y, click=False):
+        hw["x"], hw["y"], hw["click"] = x, y, click
+        g.gamepad_ctrl()
+
+    def draw():
+        del draw_log[:]
+        n = len(g.ents)
+        for i in range(1, n + 1):
+            e = g.ents[i]
+            if e is not None and e.dr is not None:
+                e.dr(e, e.x, e.y)
+        rects, last = {}, None
+        for d in draw_log:
+            if d[0] == "r":
+                last = d
+            elif d[0] == "t" and last is not None:
+                rects[d[1]] = (last[1], last[2], last[3], last[4])
+        return rects
+
+    def click(label, double_lp=False):
+        r = draw().get(label)
+        if r is None:
+            return False
+        cx, cy = (r[0] + r[2]) // 2, (r[1] + r[3]) // 2
+        frame(cx, cy, True)
+        if double_lp:              # fast-forward: lp() twice in one frame
+            frame(cx, cy, True)
+        frame(cx, cy, False)       # release / next frame
+        return True
+
+    def panel_ents():
+        n = len(g.ents)
+        return [g.ents[i] for i in range(1, n + 1)
+                if g.ents[i] is not None and g.ents[i].sk_panel]
+
     if "init_game" not in hooks:
         print(f"FAIL[{mode}]: init_game hook was not registered")
         return False
     fire("init_game")
-    header = find_button(env, "SK DEV")
-    if header is None:
-        print(f"FAIL[{mode}]: native SK DEV button was not created")
+    frame(5, 5)
+    labels0 = draw()
+    tab = labels0.get("SK DEV")
+    if tab is None:
+        print(f"FAIL[{mode}]: SK DEV tab was not drawn")
         return False
-    header["fn"]()
-    for label in ("+3 AMMO", "RELOAD", "CLIP+", "CARD:AUTO", "SPAWN...", "GOD:off",
-                  "DMG:off", "DMG+", "CRIT+", "CARDS>", "SAFE:off", "CLOSE"):
-        if find_button(env, label) is None:
-            print(f"FAIL[{mode}]: native Dev action was not created: {label}")
-            return False
+    tab_off_board = tab[1] >= 158 and tab[2] < 96
+    pico_font = any(d[0] == "t" and d[4] == "pico" for d in draw_log)
+    font_restored = g.font() == "Terminus"
+    click("SK DEV")
+    labels1 = draw()
+    page1 = ("+3 AMMO", "RELOAD", "CLIP+", "SAFE:off", "CARD:AUTO", "CARD NOW", "CARDS >",
+             "SPAWN >", "GOD:off", "DMG:off", "DMG+ 1-1", "CRIT+ 0%", "CLOSE")
+    missing = [lb for lb in page1 if lb not in labels1]
+    if missing:
+        print(f"FAIL[{mode}]: panel page 1 missing {missing}")
+        return False
+    small_buttons = all((labels1[lb][3] - labels1[lb][1] + 1) <= 9 for lb in page1)
+    clip_over_board = 96 <= labels1["CLIP+"][0] < 224 and 30 <= labels1["CLIP+"][1] < 158
 
-    # Offer-screen guard: with the panel open, a level_up must make the panel
-    # refuse to clear the button layer (remove_buts would also delete the
-    # engine's own card buttons). CLOSE is the harmless probe for that path.
-    fire("level_up", to_lua(L, {"id": "level_up", "choices": [[{"team": 0}]]}), None)
-    call_button(env, "CLOSE")
-    buttons_during_offer = len(env["native_buttons"])
-    fire("new_turn")            # offer over; the panel was never cleared
-    still_open = find_button(env, "+3 AMMO") is not None
+    # The run-6 bug: CLIP+ sits over the board; its click must NOT reach a square.
+    clip_before = g.stack.chamber_max
+    click("CLIP+")
+    clip_after = g.stack.chamber_max
+    clicks_after_clip = len(board_clicks)
+    still_open_after_clip = "+3 AMMO" in draw()
 
     before_ammo = g.ammo
-    call_button(env, "+3 AMMO")
+    click("+3 AMMO")
     ammo_after = g.ammo
     chamber_before = g.chamber
-    call_button(env, "RELOAD")
+    click("RELOAD")
     chamber_after = g.chamber
-    clip_before = g.stack.chamber_max
-    call_button(env, "CLIP+")
-    clip_after = g.stack.chamber_max
-    # AUTO card path (game pick())
-    call_button(env, "CARD NOW")
-    call_button(env, "CARD:AUTO")
+    click("CARD NOW")
 
-    # Damage/crit: turn DMG on, then create a bullet (pierce=30 must auto-crit).
-    call_button(env, "DMG:off")
-    dmg_on = g.ammo is not None  # state flag read below via the log instead
+    # Live label + fast-forward guard: lp() twice with one click = ONE toggle.
+    n_mode_logs = sum(1 for l in captured if "SKUI|panel|card_mode=" in l)
+    click("CARD:AUTO", double_lp=True)
+    card_toggled_once = sum(1 for l in captured if "SKUI|panel|card_mode=" in l) == n_mode_logs + 1
+    labels_now = draw()
+    label_live = "CARD:LIST" in labels_now and "CARD:AUTO" not in labels_now
+    click("CARD:LIST")
+
+    click("DMG:off")
+    dmg_label_live = "DMG:on" in draw()
     bullet = g.mk_bullet(10, 20, 0, 8)
-    bullet_dmg, bullet_crit = bullet.dmg, None
-    call_button(env, "DMG+")
-    call_button(env, "CRIT+")
+    bullet_dmg = bullet.dmg
+    click("DMG+ 1-1")
+    click("CRIT+ 0%")
 
-    # God Mode: enable, then take a lethal hit -> HP refill + dodge.
-    call_button(env, "GOD:off")
+    click("GOD:off")
+    god_label_live = "GOD:on" in draw()
     g.hero.hp = 1
     hero_px_before, hero_py_before = g.hero.sq.px, g.hero.sq.py
     g.hit(g.hero, 5, to_lua(L, {}))
     hp_after_hit = g.hero.hp
     hero_moved = (g.hero.sq.px != hero_px_before or g.hero.sq.py != hero_py_before)
 
-    # Card LIST page: open it, take Right-hand (allies=[1] -> also spawns),
-    # then back to page 1 (every action leaves the panel open by design).
-    call_button(env, "CARDS>")
-    call_button(env, "FILT:ALL")          # piece/summon-only view (owner ask)
-    call_button(env, "Right-hand")
-    call_button(env, "<BACK")
+    click("CARDS >")
+    click("FILT:ALL")
+    click("Right-hand")
+    filt_label_live = "FILT:PIECE" in draw()
+    click("< BACK")
 
-    # Spawn page: put the king back on (4,7) so the diagonal preference is
-    # deterministic, then pick the knight explicitly.
     g.hero.sq.px, g.hero.sq.py = 4, 7
-    call_button(env, "SPAWN...")
-    call_button(env, "knight")
-    call_button(env, "<BACK")
+    click("SPAWN >")
+    click("knight")
+    click("< BACK")
+    back_to_page1 = "CLIP+" in draw()
 
-    # SAFE mode: budget of one mutating engine call per boot.
-    call_button(env, "SAFE:off")
+    # Modal: a click inside the box but on no button is swallowed, panel stays.
+    draw()
+    box_fill = next(d for d in draw_log if d[0] == "r" and d[5] == 0)
+    n_board = len(board_clicks)
+    frame(box_fill[1] + 2, box_fill[2] + 1, True)
+    frame(box_fill[1] + 2, box_fill[2] + 1, False)
+    modal_swallow = len(board_clicks) == n_board and "CLIP+" in draw()
+
+    # Hidden during a card choice: draws nothing and leaves clicks alone.
+    g.leveling = True
+    hidden_draw = draw() == {}
+    frame(150, 100, True)
+    level_click_passes = len(board_clicks) == n_board + 1
+    frame(150, 100, False)
+    g.leveling = None
+    visible_again = "CLIP+" in draw()
+
+    # remove_buts() (the engine runs it ~40x per turn) must not touch us.
+    g.remove_buts()
+    survives_remove_buts = len(panel_ents()) == 1 and "CLIP+" in draw()
+
+    click("SAFE:off")
     safe_before = g.ammo
-    call_button(env, "+3 AMMO")
-    call_button(env, "+3 AMMO")
+    click("+3 AMMO")
+    click("+3 AMMO")
     safe_after = g.ammo
+    click("SAFE:on")
 
-    # CLOSE must really remove the native buttons (run-5 ghost-panel bug).
-    close_button = find_button(env, "CLOSE")
-    if close_button is not None:
-        close_button["fn"]()
-    buttons_after_close = len(env["native_buttons"])
+    click("CLOSE")
+    closed_labels = draw()
+    closed_ok = list(closed_labels) == ["SK DEV"]
+    n_board = len(board_clicks)
+    frame(150, 100, True)          # closed panel: board clicks pass through
+    frame(150, 100, False)
+    closed_click_passes = len(board_clicks) == n_board + 1
 
-    # Simulate an actual menu button ID from MODLIST; the hook adds Back + legend.
-    g.mk_menu_but("2. SK Rework", 0, 0, 80, 12)
+    # Click outside the box closes it (open again first).
+    click("SK DEV")
+    frame(10, 40, True)
+    frame(10, 40, False)
+    outside_closes = list(draw()) == ["SK DEV"]
+
+    # New run: reset() replaces ents; the panel must come back (run 6: gone).
+    old_ent = panel_ents()[0]
+    g.ents = L.table()
+    fire("init_game")
+    frame(5, 5)
+    new_run_ok = len(panel_ents()) == 1 and panel_ents()[0] != old_ent and "SK DEV" in draw()
+    total_board_clicks_on_panel = clicks_after_clip
+
+
+    def has(fragment):
+        return any(fragment in line for line in captured)
+
+    # ---- Build 8 item 5: the mod-list screen (run-6 complaints) ------------
+    g.ingame = False
+    saved_modlist = g.MODLIST
+    titles = ["SK Rework", "Disgraced Justice", "Glacies Module Terminal",
+              "Glacies' Collection", "The Magnificent Quartz Army",
+              "Military Tactics -The Art of War-"]
+    active0 = [True, True, False, False, False, True]
+    g.MODLIST = to_lua(L, [
+        {"title": t, "name": t.lower(), "num": i + 1, "active": a, "loaded": (True if a else None)}
+        for i, (t, a) in enumerate(zip(titles, active0))])
+    nmods = len(titles)
+
+    def mm_ents():
+        n = len(g.ents)
+        return [g.ents[i] for i in range(1, n + 1)
+                if g.ents[i] is not None and g.ents[i].sk_modmenu and not g.ents[i].dead]
+
+    def legend_texts():
+        del draw_log[:]
+        for e in mm_ents():
+            e.dr(e, e.x, e.y)
+        return [d for d in draw_log if d[0] == "t"]
+
+    def row(k):          # the visible row entry of mod position k
+        return g.menu[3 * k + 1]
+
+    def back_btn():
+        return g.menu[nmods * 3 + 3]
+
+    def press(entry):    # what a click does: entry.over, then act_menu(id)
+        entry.over = True
+        g.act_menu(entry.id)
+        if g.menu is not None:
+            for i in range(1, len(g.menu) + 1):
+                if g.menu[i] is not None: g.menu[i].over = None
+
+    g.open_menu(None, "mods")
+    frame(200, 100)
+    legend_created = len(mm_ents()) == 1 and not mm_ents()[0].button
+    texts = legend_texts()
+    tstr = [t[1] for t in texts]
+    legend_layout = ("WHITE = ON" in tstr and "DARK = OFF" in tstr and "CLICK A NAME" in tstr
+                     and all(t[2] < 104 for t in texts) and all(t[4] == "pico" for t in texts)
+                     and all(" " not in t[1] or len(t[1]) <= 23 for t in texts)
+                     and g.font() != "pico")
+    # far-left, vertically centred around MCH/2
+    ys = [t[3] for t in texts]
+    legend_centred = bool(ys) and abs((min(ys) + max(ys)) / 2 - 90) <= 12
+    predicted = "E1 TERMINAL IS OFF" in tstr and "E3 COLLECTION IS OFF" in tstr and "AUTO-FIX" in tstr
+
+    # (1) click a mod name -> its ON/OFF TEXT follows (run 6: only the colour did)
+    quartz_row = row(5)
+    press(quartz_row)
+    toggled_text_on = g.__fake_text(row(5)).startswith(" ON | 5. The Magnificent")
+    back_after_on = back_btn().id == "reboot"
+    # (2) back to the boot state -> Back is Back again (run 6: stuck on reboot)
+    press(row(5))
+    toggled_text_off = g.__fake_text(row(5)).startswith("OFF | 5. The Magnificent")
+    back_restored = (back_btn().id == "back" and g.__fake_text(back_btn()) == "Back"
+                     and g.menu[nmods * 3 + 2].lock is True)
+    press(back_btn())
+    frame(200, 100)
+    back_returns = (g.__fake.play_opened == 1 and g.__fake.reboots == 0
+                    and len(mm_ents()) == 0)
+
+    # (3) reorder arrows: names follow positions; undo restores Back
+    g.open_menu(None, "mods")
+    press(g.menu[3])                       # down arrow of mod 1
+    moved_names = (g.__fake_text(row(1)).startswith(" ON | 1. Disgraced Justice")
+                   and g.__fake_text(row(2)).startswith(" ON | 2. SK Rework")
+                   and back_btn().id == "reboot")
+    press(g.menu[5])                       # up arrow of mod 2
+    move_undone = (g.__fake_text(row(1)).startswith(" ON | 1. SK Rework")
+                   and back_btn().id == "back")
+
+    # (4) AUTO-FIX through the gamepad_ctrl hook (no engine button involved)
+    closes_before = g.__fake.closes
+    ok_click = click("AUTO-FIX")
+    order = [g.MODLIST[i].title for i in range(1, nmods + 1)]
+    autofix_order = order == ["SK Rework", "Glacies' Collection", "Military Tactics -The Art of War-",
+                              "Disgraced Justice", "The Magnificent Quartz Army",
+                              "Glacies Module Terminal"]
+    autofix_enabled = (g.MODLIST[2].active is True and g.MODLIST[6].active is True
+                       and g.MODLIST[5].active is False)
+    frame(200, 100)
+    tstr2 = [t[1] for t in legend_texts()]
+    autofix_ok = (ok_click and autofix_order and autofix_enabled
+                  and g.__fake.closes == closes_before + 1 and len(mm_ents()) == 1
+                  and back_btn().id == "reboot" and "DEPENDENCIES OK" in tstr2
+                  and "AUTO-FIX" not in tstr2 and g.mcl is False)
+    # (5) engine Reset restores the boot list and Back
+    press(g.menu[nmods * 3 + 2])
+    reset_ok = ([g.MODLIST[i].title for i in range(1, nmods + 1)] == titles
+                and g.MODLIST[3].active is None and back_btn().id == "back")
+    # (6) order-only problems: Terminal ON but above Art of War, Collection below it
+    g.MODLIST = to_lua(L, [
+        {"title": "Glacies Module Terminal", "num": 1, "active": True, "loaded": True},
+        {"title": "Military Tactics -The Art of War-", "num": 2, "active": True, "loaded": True},
+        {"title": "Glacies' Collection", "num": 3, "active": True, "loaded": True}])
+    nmods = 3
+    act_menu_close = g.close_menu(None)
+    g.open_menu(None, "mods")
+    order_codes = has("SKUI|modmenu|sync=open|back=back|issues=2|codes=E2,E4")
+    g.close_menu(None)
+    frame(200, 100)
+    # (7) silent Terminal clients (audit): Quartz and Extra Features print no
+    # red text of their own, so the legend must name them; and the worst
+    # realistic legend (every Terminal client ON, Terminal OFF, Collection
+    # below Art of War, list changed) must still fit the 180-px screen.
+    all_titles = ["SK Rework", "Glacies' Extra Features", "Military Tactics -The Art of War-",
+                  "Glacies' Collection", "Disgraced Justice", "Retry after Death",
+                  "Royal Card Lab", "Grenade Predictor", "Better Codex", "Nightmare Mode",
+                  "Fairy Pieces for SGK", "The Magnificent Quartz Army",
+                  "Shootout: the Rifle King Adventure", "Glacies Module Terminal"]
+    g.MODLIST = to_lua(L, [
+        {"title": t, "num": i + 1,
+         "active": t not in ("Glacies Module Terminal", "Better Codex"),
+         "loaded": (True if t != "Glacies Module Terminal" else None)}
+        for i, t in enumerate(all_titles)])
+    nmods = len(all_titles)
+    g.open_menu(None, "mods")
+    frame(10, 10)
+    texts7 = legend_texts()
+    t7 = [t[1] for t in texts7]
+    silent_clients = ("E1 TERMINAL IS OFF" in t7 and any("QUARTZ" in t for t in t7)
+                      and any("EXTRA FEAT" in t for t in t7) and "E4 COLLECTION BELOW" in t7
+                      and "SAVE AND REBOOT" in t7)
+    fix7 = [d for d in draw_log if d[0] == "r"]
+    ys7 = [t[3] for t in texts7] + [d[4] for d in fix7]
+    legend_fits = bool(texts7) and min(ys7) >= 0 and max(ys7) <= 179
+    g.close_menu(None)
+    frame(200, 100)
+    g.MODLIST = saved_modlist
+    g.menu = None
+    g.ingame = True
     text = "\n".join(FAKE_ENGINE_LINES + captured) + "\n"
 
     def has(fragment):
         return any(fragment in line for line in captured)
 
     # Ensure the promised marker precedes every static §0.7 dump.
-    ready_idx = next((i for i, line in enumerate(captured) if "READY build=7" in line), -1)
+    ready_idx = next((i for i, line in enumerate(captured) if f"READY build={BUILD_NO}" in line), -1)
     probe_idx = next((i for i, line in enumerate(captured) if line.startswith("SKCF|")), -1)
 
     # Model self-check: the fake engine MUST reject unconfirmed buttons the
@@ -532,7 +948,7 @@ def run_scenario(L, env, mode, dump=False):
 
     checks = [
         ("fake engine models the fatal btn() contract", fatal_button_model),
-        ("build-6 load banner", has("SK-REWORK: BUILD=7 loaded (mod_index=2)")),
+        ("build-6 load banner", has(f"SK-REWORK: BUILD={BUILD_NO} loaded (mod_index=2)")),
         ("MODLIST self-check", has("SKA2|mod_found=yes|active=true")),
         ("MODLIST entry dump", has("SKM|2|title=SK Rework")),
         ("Lua function wrappers/API checks", has("SKA|append|no") and has("SKA|_log|YES")
@@ -555,10 +971,10 @@ def run_scenario(L, env, mode, dump=False):
                                                and not has("SKI|btn|left=")
                                                and not has("SKI|btn|mouse4=")
                                                and not has("SKI|btn|wheel=")),
-        ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")
-                                 and has("SKI|menu_but|n=1|id=SK Rework")),
-        ("native panel controls (Build 7)", has("SKUI|panel|available=true|native=mk_text_but")
-                                  and has("SKUI|panel|open=true|page=1")
+        ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")),
+        ("mod sandbox: no refused global writes", env["violations"] == []),
+        ("panel controls (Build 8)", has("SKUI|panel|entity=created|fresh_run=true")
+                                  and has("SKUI|panel|open=true|via=tab")
                                   and has("SKE|cheat_ammo|kind=reserve|amount=3")
                                   and has("SKE|cheat_card|mode=auto|id=Peace")
                                   and has("SKE|cheat_reload|")
@@ -569,9 +985,25 @@ def run_scenario(L, env, mode, dump=False):
         ("ammo buttons change state", ammo_after == before_ammo + 3
                                       and chamber_after == chamber_before + 1
                                       and clip_after == clip_before + 1),
-        ("CLOSE really removes the native buttons", buttons_after_close == 0
-                                                   and has("SKUI|panel|clear=remove_buts|reason=close_clicked")
-                                                   and has("SKUI|panel|open=false")),
+        ("panel never calls remove_buts", not has("SKE|call|remove_buts")
+                                          and not has("clear=remove_buts")),
+        ("RUN-6 BUG: CLIP+ over the board never reaches a square",
+         clip_over_board and total_board_clicks_on_panel == 0 and still_open_after_clip),
+        ("tab sits off the board (bottom-left)", tab_off_board),
+        ("small pico-font buttons, font restored", small_buttons and pico_font and font_restored),
+        ("labels follow state live (CARD/DMG/GOD/FILT)", label_live and dmg_label_live
+                                                       and god_label_live and filt_label_live),
+        ("fast-forward double lp() runs ONE action", card_toggled_once),
+        ("modal: stray click inside the box is swallowed", modal_swallow),
+        ("hidden while leveling, clicks pass, returns after", hidden_draw and level_click_passes
+                                                             and visible_again),
+        ("survives the engine's remove_buts()", survives_remove_buts),
+        ("CLOSE leaves only the tab; board clicks pass", closed_ok and closed_click_passes
+                                                       and has("SKUI|panel|open=false|via=close")),
+        ("outside click closes", outside_closes and has("SKUI|panel|open=false|via=outside_click")),
+        ("RUN-6 BUG: panel comes back on a new run (ents reset)", new_run_ok
+                                                     and has("SKUI|panel|reset=init_game")),
+        ("pages return to page 1", back_to_page1),
         ("damage/crit roll applied to bullets", has("SKD|dmg|n=1|before=1|after=2|crit=true|pierce=30")
                                                 and bullet_dmg == 2),
         ("damage knobs cycle + persist", has("SKUI|cfg|on=1|dmg=1-2")
@@ -584,27 +1016,37 @@ def run_scenario(L, env, mode, dump=False):
                                         and has("via=card:Right-hand")),
         ("piece-card filter (FILT:PIECE)", has("SKUI|card|filter=piece|kept=1|of=4")
                                            and has("SKUI|panel|card_filter=piece")),
-        ("spawn page picks the piece", has("SKUI|spawn|page=1|choices=3")
+        ("spawn page picks the piece", has("SKUI|spawn|page=1/1|choices=3")
                                        and has("via=panel_pick")),
         ("spawn prefers a diagonal (never blocks the king)", has("SKUI|spawn|type=1|px=3|py=6|route=diagonal|via=panel_pick")),
         ("SAFE mode blocks the 2nd mutating call", safe_after == safe_before + 3
                                                    and has("SKE|call|inc_ammo=blocked|reason=safe_mode")),
         ("engine-call intent logging", has("SKE|call|inc_ammo=start")
                                        and has("SKE|call|inc_ammo=ok|r=")),
-        ("panel defers while an offer screen is open",
-         has("SKUI|panel|deferred=offer_active") and buttons_during_offer > 0
-         and still_open),
-        ("native mod-menu Back + legend on real ids", has("SKUI|menu|widgets_added=true|entry=mods|back=true")
-                                          and back is not None),
-        ("unrelated menu id attaches nothing", not has("widgets_added=true|entry=SK Rework")),
-        ("back click returns through init_menu", has("SKUI|menu|back_clicked=true")
-                                                 and env["init_menu_calls"][0] == 1),
+        ("mod menu: legend is a plain far-left entity (no button)", legend_created
+                                    and legend_layout and legend_centred
+                                    and has("SKUI|modmenu|legend=created|dp=4")),
+        ("RUN-6 BUG: clicking a mod name updates its ON/OFF text", toggled_text_on
+                                    and toggled_text_off and back_after_on),
+        ("RUN-6 BUG: on->off again restores Back (no forced reboot)", back_restored
+                                    and back_returns and has("SKUI|modmenu|legend=removed")),
+        ("reorder arrows keep names in sync; undo restores Back", moved_names and move_undone),
+        ("dependency check predicts the red boot texts", predicted
+                                    and has("SKUI|modmenu|sync=open|back=back|issues=2|codes=E1,E3")
+                                    and has("SKUI|modcheck|boot|issues=0|codes=none")),
+        ("AUTO-FIX: dependency order + needed mods ON, menu rebuilt", autofix_ok
+                                    and has("SKUI|modmenu|autofix=true|moved=")
+                                    and has("enabled=COLLECTION,TERMINAL")),
+        ("engine Reset restores boot list and Back", reset_ok),
+        ("order-only problems flagged (Terminal not last, Collection below)", order_codes),
+        ("silent Terminal clients (Quartz, Extra Features) named in E1", silent_clients),
+        ("worst-case legend + AUTO-FIX fits the 180-px screen", legend_fits),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
         ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
                                     and has("SKA2|probe|souls=done") and has("SKA2|probe|bank=done")
                                     and has("SKA2|probe|input=done")),
-        ("probe done marker", has("SK-REWORK: PROBE done build=7")),
+        ("probe done marker", has(f"SK-REWORK: PROBE done build={BUILD_NO}")),
         ("ammo cheat changes state", ammo_after == before_ammo + 3),
     ]
     bad = [name for name, ok in checks if not ok]
@@ -613,8 +1055,8 @@ def run_scenario(L, env, mode, dump=False):
     import parse_log
     d = parse_log.parse_text(text)
     parser_checks = [
-        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 7
-                              and d["ready"] is not None and d["ready"]["build"] == 7),
+        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == BUILD_NO
+                              and d["ready"] is not None and d["ready"]["build"] == BUILD_NO),
         ("parser hooks", len(d["hooks"]) >= 15),
         ("parser world samples", len(d["world"]) >= 2),
         ("parser cards", len(d["cards"]) == 4),
@@ -632,7 +1074,7 @@ def run_scenario(L, env, mode, dump=False):
     ]
     bad += [name for name, ok in parser_checks if not ok]
 
-    md = parse_log.render_markdown(d, "<smoketest-build-7>")
+    md = parse_log.render_markdown(d, "<smoketest-build-8>")
     if ("Did the mod load?" not in md or "Full card fields & EXCLUDE pairs" not in md
             or "Offer-roll choices & filters" not in md):
         bad.append("parser Build-6 markdown rendering")
@@ -684,7 +1126,7 @@ def main(argv):
             L = runtime_cls(unpack_returned_tuples=True)
             env = build_env(L, semantics)
             try:
-                L.execute(src)
+                L.globals().__sk_sandbox_load(src, to_lua(L, ENGINE_REPLACEABLE))
             except Exception as exc:
                 print(f"FAIL[{mode}]: mod raised an error at load: {exc}")
                 return 1

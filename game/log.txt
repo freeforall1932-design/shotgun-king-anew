@@ -1,0 +1,962 @@
+  . Starting log.
+  . Writing to log.txt
+  . Successfully loaded data.sgr.
+  . Shotgun King - The Final Checkmate :: by PUNKCAKE Delicieux
+  . Found 278 files: assets/music/title_B.ogg, assets/music/title_A.ogg, assets/music/gameover_w_fx.ogg, assets/music/final_countdown.ogg, assets/music/endless.ogg, assets/music/ending_B.ogg, assets/music/ending_A.ogg, assets/music/codex.ogg, assets/music/level_up_A.ogg, assets/music/charnier_shop_2_B.ogg, assets/music/charnier_shop_2_A.ogg, assets/music/charnier_B.ogg, assets/music/charnier_A.ogg, assets/sfx/disrupt.wav, assets/sfx/detected.wav, assets/sfx/vampire_suck.wav, assets/sfx/decay_jingle.wav, assets/sfx/death_mark.wav, assets/sfx/missile.wav, assets/sfx/convert.wav, assets/sfx/codex_sel.wav, assets/sfx/codex_cycle_item.wav, assets/gfx/gfx.png, assets/sfx/jester.wav, assets/sfx/throw_impact.wav, assets/sfx/charnier_xpl.wav, assets/music/charnier_shop_A.ogg, assets/sfx/cinder_new.wav, assets/sfx/execute_disruption.wav, assets/sfx/charnier_will_xpl.wav, assets/sfx/unused_unknown.wav, assets/gfx/weapons.png, assets/sfx/apo_jump.wav, assets/sfx/inc_countdown.wav, assets/sfx/cloak_out.wav, assets/sfx/censorship.wav, code/gamepad.lua, assets/sfx/grenade_bounce.wav, assets/sfx/shoot.wav, assets/sfx/catch.wav, assets/sfx/dmg_cap.wav, assets/sfx/sokoban_push.wav, assets/sfx/charnier_buy.wav, assets/sfx/castle.wav, assets/sfx/soul.wav, assets/sfx/burden_new.wav, assets/sfx/hero_spawn.wav, assets/sfx/apo_sing_1.wav, assets/sfx/lost_king.wav, assets/sfx/breakout.wav, assets/sfx/call_guards.wav, assets/sfx/boulder_launch.wav, assets/sfx/codex_unsel.wav, assets/sfx/boss_land.wav, assets/sfx/boss_jump.wav, assets/sfx/execute.wav, assets/gfx/codex.png, assets/music/boss_B.ogg, assets/sfx/boss_crumble.wav, assets/sfx/blade.wav, assets/music/fireplace.ogg, assets/sfx/black_mist.wav, ../../punkcake/punkcake_intro.lua, assets/sfx/grab_done.wav, assets/sfx/swap.wav, assets/sfx/bishop_resist.wav, code/modes/charnier.lua, assets/fonts/pico_font.png, assets/sfx/ascend.wav, assets/sfx/arrow.wav, assets/sfx/hurt_boss.wav, assets/sfx/cinder_red.wav, assets/sfx/drop_piece.wav, assets/sfx/apo_talk.wav, code/modes/tutorial.lua, assets/sfx/soul_wand.wav, assets/sfx/eat.wav, assets/sfx/apo_sing_2.wav, assets/sfx/charge.wav, assets/sfx/exclude_card.wav, assets/sfx/backup_land.wav, assets/sfx/swap_init.wav, assets/gfx/title.png, assets/sfx/cloak_in.wav, assets/sfx/cinder_vanish.wav, assets/gfx/intro.png, ../../punkcake/chomp.wav, assets/sfx/grenade_beep.wav, assets/crt_calmos.shader, lang/safe_english.txt, assets/music/boss_riders_B.ogg, assets/sfx/charnier_orb_out.wav, assets/gfx/console_NX.png, ../../libs/gifkey.lua, assets/sfx/disarm.wav, assets/sfx/apo_sit.wav, code.lua, assets/gfx/tutorial.png, ../../libs/remy_systems.lua, code/serializer.lua, ../../punkcake/slap.wav, assets/sfx/abort_mission.wav, assets/sfx/boost.wav, assets/gfx/console_PS5.png, ../../libs/autosnaps.lua, assets/fonts/Galmuri11.ttf, assets/fonts/Determination.ttf, assets/gfx/crumble.png, assets/sfx/charnier_orb_in.wav, code/modes/throne.lua, assets/gfx/*.png, assets/gfx/console_PC.png, assets/gfx/console_Xbox.png, assets/fonts/Terminus.ttf, assets/sfx/start.wav, code/lang.lua, code/modes/endless.lua, ../../libs/toolkit.lua, assets/sfx/crown_fly.wav, assets/sfx/holo_vanish.wav, code/gameplay.lua, code/achievements.lua, assets/sfx/pause.wav, assets/sfx/shoot_2.wav, assets/sfx/wrong_shield.wav, assets/sfx/boulder_xpl.wav, code/modes/chase.lua, assets/sfx/ammo.wav, assets/sfx/grab_cancel.wav, assets/fonts/TerminusThai.ttf, assets/sfx/card_land.wav, assets/sfx/level_up_sel.wav, code/menu.lua, assets/music/gameover.ogg, ../../libs/hoard.lua, code/mods.lua, assets/gfx/cards.png, assets/sfx/*.wav, assets/gfx/icon.png, code/save.lua, code/codex.lua, assets/sfx/shell_land.wav, assets/music/boss_queen_B.ogg, assets/sfx/censor_card.wav, ../../punkcake/delicieux.wav, assets/sfx/twinkle.wav, ../../punkcake/punkcake_sheet.png, assets/sfx/apo_sing_0.wav, assets/music/ingame.ogg, assets/gfx/achievements.png, assets/sfx/hurt.wav, assets/sfx/grenade_xpl.wav, assets/sfx/dig.wav, assets/sfx/crystal_xpl.wav, ../../libs/hdtext.lua, assets/sfx/disguise.wav, assets/gfx/console_SteamDeck-export.png, assets/sfx/pile_bounce.wav, assets/sfx/xpl.wav, assets/sfx/wand.wav, ../../punkcake/punkcake.wav, code/data.lua, assets/fonts/LanaPixel.ttf, assets/sfx/refill_wand.wav, assets/sfx/shoot_4.wav, code/grid.lua, assets/gfx/console_PS4.png, assets/gfx/console_SteamDeck.png, assets/gfx/charnier.png, assets/sfx/show_book.wav, ../../libs/ents.lua, assets/sfx/exile.wav, assets/sfx/fall.wav, assets/sfx/grenade_fall.wav, assets/sfx/hypno_execute.wav, assets/sfx/unused_xpl.wav, assets/sfx/next_vig.wav, assets/sfx/flip_back.wav, assets/sfx/shoot_0.wav, assets/sfx/penta.wav, assets/sfx/give_cinder.wav, assets/sfx/reap_soul.wav, assets/sfx/cancel.wav, assets/sfx/alleluia.wav, assets/sfx/glue.wav, assets/sfx/head_bump.wav, assets/sfx/healing.wav, assets/sfx/help.wav, assets/sfx/menu_in.wav, assets/fonts/indienovaBC.ttf, assets/sfx/hero_leave.wav, ../../libs/dirload.lua, assets/sfx/hippocracy.wav, assets/sfx/shield.wav, assets/sfx/hero_spawn_boom.wav, assets/sfx/hypnosys.wav, assets/sfx/incantation.wav, assets/sfx/jingle_theme.wav, assets/sfx/extra_turn.wav, assets/sfx/jump.wav, assets/sfx/king_talk.wav, assets/sfx/level_up_zoom.wav, assets/sfx/lift.wav, assets/music/chase.ogg, assets/sfx/mark_card.wav, assets/sfx/menu_out.wav, assets/sfx/wrong.wav, assets/sfx/mission.wav, assets/stretch.shader, assets/sfx/move_piece.wav, assets/sfx/conscription.wav, assets/music/boss_queen_A.ogg, assets/sfx/next_vig_2.wav, assets/sfx/gust.wav, assets/sfx/show.wav, assets/sfx/penta_full.wav, assets/sfx/penta_reset.wav, assets/sfx/piece_fall.wav, assets/sfx/plague.wav, assets/sfx/promote.wav, assets/sfx/raid_won.wav, assets/sfx/spawn.wav, assets/music/level_up_B.ogg, assets/sfx/raise.wav, assets/sfx/rat.wav, assets/sfx/recycle_cards.wav, assets/sfx/regal_ascent.wav, assets/sfx/regal_light.wav, assets/sfx/reload.wav, assets/sfx/spawner.wav, assets/sfx/replace_card.wav, assets/sfx/retire.wav, assets/sfx/legacy.wav, assets/sfx/reverse_karma.wav, assets/sfx/scope.wav, assets/sfx/land.wav, assets/sfx/sel_disruption.wav, assets/sfx/sel_opt.wav, assets/music/charnier_shop_B.ogg, assets/sfx/shell_ground.wav, assets/sfx/shell_spark.wav, assets/music/*.ogg, assets/sfx/shoot_1.wav, assets/sfx/backup_call.wav, assets/sfx/shoot_3.wav, assets/sfx/shoot_silencer.wav, assets/sfx/show_card.wav, assets/sfx/apo_sing_3.wav, assets/sfx/book_float.wav, assets/sfx/tile_move.wav, assets/sfx/sky_dust.wav, assets/sfx/soul_proj.wav, assets/sfx/spawn_final.wav, assets/sfx/tunnel.wav, assets/sfx/splash.wav, assets/sfx/start_detune.wav, assets/sfx/tear_up.wav, assets/sfx/throw.wav, assets/sfx/tic.wav, assets/sfx/tile_out.wav, assets/sfx/trainer.wav, assets/sfx/trampoline.wav, assets/sfx/trg_in.wav, assets/sfx/trg_out.wav, code/achievements_data.lua, assets/sfx/hero_light.wav, assets/sfx/turn_card.wav, assets/sfx/seer.wav, assets/sfx/unlock.wav, assets/sfx/unsoul.wav, assets/sfx/recycle_new.wav, assets/sfx/use_card.wav, assets/sfx/vampire_eat.wav, assets/sfx/water_poison.wav, assets/sfx/will_explode.wav, assets/sfx/flash_boss.wav, assets/music/boss_A.ogg, assets/music/boss_riders_A.ogg
+  . Initializing SUGAR v0.0.8f.
+  . E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\shotgun_king.exe
+  . Running from: E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\
+  . Running on Windows.
+  . Using SDL 3.4.12
+  . Using LuaJIT 2.1.1784580905
+  . Using Lua 5.1.4
+  . OpenGL initialized.
+  . Created new memory chunk '_sugar_'.
+  . FreeType library was initialized.
+  . Using FreeType 2.12.1
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x013A bytes to fit new 'thin_font' req.
+  . Correctly requested 'thin_font' 0x013A bytes at 0x00 in chunk '_sugar_'.
+  . The 106 glyphs font 'thin' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x032F bytes to fit new 'old_console_font' req.
+  . Correctly requested 'old_console_font' 0x01F5 bytes at 0x013A in chunk '_sugar_'.
+  . The 106 glyphs font 'old_console' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x05A8 bytes to fit new 'icons_font' req.
+  . Correctly requested 'icons_font' 0x0279 bytes at 0x032F in chunk '_sugar_'.
+  . The 106 glyphs font 'icons' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x078F bytes to fit new 'console_font' req.
+  . Correctly requested 'console_font' 0x01E7 bytes at 0x05A8 in chunk '_sugar_'.
+  . The 106 glyphs font 'console' was created.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0A14 bytes to fit new 'big_font' req.
+  . Correctly requested 'big_font' 0x0285 bytes at 0x078F in chunk '_sugar_'.
+  . The 106 glyphs font 'big' was created.
+  . GFX system initialized.
+  . Time system initialized.
+  . Input system initialized.
+  . Successfully opened audio device 'Speaker/HP (Realtek High Definition Audio)'.
+  . Audio system initialized.
+  . All systems initialized.
+  . 
+ !! You need an existing window for mouse('lock') to do anything.
+  . Running...
+  . Loading code.lua
+  . Loading ../../libs/hdtext.lua
+  . Loading ../../libs/hoard.lua
+  . Loading ../../libs/toolkit.lua
+  . Loading ../../libs/ents.lua
+  . Loading ../../libs/dirload.lua
+  . Loading ../../libs/gifkey.lua
+  . Loading ../../libs/remy_systems.lua
+  . Loading code/codex.lua
+  . Loading code/serializer.lua
+  . Loading code/menu.lua
+  . Loading code/mods.lua
+  . Loading code/grid.lua
+  . Loading code/data.lua
+  . Playing Shotgun King v1.623b
+  . found english
+  . found french
+  . found spanish
+  . found latam
+  . found portuguese
+  . found german
+  . found dutch
+  . found italian
+  . found romanian
+  . found catalan
+  . found polish
+  . found ukrainian
+  . found russian
+  . found japanese
+  . found korean
+  . found simplified_chinese
+  . found vietnamese
+  . Loading code/save.lua
+  . Loading code/gameplay.lua
+  . Loading code/gamepad.lua
+  . 0 controllers detected.
+  . Using controller nil
+  . Loading code/lang.lua
+  . Loading code/achievements.lua
+  . Loading code/achievements_data.lua
+  . Loading ../../punkcake/punkcake_intro.lua
+  . Steam API initialized.
+  . Loading assets/gfx/gfx.png
+  . Loading assets/sfx/*.wav
+  . Loading assets/sfx/abort_mission.wav
+  . Loaded 'sfx abort_mission' from file 'assets/sfx/abort_mission.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/alleluia.wav
+  . Loaded 'sfx alleluia' from file 'assets/sfx/alleluia.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/ammo.wav
+  . Loaded 'sfx ammo' from file 'assets/sfx/ammo.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_jump.wav
+  . Loaded 'sfx apo_jump' from file 'assets/sfx/apo_jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_0.wav
+  . Loaded 'sfx apo_sing_0' from file 'assets/sfx/apo_sing_0.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_1.wav
+  . Loaded 'sfx apo_sing_1' from file 'assets/sfx/apo_sing_1.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_2.wav
+  . Loaded 'sfx apo_sing_2' from file 'assets/sfx/apo_sing_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sing_3.wav
+  . Loaded 'sfx apo_sing_3' from file 'assets/sfx/apo_sing_3.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_sit.wav
+  . Loaded 'sfx apo_sit' from file 'assets/sfx/apo_sit.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/apo_talk.wav
+  . Loaded 'sfx apo_talk' from file 'assets/sfx/apo_talk.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/arrow.wav
+  . Loaded 'sfx arrow' from file 'assets/sfx/arrow.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/ascend.wav
+  . Loaded 'sfx ascend' from file 'assets/sfx/ascend.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/backup_call.wav
+  . Loaded 'sfx backup_call' from file 'assets/sfx/backup_call.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/backup_land.wav
+  . Loaded 'sfx backup_land' from file 'assets/sfx/backup_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/bishop_resist.wav
+  . Loaded 'sfx bishop_resist' from file 'assets/sfx/bishop_resist.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/black_mist.wav
+  . Loaded 'sfx black_mist' from file 'assets/sfx/black_mist.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/blade.wav
+  . Loaded 'sfx blade' from file 'assets/sfx/blade.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/book_float.wav
+  . Loaded 'sfx book_float' from file 'assets/sfx/book_float.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boost.wav
+  . Loaded 'sfx boost' from file 'assets/sfx/boost.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_crumble.wav
+  . Loaded 'sfx boss_crumble' from file 'assets/sfx/boss_crumble.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_jump.wav
+  . Loaded 'sfx boss_jump' from file 'assets/sfx/boss_jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boss_land.wav
+  . Loaded 'sfx boss_land' from file 'assets/sfx/boss_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boulder_launch.wav
+  . Loaded 'sfx boulder_launch' from file 'assets/sfx/boulder_launch.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/boulder_xpl.wav
+  . Loaded 'sfx boulder_xpl' from file 'assets/sfx/boulder_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/breakout.wav
+  . Loaded 'sfx breakout' from file 'assets/sfx/breakout.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/burden_new.wav
+  . Loaded 'sfx burden_new' from file 'assets/sfx/burden_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/call_guards.wav
+  . Loaded 'sfx call_guards' from file 'assets/sfx/call_guards.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cancel.wav
+  . Loaded 'sfx cancel' from file 'assets/sfx/cancel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/card_land.wav
+  . Loaded 'sfx card_land' from file 'assets/sfx/card_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/castle.wav
+  . Loaded 'sfx castle' from file 'assets/sfx/castle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/catch.wav
+  . Loaded 'sfx catch' from file 'assets/sfx/catch.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/censorship.wav
+  . Loaded 'sfx censorship' from file 'assets/sfx/censorship.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/censor_card.wav
+  . Loaded 'sfx censor_card' from file 'assets/sfx/censor_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charge.wav
+  . Loaded 'sfx charge' from file 'assets/sfx/charge.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_buy.wav
+  . Loaded 'sfx charnier_buy' from file 'assets/sfx/charnier_buy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_orb_in.wav
+  . Loaded 'sfx charnier_orb_in' from file 'assets/sfx/charnier_orb_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_orb_out.wav
+  . Loaded 'sfx charnier_orb_out' from file 'assets/sfx/charnier_orb_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_will_xpl.wav
+  . Loaded 'sfx charnier_will_xpl' from file 'assets/sfx/charnier_will_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/charnier_xpl.wav
+  . Loaded 'sfx charnier_xpl' from file 'assets/sfx/charnier_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_new.wav
+  . Loaded 'sfx cinder_new' from file 'assets/sfx/cinder_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_red.wav
+  . Loaded 'sfx cinder_red' from file 'assets/sfx/cinder_red.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cinder_vanish.wav
+  . Loaded 'sfx cinder_vanish' from file 'assets/sfx/cinder_vanish.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cloak_in.wav
+  . Loaded 'sfx cloak_in' from file 'assets/sfx/cloak_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/cloak_out.wav
+  . Loaded 'sfx cloak_out' from file 'assets/sfx/cloak_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_cycle_item.wav
+  . Loaded 'sfx codex_cycle_item' from file 'assets/sfx/codex_cycle_item.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_sel.wav
+  . Loaded 'sfx codex_sel' from file 'assets/sfx/codex_sel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/codex_unsel.wav
+  . Loaded 'sfx codex_unsel' from file 'assets/sfx/codex_unsel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/conscription.wav
+  . Loaded 'sfx conscription' from file 'assets/sfx/conscription.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/convert.wav
+  . Loaded 'sfx convert' from file 'assets/sfx/convert.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/crown_fly.wav
+  . Loaded 'sfx crown_fly' from file 'assets/sfx/crown_fly.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/crystal_xpl.wav
+  . Loaded 'sfx crystal_xpl' from file 'assets/sfx/crystal_xpl.wav'
+  . Loading assets/sfx/death_mark.wav
+  . Loaded 'sfx death_mark' from file 'assets/sfx/death_mark.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/decay_jingle.wav
+  . Loaded 'sfx decay_jingle' from file 'assets/sfx/decay_jingle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/detected.wav
+  . Loaded 'sfx detected' from file 'assets/sfx/detected.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/dig.wav
+  . Loaded 'sfx dig' from file 'assets/sfx/dig.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disarm.wav
+  . Loaded 'sfx disarm' from file 'assets/sfx/disarm.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disguise.wav
+  . Loaded 'sfx disguise' from file 'assets/sfx/disguise.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/disrupt.wav
+  . Loaded 'sfx disrupt' from file 'assets/sfx/disrupt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/dmg_cap.wav
+  . Loaded 'sfx dmg_cap' from file 'assets/sfx/dmg_cap.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/drop_piece.wav
+  . Loaded 'sfx drop_piece' from file 'assets/sfx/drop_piece.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/eat.wav
+  . Loaded 'sfx eat' from file 'assets/sfx/eat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/exclude_card.wav
+  . Loaded 'sfx exclude_card' from file 'assets/sfx/exclude_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/execute.wav
+  . Loaded 'sfx execute' from file 'assets/sfx/execute.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/execute_disruption.wav
+  . Loaded 'sfx execute_disruption' from file 'assets/sfx/execute_disruption.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/exile.wav
+  . Loaded 'sfx exile' from file 'assets/sfx/exile.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/extra_turn.wav
+  . Loaded 'sfx extra_turn' from file 'assets/sfx/extra_turn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/fall.wav
+  . Loaded 'sfx fall' from file 'assets/sfx/fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/flash_boss.wav
+  . Loaded 'sfx flash_boss' from file 'assets/sfx/flash_boss.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/flip_back.wav
+  . Loaded 'sfx flip_back' from file 'assets/sfx/flip_back.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/give_cinder.wav
+  . Loaded 'sfx give_cinder' from file 'assets/sfx/give_cinder.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/glue.wav
+  . Loaded 'sfx glue' from file 'assets/sfx/glue.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grab_cancel.wav
+  . Loaded 'sfx grab_cancel' from file 'assets/sfx/grab_cancel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grab_done.wav
+  . Loaded 'sfx grab_done' from file 'assets/sfx/grab_done.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_beep.wav
+  . Loaded 'sfx grenade_beep' from file 'assets/sfx/grenade_beep.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_bounce.wav
+  . Loaded 'sfx grenade_bounce' from file 'assets/sfx/grenade_bounce.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_fall.wav
+  . Loaded 'sfx grenade_fall' from file 'assets/sfx/grenade_fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/grenade_xpl.wav
+  . Loaded 'sfx grenade_xpl' from file 'assets/sfx/grenade_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/gust.wav
+  . Loaded 'sfx gust' from file 'assets/sfx/gust.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/head_bump.wav
+  . Loaded 'sfx head_bump' from file 'assets/sfx/head_bump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/healing.wav
+  . Loaded 'sfx healing' from file 'assets/sfx/healing.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/help.wav
+  . Loaded 'sfx help' from file 'assets/sfx/help.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_leave.wav
+  . Loaded 'sfx hero_leave' from file 'assets/sfx/hero_leave.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_light.wav
+  . Loaded 'sfx hero_light' from file 'assets/sfx/hero_light.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_spawn.wav
+  . Loaded 'sfx hero_spawn' from file 'assets/sfx/hero_spawn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hero_spawn_boom.wav
+  . Loaded 'sfx hero_spawn_boom' from file 'assets/sfx/hero_spawn_boom.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hippocracy.wav
+  . Loaded 'sfx hippocracy' from file 'assets/sfx/hippocracy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/holo_vanish.wav
+  . Loaded 'sfx holo_vanish' from file 'assets/sfx/holo_vanish.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hurt.wav
+  . Loaded 'sfx hurt' from file 'assets/sfx/hurt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hurt_boss.wav
+  . Loaded 'sfx hurt_boss' from file 'assets/sfx/hurt_boss.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hypnosys.wav
+  . Loaded 'sfx hypnosys' from file 'assets/sfx/hypnosys.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/hypno_execute.wav
+  . Loaded 'sfx hypno_execute' from file 'assets/sfx/hypno_execute.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/incantation.wav
+  . Loaded 'sfx incantation' from file 'assets/sfx/incantation.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/inc_countdown.wav
+  . Loaded 'sfx inc_countdown' from file 'assets/sfx/inc_countdown.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jester.wav
+  . Loaded 'sfx jester' from file 'assets/sfx/jester.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jingle_theme.wav
+  . Loaded 'sfx jingle_theme' from file 'assets/sfx/jingle_theme.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/jump.wav
+  . Loaded 'sfx jump' from file 'assets/sfx/jump.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/king_talk.wav
+  . Loaded 'sfx king_talk' from file 'assets/sfx/king_talk.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/land.wav
+  . Loaded 'sfx land' from file 'assets/sfx/land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/legacy.wav
+  . Loaded 'sfx legacy' from file 'assets/sfx/legacy.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/level_up_sel.wav
+  . Loaded 'sfx level_up_sel' from file 'assets/sfx/level_up_sel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/level_up_zoom.wav
+  . Loaded 'sfx level_up_zoom' from file 'assets/sfx/level_up_zoom.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/lift.wav
+  . Loaded 'sfx lift' from file 'assets/sfx/lift.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/lost_king.wav
+  . Loaded 'sfx lost_king' from file 'assets/sfx/lost_king.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/mark_card.wav
+  . Loaded 'sfx mark_card' from file 'assets/sfx/mark_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/menu_in.wav
+  . Loaded 'sfx menu_in' from file 'assets/sfx/menu_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/menu_out.wav
+  . Loaded 'sfx menu_out' from file 'assets/sfx/menu_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/missile.wav
+  . Loaded 'sfx missile' from file 'assets/sfx/missile.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/mission.wav
+  . Loaded 'sfx mission' from file 'assets/sfx/mission.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/move_piece.wav
+  . Loaded 'sfx move_piece' from file 'assets/sfx/move_piece.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/next_vig.wav
+  . Loaded 'sfx next_vig' from file 'assets/sfx/next_vig.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/next_vig_2.wav
+  . Loaded 'sfx next_vig_2' from file 'assets/sfx/next_vig_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/pause.wav
+  . Loaded 'sfx pause' from file 'assets/sfx/pause.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta.wav
+  . Loaded 'sfx penta' from file 'assets/sfx/penta.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta_full.wav
+  . Loaded 'sfx penta_full' from file 'assets/sfx/penta_full.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/penta_reset.wav
+  . Loaded 'sfx penta_reset' from file 'assets/sfx/penta_reset.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/piece_fall.wav
+  . Loaded 'sfx piece_fall' from file 'assets/sfx/piece_fall.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/pile_bounce.wav
+  . Loaded 'sfx pile_bounce' from file 'assets/sfx/pile_bounce.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/plague.wav
+  . Loaded 'sfx plague' from file 'assets/sfx/plague.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/promote.wav
+  . Loaded 'sfx promote' from file 'assets/sfx/promote.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/raid_won.wav
+  . Loaded 'sfx raid_won' from file 'assets/sfx/raid_won.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/raise.wav
+  . Loaded 'sfx raise' from file 'assets/sfx/raise.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/rat.wav
+  . Loaded 'sfx rat' from file 'assets/sfx/rat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reap_soul.wav
+  . Loaded 'sfx reap_soul' from file 'assets/sfx/reap_soul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/recycle_cards.wav
+  . Loaded 'sfx recycle_cards' from file 'assets/sfx/recycle_cards.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/recycle_new.wav
+  . Loaded 'sfx recycle_new' from file 'assets/sfx/recycle_new.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/refill_wand.wav
+  . Loaded 'sfx refill_wand' from file 'assets/sfx/refill_wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/regal_ascent.wav
+  . Loaded 'sfx regal_ascent' from file 'assets/sfx/regal_ascent.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/regal_light.wav
+  . Loaded 'sfx regal_light' from file 'assets/sfx/regal_light.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reload.wav
+  . Loaded 'sfx reload' from file 'assets/sfx/reload.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/replace_card.wav
+  . Loaded 'sfx replace_card' from file 'assets/sfx/replace_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/retire.wav
+  . Loaded 'sfx retire' from file 'assets/sfx/retire.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/reverse_karma.wav
+  . Loaded 'sfx reverse_karma' from file 'assets/sfx/reverse_karma.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/scope.wav
+  . Loaded 'sfx scope' from file 'assets/sfx/scope.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/seer.wav
+  . Loaded 'sfx seer' from file 'assets/sfx/seer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sel_disruption.wav
+  . Loaded 'sfx sel_disruption' from file 'assets/sfx/sel_disruption.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sel_opt.wav
+  . Loaded 'sfx sel_opt' from file 'assets/sfx/sel_opt.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_ground.wav
+  . Loaded 'sfx shell_ground' from file 'assets/sfx/shell_ground.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_land.wav
+  . Loaded 'sfx shell_land' from file 'assets/sfx/shell_land.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shell_spark.wav
+  . Loaded 'sfx shell_spark' from file 'assets/sfx/shell_spark.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shield.wav
+  . Loaded 'sfx shield' from file 'assets/sfx/shield.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot.wav
+  . Loaded 'sfx shoot' from file 'assets/sfx/shoot.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_0.wav
+  . Loaded 'sfx shoot_0' from file 'assets/sfx/shoot_0.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_1.wav
+  . Loaded 'sfx shoot_1' from file 'assets/sfx/shoot_1.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_2.wav
+  . Loaded 'sfx shoot_2' from file 'assets/sfx/shoot_2.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_3.wav
+  . Loaded 'sfx shoot_3' from file 'assets/sfx/shoot_3.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_4.wav
+  . Loaded 'sfx shoot_4' from file 'assets/sfx/shoot_4.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/shoot_silencer.wav
+  . Loaded 'sfx shoot_silencer' from file 'assets/sfx/shoot_silencer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show.wav
+  . Loaded 'sfx show' from file 'assets/sfx/show.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show_book.wav
+  . Loaded 'sfx show_book' from file 'assets/sfx/show_book.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/show_card.wav
+  . Loaded 'sfx show_card' from file 'assets/sfx/show_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sky_dust.wav
+  . Loaded 'sfx sky_dust' from file 'assets/sfx/sky_dust.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/sokoban_push.wav
+  . Loaded 'sfx sokoban_push' from file 'assets/sfx/sokoban_push.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul.wav
+  . Loaded 'sfx soul' from file 'assets/sfx/soul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul_proj.wav
+  . Loaded 'sfx soul_proj' from file 'assets/sfx/soul_proj.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/soul_wand.wav
+  . Loaded 'sfx soul_wand' from file 'assets/sfx/soul_wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawn.wav
+  . Loaded 'sfx spawn' from file 'assets/sfx/spawn.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawner.wav
+  . Loaded 'sfx spawner' from file 'assets/sfx/spawner.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/spawn_final.wav
+  . Loaded 'sfx spawn_final' from file 'assets/sfx/spawn_final.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/splash.wav
+  . Loaded 'sfx splash' from file 'assets/sfx/splash.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/start.wav
+  . Loaded 'sfx start' from file 'assets/sfx/start.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/start_detune.wav
+  . Loaded 'sfx start_detune' from file 'assets/sfx/start_detune.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/swap.wav
+  . Loaded 'sfx swap' from file 'assets/sfx/swap.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/swap_init.wav
+  . Loaded 'sfx swap_init' from file 'assets/sfx/swap_init.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tear_up.wav
+  . Loaded 'sfx tear_up' from file 'assets/sfx/tear_up.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/throw.wav
+  . Loaded 'sfx throw' from file 'assets/sfx/throw.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/throw_impact.wav
+  . Loaded 'sfx throw_impact' from file 'assets/sfx/throw_impact.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tic.wav
+  . Loaded 'sfx tic' from file 'assets/sfx/tic.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tile_move.wav
+  . Loaded 'sfx tile_move' from file 'assets/sfx/tile_move.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tile_out.wav
+  . Loaded 'sfx tile_out' from file 'assets/sfx/tile_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trainer.wav
+  . Loaded 'sfx trainer' from file 'assets/sfx/trainer.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trampoline.wav
+  . Loaded 'sfx trampoline' from file 'assets/sfx/trampoline.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trg_in.wav
+  . Loaded 'sfx trg_in' from file 'assets/sfx/trg_in.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/trg_out.wav
+  . Loaded 'sfx trg_out' from file 'assets/sfx/trg_out.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/tunnel.wav
+  . Loaded 'sfx tunnel' from file 'assets/sfx/tunnel.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/turn_card.wav
+  . Loaded 'sfx turn_card' from file 'assets/sfx/turn_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/twinkle.wav
+  . Loaded 'sfx twinkle' from file 'assets/sfx/twinkle.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unlock.wav
+  . Loaded 'sfx unlock' from file 'assets/sfx/unlock.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unsoul.wav
+  . Loaded 'sfx unsoul' from file 'assets/sfx/unsoul.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unused_unknown.wav
+  . Loaded 'sfx unused_unknown' from file 'assets/sfx/unused_unknown.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/unused_xpl.wav
+  . Loaded 'sfx unused_xpl' from file 'assets/sfx/unused_xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/use_card.wav
+  . Loaded 'sfx use_card' from file 'assets/sfx/use_card.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/vampire_eat.wav
+  . Loaded 'sfx vampire_eat' from file 'assets/sfx/vampire_eat.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/vampire_suck.wav
+  . Loaded 'sfx vampire_suck' from file 'assets/sfx/vampire_suck.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wand.wav
+  . Loaded 'sfx wand' from file 'assets/sfx/wand.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/water_poison.wav
+  . Loaded 'sfx water_poison' from file 'assets/sfx/water_poison.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/will_explode.wav
+  . Loaded 'sfx will_explode' from file 'assets/sfx/will_explode.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wrong.wav
+  . Loaded 'sfx wrong' from file 'assets/sfx/wrong.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/wrong_shield.wav
+  . Loaded 'sfx wrong_shield' from file 'assets/sfx/wrong_shield.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/sfx/xpl.wav
+  . Loaded 'sfx xpl' from file 'assets/sfx/xpl.wav', converted from: freq 22050; 1 channel(s);
+  . Loading assets/music/*.ogg
+  . Loading assets/music/boss_A.ogg
+  . Loaded 'music boss_A' from file 'assets/music/boss_A.ogg'
+  . Loading assets/music/boss_B.ogg
+  . Loaded 'music boss_B' from file 'assets/music/boss_B.ogg'
+  . Loading assets/music/boss_queen_A.ogg
+  . Loaded 'music boss_queen_A' from file 'assets/music/boss_queen_A.ogg'
+  . Loading assets/music/boss_queen_B.ogg
+  . Loaded 'music boss_queen_B' from file 'assets/music/boss_queen_B.ogg'
+  . Loading assets/music/boss_riders_A.ogg
+  . Loaded 'music boss_riders_A' from file 'assets/music/boss_riders_A.ogg'
+  . Loading assets/music/boss_riders_B.ogg
+  . Loaded 'music boss_riders_B' from file 'assets/music/boss_riders_B.ogg'
+  . Loading assets/music/charnier_A.ogg
+  . Loaded 'music charnier_A' from file 'assets/music/charnier_A.ogg'
+  . Loading assets/music/charnier_B.ogg
+  . Loaded 'music charnier_B' from file 'assets/music/charnier_B.ogg'
+  . Loading assets/music/charnier_shop_2_A.ogg
+  . Loaded 'music charnier_shop_2_A' from file 'assets/music/charnier_shop_2_A.ogg'
+  . Loading assets/music/charnier_shop_2_B.ogg
+  . Loaded 'music charnier_shop_2_B' from file 'assets/music/charnier_shop_2_B.ogg'
+  . Loading assets/music/charnier_shop_A.ogg
+  . Loaded 'music charnier_shop_A' from file 'assets/music/charnier_shop_A.ogg'
+  . Loading assets/music/charnier_shop_B.ogg
+  . Loaded 'music charnier_shop_B' from file 'assets/music/charnier_shop_B.ogg'
+  . Loading assets/music/chase.ogg
+  . Loaded 'music chase' from file 'assets/music/chase.ogg'
+  . Loading assets/music/codex.ogg
+  . Loaded 'music codex' from file 'assets/music/codex.ogg'
+  . Loading assets/music/ending_A.ogg
+  . Loaded 'music ending_A' from file 'assets/music/ending_A.ogg'
+  . Loading assets/music/ending_B.ogg
+  . Loaded 'music ending_B' from file 'assets/music/ending_B.ogg'
+  . Loading assets/music/endless.ogg
+  . Loaded 'music endless' from file 'assets/music/endless.ogg'
+  . Loading assets/music/final_countdown.ogg
+  . Loaded 'music final_countdown' from file 'assets/music/final_countdown.ogg'
+  . Loading assets/music/fireplace.ogg
+  . Loaded 'music fireplace' from file 'assets/music/fireplace.ogg'
+  . Loading assets/music/gameover.ogg
+  . Loaded 'music gameover' from file 'assets/music/gameover.ogg'
+  . Loading assets/music/gameover_w_fx.ogg
+  . Loaded 'music gameover_w_fx' from file 'assets/music/gameover_w_fx.ogg'
+  . Loading assets/music/ingame.ogg
+  . Loaded 'music ingame' from file 'assets/music/ingame.ogg'
+  . Loading assets/music/level_up_A.ogg
+  . Loaded 'music level_up_A' from file 'assets/music/level_up_A.ogg'
+  . Loading assets/music/level_up_B.ogg
+  . Loaded 'music level_up_B' from file 'assets/music/level_up_B.ogg'
+  . Loading assets/music/title_A.ogg
+  . Loaded 'music title_A' from file 'assets/music/title_A.ogg'
+  . Loading assets/music/title_B.ogg
+  . Loaded 'music title_B' from file 'assets/music/title_B.ogg'
+  . Loading assets/gfx/*.png
+  . Loading assets/gfx/achievements.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x048A14 bytes to fit new 'achievements_srf' req.
+  . Correctly requested 'achievements_srf' 0x048000 bytes at 0x0A14 in chunk '_sugar_'.
+  . Created the 1024 x 288 surface 'achievements'.
+  . Correctly loaded 'assets/gfx/achievements.png' into 'achievements' surface.
+  . Loading assets/gfx/cards.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x071E14 bytes to fit new 'cards_srf' req.
+  . Correctly requested 'cards_srf' 0x029400 bytes at 0x048A14 in chunk '_sugar_'.
+  . Created the 264 x 640 surface 'cards'.
+  . Correctly loaded 'assets/gfx/cards.png' into 'cards' surface.
+  . Loading assets/gfx/charnier.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x097614 bytes to fit new 'charnier_srf' req.
+  . Correctly requested 'charnier_srf' 0x025800 bytes at 0x071E14 in chunk '_sugar_'.
+  . Created the 320 x 480 surface 'charnier'.
+  . Correctly loaded 'assets/gfx/charnier.png' into 'charnier' surface.
+  . Loading assets/gfx/codex.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B5614 bytes to fit new 'codex_srf' req.
+  . Correctly requested 'codex_srf' 0x01E000 bytes at 0x097614 in chunk '_sugar_'.
+  . Created the 640 x 192 surface 'codex'.
+  . Correctly loaded 'assets/gfx/codex.png' into 'codex' surface.
+  . Loading assets/gfx/console_NX.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B6E14 bytes to fit new 'console_NX_srf' req.
+  . Correctly requested 'console_NX_srf' 0x1800 bytes at 0x0B5614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_NX'.
+  . Correctly loaded 'assets/gfx/console_NX.png' into 'console_NX' surface.
+  . Loading assets/gfx/console_PC.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B8614 bytes to fit new 'console_PC_srf' req.
+  . Correctly requested 'console_PC_srf' 0x1800 bytes at 0x0B6E14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PC'.
+  . Correctly loaded 'assets/gfx/console_PC.png' into 'console_PC' surface.
+  . Loading assets/gfx/console_PS4.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0B9E14 bytes to fit new 'console_PS4_srf' req.
+  . Correctly requested 'console_PS4_srf' 0x1800 bytes at 0x0B8614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PS4'.
+  . Correctly loaded 'assets/gfx/console_PS4.png' into 'console_PS4' surface.
+  . Loading assets/gfx/console_PS5.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BB614 bytes to fit new 'console_PS5_srf' req.
+  . Correctly requested 'console_PS5_srf' 0x1800 bytes at 0x0B9E14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_PS5'.
+  . Correctly loaded 'assets/gfx/console_PS5.png' into 'console_PS5' surface.
+  . Loading assets/gfx/console_SteamDeck-export.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BCE14 bytes to fit new 'console_SteamDeck-export_srf' req.
+  . Correctly requested 'console_SteamDeck-export_srf' 0x1800 bytes at 0x0BB614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_SteamDeck-export'.
+  . Correctly loaded 'assets/gfx/console_SteamDeck-export.png' into 'console_SteamDeck-export' surface.
+  . Loading assets/gfx/console_SteamDeck.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BE614 bytes to fit new 'console_SteamDeck_srf' req.
+  . Correctly requested 'console_SteamDeck_srf' 0x1800 bytes at 0x0BCE14 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_SteamDeck'.
+  . Correctly loaded 'assets/gfx/console_SteamDeck.png' into 'console_SteamDeck' surface.
+  . Loading assets/gfx/console_Xbox.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0BFE14 bytes to fit new 'console_Xbox_srf' req.
+  . Correctly requested 'console_Xbox_srf' 0x1800 bytes at 0x0BE614 in chunk '_sugar_'.
+  . Created the 96 x 64 surface 'console_Xbox'.
+  . Correctly loaded 'assets/gfx/console_Xbox.png' into 'console_Xbox' surface.
+  . Loading assets/gfx/crumble.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0C7614 bytes to fit new 'crumble_srf' req.
+  . Correctly requested 'crumble_srf' 0x7800 bytes at 0x0BFE14 in chunk '_sugar_'.
+  . Created the 320 x 96 surface 'crumble'.
+  . Correctly loaded 'assets/gfx/crumble.png' into 'crumble' surface.
+  . Loading assets/gfx/gfx.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x0E4614 bytes to fit new 'gfx_srf' req.
+  . Correctly requested 'gfx_srf' 0x01D000 bytes at 0x0C7614 in chunk '_sugar_'.
+  . Created the 256 x 464 surface 'gfx'.
+  . Correctly loaded 'assets/gfx/gfx.png' into 'gfx' surface.
+  . Loading assets/gfx/icon.png
+  . Resized '_sugar_' to 0x0E4714 bytes to fit new 'icon_srf' req.
+  . Correctly requested 'icon_srf' 0x0100 bytes at 0x0E4614 in chunk '_sugar_'.
+  . Created the 16 x 16 surface 'icon'.
+  . Correctly loaded 'assets/gfx/icon.png' into 'icon' surface.
+  . Loading assets/gfx/intro.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x104714 bytes to fit new 'intro_srf' req.
+  . Correctly requested 'intro_srf' 0x020000 bytes at 0x0E4714 in chunk '_sugar_'.
+  . Created the 128 x 1024 surface 'intro'.
+  . Correctly loaded 'assets/gfx/intro.png' into 'intro' surface.
+  . Loading assets/gfx/title.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x130714 bytes to fit new 'title_srf' req.
+  . Correctly requested 'title_srf' 0x02C000 bytes at 0x104714 in chunk '_sugar_'.
+  . Created the 512 x 352 surface 'title'.
+  . Correctly loaded 'assets/gfx/title.png' into 'title' surface.
+  . Loading assets/gfx/tutorial.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x147E74 bytes to fit new 'tutorial_srf' req.
+  . Correctly requested 'tutorial_srf' 0x017760 bytes at 0x130714 in chunk '_sugar_'.
+  . Created the 528 x 182 surface 'tutorial'.
+  . Correctly loaded 'assets/gfx/tutorial.png' into 'tutorial' surface.
+  . Loading assets/gfx/weapons.png
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x14F7F4 bytes to fit new 'weapons_srf' req.
+  . Correctly requested 'weapons_srf' 0x7980 bytes at 0x147E74 in chunk '_sugar_'.
+  . Created the 144 x 216 surface 'weapons'.
+  . Correctly loaded 'assets/gfx/weapons.png' into 'weapons' surface.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x15D8F4 bytes to fit new 'playground_srf' req.
+  . Correctly requested 'playground_srf' 0xE100 bytes at 0x14F7F4 in chunk '_sugar_'.
+  . Created the 320 x 180 surface 'playground'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18B57E bytes to fit new 'achievements_pane_srf' req.
+  . Correctly requested 'achievements_pane_srf' 0x02DC8A bytes at 0x15D8F4 in chunk '_sugar_'.
+  . Created the 190 x 987 surface 'achievements_pane'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18C57E bytes to fit new 'big_achievement_srf' req.
+  . Correctly requested 'big_achievement_srf' 0x1000 bytes at 0x18B57E in chunk '_sugar_'.
+  . Created the 64 x 64 surface 'big_achievement'.
+  . Loading assets/fonts/pico_font.png
+  . Resized '_sugar_' to 0x18C656 bytes to fit new 'pico_font' req.
+  . Correctly requested 'pico_font' 0xD8 bytes at 0x18C57E in chunk '_sugar_'.
+  . The 104 glyphs font 'pico' was loaded from assets/fonts/pico_font.png
+  . Loading assets/fonts/Terminus.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x18FB4E bytes to fit new 'Terminus_font' req.
+  . Correctly requested 'Terminus_font' 0x34F8 bytes at 0x18C656 in chunk '_sugar_'.
+  . The 1356 glyphs font 'Terminus' was loaded from assets/fonts/Terminus.ttf
+  . Loading assets/fonts/TerminusThai.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x19333E bytes to fit new 'TerminusThai_font' req.
+  . Correctly requested 'TerminusThai_font' 0x37F0 bytes at 0x18FB4E in chunk '_sugar_'.
+  . The 1432 glyphs font 'TerminusThai' was loaded from assets/fonts/TerminusThai.ttf
+  . Loading lang/safe_english.txt
+  . Loading lang/safe_english.txt
+  . Found 902 keys in lang/safe_english.txt
+  . Found 902 keys in lang/safe_english.txt
+  . Loading save/reg.sav
+  . Loading save/runs.sav
+  . Successfully loaded save at: save/runs.sav
+  . Loading save/prog.sav
+  . Successfully loaded save at: save/prog.sav
+  . Loading save/achievements.sav
+  . Successfully loaded save at: save/achievements.sav
+  . Loading save/misc.sav
+  . Successfully loaded save at: save/misc.sav
+  . Loading save/stats.sav
+  . Successfully loaded save at: save/stats.sav
+  . Successfully loaded save at: save/reg.sav
+  . Loading ./settings.txt
+  . Successfully loaded save at: ./settings.txt
+  . Could not read save at: save/mods/reg.sav resorting to backup.
+  . Could not read backup either.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1A143E bytes to fit new 'Shotgun King_screen_srf' req.
+  . Correctly requested 'Shotgun King_screen_srf' 0xE100 bytes at 0x19333E in chunk '_sugar_'.
+  . Loading assets/stretch.shader
+  . Created OpenGL window with version 3.0.
+  . Got Core profile as requested.
+  . Hardware rendering is on.
+  . Created new window 'Shotgun King'.
+  . Resized '_sugar_' to 0x1A1D3E bytes to fit new '__boot_sheet___srf' req.
+  . Correctly requested '__boot_sheet___srf' 0x0900 bytes at 0x1A143E in chunk '_sugar_'.
+  . Created the 96 x 24 surface '__boot_sheet__'.
+ !! Couldn't find 'time' uniform in shader.
+  . Shotgun King
+  . 1280
+  . 720
+  . Deleted surface '__boot_sheet__'.
+ !! Couldn't find 'curve' uniform in shader.
+ !! Couldn't find 'chroma' uniform in shader.
+  . 'assets/stretch.shader' was already loaded.
+  . Loading assets/stretch.shader
+ !! Couldn't find 'curve' uniform in shader.
+  . Correctly requested '__tmp_screen_resize__' 0xE100 bytes at 0x19333E in chunk '_sugar_'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1D983E bytes to fit new 'Shotgun King_screen_srf' req.
+  . Correctly requested 'Shotgun King_screen_srf' 0x038400 bytes at 0x1A143E in chunk '_sugar_'.
+ !! Couldn't find 'time' uniform in shader.
+  . Loading ../../punkcake/punkcake_sheet.png
+  . Correctly requested 'pcd_sheet_srf' 0x4000 bytes at 0x19333E in chunk '_sugar_'.
+  . Created the 128 x 128 surface 'pcd_sheet'.
+  . Correctly loaded '../../punkcake/punkcake_sheet.png' into 'pcd_sheet' surface.
+  . Loading ../../punkcake/slap.wav
+  . Loaded 'sfx pcd_slap' from file '../../punkcake/slap.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/chomp.wav
+  . Loaded 'sfx pcd_chomp' from file '../../punkcake/chomp.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/punkcake.wav
+  . Loaded 'sfx pcd_punkcake' from file '../../punkcake/punkcake.wav', converted from: freq 44100; 1 channel(s);
+  . Loading ../../punkcake/delicieux.wav
+  . Loaded 'sfx pcd_delicieux' from file '../../punkcake/delicieux.wav', converted from: freq 44100; 1 channel(s);
+  . Correctly requested '__tmp_screen_resize__' 0x038400 bytes at 0x1A143E in chunk '_sugar_'.
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1E793E bytes to fit new 'Shotgun King_screen_srf' req.
+  . Correctly requested 'Shotgun King_screen_srf' 0xE100 bytes at 0x1D983E in chunk '_sugar_'.
+  . Correctly requested 'grenade_srf' 0x6C00 bytes at 0x19733E in chunk '_sugar_'.
+  . Created the 576 x 48 surface 'grenade'.
+  . Correctly requested 'mini_xpl_srf' 0x0C00 bytes at 0x19DF3E in chunk '_sugar_'.
+  . Created the 192 x 16 surface 'mini_xpl'.
+  . Correctly requested 'spiral_srf' 0x1000 bytes at 0x19EB3E in chunk '_sugar_'.
+  . Created the 64 x 64 surface 'spiral'.
+  . Loading lang/english.txt
+  . Watching lang/english.txt
+  . Loading lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . No available controller for player 0
+  . Defined 43 buttons for player 0.
+  . Correctly requested 'hdtext_srf' 0x038400 bytes at 0x19FB3E in chunk '_sugar_'.
+  . Created the 640 x 360 surface 'hdtext'.
+ !! Setting overlay...
+  . Set hdtext as overlay surface for Shotgun King
+  . Loading code/modes/charnier.lua
+ !! Surface 'charnier' already exists, deleting it.
+  . Loading assets/gfx/charnier.png
+  . Correctly requested 'charnier_srf' 0x025800 bytes at 0x071E14 in chunk '_sugar_'.
+  . Created the 320 x 480 surface 'charnier'.
+  . Correctly loaded 'assets/gfx/charnier.png' into 'charnier' surface.
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 0 on turn 10
+ !! apply ev_surrender on floor 0 on turn 11
+ !! finish floor 1 on turn 11
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 1 on turn 10
+ !! apply ev_surrender on floor 1 on turn 11
+ !! finish floor 2 on turn 11
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 2 on turn 17
+ !! apply ev_surrender on floor 2 on turn 18
+ !! finish floor 3 on turn 18
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Loading lang/french.txt
+  . Watching lang/french.txt
+  . Loading lang/french.txt
+  . Found 900 keys in lang/french.txt
+  . Found 900 keys in lang/french.txt
+  . Loading lang/spanish.txt
+  . Watching lang/spanish.txt
+  . Loading lang/spanish.txt
+  . Found 904 keys in lang/spanish.txt
+  . Found 904 keys in lang/spanish.txt
+  . Loading lang/latam.txt
+  . Watching lang/latam.txt
+  . Loading lang/latam.txt
+  . Found 900 keys in lang/latam.txt
+  . Found 900 keys in lang/latam.txt
+  . Loading lang/portuguese.txt
+  . Watching lang/portuguese.txt
+  . Loading lang/portuguese.txt
+  . Found 904 keys in lang/portuguese.txt
+  . Found 904 keys in lang/portuguese.txt
+  . Loading lang/catalan.txt
+  . Watching lang/catalan.txt
+  . Loading lang/catalan.txt
+  . Found 904 keys in lang/catalan.txt
+  . Found 904 keys in lang/catalan.txt
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav.bak' over 1 frame(s).
+  . Loading lang/galician.txt
+  . Watching lang/galician.txt
+  . Loading lang/galician.txt
+  . Found 905 keys in lang/galician.txt
+  . Found 905 keys in lang/galician.txt
+  . Loading lang/dutch.txt
+  . Watching lang/dutch.txt
+  . Loading lang/dutch.txt
+  . Found 928 keys in lang/dutch.txt
+  . Found 928 keys in lang/dutch.txt
+  . Loading lang/german.txt
+  . Watching lang/german.txt
+  . Loading lang/german.txt
+  . Found 900 keys in lang/german.txt
+  . Found 900 keys in lang/german.txt
+  . Loading lang/italian.txt
+  . Watching lang/italian.txt
+  . Loading lang/italian.txt
+  . Found 900 keys in lang/italian.txt
+  . Found 900 keys in lang/italian.txt
+  . Loading lang/romanian.txt
+  . Watching lang/romanian.txt
+  . Loading lang/romanian.txt
+  . Found 903 keys in lang/romanian.txt
+  . Found 903 keys in lang/romanian.txt
+  . Loading lang/polish.txt
+  . Watching lang/polish.txt
+  . Loading lang/polish.txt
+  . Loading assets/fonts/LanaPixel.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x1FE492 bytes to fit new 'LanaPixel_font' req.
+  . Correctly requested 'LanaPixel_font' 0x016B54 bytes at 0x1E793E in chunk '_sugar_'.
+  . The 8389 glyphs font 'LanaPixel' was loaded from assets/fonts/LanaPixel.ttf
+  . Found 904 keys in lang/polish.txt
+  . Found 904 keys in lang/polish.txt
+  . Loading lang/ukrainian.txt
+  . Watching lang/ukrainian.txt
+  . Loading lang/ukrainian.txt
+  . Found 905 keys in lang/ukrainian.txt
+  . Found 905 keys in lang/ukrainian.txt
+  . Loading lang/russian.txt
+  . Watching lang/russian.txt
+  . Loading lang/russian.txt
+  . Found 904 keys in lang/russian.txt
+  . Found 904 keys in lang/russian.txt
+  . Loading lang/vietnamese.txt
+  . Watching lang/vietnamese.txt
+  . Loading lang/vietnamese.txt
+  . Loading assets/fonts/Determination.ttf
+  . Correctly requested 'Determination_font' 0x0C30 bytes at 0x1D7F3E in chunk '_sugar_'.
+  . The 356 glyphs font 'Determination' was loaded from assets/fonts/Determination.ttf
+  . Found 912 keys in lang/vietnamese.txt
+  . Found 912 keys in lang/vietnamese.txt
+  . Loading lang/simplified_chinese.txt
+  . Watching lang/simplified_chinese.txt
+  . Loading lang/simplified_chinese.txt
+  . Loading assets/fonts/indienovaBC.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x276AC5 bytes to fit new 'indienovaBC_font' req.
+  . Correctly requested 'indienovaBC_font' 0x078633 bytes at 0x1FE492 in chunk '_sugar_'.
+  . The 29897 glyphs font 'indienovaBC' was loaded from assets/fonts/indienovaBC.ttf
+  . Found 921 keys in lang/simplified_chinese.txt
+  . Found 921 keys in lang/simplified_chinese.txt
+  . Loading lang/korean.txt
+  . Watching lang/korean.txt
+  . Loading lang/korean.txt
+  . Loading assets/fonts/Galmuri11.ttf
+  . Relocating chunk '_sugar_' for resizing.
+  . Resized '_sugar_' to 0x2C4410 bytes to fit new 'Galmuri11_font' req.
+  . Correctly requested 'Galmuri11_font' 0x04D94B bytes at 0x276AC5 in chunk '_sugar_'.
+  . The 20257 glyphs font 'Galmuri11' was loaded from assets/fonts/Galmuri11.ttf
+  . Found 927 keys in lang/korean.txt
+  . Found 927 keys in lang/korean.txt
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\./settings.txt' over 1 frame(s).
+  . Loading lang/japanese.txt
+  . Watching lang/japanese.txt
+  . Loading lang/japanese.txt
+  . Found 904 keys in lang/japanese.txt
+  . Found 904 keys in lang/japanese.txt
+  . Loading lang/english.txt
+  . Loading lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . Found 902 keys in lang/english.txt
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\./settings.txt' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Loading code/modes/throne.lua
+ !! Surface 'weapons' already exists, deleting it.
+  . Loading assets/gfx/weapons.png
+  . Correctly requested 'weapons_srf' 0x7980 bytes at 0x147E74 in chunk '_sugar_'.
+  . Created the 144 x 216 surface 'weapons'.
+  . Correctly loaded 'assets/gfx/weapons.png' into 'weapons' surface.
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav.bak' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/prog.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 1 on turn 21
+ !! finish floor 1 on turn 21
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 2 on turn 29
+ !! finish floor 2 on turn 29
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 3 on turn 35
+ !! finish floor 3 on turn 35
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 1 on turn 20
+ !! finish floor 1 on turn 20
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 2 on turn 13
+ !! apply ev_surrender on floor 2 on turn 14
+ !! finish floor 2 on turn 14
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+ !! make ev_surrender on floor 3 on turn 9
+ !! apply ev_surrender on floor 3 on turn 10
+  . Setting Steam achievement: SQUARE ALLEGIANCE
+  . Setting Steam achievement: INCARNATION
+ !! finish floor 3 on turn 10
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav' over 1 frame(s).
+  . Successfully wrote 'E:\k\AudioCutter\old deprecated source code\Shotgun.King.The.Final.Checkmate.v1.623b\save/stats.sav.bak' over 1 frame(s).
+  . Deleting window 'Shotgun King'.
+  . Quitting required.
+  . Quitting required.
+  . Quitting required.
+  . main loop exit
+  . 
+  . Initiating shutdown.
+  . Steam API shut down.
+  . Deleted font 'LanaPixel'.
+  . Deleted font 'TerminusThai'.
+  . Deleted font 'pico'.
+  . Deleted font 'indienovaBC'.
+  . Deleted font 'big'.
+  . Deleted font 'console'.
+  . Deleted font 'Galmuri11'.
+  . Deleted font 'Terminus'.
+  . Deleted font 'icons'.
+  . Deleted font 'old_console'.
+  . Deleted font 'Determination'.
+  . Deleted font 'thin'.
+  . Deleted surface 'spiral'.
+  . Deleted surface 'mini_xpl'.
+  . Deleted surface 'big_achievement'.
+  . Deleted surface 'playground'.
+  . Deleted surface 'weapons'.
+  . Deleted surface 'intro'.
+  . Deleted surface 'tutorial'.
+  . Deleted surface 'achievements'.
+  . Deleted surface 'achievements_pane'.
+  . Deleted surface 'icon'.
+  . Deleted surface 'cards'.
+  . Deleted surface 'charnier'.
+  . Deleted surface 'pcd_sheet'.
+  . Deleted surface 'codex'.
+  . Deleted surface 'console_SteamDeck-export'.
+  . Deleted surface 'console_Xbox'.
+  . Deleted surface 'grenade'.
+  . Deleted surface 'title'.
+  . Deleted surface 'gfx'.
+  . Deleted surface 'console_PS5'.
+  . Deleted surface 'hdtext'.
+  . Deleted surface 'console_PS4'.
+  . Deleted surface 'console_SteamDeck'.
+  . Deleted surface 'console_NX'.
+  . Deleted surface 'console_PC'.
+  . Deleted surface 'crumble'.
+  . GFX system shut down.
+  . Input system shut down.
+  . Replacing music currently playing.
+  . Replacing music currently playing.
+  . Audio system shut down.
+  . Deleted memory chunk '_sugar_'.
+  . Application ran for 529.473000 seconds.
+  . All systems shut down.
+  . Ending Log.

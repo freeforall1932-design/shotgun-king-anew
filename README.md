@@ -9,10 +9,13 @@ Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
 
 1. **A ready-to-play modded copy of the game** — 13 workshop mods plus our own
    mod, assembled for you by a script.
-2. **Our own mod** (`sk-rework`) — Build 7 adds a native-button dev panel
-   (ammo/reload/clip, card picker pages, spawn picker, damage/crit knobs,
-   God-Mode dodge, SAFE mode), an in-menu legend/Back affordance, and probes
-   for the remaining gameplay APIs.
+2. **Our own mod** (`sk-rework`) — Build 9 has an overlay dev panel (an
+   `SK DEV` tab bottom-left that opens a modal box over the board: ammo/
+   reload/clip, card picker pages, spawn picker, damage/crit knobs, God-Mode
+   dodge, SAFE mode), a reworked mod menu (live ON/OFF text, working Back, a
+   far-left legend with E1–E4 load-order checks and AUTO-FIX), and probes for
+   the remaining gameplay APIs. Builds 8–9 are written against the
+   decoded game source (`game/decoded/`, `notes/game-internals.md`).
    The advanced ammo rework, pickers, crit tuning, soul deck, and remapping
    remain planned follow-up work.
 
@@ -56,14 +59,15 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
-| `sk-rework` Build 7 (dev panel v2 + damage/crit + pickers + diagnostics) | 🟡 sandbox-tested (smoke 47/47 ×4); live run pending | build 6 ran live through a full 22-min game (run 5) and answered every probe question; run 5 also exposed the ghost-panel bug, the menu-id mismatch and the pawn-only spawn — all three root-caused and fixed in build 7 |
-| `tools/parse_log.py` log parser | ✅ live-proven + Build-7 extensions tested | parses runs 1–5 with multi-boot dedup, crashed logs, `SKA2\|probe\|<block>=done` checkpoints, and the new `SKE\|call` trace — a crashed run names the engine call that started and never finished; selftest 44/44 |
-| `tools/mod_smoketest.py` | ✅ tested | runs Build 7 without the game (needs `lupa`); 47/47 checks under each `all()` semantics on default Lua + LuaJIT 2.1 — the fake engine re-raises the fatal `btn()` error, chains multiple appends per target like the real engine, and models `remove_buts`/`goto_sq` |
+| `sk-rework` Build 9 (overlay dev panel + mod menu + damage/crit + pickers + diagnostics) | 🟡 sandbox-tested (smoke 66/66 ×4, mod sandbox and the engine's mod-menu code modelled); live run pending | build 7 ran live (run 6): bank read-back + menu widgets proven, but the panel's click also moved the king and the panel vanished on a new run. Both are root-caused in the decoded game source and fixed in build 8 |
+| `tools/parse_log.py` log parser | ✅ live-proven + Build-7 extensions tested | parses runs 1–5 with multi-boot dedup, crashed logs, `SKA2\|probe\|<block>=done` checkpoints, and the new `SKE\|call` trace — a crashed run names the engine call that started and never finished; red mod text is mapped to error codes (`notes/red-warnings.md`, §1b); selftest 49/49 |
+| `tools/mod_smoketest.py` | ✅ tested | runs Build 9 without the game (needs `lupa`); 66/66 checks under each `all()` semantics on default Lua + LuaJIT 2.1. The mod runs inside a copy of the engine's real sandbox (writes reach the engine only for replaceable keys); the fake engine re-raises the fatal `btn()` error, chains appends, and models `gamepad_ctrl`'s mouse read, `remove_buts`, `reset()` and board clicks |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
+| `tools/mode_guns_check.py` | ✅ tested | 37 checks that the four Throne-like mode files carry the base 9-gun list, offer every gun and save their bank, that Quartz opens all 15 ranks, and that no mod file anywhere keeps a stale gun list (Build 9) |
 | `tools/save_codec.py` | ✅ verified | real-save text roundtrip was previously checked on all 6 saves; `--selftest` now also runs 2 built-in parse/container checks without needing a save directory |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
-| Dev-cheat panel | 🟡 Build 7 sandbox-tested (47/47); owner run pending | build 6 ran live in run 5 — panel rendered and every action fired; run 5 exposed the ghost-panel/menu-id/pawn-only bugs, all fixed in build 7 (real CLOSE via `remove_buts()`, real menu ids, spawn picker) |
-| Damage/crit system, reload/clip, card picker pages, God-Mode dodge | 🟡 Build 7 sandbox-tested; owner run pending | the run-5 log pinned the live route (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`; `ev_hit` never fires), so these ship as real controls instead of gated placeholders |
+| Dev-cheat panel | 🟡 Build 8 sandbox-tested (66/66 in Build 9); owner run pending | run 6: Build 7's panel click also hit the board square under it and `remove_buts()` broke the turn. Build 8 owns no engine buttons, consumes its clicks in a `gamepad_ctrl` hook, and re-creates itself on every new run |
+| Damage/crit system, reload/clip, card picker pages, God-Mode dodge | 🟡 sandbox-tested; owner run pending (run 6 never got past CLIP+) | the run-5 log pinned the live route (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`; `ev_hit` never fires), so these ship as real controls instead of gated placeholders |
 | Right-click ability cap removal, soul deck, button-remap menu | 🟢 scoped; queued | still need live data: the offer-cap enforcement point, soul-slot internals (`add_soul`/`add_soul_slot` ran in run 5), and the isolated mouse4/mouse5 experiment |
 
 **The three pre-live unknowns — all resolved on 2026-10-03:**
@@ -95,7 +99,7 @@ In 20 seconds, it goes:
 | 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
 | 7 | automatic: the build's 4/4 step unlock-alls the copy (manual only if skipped) | copy's `save\` (backed up) |
 
-Step 6 collects the live validation for Build 7: the mod writes its load/hook
+Step 6 collects the live validation for Build 9: the mod writes its load/hook
 proof plus the game API, state, object, card-field, offer, soul/scepter,
 damage/roll, input, UI and engine-call probes into `log.txt` (`SKG|`, `SKCF|`,
 `SKOF|`, `SKS|`, `SKD|`, `SKI|`, `SKUI|`, `SKE|call|`…). `tools/parse_log.py` turns that into
@@ -198,16 +202,20 @@ times or run history, and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-**Live testing (yours, next):** apply Build 7, click each SK DEV control once
-in play and open the mod menu once, then collect `log.txt` with `-GetInsights`
-as in `INSTALL.md`. Run 5 (build 6) already proved the panel, the probes and
-the damage route in a full 22-minute game; this run validates the build-7
-fixes/features control-by-control and confirms the bank read-back.
+**Live testing (yours, next):** rebuild, click each SK DEV control once in
+play (`CLIP+` first: the king must not move), turn all mods ON once in the
+mod menu, then collect `log.txt` with `-GetInsights` as in `INSTALL.md`
+(the test list starts at Step 4). Run 6 (build 7) already proved the bank
+read-back and the menu widgets.
 
-**Development (current):** Build 7 ships the run-5 fixes plus the damage/crit
-system, reload/clip buttons, card picker pages (AUTO/LIST/PIECE filter),
-spawn picker, God-Mode dodge, SAFE mode and engine-call intent logging; its
-smoke test is 47/47 across both `all()` semantics on default Lua and LuaJIT
+**Development (current):** Build 9 = Build 8 plus the mod-menu rework and
+the Throne-like gun-list fix. Build 8 was the first build written against the
+decoded game source. The dev panel is rebuilt as a click-consuming overlay,
+the seven workshop mods that loaded nothing on v1.623b are patched (asset
+loader argument order), and the build writes the mods in dependency order
+with Glac Terminal last. The Build 7 feature set (damage/crit, reload/clip,
+card + spawn pickers, God-Mode dodge, SAFE, intent logging) is unchanged.
+Smoke test 59/59 across both `all()` semantics on default Lua and LuaJIT
 2.1. That is not a replacement for the game run. The right-click ability cap
 removal, the soul deck and the full button-remap menu remain queued behind the
 next live data (offer-cap enforcement point, soul-slot internals, and the

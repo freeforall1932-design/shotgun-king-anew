@@ -103,6 +103,70 @@ critique; the run-4 raw pack was deleted after absorption).
 7. Damage still unchanged (the gated button).
 8. God Mode → Mist-style dodge instead of invulnerability.
 
+## Run 6 — Build 7 in play + all-mods test (2026-10-05, `run 6 wow/`)
+
+Pack: `critique.txt`, `powershell.txt`, `game-insights/` (log, `modlist.lua`,
+save, **4 crash logs**). Analysed in session 10, then re-checked against the
+decoded game source (`notes/game-internals.md`).
+
+- **Proven:** `READY build=7 hooks=31 globals=920`, bank read-back across a
+  boot (`SKUI|bank|ready=true|magic=505`), and the mod-menu widgets attach
+  (`SKUI|menu|widgets_added=true|entry=mods|back=true`). No sk-rework Lua
+  error.
+- **Panel bug:** SK DEV opened on turn 1 (13 buttons, y=128). Clicking CLIP+
+  **moved the king**, and no `SKUI|panel` line appeared afterwards. The
+  three root causes, all in the game source: overlapping `mk_but` buttons
+  all fire on one click (the panel sat over the board squares);
+  `remove_buts()` also ends the turn state; `reset()` empties `ents` at
+  every `init_game` while the mod's `panel_present` flag survived, so the
+  panel never came back. **Fixed in Build 8** (overlay panel, details in
+  `modded/sk-rework/script.lua` §4).
+- **All 4 crash logs:** `ERR Cannot set inexistent surface 'fairy_cards' as
+  spritesheet`. **All-mods log:** 21 × `'mods/<mod>/<name>' didn't match any
+  files` (art of war ×8, quartz ×5, fairy ×4, and Shootout, glacies
+  collection, nightmare and royal card lab ×1 each: exactly the 7 patched mods).
+  Root cause: the mod sandbox's loader wrapper only accepts
+  `newsrf(name, "file.ext")`, and seven workshop mods use the reversed
+  order. **Patched in `dist-overlay/`** (list in its README).
+- **Red warnings with all mods ON** (e.g. `The Art of War must be loaded
+  above Glac Terminal`): `modlist.lua` was alphabetical, which put
+  `glac terminal` 4th. **Fixed**: `build-dist.ps1` writes the dependency
+  order, Terminal last.
+- Save: `save/mods` holds only `sk-rework.bnk` and `royal card lab.bnk`; the
+  quartz/fairy/card-lab `.sav` files are empty. The mode unlock data lives in
+  the per-mod `.bnk` (`bget(i,4)` weapon unlocks). **Session 10 found why
+  Quartz's unlocks never stuck:** its mode file calls `save()`, but never
+  `savbnk()`, so the bank only lived in RAM (no `the_magnificient_quartz_army.bnk`
+  exists, and the log shows `Could not open file` for it at every boot).
+  **Fixed in Build 9** in the mode itself (details below and in
+  `dist-overlay/README.md`).
+- **Red text = error codes** (owner rule, session 10). This run's red lines
+  map to: **T1** ×3 (Collection, Grenade Predictor, Card Lab couldn't see
+  Glac Terminal), **T3** (Retry below Terminal), **A3** (Art of War below
+  Terminal), **L1** ×21 (the asset-order bug above). All of them came from
+  the alphabetical order and the asset-order bug, both fixed in Build 8.
+  Code table: `notes/red-warnings.md`; `parse_log.py --print` §1b now lists
+  them per mod.
+
+### Owner asks collected in run 6 (`critique.txt`)
+
+1. Mod menu: the ON/OFF text should change live on click; Back fails after
+   toggling a mod on and off; the legend turns red on hover → move it to the
+   middle of the far-left side as small line-broken chunks. *(item 5,
+   **done in Build 9**: live text via `e.name=e.id` re-sync, Back restored
+   when the list matches the opening state, legend at x=4 vertically centred
+   with E1–E4 + AUTO-FIX; mock: `notes/img/build9-modmenu-mock.png`)*
+2. disgraced_justice needs Collection + Terminal; 5 red warnings with all
+   mods ON; order mods correctly by default. *(item 3, **done**)*
+3. Throne-like modes have incomplete gun lists → use the throne list;
+   quartz/fairy ignore the unlocked guns. *(item 4, **done in Build 9**: the
+   9-gun Throne list in Quartz Throne / Fairy Endless / Nightmare / Card
+   Lab; Quartz + Fairy unlock all guns in-game and now save their bank)*
+4. Panel: CLIP+ moved the king and the panel was gone for good; wants
+   smaller buttons or a card-choice-style overlay. *(item 1, **done**)*
+5. Game files provided → read the internals and take assets. *(**done**:
+   `game/`, `game/decoded/`, `tools/sgr_extract.py`)*
+
 ## Still open — the owner's feature asks (all specs in PLANNING §0.7)
 
 1. **Right-click ability cap removal** (§0.7.6) — own multiple abilities,
@@ -113,25 +177,45 @@ critique; the run-4 raw pack was deleted after absorption).
 3. **Soul deck "Yu-Gi-Oh style"** (§0.7.8) — 2–3 slots, one slot holds
    many souls, free use/exchange, any soul allowed (pawn behavior stays
    card-driven), summons capped only by board capacity
-4. **Bullet damage & crit system** (§0.7.11) — configurable normal/crit
-   damage + crit chance, pierce auto-crits
-5. **Full button-remap menu** (§0.7.9) + **mod-menu Back button** (§0.7.10)
+4. **Bullet damage & crit system** (§0.7.11): configurable normal/crit
+   damage, crit chance, and pierce auto-crits. 🟡 **Implemented since
+   Build 7** (panel DMG page) but **never switched on live**: run 6 logged
+   `on=0`.
+5. **Full button-remap menu** (§0.7.9): still open. Blocked on whether
+   SUGAR exposes extra mouse buttons at all. The **mod-menu Back button**
+   (§0.7.10) is 🟡 reworked in Build 9 (Back comes back after undoing a
+   change, plus the legend and AUTO-FIX); live test pending.
 
-## Current follow-up status (2026-10-05, session 9)
+## Current follow-up status (2026-10-06, session 10)
 
-**Build 7 is in `modded/sk-rework/`** (panel v2 with real CLOSE via
-`remove_buts()`, damage/crit system at `mk_bullet`, RELOAD + CLIP+, card AUTO /
-LIST pages incl. the cardless fallback and summon-on-card, spawn piece picker
-with diagonal-first squares, Mist-style dodge, engine-call intent logging +
-SAFE mode, legend/Back on the real menu ids, bank-backed config). Sandbox:
-smoke test **47/47** (incl. the offer-screen guard) under both `all()`
-semantics on default Lua and LuaJIT 2.1; parser **44/44** (incl. a dangling-call crash-forensics check); save codec
-2/2.
+**Build 9 is in `modded/sk-rework/`.** It has two parts:
 
-Next step: apply Build 7 (`apply.ps1` or a fresh `build-dist.ps1`), play a few
-minutes and click each control once, then collect with
-`apply.ps1 -GetInsights`. What the log must answer: `SKUI|bank|ready=true|
-magic=505` (read-back across a boot), `SKUI|panel|clear=remove_buts` on CLOSE,
-`SKD|dmg|…` rolls on real shots, `SKE|cheat_reload`/`cheat_clip`, the spawn
-piece picker's `route=…`, `SKUI|dodge|…|moved=true`, and
-`SKUI|menu|widgets_added=true` on the mod-list screen.
+- **Build 8's overlay dev panel:** an `SK DEV` tab at the bottom left, and a
+  modal box over the board. Clicks are consumed in a `gamepad_ctrl` hook
+  before any board button sees them. The panel is re-created on every new
+  run and hidden during card choices, pause and game over.
+- **The reworked mod menu:** live ON/OFF text, Back restored after undoing a
+  change, the far-left legend with E1–E4 load-order codes, and AUTO-FIX.
+
+The overlay also has the seven asset-order-patched workshop mods, the
+dependency-ordered `modlist.lua`, and the 9-gun Throne list in the four
+Throne-like modes, with Quartz's bank now saved.
+
+Sandbox results:
+- smoke test **66/66** (after the pre-PR audit), with the real mod-sandbox write rules and the
+  engine's own mod-menu code modelled, under both `all()` semantics on
+  default Lua and LuaJIT 2.1;
+- `mode_guns_check` 37/37 (after the audit: Quartz ranks plus a sweep of
+  every mod gun list);
+- parser 49/49;
+- save codec 2/2.
+
+Next step: rebuild with `build-dist.ps1` (Step 4), then run the INSTALL
+Step 5 test list (A1–A6 mod menu, B1–B4 modes, C1–C8 panel). The log must
+show:
+- `READY build=9`;
+- `SKUI|modcheck|boot|issues=0` with the dependency order;
+- `SKUI|modmenu|…|back=back` after an on→off toggle;
+- `Quartz Throne guns=9`;
+- a `SKUI|panel|click=CLIP+` with the king staying put;
+- no ` !! ` mod red text with all mods ON.

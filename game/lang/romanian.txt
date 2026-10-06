@@ -1,0 +1,1717 @@
+font>>Terminus
+font_size>>12
+font_line_height>>13
+font_offset_y>>8
+
+  -- Please only ever modify the part to the right of '::'.
+
+  -- In all texts, '|' indicates a linebreak for the game.
+
+  -- The game replaces instances of $0, $1, etc with relevant numbers.
+
+  -- instances of (s) are replaced with an 's' if the number associated is above 1, otherwise it is simply removed. The following alternatives are supported: (you can still use (s) if relevant)
+  -- (es) for Spanish
+  -- (y) for Polish
+  -- (и) for Ukrainian
+  -- (n), (er) and (e) for German
+  -- Additionally if none of these are helpful you can set a word between braces to tell the game to replace it according to a specific pluralization rule you specified at the end of this file. For example instead of writing "$0 man(s)" which makes no sense, I would write "$0 [man]" and the game will know to replace it with either "man" or "men" (defined at the very end of this file) depending on whether $0 is replaced with a 1 or something above. Make sure to write the singular version of the word inside the braces.
+  -- Even more specific pluralization rules can be defined at the end of this file, including rules for specific numbers.
+  -- In all cases outside of percentages, all numbers can safely be assumed to be below 10. For unnumberred plurals, (eg: knight(s) get +2 HP) the game always uses the number 999 internally.
+
+
+
+--NEW in v1.6
+
+
+  -- GAME MODE
+  -- Charnier is a new gamemode where the player raids villages which get more and more difficult, amassing corpses and cinders. Charnier is a french word which we kept in English. If it sounds too weird in your language, you can use Rampage, Carnage, Reaving...
+charnier::Carnagiu
+  -- brands are stat upgrades, bought with "cinders", which are won by winning raids.
+charnier_desc::Modul Carnagiu|Atacă satele inamicilor|- Fi crud și nemilos|- Creză un drăguț munte de cadavre|- Dificultatea crește cu fiecare sat distrus|- Adună scântei pentru a supravietuii morții sau pentru a obține însemne
+  -- Beat rank 5 or above. Please match the format of the old key "endless_lock" (further down in this file)
+charnier_lock::Termină un meci în Modul Tron la rangul 5 sau mai mare
+
+
+  -- CHARNIER
+  -- The next keys are used in the new Charnier mode
+  -- short for "Are you sure?", used when resigning
+sure::Sigur?
+next raid::Atacă
+  -- brands are upgrades, the word should be fire-themed, to go with cinders.
+brands::Însemne
+  -- used for buying brands with cinders
+claim::Obține
+  -- Cinders are the rewards for burning village in charnier mode.
+cinders::Scântei
+  -- Cinders left to spend, or keep
+cinders_lefts::Scântei Rămase
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- tunnel is for cards that dig holes on the board
+tag_tunnels::Tunel
+  -- ally is for cards that give access to additional black pieces
+tag_ally::Aliat
+  -- on_hit is for cards that give bullets additional effects on hits
+tag_on_hit::Efect Alice
+
+  -- Used in the codex to specify that multiple tags have to be in play for a card to appear.
+  -- eg: While playing a game gather cards with the tags Mission and Cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation for "and" if your language uses whitespaces.
+_and_:: și 
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, shown when relevent. They need to remain as short as possible. (ideally 8 characters or less)
+
+  -- Shown on selected pieces that can dodge pellets, as: "Dodge|[percentage change of dodging bullets]"
+dodge::Evaziune
+  -- Shown on selected pieces that are protected and can't take more than x damage
+dmg cap::Armură
+
+  -- Short version of grenade damage
+g_dmg::P.Grenade
+
+
+  -- ADDITIONAL INGAME
+  -- This is added below soul_desc for warden souls specifically (wardens are a new chess piece added in v1.6)
+warden_soul::sau îl poți ține să te protejeze de la moarte
+  --Player has won a raid in the Charnier game mode.
+raid_won::Atac Victorios!
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+  
+anarchy::Anarhie!
+  -- The next two keys are used when a piece dies, and other pieces with same type burn with anger for revenge.
+revenge_0::Răzbunare!
+revenge_1::Ucigaș!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+heresy::Blasfemie!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+purge::Arzi!
+  -- Used when bishop excommunicate a card
+exile::Exil!!
+  -- Used when the Boss promote a pawn
+regal_ascent::Promovare Regală!
+  -- Used when the Boss call 3 royal guards
+royal_guards::Gărzi!
+
+  -- Briefly shown above pieces when they dodge a pellet.
+miss::Rateu!
+  -- Briefly shown above a piece that was set free from prison by the black king.
+free::Libertate!
+  -- Briefly shown above a piece that was converted over to the black army
+defect::Dezertor
+
+
+  -- NEW PIECES
+  -- These are additional chess pieces, added in v1.6
+  -- Alternatives for slayer: assassin, ninja, hired killer, killer
+piece_12::Asasin
+  -- The warden is an armored piece that can protect the king. Alternatives: champion, thane
+piece_13::Gardian
+
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+  -- Alternatively, you can use "[black]" with brackets and define custom plurals for "black" at the end of this file. (we unfortunately do not have a solution for adjective gendering)
+black_piece::Piesă Neagră de tip $0
+black_leader::Regele Negru
+
+
+  -- SHORT PIECE
+short_piece_12::Asasin
+short_piece_13::Gardian
+
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+  -- Renamed (and reworked) from the old Unfaithful Steed card.
+Faithful Steed::Cal Loial
+  -- Alternatives for Right-Hand: Advisor, Counsel
+Right-hand::Mâna Dreaptă
+Warhorse::Cal de Război
+Bastion::Bastion
+  -- Lets you move further in one turn. Alternative: Dash.
+Sprint::Alergat
+  -- Soul Projection lets the player literally project a soul onto the board as a new black piece.
+Soul Projection::Proiecția Sufletului
+Onboarding Party::Petrecere de Primire
+Small Key::O Mică Cheie
+Rapunzel::Rapunzel
+Wand of Treachery::Sceptrul Trădării
+Guerilla Tactics::Tactici Guerilla
+Shovel::Cazma
+Grindstone::Roată de Ascuțit
+Death Mark::Însemnat pentru Moarte
+Shrapnel::Franjuri de Alice
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Latecomer::Întârziere
+Vendetta::Vendetă
+Stoning::Pietre
+Anarchy::Anarhie
+  -- Auto-da-fe was a punishment for heretics by the spanish inquisition. It means "act of faith". Feel free to look up what they call it in your language on Wikipedia and use that: https://en.wikipedia.org/wiki/Auto-da-f%C3%A9
+Auto-da-fe::Act de Credință
+  -- Late for Dinner delays the arrival of a few pieces, making the black king wait.
+Late for dinner::Masă Târzie
+Excommunication::Excomunicare
+  -- Refers to a queen/woman being burned at the stake by the bishops for acts of sexual deviancy
+Pyre of Lust::Focul Desfrânării
+Gatehouse::Poarta Cetății
+  -- Lightfoot lets pawns jump over other pieces. Can be replaced with your language's version of the children's game of leapfrog, if you feel it's relevant to your language's culture.
+Lightfoot::Lapte Gros
+Loyalist March::Adunare Loialistă
+Trench War::Război de Tranșee
+Catacombs::Catacombe
+Flesh Wall::Cadavre Încremenite
+Hired Blade::Contract
+Oathkeeper::Protector
+  -- Redemption as in the religious practice of making up for past wrongs.
+Redemption::Spovedanie
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- $delay is replaced with either the at_delay key, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final" key, which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+  -- eg: Add 1 pawn every 4 turns
+  -- modified in v1.6, from: "Add $0 $1s $delay"
+add_piece::Adaugă $0 $1s $delay $final
+
+  -- Same but without the delay.
+  -- eg: Add 2 knights
+  -- modified in v1.6, from: "Add $0 $1s"
+add_piece_nodelay::Adaugă $0 $1s $final
+
+  -- eg: 2 knights
+pieces::$0 $1s
+
+  -- Add/remove a group of pieces, $0 is replaced using the 'pieces' key above.
+add_group::Adaugă $0 $delay $final
+rem_group::Înlătură $0
+
+  -- this is used to describe effects that are only active on the final floor of a raid in charnier mode.
+at_final::în ultima luptă
+
+  -- The following are the names of different stats as used in other card effects or in shotgun stats.
+reload_grenade::Reîncarcă Grenade
+butcher::Măcelărie
+sheath::Însemnul Morții
+
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- Effects that were modified in v1.6:
+  -- used to be: "$leader swaps positions with a <piece> whenever he's about to take damage"
+effect_castle::Piesele <leaders> pot face rocada cu piesele <pieces> când sunt atacate
+
+  -- used to be: "When you reach the waypoint choose a disruption effect and play an extra turn"
+effect_waypoint::Când ajungi la pătratul marcat, poți alege un efect special
+
+  -- used to be: "<pieces> can't attack you" (the black king is no longer the only piece that can be attacked)
+effect_peace::Piesele <pieces> nu te atacă
+
+  -- used to be: "<pieces> can only be hit when moving"
+effect_wraith::Piesele <pieces> pot fi atacate doar când sunt gata să atace
+
+  -- used to be: "+1 fright radius|When you kill a non-pawn piece, every piece in the radius is scared. They can't attack you and flee on their next move"
+effect_fearsome::+1 Rază de Spaimă|Când omori Piese care nu sunt Pioni, piesele din jurul tău sunt cuprinse de spaimă. Ele nu pot să te atace și fug cu următoarea mișcare.
+
+  -- used to be: "+1 spy among the pawns|Reach the spy to choose a disruption effect and play an extra turn"
+effect_spy::Spion:$1|Spionii se deghizează ca un Pion|Când vi lânga el în cruce primești o Mișcare Bonus|Acesta devine o Piesă Neagră dacă promovează
+
+  -- used to be: "Create a hologram when you use a soul"
+effect_holoking::Crează o hologramă, la locul tău inițial, când folosești un suflet|Piesa care o distruge nu poate acționa timp de două runde
+
+  -- used to be: "<pieces> can fire a projectile at you instead of moving" (the action is now on a separate cooldown)
+effect_catapult::Piesele <pieces> pot arunca cu bolovani
+
+  -- used to be: "<pieces> can't move or attack if near a <target_piece>"
+effect_prison::Piesele <pieces> nu se pot mișca sau ataca dacă sunt lângă <target_pieces>|(Piesele Prizoniere nu blochează alte Piese)
+
+  -- used to be: "+$0 flagstone|Jump to a flagstone at any time"
+effect_flagstones::+$0 [Piatră] de Hotar|Poți ajunge la ea de oriunde de pe tablă|Ai +1 Putere de Atac cand stai pe ea
+
+  
+  -- New effects in v1.6
+  -- Pieces carry their king with them when they move
+effect_carryking::<pieces> cară Regele Negru dacă e langă
+  -- Used as "Move range: +1"
+effect_sprint::Rază de Mișcare: $1
+effect_summoner::Dacă nu ai aliați, folosește un suflet pentru a crea unul
+  -- Welcome Gift is a card's name, please match it with your translation for that card.
+effect_onboarding::Reactivează "Cadou de Întâmpinare" cand o Piesă care nu e Pion apare pe tablă
+effect_small_key::O dată pe nivel poți apăsa o Tură alăturată pentru a o distruge sau o Piesă Prizonieră pentru a o elibera și alatură cauzei tale|După ce cheia e folosită, sabotează Armata Albă
+  -- with a controller, you have to select the piece instead of just clicking it.
+effect_small_key_console::O dată pe nivel poți selecta o Tură alăturată pentru a o distruge sau o Piesă Prizonieră pentru a o elibera și alatură cauzei tale|După ce cheia e folosită, sabotează Armata Albă
+effect_rapunzel::Când omori o Tură pentru prima dată, crează o Regina Neagra
+effect_anarchy::Piese Albe nu mai respectă formația|Omoară toate Piese Albe pentru a câștiga
+effect_censor::Când o piesă <piece> te amenință, o carte neagră e fie marcată, fie toate cărtile marcate sunt întoarse
+effect_exile::Dezactivează cartea asta dacă la Runda $0 încă mai sunt Nebuni în viața
+effect_spawn::Piesele <pieces> pot crea <target_piece> în loc să se miște
+effect_lightfoot::Piesele <pieces> pot sări peste obstacole în orice direcție
+effect_hole_cover::Piesele în gropi sau șanțuri au 50% șanse să evite alice
+effect_hole_start::Sapă $0 gropi pe teren
+effect_tunnels::Poți călătorii între gropi dacă te afli langă una
+effect_hole_solid::Gropile nu se surpă după ce călătorești prin ele
+  -- pieces that have 0hp remain standing and only die when the turn ends.
+effect_block::Piesele <pieces> mor la începutul următoarei runde în loc să moară imediat
+effect_jumpy::Dezactivează cartea asta când îti reîncarci arma
+  -- which card is kept is random
+effect_extra_white_choice::Armata Albă vede o carte în plus dar poate alege una
+  -- Charnier mode: Each house represents a floor, and villages represent raids. This effect adds one more floor to the next raids.
+effect_extra_floor::Fiecare sat mai are o casă
+effect_stoning::<pieces> aruncă cu pietre după tine
+effect_vendetta::Cand omori o piesă, toate piesele de acel tip se vor mișca runda următoare
+effect_reload_grenade::Muniția din Rezervă poate fi folosită să reîncarce Grenade
+effect_reform::Dezactivează cartea asta când un Pion promovează
+  -- the royal promote effect should be kept as short as possible
+effect_royal_promote::Regele Boss promovează Pioni
+effect_sheath::Însemnul Morții:$1|Aliecele tale marchează piesele rănite|Piesele marcate pierd $0 HP când îți reîncarci arma
+effect_redemption::Când o Piesă Neagră moare, adaugă o Piesă Albă identică pe tablă 
+  -- Shrapnels are shot out of the shotgun along with the regular pellets. "pellet effects" are bleed, mark, etc.
+effect_shrapnel::Franjuri: $1|Franjurile nu ranesc piese dar aplică effectele de pe alice
+  -- With the Butcher effect, blade can be used to inflict damage, instead of being restricted to finishing pieces off.
+effect_butcher::Tăișul nu mai e restricționat de cât HP are Piesa
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+stat_g_dmg::Putere Grenade
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+  -- modified in v1.6:
+  -- used to be: "Strafe mode: Right click a target to fire at it on your next moves"
+  -- +15° arc refers to the firearc; shots are less accurate.
+special_strafe::Click Dreapta: Poți alege o piesă ca să o țintești când te miști
+special_strafe_console::Când apeși $0: Poți alege o piesă ca să o țintești când te miști
+
+  -- used to be: "Right click: arc -45$ and range +1|Resets on each move or reload"
+special_scope::Click Dreapta: Primești -45$ Rază de Atac și +1 Distanță de Atac dacă nu te miști sau nu îți încarci arma
+special_scope_console::Când apeși $0: Primești -45$ Rază de Atac și +2 Distanță de Atac până te miști sau îți încarci arma
+
+  -- new in v1.6:
+  -- holes can be used to move to any other hole.
+special_dig::Click Dreapta: Poți selecta un pătrat alăturat și să sapi o groapă
+special_dig_console::Apasă $0 și selectează un pătrat alăturat ca să sapi o groapă
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+  -- modified in v1.6, from: "Repel all white pieces northward"
+wand_4::Împinge toate piesele albe spre partea lor de tablă
+  -- new in v1.6
+wand_8::Convertește o Piesă Albă de langă tine într-o Piesă Neagră
+
+
+  -- SHOTGUN NAMES
+  -- The shotguns are named after historical leaders. Only translate if these names are usually spelled differently in your language.
+Solomon::Solomon
+Victoria::Victoria
+Ramesses II::Ramses al II-lea
+Richard III::Richard al III-lea
+Makeda::Makeda
+Alexander::Alexandru cel Mare
+Yvan IV::Ivan cel Groaznic
+Attila::Attila Hunul
+Montezuma::Montezuma
+
+  -- SHOTGUN ACHIEVEMENTS
+  -- Please match these with the names above
+ach_RAMESSES_II::Ramses al II-lea
+ach_RICHARD_III::Richard al III-lea
+ach_ALEXANDER::Alexandru cel Mare
+ach_YVAN_IV::Ivan cel Groaznic
+ach_ATTILA::Attila Hunul
+ach_MONTEZUMA::Montezuma
+
+  -- SHOTGUN UNLOCKS
+  -- this is a puzzle for the players, they have to figure out that R6F8H7 refers to: Rank 6 (in throne mode), Floor 8, H7 chess coordinates. The player has to dig a hole there using the shovel card. Please keep the composition of the code and only replace R and F with the first letter of your translations for "Rank" and "Floor".
+shotgun_unlock_7::Coordonatele "R6N8H7" sunt scrijelite|pe cutia acestei arme lipsă...
+  -- "Death Marks" refers to the card Death Mark
+shotgun_unlock_8::Trebuie să ai 2 Însemne ale Morții|într-un meci pentru a debloca arma asta
+
+
+
+  -- ACHIEVEMENTS
+ach_KING_WARBAND::Armata Regălă
+ach_OVERPOPULATION::Suprapopulație
+ach_OBSCURANTISM::Obscurantism
+ach_EXPULSION::Expulzare
+ach_UNITED_HANDS::Mână cu Mână
+ach_DEATH_SENTENCE::Condamnat la Moarte
+ach_KINDLED_ATROCITY::Scânteia Atrocității
+ach_ARCHITECT_OF_RUIN::Arhitectul Ruinării
+ach_SOVEREIGN_OF_THE_MASS_GRAVE::Regele Muntelui de Cadavre
+ach_CINDERLORD::Regele Focului
+
+
+  -- ACHIEVEMENT CONDITIONS
+  -- "allies" as in extra black pieces
+ach_KING_WARBAND_desc::Obține un Cal Negru, Nebun Negru și Tură Neagră
+  -- "generate" refers to the Gatehouse card which can create knights from rooks.
+ach_OVERPOPULATION_desc::Generează peste 12 Cai într-un singur nivel
+  -- "turned face down" as in flipped, deactivated
+ach_OBSCURANTISM_desc::Trebuie să ai 6 Cărți Negre întoarse
+  -- "Send back" as in removing them indirectly by deactivating white cards.
+ach_EXPULSION_desc::Exilează 4+ piese care nu sunt Pioni într-un singur nivel
+  -- "type" as in knight, rook, king, etc
+ach_UNITED_HANDS_desc::Trebuie să ai 8 Piese de tipuri diferite pe tablă
+  -- for this next achievement, the player has to use the new death mark effect that some cards have
+ach_DEATH_SENTENCE_desc::Omoară 4+ Piese când cu o singură încărcare a armei
+ach_KINDLED_ATROCITY_desc::Distruge 6 Sate in Modul Carnagiu
+ach_ARCHITECT_OF_RUIN_desc::Distruge 10 Sate in Modul Carnagiu
+ach_SOVEREIGN_OF_THE_MASS_GRAVE_desc::Distruge 15 Sate in Modul Carnagiu
+  -- "hoard" as in accumulate cinders without using them.
+ach_CINDERLORD_desc::Ține 5+ Scântei in Modul Carnagiu
+
+
+  -- MISSING
+  -- These keys existed previously but weren't translated. Maybe it was intended, but please give it a quick look to make sure.
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+tutorial::Tutorial
+degree_symbol::°
+piece_6::Boss
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+piece_8::$leader
+  -- Boss is used for the big white king on the last level of Throne mode.
+short_piece_6::Boss
+Bushido::Bushido
+Karma::Karma
+Sokoban::Sokoban
+Unicorn::Unicorn
+Vampirism::Vampirism
+hp::HP
+ach_HAREM::Harem
+ach_NINJA::Ninja
+  -- Please match these with the names above
+ach_SOLOMON::Solomon
+ach_VICTORIA::Victoria
+ach_MAKEDA::Makeda
+  -- This achievement is given for throwing an iron queen off of the checkboard
+ach_HASTA_LA_VISTA_BABY::Hasta La Vista Baby
+ach_MMMMH_DELICIEUX::Mmmmh Delicieux!
+
+
+  -- EXTRA KEYS
+  -- These keys were previously defined in your language, but do not exist in the english file.
+  -- Keys starting with "effect_" may have been created to deal with a specific case of an effect configuration. Please update these if necessary.
+  -- Other keys must have been removed from the game, please remove them from this file also. Thank you!
+effect_knight_black_carryking::Caii Negrii cară Regele Negru dacă e langă ei
+effect_knight_black_castle::Regele Negru face rocada cu Caii Negrii când este atacat
+effect_deathcurse::Însemnul Morții rămâne și după ce încarci arma
+
+
+
+--OLD
+
+
+
+  -- MENU
+  -- These are displayed on buttons in the game's various menus.
+play::Joacă
+options::Opțiuni
+codex::Colecție
+credits::Creditare
+quit::Închide
+back::Înapoi
+resign::Abandonează
+start::Începe
+
+  -- The next four keys are used in Charnier mode
+
+  -- Appears in the pause menu while in the tutorial. Could be translated as "end tutorial".
+skip_tutorial::Închide Tutorialul
+
+  -- This is shown on the titlescreen when using mouse and keyboard.
+click_start::Click pentru a începe
+  -- This is shown on the titlescreen when using a controller.
+press_start::Apasă $0 pentru a începe
+
+  -- OPTIONS
+music::Muzică
+sfx::Sunete
+fullscren::Ecran Complet
+  -- CRT stands for Cathode-Ray Tube, it's the name of the effect that curves the screen and simulates "scanlines". Could be translated as "old monitor" or "screen effect" or just keep "CRT". Use something short.
+crt::Filtru CRT
+speedrun::Cronometru
+shields::Scuturi
+scr.shake::Trepidare Ecran
+scr.flash::Lumini Bruște
+  -- Language. Use something short enough to fit on the same button with your language's name.
+lang::Limba
+  -- Should be your language's name.
+lang_endonym::Română
+  -- Controller vibrations
+rumble::Vibrație
+on::Da
+off::Nu
+  -- GAMEMODE MENU
+  -- On gamemode selection screen, shows highscore for selected mode
+  -- eg: Best floor: 8
+  -- Note: the value after the colon is always a number in numerals
+best_floor::Nivelul record:
+best_score::Punctajul record:
+best_rank::Rangul record:
+best_time::Timpul record:
+
+  -- The following describe each gamemode.
+throne_desc::Modul Tron|Regele nostru trebuie să învingă cele 12 nivele ale turnului principal pentru a își recupera tronul.
+endless_desc::Modul Nesfârșit|Regele nostru trebuie să lupte la nesfârșit împotriva armatei albe, învingând cât mai multe nivele cu putință.
+chase_desc::Modul Fugar|Regele nostru trebuie să fugă din propriul castel!|- Supraviețuiește cât mai mult posibil.|- Piese albe apar constant pe marginea tablei.|- Pionii se pot mișca în mai multe direcții, dar nu mai pot promova.|- Când un Rege moare, poți alege una din trei cărți negre.|- Poți avea doar 5 cărți odată.|- Cutiile de muniție îți reîncarcă arma și reactivează anumite cărți.
+tutorial_desc::Tutorial|Învață bazele jocului!
+
+  -- These are unlock conditions for gamemodes that are not available from the start.
+endless_lock::Termină un meci în Modul Tron la orice rang
+chase_lock::Atinge nivelul 15 în Modul Nesfășit
+
+  -- This is used for rank selection (=difficulty selection)
+rank::Rang
+
+
+  -- Used to confirm an action such as giving up or wiping the player's save
+ask_confirm::Sigur vrei să faci asta?
+
+
+  -- CODEX
+  -- The codex is the collection of cards the player has seen and used. The achievements also share this interface.
+  -- $0 is replaced with the actual progress percentage.
+ui_codex::Cărți: $0%
+ui_achievements::Provocări: $0%
+
+  -- Played and love are stats about the cards. "played is shown as "Played:3" for example, and love as "Love: 50%". Love is the preference stat of picking this card over another when given the choice.
+codex_played::Jucată
+codex_love::Aleasă:
+
+  -- Here $0 is replaced with a list of cards that need to be in play before the selected card can appear for the first time. $1 is replaced with the card's name.
+codex_gather::În timpul unui meci, găsește "$0" pentru ca "$1" să aibă o șansă să apară.
+
+  -- Here $0 is replaced with one or multiple tags (eg: "leader or grenade") that need to be in play before the card can appear for the first time. And $1 is replaced with the card's name. Tags are essentially keywords associated with certain cards.
+codex_gather_tags::În timpul unui meci, găsește cărți de tip "$0" pentru ca "$1" să aibă o șansă să apară.
+
+  -- Used to list the tags associated with a card. Shown as "tags: [list of tags]"
+codex_tags::Tip
+
+  -- Shown as "Needs card: [Card name]", meaning the selected card needs this card to be in play before it can appear in game.
+codex_need_card::Cărți necesare
+
+  -- Shown as "Needs tag: [tag]", meaning the selected card needs this tag to be in play before it can appear in game.
+codex_need_tag::Tipuri necesare
+
+  -- Shown as "Excludes tag: [tag]", meaning that while this card is in play, cards that have the denoted tag cannot appear.
+codex_exclude_tag::Exclude tipuri
+
+  -- Shown on a button that resets the player's progress on discovering cards.
+codex_reset::Resetează Statisticile
+
+  -- Show for cards that have secret conditions for appearing in game for the first time.
+codex_secret::Cartea aceasta e secretă, apare numai în anumite condiții.
+
+  -- Here $0 and $1 are replaced with a number and a stat respectively. Indicates a condition for a card to appear for the first time.
+  -- Eg: This card needs at least 6 firepower to appear
+codex_need::Cartea asta are nevoie de $0 $1 ca să aibă o șansă să apară.
+
+
+  -- CARD TAGS
+  -- These are tags associated with different cards, as shown in the codex.
+  -- leader is for any card that affects white kings or whichever piece which has the crown
+tag_leader::Lider
+
+  -- mission is for Undercover Mission and The Mole
+tag_mission::Misiune
+
+  -- cloak is for any card that lets you get into stealth mode
+tag_cloak::Ascundere
+
+  -- bleed is for any card that allows you to inflict bleeding
+tag_bleed::Sângerare
+
+  -- orb is for the Seer's Orb
+tag_orb::Glob
+
+  -- jump is for cards which let you jump over pieces, inflicting them one damage (like Taunting Hop)
+tag_jump::Salt
+
+  -- grenade is for cards that give you explosive grenades
+tag_grenade::Grenadă
+
+  -- blade is for cards that allow you to slash at low-hp enemy pieces
+tag_blade::Tăiș
+
+  -- GAME MODE
+  -- These are gamemode names, used in the gamemode selection menu.
+  -- Tutorial is the tutorial, teaches the player how to play the game.
+  -- Throne is the main, campaign mode where the goal is to reclaim the black king's throne.
+  -- Endless is an arcade-style highscore-chasing mode, it goes on until you lose.
+  -- Chase is a survival mode where pieces comme continually from the sides of the checkboard until you lose.
+throne::Tron
+endless::Nesfârșit
+chase::Fugar
+
+
+  -- INGAME
+  -- These are elements of the in-game interface, either shown are at all time or when relevent.
+
+  -- Floor is the current game level, eg: "Floor: 4"
+floor_::Nivelul:
+
+  -- eg: "Score: 12"
+score_::Scor:
+
+  -- Shown on selected pieces that are poisoned, as: "Poison|[number of turns until not poisoned anymore]". Poison makes pieces go slower.
+poison::Otravă
+
+  -- The following need to be very short to fit the space to the left of the checkboard. Use no more than 8 characters. Prefer 7 or less. Feel free to use abreviations.
+  -- short version of firepower
+power::P.Atac
+
+  -- short version of range
+range::D.Atac
+
+  -- short version of fire arc
+f_arc::R.Atac
+
+  -- short version of knockback (percentage of chance to push pieces backwards when they're hit)
+knock::Forță
+
+  -- short version of pierce (percentage of chance that pellets will not stop after hitting a first target)
+pierc::Pătrunde
+
+  -- short version of blade/sword/cutting (ability to cut down pieces that have low-enough health)
+blade::Tăiș
+
+  -- short version of fright/scariness/terror (radius in which killing a piece will scare other pieces)
+fright::Spaimă
+
+  -- short version of jump (number of times you can jump over other pieces before ending your turn)
+jump::Salturi
+
+
+
+  -- Current turn, eg: "Turn: 13"
+turn_::Runda:
+
+  -- Displayed when the player is pressing "shift" to ignore folly shields (which prevent you from putting yourself in a gameover position)
+unsafe_mode::Atack Direct
+
+  -- Shown at the bottom of the screen when losing because of a classic chess checkmate
+checkmate::Șah-mat!
+
+  -- Shown after the gameover to ask if the player wants to restart.
+try_again::Mai încearci?
+  -- Yes//No buttons
+yes::Da
+no::Nu
+
+  -- Used in endless mode past level 11. Instead of getting new cards, the white army is improved with one of these effects at random: (in piece_join, $0 is the replaced with the name of a piece, eg: "A knight joins the white army")
+blood_bowl::Bol cu Sânge|Piesele Albe au +1 HP
+pawns_join::Două piese Pion se alătură Armatei Albe
+piece_join::O piesă $0 se alătură Armatei Albe
+
+  -- Shown when hovering the mouse cursor on wands. Wands are magic abilities the player can have.
+click_to_use::Click pentru a utiliza
+
+  -- Shown instead when using a controller.
+press_to_use::Apasă $0 pentru a utiliza
+
+  -- Shown on wands that have already been used this floor.
+replenish_floor::Se reîncarcă la nivelul următor
+
+  -- Folly shields descriptor, shown on hovering folly shields below the shotgun. They automatically protect you from making moves that would lead you to your immediate death, consuming one shield every time.
+folly_shield::Scuturile Necugetării|Încearcă să prevină impulsurile tale sinucigașe.|Își revin la începutul fiecărei runde.
+
+  -- Shown on hovering a piece's soul, placed at the right of the checkboard after killing a noble piece. (knight, rook, bishop or queen) $0 is replaced with the piece's name.
+soul_desc::Suflet de $0|Când este folosit, te poți deplasa ca o piesă $0
+
+  -- Used when playing with a controller. $1 is replaced with a button name.
+soul_desc_console::Suflet de $0|Când apeși $1, te poți deplasa ca o piesă $0
+
+  -- This is added below soul_desc when Sacred Crown is in play.
+crow_turn::și apoi mai poți face o Mișcare Bonus
+
+
+  -- This is shown instead of soul_desc when the soul slot is empty. Killing a noble piece will fill this slot with its soul.
+soul_slot::Spațiu pentru Suflete|Doboară o piesă pentru a îi fura sufletul.
+
+  -- These are shown specifically on pawn souls, which can be obtained with the card "Cannon Fodder". $0 is always replaced with the translation for "Pawn".
+pawn_soul_desc::Suflet de $0|Când este folosit, primești +2 Putere de Atac pentru următorul atac
+pawn_soul_desc_console::Suflet de $0|Când apeși $1, primești +2 Putere de Atac pentru următorul atac
+
+  -- This is shown when trying to reload your shotgun but it's already loaded.
+already_loaded::Arma e deja încărcată!
+
+  -- This is shown when attempting to use the Wand of Wrath but there's no valid target for it.
+not_target_wrath::Țintă invalidă pentru Furie!
+
+  -- This is shown when attempting to use the Wand of Wings but no move is possible.
+cant_move::Nu există spații valide!
+
+  -- This shown when hovering on the shotgun at the top of the screen. $0 is replaced with a number of shells, and $1s is replaced with the translation for "shell". It is pluralized automatically when relevant. (look to the bottom of this file to define specific pluralization rules)
+reload_shotgun_desc::Click pentru a încărca $0 $1s în pușcă.
+
+  -- Used in the previous line.
+shell::cartuș
+
+  -- Player has lost.
+game_over::Șah-mat...
+
+
+  -- Shown at the bottom of the screen when trying to reload or use abilities but it's not possible.
+no_ammo_left::Nu mai ai muniție!
+no_shell_loaded::Nu mai ai cartușe încărcate!
+no_grenade_left::Nu mai ai grenade!
+  -- Only one grenade can be thrown per turn.
+one_grenade_per_turn::Ai aruncat deja o grenadă runda asta!
+  -- Scope is one of the abilities.
+scope_on::Luneta e deja activă!
+
+  -- Shown when a card is inactive. (not necessarily used up) $0 is replaced with with one of the next two lines.
+card_exhausted::Cartea asta a fost epuizată. Poate fi folosită $0
+refresh_when::când treci la următorul nivel.
+  -- ammo boxes have to be reached and picked up on the checkboard.
+refresh_when_chase::când obții o cutie cu muniție.
+
+  -- Shown when a card is temporarily inactive because of a condition stated in the card's description. $0 is replaced with one of the keys under "CONDITIONS" further down in this file.
+  -- eg: the High Focus card will deactivate "because a piece is adjacent to you".
+card_exhausted_bc::Cartea este întoarsă pentru că $0
+
+  -- Shown at the bottom of the screen during the animation where the heir is chosen at the start of a floor.
+hiding_heir::Se ascunde prințul
+
+  -- Shown above the soul slots to the right of the checkboard
+souls::Suflete
+
+  -- Used with angles. eg: "Fire arc: +30°"
+
+  -- Used when unlocking a new shotgun or a new rank, or completing an achievement. $0 is replaced with the name of the shotgun/rank/achievement.
+unlocked::"$0" a fost deblocat!
+
+  -- Used on the disrupt menu which lets you disrupt the white side with a negative effect.
+choose_disrupt::Alege un efect Disruptiv.
+
+  -- Shown at the bottom of the screen when the countdown is on and the player has to finish the floor in a number of turns.
+  -- Shown as "final countdown:[turns remaining]"
+final_countdown::Ceasul Morții
+
+  -- Used when there's no possible target/victim for an ability the player is trying to use.
+no_valid_target::Nu există ținte valide!
+
+  -- Select a piece as target for an ability
+select_a_piece::Alege o Piesă.
+
+  -- Used with the Wand of Wings which lets you move further away from your position.
+choose_destination::Alege o Destinație.
+
+
+  -- NEW!
+  -- Shown at the bottom of the screen when two pieces swap positions.
+swap::Schimbă!
+
+  -- Shown at the bottom of the screen in a very specific situation where the King's Look-Alike false king is revealed and subsequently becomes the real king, because the real king was removed when sabotaging the King's Look-Alike with a disruption effect.
+crowning::Încoronare!
+
+  -- Not used currently but would be used at the bottom of the screen when giving the player free random souls
+free_soul::Suflet Liber!
+
+  -- Shown at the bottom of the screen during the sabotage disruption effect
+select_white_card::Alege o Carte Albă
+
+  -- Shown at the bottom of the screen when using the card Bold Plan
+replace_white_card::Schimbă o Carte Albă
+
+
+
+  -- LEVEL_UP
+choose_set::Fă o alegere.
+
+  -- Used for a specific menu that allows you to choose one card among all possible cards.
+choose_any_card::Alege o Carte.
+
+
+  -- EMOTES
+  -- These are shown over the head of white pieces, or of the black king, in specific situations.
+
+  -- Used when a pawn promotes to another piece.
+promote::Promoție
+
+  -- Used when a knight protects the white king, making it impossible to kill the latter.
+knight_guard::Gardă
+
+  -- Used when the white king and a rook swap positions. Refers to the "Castle" move in classic chess.
+castle::Rocadă
+
+  -- Used when white pieces arrive sometime after the floor started.
+backup::Întăriri
+
+  -- Used when white pieces don't receive full damage because they are close to a piece that protects them. eg: rooks with the Cathedral card.
+cover::Protejat
+
+  -- The heir pawn is being promoted to king
+heir_promote::Prinț!
+
+  -- Used to describe some card unlocks, eg: "This card needs at least 1 Heir to appear"
+heir::Prinț
+
+  -- Used to describe some card unlocks, same as heir.
+spy::Spion
+
+  -- Used to describe some card unlocks.
+soul::Suflet
+
+  -- The player has found the spy in the white army, allowing them to disrupt the white side.
+meet_spy::Înâlnire secretă!
+
+  -- The player can take another action.
+extra_turn::Mișcare Bonus
+
+  -- Used when disguising as a pawn with the card Low-Cost Disguise.
+disguised::Ascuns!
+
+  -- Used when the player leaves stealth mode because they exposed themselves.
+visible::Expus!
+
+  -- Used when the white army disables a mission waypoint with the "investigate" card effect. The "mission" normally allows you to disrupt the white side when completed.
+abort_mission::Abandonează misiunea!
+
+  -- Used when the white army finds and kills the spy in their ranks with the "investigate" card effect.
+spy_executed::Spion executat!
+
+  -- Used on the white king when he gets hit and it promotes the nearest pawn with the "Emergency Call" card.
+help::Ajutor!
+
+  -- Used when shooting the white king's look-alike, revealing them for a knight instead.
+usurper::Impostor!
+  -- Used when auto-da-fé bishops mark a black card to be removed later. Alternatives: heretic! pagan!
+  -- Used when auto-da-fé bishop remove a marked black card. Alternatives: banned! censored!
+
+  -- BOSS LINES (also emotes)
+  -- This is used for a secret boss. The black bishop cries "Justice!" (for all the evil the black king has done) before fighting the black king.
+black_bishop_warcry::Justiție!
+
+  -- The following two lines are used for a secret boss: after the big white king dies, the iron queen grows tentacles and speaks these two lines. Then you have to fight her.
+  -- It has to be two lines, they should be relatively short.
+come_to_me::Vino aici,
+my_love::iubirea mea!
+
+  -- These are used for a secret boss. They are the names of the four horsemen of the apocalypse. Please make sure to translate the correct names.
+apo_name_0::Ciumă
+apo_name_1::Război
+apo_name_2::Foamete
+apo_name_3::Moarte
+
+  -- The following five lines are used for a secret ending where the four horsemen of the apocalypse show up, but the shotgun king takes the fourth horse and kills the other 3 horsemen before leaving the screen.
+  -- It has to be five lines, they are shown one after the other, and they should be relatively short.
+apo_threat_0::Nu
+apo_threat_1::vă puneți
+apo_threat_2::cu
+apo_threat_3::Regele!
+apo_threat_4::Temeți-vă.
+
+  -- Used in a secret event where the white king gets disabled and their usurper knight becomes king instead.
+  -- Has to be 3 lines, they are shown in succession, they should be relatively short.
+power_people_0::Putere
+power_people_1::omului
+power_people_2::de rând!
+
+
+
+
+
+
+  -- PIECES
+  -- These are used in card descriptions and other interface elements.
+piece_0::Pion
+piece_1::Cal
+piece_2::Nebun
+piece_3::Tură
+piece_4::Regină
+piece_5::Rege
+piece_7::Toate piesele
+  -- Please keep piece_8 as "$leader", it is automatically replaced with your translation for the piece that currently has the crown in the game. (usually the king but not always)
+
+  -- $0 here can be replaced with any other piece's name
+  -- Can be changed into "$0 of black color", or "black army $0"
+
+
+  -- SHORT PIECE
+  -- These are used on the panel to the left of the checkboard when inspecting a white piece. Space is limited, please only use 7 characters or fewer for each.
+short_piece_0::Pion
+short_piece_1::Cal
+short_piece_2::Nebun
+short_piece_3::Tură
+short_piece_4::Regină
+short_piece_5::Rege
+  -- Boss is used for the big white king on the last level of Throne mode.
+  -- Blight is the name for the secret queen boss. The point is simply that she's scary, feel free to use whatever conveys that and fits the space constraint.
+short_piece_10::Vâlvă
+  -- Rider is shown for the secret horsemen of the apocalypse bosses. Ideally should be different to the name for knights, you can also use a word/abreviation for "apocalypse" instead.
+short_piece_11::Călăreț
+
+  -- CARD NAMES
+  -- These are the names for the black cards. The idea is to use a lot of adjectives belonging to the lexicons of royalty and self-importance.
+  -- If you have doubts on the meaning we were going for, please refer to the codex in-game to see the card's appearance and description. If that is not sufficient, feel free to message me and ask directly.
+
+Ermine Belt::Curea de Cartușe
+Elite Gem::Gem de Elită
+Extra Barrel::Capacitate Extra
+Royal Loafers::Adidașii Regali
+Majestic Censer::Candeliță Măiastră
+Sacred Crown::Coroană Sacră
+Blunderbuss::Pușcă de Vânătoare
+Engraved Scope::Lunetă Ornată
+Holy Gunpowder::Praf Sfințit de Pușcă
+Ritual Dagger::Pumnal de Ritualuri
+August Presence::Aură Augustină
+Crow's Blessing::Binecuvântarea Corbului
+The Moat::Șanțul
+Rightful Curtsy::Respect Binecuvenit
+Wand of Downpour::Sceptrul Potopului
+Wand of Frenzy::Sceptrul Înverşunării
+Wand of Wrath::Sceptrul Furiei
+Wand of Wings::Sceptrul Aripilor
+Wand of Gust::Sceptrul Vijeliei
+Wand of Hypnosis::Sceptrul Hipnozei
+Kingdom Wealth::Abundența Poporului
+Gradual Absolution::Absoluție Graduală
+Taunting Hop::Salt Sfidător
+Unjust Decree::Actul Tiranic
+Kingly Alms::Pomană Regală
+Subtle Poison::Otravă Discretă
+Small Fry Harvest::Secerișul Pionilor
+A Piercing Truth::Un Adevăr Pătrunzător
+Black Mist::Negură și Fum
+King's Shoulders::Forța Regelui
+High Focus::Concentrare
+Courteous Jousting::Turnir Galant
+Cornered Despot::Despotul Încolțit
+Sawed-off Justice::Justiție Brutală
+Welcome Gift::Cadou de Întâmpinare
+Cannon Fodder::Carne de Tun
+Possessed::Posedat
+Philanthropy::Filantropie
+Imperial Shot Put::Bilă de Plumb
+Egotic Maelstrom::Egolatru Furtunos
+Church Organ::Orga Bisericii
+Black Plague::Ciuma Neagră
+Ravenous Rats::Șobolani Fioroși
+Deep Water::Ape Adânci
+Unholy Call::Chemarea Nesfântă
+Undercover Mission::Misiune Sub Acoperire
+Caltrops::Stele Caltrop
+Nightbane::Spaima Nopții
+Bloodless Coups::Lovitură de Stat Nesângerie
+Presbyopia::Prezbiopie
+Golden Aging::Nunta de Aur
+Fool Companion::Bufonul Regelui
+Force-feeding::Alimentare Forțată
+Seer's Orb::Globul Clarvăzător
+Fearsome::Spaimă
+Human Shield::Scut Uman
+Reign of Terror::Domnia Terorii
+Monarch's Confidence::Mândria Monarhului
+The Mole::Trădătorul
+Elusive::Mișcări Evazive
+Holoking::Hologramă
+Cloaking Device::Dispozitiv de Ascundere
+Low-Cost Disguise::Deghizare Ieftină
+Wand of Souls::Sceptrul Sufletelor
+Wand of Execution::Sceptrul Execuției
+Patience::Răbdare
+Bold Plan::Plan Îndrăzneț
+Silencer::Amortizor de Zgomot
+Ambush::Ambuscadă
+Ancient Flagstone::Piatră de Hotar
+Tearing Bullets::Cartușe Sfârtecătoare
+Indelible Memories::Cicatrici și Traume
+Mystic Shackles::Cătușe Mistice
+Secret Move::Mișcarea Secretă
+Sacred Light::Lumină Sacră
+Workshop::Atelier
+Selective Listening::Comandă Selectivă
+
+  -- Next are the names for the white cards. There's no specific direction here apart from sticking to medieval vocabulary and tropes, with some unavoidable but usually funny exceptions.
+Backups::Întăriri
+Cavalry::Cavalerie
+Conclave::Adunarea Nebunilor
+Entitle::Recrutare
+Cardinal::Cardinalul Nebunilor
+Remparts::Ziduri
+Pillage::Cotropire
+Crusades::Cruciade
+Peace::Pace
+King's Mistress::Dama Regelui
+Revolution::Revoluție
+Bodyguard::Gardă de Corp
+Ruins::Ruine
+Assault::Asalt
+Kite Shield::Scutieri
+Zealots::Zeloți
+Militia::Miliție
+Ammunition Depot::Depozit de Muniție
+Scouting::Cercetași
+Pikemen::Sulițier
+Ascension::Ascensiune
+Castle::Rocada
+Conscription::Conscripție
+Theocracy::Teocrația Nebunilor
+Iron Maiden::Fecioara de Fier
+Court of the King::Curtea Regelui
+The Red Book::Cartea Roșie
+Homecoming::Întâmpinare Regală
+Overthrown Theocracy::Teocrație Uzurpată
+Saboteur::Sabotorul
+Lookout Tower::Turn de Veghe
+Throne Room::Camera Tronul
+The Secret Heir::Prințul Ascuns
+  -- If you're afraid "Drag Queen" won't be understood in your culture, you can go for something else related to queer or transgender rights. Do not use slurs and try to keep it positive please.
+Genderqueer::Travesti
+Undead Armies::Armate Nemoarte
+Shortage::Criză
+Succubus::Sucubus
+Bunker::Buncăr
+Sanctity::Sanctitate
+  -- This card makes knights ethereal/ghost-like. Could be translated to something along the lines of Spectral Cavalry if there's no way to translate the Knightmare pun.
+Knightmare::Cai Fantomă
+Highest Dungeon::Temnița din Turn
+Cathedral::Catedrală
+The Bridge::Podul
+Divine Healing::Vindecare Divină
+Last Guardian::Ultimul Gardian
+Trowel::Mistrie
+Full Plate Armor::Armura Ostașului
+Military Academy::Academie Militară
+Witch's Curse::Blestemul Vrăjitoarei
+Saddle::Șa de Piele
+The Jester::Bufonul
+Guillotine::Ghilotină
+Analysis Paralysis::Paralizie Analitică
+Plumed Knight::Cal Împănat
+Emergency Call::Apel de Urgență
+Mangonel::Catapultă
+Governess::Eudcație Guvernantă
+Mausoleum::Cavou
+Reverend Mother::Preasfânta Mamă
+Tag Team::Muncă în Echipă
+Lady in the Tower::Fecioara din Turn
+Final Countdown::Ceasul Morții
+  -- Can be translated as Nomadism. Please do not use potentially offensive terms.
+Nomad Life::Viață Nomadă
+Prison::Închisoare
+Inquisition::Inchiziție
+King's Look-alike::Regele Fals
+The Royal Hunt::Vânătoarea Regală
+Tragic Homecoming::Tragica Întâmpinare Regală
+  -- Limos (or Limus in latin, take your pick) is the name of the third Horseman of the Apocalypse, the one wearing the shield (/buckler) in the secret boss version of the horsemen in the game. This card gives the shield to the white king, protecting him to some extent. The Limos reference doesn't have to be kept if you can find a better name for that card in your language.
+Buckler of Limos::Scutul lui Limos
+Commoner's Reign::Legea Omului de Rând
+Bouncy Castle::Castel Gonflabil
+Fallen Dynasty::Conducere Subjugată
+Self-Defense::Autoapărare
+Unsettled Throne::Dispută pe Tron
+
+
+
+
+  -- CARDS DYNAMIC
+  -- These are used to describe card effects.
+  -- $0 is replaced with a number (usually 1 or 2) and $1s is replaced with a piece name, pluralized accordingly with the number.
+  -- eg: Remove 2 pawns
+rem_piece::Înlătură $0 $1s
+
+  -- Same thing but $delay is replaced with either the at_delay key below, or the every_x_turn.
+  -- $final may be replaced either by nothing, or with the text for the "at_final", which is defined a little further below.
+  -- eg: Add 2 bishops after 10 turns
+
+  -- Same but without the delay.
+
+
+
+
+  -- Used with add_piece. Also used under this form: "after/every N turns: [other effect]". $0 is replaced with a number.
+at_delay::în $0 [rundă]
+every_x_turn::o dată la $0 [rundă]
+
+  -- The following are the name of different stats as used in other card effects or in shotgun stats.
+ammo_max::Muniție în Rezervă
+grenades_max::Capacitate Grenade
+ammo_regen::Regenerare Muniție
+firepower::Putere de Atac
+firerange::Distanță de Atac
+chamber_max::Capacitate de Încărcare
+pierce::Penetrare Alice
+spread::Rază de Atac
+  -- "Search" as in "Looking for something". The search stat lets you reroll card choices N times. Can also translate as "Reroll" if it makes more sense in your language.
+search::Căutare
+knockback::Forță Alice
+
+
+  -- Special descriptions for the Homecoming card, whcih always appears on the third level-up.
+queen_escape::Nu poți scăpa de ea...
+queen_everywhere::...E pretutindeni!
+
+  -- Even more special descriptions for when you try to reroll the Homecoming card.
+queen_escape_tragic::Mai bine nu făceai asta...
+queen_everywhere_tragic::..Acum e foarte nervoasă!
+
+  -- Used to describe conditions under which a card deactivates. $0 is replaced with one of the conditions under CONDITIONS further below.
+flip_if::Cartea va fi întoarsă dacă $0
+
+  -- Used to denote a group of pieces in effect descriptions. Is used to replace some instances of <pieces>.
+  -- eg with effect_prison: Knights and bishops can't move or attack if near a rook.
+and::și
+
+  -- Actually used in the codex to specify multiple possible tags that can let a card appear.
+  -- eg: While playing a game gather cards with the tag mission or cloak to have a chance to make Inquisition appear
+  -- Please keep the whitespaces on both sides of your translation of "or" if your language uses whitespaces.
+_or_:: sau 
+
+  -- Used when an effect is limited to a square color. $1 is replaced with the effect, and $0 with the color as written just below.
+  -- eg: -1 firepower on white squares
+standing::$1 pe Pătrate $0
+white::Albe
+black::Negre
+
+
+  -- Specific effects
+  -- $0 is replaced with a number
+  -- $1 is replaced with a signed number (a positive number will be preceded by a + sign)
+  -- <inc> is also replaced with a signed number
+  -- $leader is replaced with the name of the piece which currently wears the crown. Normally "king" but can be "bishop" in case of theocracy for example.
+  -- <piece> is replaced with a piece name.
+  -- <pieces> is replaced with a pluralized piece name or with a group of pieces using the 'and' key. Then also piece names are pluralized.
+  -- <target_piece> is also replaced a piece name.
+  -- <target_pieces> is also replaced that same piece name but pluralized.
+  -- <leaders> gets replaced with the pluralized version of $leader.
+  -- <head> gets replaced with the leader for the relevant piece's color. effect_carryking for example is used by Faithful Steed on black knights, and lets them carry the black king.
+
+  -- these next 3 are new and might need reviewing
+effect_ammo_max::$1 Muniție în Rezervă
+effect_grenades_max::$1 Capacitate Grenade
+effect_ammo_regen::$1 Regenerare Muniție
+
+effect_chamber_max::$1 Capacitate de Încărcare
+effect_soul_slot::$1 [Spațiu] pentru Suflete
+effect_soul_sink::Înlătură $0 [Spațiu] pentru Suflete
+effect_crown::Primești o mișcare bonus când folosești suflete
+effect_presence::Piesele care nu sunt regi nu pot să vină lângă tine
+effect_moat::Piesele care nu sunt cai nu pot să-l treacă dintr-o singură mișcare
+effect_hp::Piesa <piece>: <inc> HP
+effect_hprc::Piesa <piece>: $0% HP
+effect_tempo::<inc> Viteză pentru <pieces> 
+effect_shell::Când omori <pieces> vei regenera $0 [punct] de Muniție în Rezervă
+effect_poison::Piesele <pieces> se pot mișca un singur pătrat timp de $0 runde
+effect_cage::Piesele <pieces> se pot mișca doar $0 pătrate
+effect_shield::Piesele <pieces> au un scut care oprește complet un singur atac
+effect_flying::Piesele <pieces> pot ataca și zbura peste alte piese și obstacole
+effect_iron::Piesele <pieces> nu pot fi rănite
+effect_orth::Piesele <pieces> se pot deplasa (dar nu atacă) în cruce
+effect_joust::Primești o mișcare bonus când omori piese <pieces>
+effect_recoil::Când tragi cu arma ești împins în spate
+effect_firepower::$1 Putere de Atac
+effect_firerange::$1 Distanță de Atac
+effect_pawnreap::Sufletele de pioni îți oferă +2 Putere de Atack pentru umătorul atac
+effect_freegren::Odată pe rundă, primești o mișcare bonus când folosești o grenadă
+effect_grenade_dmg::$1 Putere pentru Grenade
+effect_sanctity::Nu mai poți fura suflete de la <pieces>
+effect_plague::La sfârșitul fiecărei runde, o piesă aleatorie pierde 1 HP
+effect_rats::Când omori o piesă, o piesă apropriată e mușcată de șobolani și pierde 1 HP
+effect_deepwater::Piesele care nu sunt Cai nu pot să te atace dacă sunt în apă
+effect_pentagrams::Crează $0 pentagrame care îți oferă o mișcare bonus când activezi una și +2 Putere de Atac când le activezi pe toate
+effect_blade::Tăiș: $1
+effect_blade_console::Putere Tăiș: $1
+effect_blade_old::Execută piesele care sunt lângă tine și au viața egală sau mai puțină decât Tăișul tău
+effect_bushido::O dată pe rundă, primești o mișcare bonus când execuți o piesă cu sabia
+effect_minr::Piesele <pieces> nu atacă dacă ești sub $0 pătrate distanță față de ele 
+effect_carry::Piesele <pieces> cară piesele care nu sunt cai sau ture când se mișcă
+effect_nocarry::Piesele <pieces> nu pot fi cărate de alte piese
+  -- for free = without spending the turn
+effect_freelift::Piesele <pieces> pot fi ridicate și aruncate ca mișcare bonus
+effect_jester_guard::Bufonii se pot mișca în orice direcție, oferă o mișcare bonus când sunt uciși și urmăresc piesele <leaders>
+effect_bodyguard::Piesele <leaders> nu pot fi ucise daca mai sunt piese <pieces> pe tablă
+effect_knockback::Alicele tale au o șansă de $1% să forțeze piesele lovite cu un pătrat înapoi
+  -- here the second $ is replaced with the degree_symbol key.
+effect_spread::$1$ Rază de Atac
+effect_absolution::$1 Putere de Atac pentru fiecare Spațiu pentru Suflete care e gol
+effect_hop::$1 [Salt]|(Poți sării peste o piesă și primești o mișcare bonus)
+effect_pierce::Alicele tale au o șansă de $0% să pătrundă piesele lovite
+effect_mist::Cartea te poate salva o dată pe nivel de la moarte
+effect_grab::O dată pe nivel, ridică o piesă alăturată deasupra ta și arunc-o in orice direcție
+effect_grab_console::O dată pe nivel, ridică o piesă alaturată și arunc-o in orice direcție
+effect_assault::Piesele <pieces> se pot mișca încă un pătrat la prima lor mutare
+effect_militia::Pionii se pot mișca în cruce și ataca în diagonală
+effect_bad_shells::Dublează Raza de Atac pentru $0 alice
+effect_heir::Prinți:$1|Dacă ultimul $leader moare, prințul îi va lua locul
+effect_nothing::Fără Modificări
+effect_manual_reload::Poți încărca un singur cartuș din rezervă pe rundă
+  -- <pieces> and <piece> are not necessarily the same piece type.
+effect_protect::Piesele care nu sunt <pieces> langă o piesă <piece> nu pot pierde mai mult de 2 HP dintr-o lovitură
+effect_bridge::Pătratele din centrul șanțului sunt acoperite
+effect_healer::Piesele <pieces> pot vindeca aliații din jurul lor în loc să se miște
+  -- the last one = the last one alive/remaining
+effect_lastg::Când omori penultima piesă <piece>, promovează ultima piesă <piece>
+effect_curse::Dezactivează cartea asta dacă o piesă <piece> moare
+effect_jester::Bufoni:$1|Bufonii au +2 Viteză, se pot mișca diagonal și pasează pălăria altor pioni când mor
+effect_free_souls::Când începi un nivel, vei primi $0 [suflet] aleatorii
+effect_plumed::O singură piesă <piece> primește +3 HP și poate ataca diagonal
+effect_emergency::Când o piesă <piece> e rănită pentru prima dată, aceasta primește +1 Viteză și promovează cel mai apropriat pion
+effect_despair::Când o piesă <piece> moare, toate piese se sperie|(Nu te pot ataca și fug la următoarea mișcare)
+effect_force_promote::Pionii mereu promovează ca regine
+effect_leaderbond::Când o piesă <piece> moare, piesele <leaders> pierd $0 HP
+effect_humanshield::Raza de Spaimă se activează și când omori pioni
+effect_terrorism::Raza de Spaimă e aplicată și în jurul piesei ucise
+effect_search::Căutare:$1
+effect_tactic::Armata albă nu poate muta mai mult de $0 [tip] de piese într-o rundă
+effect_confidence::+1 Putere de Atac pentru fiecare cartuș care lipsește din pușcă
+effect_push::Piesele <pieces> pot împinge alte piese $0 [pătrat]
+effect_swap::Piesele <pieces> pot schimba locul cu piesele <target_pieces>
+  -- can charge your king = can run towards your king (this is used for the Unicorn card, which lets knights ram you down)
+effect_charge::Piesele <pieces> pot să alerge spre tine și să îți împingă regele cu un pătrat
+  -- white pieces ready to move = about to move
+effect_elusive::Piesele care sunt gata să se miște nu te pot ataca
+  -- a piece that would kill you instead gets promoted to a queen
+effect_killprom::Piesele <pieces> promovează în regine în loc să te omoare
+effect_holocloak::Devii ascuns pentru 6 runde când creezi o hologramă
+effect_holoreveal::Devii expus dacă holograma ta e distrusă
+  -- a countdown starts when there are only 6 pieces left. If you don't end the floor within the countdown, you die.
+effect_deathcount::Ai $0 runde să câștigi când mai sunt doar 6 piese pe tablă
+effect_disguise::Când omori o piesă <piece>, ești ascuns pentru $0 runde
+effect_promote::Piesele <pieces> pot promova dacă ajung în partea opusă a tablei
+effect_bully::Ai -1 Putere de Atac pentru fiecare piesă <piece> care te are în șah
+effect_investigate::Pisele <pieces> distrug marcajul pentru misiuni și execută spionii expuși
+effect_false_king::Când Regele Fals e rănit, acesta devine un Cal
+effect_full_firerange::$1 Distanță de Atac când arma are toate cartușele încărcate
+effect_full_firepower::$1 Putere de Atac când arma are toate cartușele încărcate
+  -- browse the entire deck and pick your card the next time you're getting a black card
+effect_browse::La următoarea selecție, poți alege o carte neagră din întreaga colecție
+effect_replace_white_card::Înainte ca următorul nivel să înceapă, poți rupe o carte albă și să alegi alta din colecție
+effect_pike::Piesele <pieces> pot să atace două pătrate în linie dreaptă
+effect_reformed::Piesele <pieces> nu pot să folosească atacul lor de bază
+effect_armorgap::Piesele <pieces> nut pot pierde mai mult de $0 HP dintr-o lovitură
+effect_bow::Piesele <pieces> pot să tragă cu arcul după tine
+  -- fire = shoot your shotgun
+effect_silencer::Dacă ești ascuns, poți trage cu arma fără să fi expus
+effect_knockweak::Piesele <pieces> au +50% șanse să fie împinse
+effect_uncover::Piesele <pieces> te pot ataca chiar și ascuns
+effect_tearing::Alicele tale fac piesele să sângereze|(Piesele care sângerează pierd 1 HP in plus când sunt lovite)
+effect_bleed_slow::Pisele care Sângerează: -1 Viteză
+effect_caltrops::+$0% șansă ca un inamic să înceapă să sângereze când se mișcă|(Piesele care sângerează pierd 1 HP in plus când sunt lovite)
+effect_grenade_center_dmg::$1 Putere pentru Grenade în centrul exploziei
+effect_grenade_bleed::Grenadele fac piesele lovite să sângereze|(Piesele care sângerează pierd 1 HP in plus când sunt lovite)
+effect_vampire::Piesele <pieces> nu pot sângera|Piesele <pieces> pot oprii sângerarea altor piese și se vindecă pe sine când fac asta
+effect_rep::Piesele <pieces> reînvie ca <target_pieces>
+  -- orb = Seer's Orb, special ability that lets you place an orb over a piece to know its next move
+effect_shackles::Piesele sub influența globului nu pot să își schimbe mișcarea prezisă (decât dacă devine invalidă) și primesc -1 Viteză
+effect_ruler::Omoară toate piesele <target_pieces> pentru a câștiga nivelul
+effect_hop_dmg::$1 Putere pentru Salturi
+  -- use up all your jumps available in a turn
+effect_botte::Dacă folosești toate salturile, primești Putere de Atac egală cu numărul de Salturi pentru următorul atac
+effect_fitness:: Piesele <pieces> se pot deplasa (dar nu atacă) ca un cal
+effect_grenade_proof::Grenadele nu te mai pot omorâ
+effect_grenade_stun::Grenadele amețesc piesele lovite timp de $0 runde
+effect_trampoline::Piesele care cad de pe tablă sar înapoi cu HP plin și grenadele sar de mai multe ori în funcție de distanță
+  -- Replaces Theocracy and Hippocracy descriptions on the boss level, where you have to beat the big white king instead. Royalty shall prevail = royalty shall have the last word = royalty was fated to make a comeback
+effect_fallen::Au încercat să facă o schimbare, dar monarhia mereu persistă...
+  -- Produce = generate. Used with every_x_turn key
+  -- eg: Every 10 turns: Produce 1 grenade
+effect_mk_grenades::Regenerează $0 [Grenadă]
+effect_mk_ammo::Regenerează $0 [Cartuș] din Rezervă
+effect_heirprom::Piesele prinți promoveză mereu în regi
+effect_freereload::Reîncarcă la Ucidere
+effect_overload::Când încarci arma manual, poți forța cartușe peste Capacitatea de Încărcare normală
+effect_delay_mult::Toate efectele care au loc după o anumită perioadă sunt alterate cu $0%
+effect_paralysis::Nu poți să faci nimic timp de $0 runde sau până când ești în șah
+effect_cannonball::Adaugă $0 Bilă de Pulmb|Bilele de Plumb pot fi ridicate și aruncate oricând
+  -- backups refer to cards that add pieces after a number of turns
+effect_alarm::Runda când întăririle apar descrește cu $0 când omori o Piesă Albă
+  -- Here "strategy" refers to the difficulty level of the algorithm deciding the white side's moves. Shows as: "White Strategy:+1"
+  -- "White Strategy" can also be translated as "AI Intelligence", "AI Cleverness", or "White Tactics". Take your pick
+effect_ai_lvl::Inteligența Armatei Albe: $1
+
+
+
+  -- STATS
+  -- These are shown when hovering the mouse cursor over the stats shown to the left of the checkboard in-game.
+  -- $0 is always replaced with the number for that stat, except with range.
+  -- Range is how far you can shoot before your pellets disintegrate, but it's slightly randomized so we give two numbers, a minimum and a maximum, thus $0 is replaced with "3-5" for example.
+  -- For stat_blade and stat_jump, "nearby" means on one of the 8 squares around your king, including corner squares.
+stat_firepower::Cartușele tale se separă în $0 alice. Fiecare alice reduce HP-ul unei piese cu 1 punct când o lovește.
+stat_range::Alicele tale au Distanța de Atac cuprinsă între $0 pătrate.
+stat_f_arc::Alicele tale au Raza de Atac în care se împraștie egală cu $0 de grade.
+stat_knock::Alicele tale au o șansă de $0% să împingă piesele lovite înapoi.
+stat_pierce::Alicele tale au o șansă de $0% să treacă prin piesele lovite.
+  -- [You can / you are allowed to] kill a nearby piece with...
+stat_blade::Sabia ta execută piesele care au $0 sau mai puțin HP. Acțiunea nu consumă cartușe.
+stat_fearsome::Când omori Piese care nu sunt Pioni, piesele din jurul tău sunt cuprinse de spaimă. Ele nu pot să te atace și fug cu următoarea mișcare.
+  -- [You can / you are allowed to] jump over a nearby piece...
+stat_jump::Ai $0 [Salt] pe rundă. Salturile pot fi folosite ca să sari peste piese diferite și îți oferă o mișcare bonus.
+
+  -- CONDITIONS
+  -- These are used with the flip_if and card_exhausted_bc keys.
+  -- $0 is replaced with a piece name, $0s is replaced with the pluralized version of that piece name. You can use one or the other.
+cond_contact::o piesă e lângă tine
+cond_inner::regele tău nu e pe marginea tablei
+cond_first-reload::arma ta a fost reîncărcată
+cond_no_piece::nu există $0s pe tablă
+cond_only_pieces::mai sunt doar $0s pe tablă
+cond_not_cloaked::regele tău nu este ascuns
+
+
+  -- SPECIALS
+  -- These are special abilities a player can get with specific cards in the game. They always use the right click on PC, or a specific button if playing with a controller. In the '_console' varients, $0 is replaced with that button's name or icon.
+
+
+
+special_decree::Click Dreapta: Tragi instant cu toate cartușele încărcate în armă
+special_decree_console::Când apeși $0: Urmatorul atac trage cu toate cartușele încărcate în armă
+
+special_grenade::Click Dreapta: Arunci cu o grenadă
+special_grenade_console::Când apeși $0: Arunci cu o grenadă
+
+special_orb::Click Dreapta: Poți alege o piesă căreia să îi prezici următoarea mișcare
+special_orb_console::Când apeși $0: Poți alege o piesă căreia să îi prezici următoarea mișcare
+
+
+
+  -- WANDS
+  -- These are other special abilities that can be used by clicking on a wand, if you have its card. They usually regenerate on each new level.
+wand_0::Rănește piesele aleatoriu de $0 ori
+wand_1::Reîncarcă arma și rezerva de muniție
+  -- in wand_2, $0 gets replaced with the translation for "firepower"
+  -- non-$leader target -> prompts the player to choose the target when activating this ability
+wand_2::Rănește o piesă care nu e $leader în funcție de ce $0 ai
+wand_3::Deplasează-te în orice direcție $0 pătrate
+wand_5::Poți deplasa o piesă albă
+wand_6::Amețește o piesă timp de 3 runde și le fură sufletul
+  -- refill = regenerate = can be used again
+wand_7::Execută un pion armăi se regenerează când omori piese care nu sunt pioni
+
+  -- DISRUPTION
+  -- These are effects available to the player on reaching a special tile when they have the Undercover Mission.
+  -- "their" always refers to the white army
+  -- the name for each effect is always shown with the corresponding description below, and with an icon to illustrate.
+disrupt_effect_name_0::Sabotează armata albă
+disrupt_effect_name_1::Otrăvește fântâna
+disrupt_effect_name_2::Fură-le muniția
+disrupt_effect_name_3::Înjunghie Regele Alb
+disrupt_effect_name_4::Toarnă smoală pe tablă
+disrupt_effect_name_5::Întoarce Karma
+disrupt_effect_name_6::Dezarmează pionii albi
+disrupt_effect_name_7::Întoarce Ceasul Morții
+
+disrupt_effect_desc_0::Dezactivează o carte albă la alegere
+disrupt_effect_desc_1::-1 HP maxim pentru piesele albe
+disrupt_effect_desc_2::Reîncarcă complet arma, rezerva de muniție și grenadele
+disrupt_effect_desc_3::Regele pierde 4 HP
+disrupt_effect_desc_4::-1 Viteză pentru piesele albe
+  -- refers to a card called Karma which usually gives different maluses depending on what square color you're standing on.
+disrupt_effect_desc_5::Karma e în favoarea ta
+disrupt_effect_desc_6::Pionii nu pot să te mai atace
+  -- refers to a card called Final Countdown which usually kills you if you fail to win the level in a specific number of turns
+disrupt_effect_desc_7::Ceasul Morții omoară toate piesele albe la finalul numărătorii
+
+  -- SHOTGUN NAMES
+
+  -- SHOTGUN UNLOCKS
+  -- These are the conditions to unlock each shotgun.
+shotgun_unlock_1::Trebuie să ai 6+ Distanță de Atac|într-un meci pentru a debloca arma asta
+shotgun_unlock_2::Trebuie să ai 100% Forță Cartușe|într-un meci pentru a debloca arma asta
+shotgun_unlock_3::Trebuie să ai 4+ Capacitate de Încărcare|într-un meci pentru a debloca arma asta
+shotgun_unlock_4::Trebuie să ai 4+ Tăiș|într-un meci pentru a debloca arma asta
+  -- Here search refers to the search stat/mechanic which allows the player to reroll card choices.
+shotgun_unlock_5::Trebuie să schimbi cărți de 4 ori|într-un meci pentru a debloca arma asta
+shotgun_unlock_6::Trebuie să ai 0-2 Distanță de Atac|într-un meci pentru a debloca arma asta
+
+  -- CONSOLE
+  -- This is used on consoles only. (please translate it anyway)
+  -- Switch profile = Switch to a different account on the console
+switch_profile::Schimbare Profil
+
+  -- TUTORIAL
+  -- These are all used in the tutorial. (easy to test once you're done, yay!)
+  -- 'ctrl_tuto_' keys are always followed by a pictogram of the controls whose function is being described.
+
+objectives_tuto::Obiective:
+objective_tuto_1::- Evită nebunul alb|- Intră în castel
+  -- get = pick up = obtain
+objective_tuto_2::- Ridică arma
+objective_tuto_3::- Înfrânge tura
+objective_tuto_4::- Înfrânge caii
+objective_tuto_5::- Înfrânge regele alb
+chess_tuto_1::Nebunii se mișcă diagonal
+ctrl_tuto_1_1::Alege unde vrei să te miști cu:
+ctrl_tuto_1_2::Și confirmă cu:
+chess_tuto_3::Turele se mișcă în cruce
+ctrl_tuto_3_1::Țintește cu:
+ctrl_tuto_3_2::Și trage cu:
+ctrl_tuto_3_3::Reîncarcă arma când te miști sau cu:
+  -- '| |' is intended, makes a double linebreak
+chess_tuto_4::Caii se mișcă în L| |Ai grijă, pot să sară peste alte piese!
+ctrl_tuto_4_1::Poți vedea detaliile pieselor cu:
+ctrl_tuto_4_2::Poți pune pauză cu:
+chess_tuto_5_1::Reginele se mișcă în opt direcții
+chess_tuto_5_2::Pionii se mișcă un pătrat în față, dar atacă diagonal
+ctrl_tuto_5_1::Ca să câștigi nivelul, trebuie să omori Regele Alb
+ctrl_tuto_5_2::Poți să citești efectele unei cărți cu:
+  -- dangers display = visual warnings = show dangerous squares
+ctrl_tuto_5_3::Poți vedea pătratele atacate cu:
+tuto_barrels::Capacitate de Încărcare:|Aici ai cartușele care sunt încărcate în armă și pot fi trase cu arma cât timp nu le epuizezi.|Ca să reîncarci arma, mișcă regele sau apăsa $0.
+tuto_ammo::Muniție în Rezervă:|Aici ai toate cartușele care poți să le încarci în armă.|Regenerezi cartușe când ai Capacitatea de Încărcare plină și îți miști regele.
+tuto_folly_shields::Scuturile Necugetării:|De acum înainte poți murii dacă nu ai grijă! Din fericire, scuturile astea încearcă să te apere de pericol. Se regenerează după fiecare rundă.| |Poți schimba câte scuturi ai din setări.
+tuto_card_black::Când termini un nivel o să primești o carte care oferă un bonus...
+tuto_card_white::...Dar și inamicii tăi primesc o carte! Baftă!
+
+  -- TUTORIAL DIALOGUES
+  -- These are the names as displayed at the beginning of dialog boxes.
+black_king::Regele Negru:
+black_bishop::Nebunul Negru:
+
+  -- Black Bishop:
+dialogue_tuto_1_1::Majestate, domnia Ta a fost abandonată de toți. Doar eu sunt rămas de sfătuitor Ție. Pot propune o retragere tacticală?
+  -- [White bishop appears]
+  -- Black king:
+dialogue_tuto_1_2::Trădătorule!! Ce prost arăți cu var pe tine!
+  -- Black bishop:
+dialogue_tuto_1_3::Regele meu, mă tem că ne aflăm într-o poziție prea vulnerabilă la momentul acesta. Te rog mult eu, trebuie să luăm refugiu în cetatea Ta.
+  -- B King:
+dialogue_tuto_1_4::Bine, hai. Oricum am deja o idee pentru cum pot rezolva problema asta.
+  -- [Both get into the castle. Next screen is in a room with a shotgun on a pedestral.]
+  -- B King:
+dialogue_tuto_2_1::Uite-l! Cel mai loial supus al meu...
+  -- B Bishop:
+dialogue_tuto_2_2::Majestate? Ce... Ce are domnia Ta de gând?
+  -- B King:
+dialogue_tuto_2_3::Arma mea regală!! Ia să vedem acum ce piese din flori de vară îndrăznesc să mă trădeze fix pe mine.
+  -- B Bishop: (distressed)
+dialogue_tuto_2_4::Domnia Ta măreață, Te rog și Te implor, asta este mult prea extrem! Nu pot vedea în gând bun cele ce urmează.
+  -- B King:
+dialogue_tuto_2_5::Ia închide tu gura aia de ciorap și taci! Stai aici! N-am nevoie nici de tine și nici de aprobarea ta pentru ce vreau să fac.
+  -- [Back outside in front of the castle. A white rook is there.]
+  -- B King: (can replace this line with any sort of gratuitous threat that plays on words with the rook piece or with the castle in the background)
+dialogue_tuto_3_1::Tu de acolo! Da! Tu, Turo! Ai venit să-mi admiri turnul cumva? Hai, vino mai aproape să faceți cunoștință.
+  -- B King, after shooting once at the rook, needs to reload their shotgun:
+dialogue_tuto_3_2::Morman sărăntoc de piatră! Chiar trebuie să trag de două ori după tine?
+  -- B King has killed the rook, and now two knights come onto the board.
+  -- B King: (snarky remark on knights' weird L-shape movement in chess)
+dialogue_tuto_4_1::Aha, uite și noii Măgari ai Regelui Alb. Încă mergeți strâmb la troacă?
+  -- B Bishop, explaining you can see enemy piece's info in the interface.
+dialogue_tuto_4_2::Al meu Rege, am adunat și notat mai multe detalii legate de foștii Tăi supuși. Aici poți vedea cum se deplasează, cum atacă, câtă viață au și când urmează să se miște.
+  -- B King: (callback to the first time the king told the bishop to shut up)
+dialogue_tuto_4_3::Taci! Parcă ți-am zis să îți ți gura de ciorap închisă!?
+  -- Both knights are blown to pieces by the Black King.
+  -- B King:
+dialogue_tuto_powerup::Așa da, asta e viață: mirosul de praf de pușcă în aer și rămășițele trădătorilor sub tălpile mele! Mă simt mai viu cu fiecare clipă!
+  -- The white king and queen come onto the board with a few pawns.
+  -- B King: (lead hail refers to the shotgun's pellets. can replace this with any vaguely threatening pun/joke about rival royalty)
+dialogue_tuto_5_1::Oho, ia uite și cuplul regal. Poarta greșită! Asta e fortăreața mea! Dar nu-i problemă, vă arăt eu cum să ajungeți la poarta raiului!
+  -- Still B King, to himself: ("gets it" = dies. Needs to convey that the white side will give up if their king dies)
+dialogue_tuto_5_2::Măcar știu că dacă Regele Alb dă colțul, dobitocii ăștia o să se care de pe peluza mea.
+  -- The B King defeats the small white army.
+  -- Narrator, with illustrations: (continuation from vig_1, to be found further below, which is actually displayed at the start of the tutorial, and this is shown after the tutorial is completed)
+  -- (the "claim over thyne former subjects' souls" is about the game's mechanic of stealing piece's souls when they die to move like them.)
+  -- (B Bishop prophesizes that the B King's anger will lead him to his demise)
+vig_2_tuto::Cu armata albă făcută praf și pulbere, ultimul Nebun Negru și-a dat demisia. Acesta a mers la Regele Negru și i-a spus "Ai fost un Rege groaznic, dar binecuvântarea rămâne. Măria Ta rămâne în posesia sufletelor celor care Te-au slujit, deci frica mâniei Tale încă ne paște. Așa că fă să fi atent, și să ai grijă, întrucât furia numai furie naște și îți va aduce propriul sfârșit."
+vig_3_tuto::Și acum Regele Negru chiar a fost abandonat de toți, nici măcar o Tură lăsată pe numele lui. Tot ce mai avea era arma lui regală, cioburile demnității sale, și mânia prevestită. "Propriul sfârșit? Hai că da, sigur. Ce crede că aș putea să mai pierd acum? Le arăt eu lor!" În mânia sa oarbă, și-a încărcat arma și a mers să riște un ultim șah-mat.
+
+  -- ACHIEVEMENT NAMES
+  -- please check directly in game in the codex for the signification of each achievement
+ach_FULL_SET::Set Complet
+ach_WIZARD::Vrăjitor
+ach_COMPLETE::Complet
+
+  -- This is given when the player defeats the secret bishop boss
+ach_AVENGED::Răzbunat
+  -- This is given when the player defeats the secret bishop boss and shoots at the red book which gave his powers to the black bishop
+ach_EXORCISED::Și Exorcizat
+
+ach_SWARM::Mușuroi
+ach_LEGION::Legiune
+ach_SNIPER::Lunetist
+ach_ASSASSIN::Asasin
+ach_STEROID::Steroizi
+ach_TRIGGER_HAPPY::Gata de Atac
+ach_SCAVENGER::Cotropitor
+ach_SOCIAL_DISTANCING::Distanțare Socială
+ach_RELIGION::Religie
+ach_SECRET::Mici Secrete
+ach_SECURITY_SERVICE::Servicii de Securitate
+ach_INQUISITION::Inchiziție
+ach_MOBILITY::Mobilitate
+ach_BOUNDARIES::Granițe
+ach_MACHINE_GUN::Mitralieră
+ach_SURVIVOR::Supraviețuitor
+ach_DEMOLITION::Demolare
+ach_HORSEMEN_OF_THE_APOCALYPSE::Călăreții Apocalipsei
+ach_ROYAL_RETAINER::Armată Personală
+ach_THE_FLOOR_IS_LAVA::Ca pe Rug
+ach_EMPEROR::Împărat
+ach_LATE_TO_THE_PARTY::În Așteptare
+ach_UNEXPECTED_ENTRANCE::Intrare Neașteptată
+ach_SWORDMAN::Spadasin
+ach_CLIFFHANGER::Suspans
+ach_SLAUGHTER::Măcel
+ach_BENEVOLENCE::Binevoință
+ach_BUILDER::Meșterul Manole
+
+ach_MERCIFUL_RULER::Un Rege Pașnic
+ach_A_VELVET_GLOVE::Mănușă de Catifea
+ach_DELETED::Click Dreapta Delete
+ach_SQUARE_ALLEGIANCE::Culoarea Alianței
+ach_INCARNATION::Încarnare
+ach_LIKE_FATHER_LIKE_SON::Așa Tată, Așa Fiu
+ach_HUMILIATION::Batjocură
+
+  -- This achievement is given for throwing an iron queen off of the checkboard
+
+ach_HOW_IT_SHOULD_BE::Formație Clasică
+ach_SHE_IS_EVERYWHERE::Chiar e Pretutindeni
+ach_MORTAL_PERIL::Pericol de Moarte
+ach_PROJECTILE_DYSFUNCTION::Rezervă Slabă
+ach_HOPE_THIS_HITS::Doamne Ajută să Lovească
+ach_NINE_LIVES::Nouă Vieți
+ach_YOUR_WIFE_MY_WIFE::Nevasta Ta, Nevasta Mea
+ach_A_MIGHTY_FORTRESS::O Puternică Fortăreață
+ach_UNDERPRESSURE_AMMO::Cartușe Moarte
+ach_GLUTTONY::Nehalit
+ach_IRON_KING::Regele de Fier
+ach_WIDOW::Văduvă
+ach_YOU_SHALL_NOT_PASS::TU! NU VEI! TRECE!
+ach_BLITZ::Meci Fulger
+ach_BULLET::Meci Glonț
+ach_SUICIDE_PACT::Pact de Sinucidere
+ach_OH_NO::Bă, stai!
+ach_MR_PRESIDENT::Domnu' Președinte!
+ach_LIFEGUARD::Salvamar
+
+  -- $0 is replaced with the number for each rank, this is the achievement given for completing them
+ach_rank::Rangul $0
+
+ach_DANGEROUS_LIFE::Viață Periculoasă
+ach_NIGHTMARE_ERA::Eră de Coșmar
+ach_DRAUGHTS::Joc de Table
+ach_PUPPET_MASTER::Păpușar
+ach_HIDDEN_CONSPIRATOR::Conspiratori
+ach_DECEIVER::Înșelător
+ach_STARBURST::Orbitor
+ach_DETENTION::Detenție
+ach_OUT_OF_TIME::Ochii pe Ceas
+ach_JEALOUSY::Gelozie
+ach_DISCREET_HOST::Gazdă Discretă
+ach_FIRST_AID::Primul Ajutor
+
+  -- More shotgun names
+
+
+  -- This one is for defeating the secret queen boss
+ach_MARITAL_PEACE::Liniște și Pace
+  -- This one is for defeating the secret 4 horsemen of the apocalypse boss
+ach_END_OF_THE_WORLD::Sfârșitul Lumii
+  -- And this one is for getting the secret ending where the black king steals one of the apocalypse horsemen's horses
+ach_NEW_JOB::Meseria nu se învață...
+
+ach_WORKPLACE_ACCIDENT::Accident de Muncă
+ach_BULLFIGHTING::Matador
+ach_BURIED_ALIVE::Îngropat de Viu
+ach_COLD_REGICIDE::Ucis cu Sânge Rece
+ach_FINAL_ESCAPE::Timpul Evadării
+ach_HIPPOCRACY::Ipocrizie
+ach_BLOODBATH::Baltă de Sânge
+ach_ANARCHY::Anarhie
+ach_WARDEN::Paznic
+ach_MIDNIGHT_DANCE::Dans Letal
+
+
+  -- ACHIEVEMENT DESCS
+ach_FULL_SET_desc::Obține 10 cărți albe și negre într-un meci
+ach_WIZARD_desc::Obține 3 Sceptre într-un meci
+ach_COMPLETE_desc::Omoară Regele Alb
+ach_AVENGED_desc::Omoară Nebunul Negru
+ach_EXORCISED_desc::Omoară Cartea Roșie
+
+  -- $0, $1 and $2 are replaced with card names.
+ach_cards_desc::Câștigă cu $0, $1 și $2
+
+  -- same description for all shotgun achievements.
+ach_gun_desc::Câștigă un meci cu arma asta
+
+ach_MERCIFUL_RULER_desc::Termină un nivel fără să omori pioni
+ach_A_VELVET_GLOVE_desc::Termină un nivel omorând doar Liderul
+ach_DELETED_desc::Termină un nivel în 6 runde
+ach_SQUARE_ALLEGIANCE_desc::Termină un nivel fără să calci pe pătrate albe
+ach_INCARNATION_desc::Termină un nivel mișcându-te doar cu suflete
+ach_LIKE_FATHER_LIKE_SON_desc::Omoară Regele Alb aruncând Prințul spre el
+  -- hopping = jumping
+ach_HUMILIATION_desc::Omoară Regele Alb sărind pe el
+ach_HASTA_LA_VISTA_BABY_desc::Omoară o fecioară de fier
+ach_HOW_IT_SHOULD_BE_desc::Armata albă trebuie să aibă exact 8 pioni, 2 ture, 2 cai, 2 nebuni, o regină și un rege
+ach_SHE_IS_EVERYWHERE_desc::Trebuie să ai 5+ regine pe tablă în același timp
+ach_MORTAL_PERIL_desc::Fi atacat de 4 piese odată
+ach_PROJECTILE_DYSFUNCTION_desc::Trebuie să ai mai multe cartușe în pușcă decât în rezervă
+ach_HOPE_THIS_HITS_desc::Raza de Atac trebuie să fie peste 120 de grade
+ach_NINE_LIVES_desc::Fi salvat de la moarte de 9 ori
+ach_YOUR_WIFE_MY_WIFE_desc::Ridică o regină și car-o pe pătratul unde ai început runda
+ach_A_MIGHTY_FORTRESS_desc::Trebuie să ai 6+ ture pe tablă în același timp
+ach_UNDERPRESSURE_AMMO_desc::Trebuie să ai Puterea de Atac egală cu 1
+ach_GLUTTONY_desc::Trebuie să ai 20+ Muniție în Rezervă
+ach_IRON_KING_desc::Câștigă un meci în Tron fără să folosești scuturi
+ach_WIDOW_desc::Câștigă un meci în Tron fără să omori regine
+ach_YOU_SHALL_NOT_PASS_desc::Câștigă un meci în Tron fără să lași pionii să promoveze
+ach_BLITZ_desc::Câștigă un meci în Tron în 5 minute
+ach_BULLET_desc::Câștigă un meci în Tron în 2 minute
+ach_SUICIDE_PACT_desc::Omoară Regele Negru și un Rege Alb cu aceeași grenadă
+ach_OH_NO_desc::Mori dintr-o grenadă
+ach_MR_PRESIDENT_desc::Fă o tură să salveze Regele Alb de la o piesă care zboară spre el
+ach_LIFEGUARD_desc::Împinge o piesă afară din șanț
+ach_MMMMH_DELICIEUX_desc::Trebuie să fi învins de Regele Boss
+
+  -- finish throne = finish throne mode. $0 is replaced with rank number.
+ach_rank_desc::Termină rangul $0
+
+ach_MARITAL_PEACE_desc::Omoară Vâlva
+ach_END_OF_THE_WORLD_desc::Omoară cei 4 Călăreți ai Apocalipsei
+ach_NEW_JOB_desc::Fură meseria unui Călăreț
+ach_WORKPLACE_ACCIDENT_desc::Fă o piesă, care nu e pion, să cadă de pe tablă
+ach_BULLFIGHTING_desc::Fă un unicorn să se sinucidă
+ach_BURIED_ALIVE_desc::Omoară un Rege Alb folosind doar efectul cărții Cavou
+ach_COLD_REGICIDE_desc::Omoară Regele Alb în timp ce ești ascuns
+ach_FINAL_ESCAPE_desc::Câștigă un nivel fără să ataci piese în timp ce Ceasul Morții e activ
+ach_HIPPOCRACY_desc::Lasă caii să conducă armata albă
+ach_BLOODBATH_desc::Trebuie să ai 12+ piese care să sângereze în același timp
+ach_ANARCHY_desc::Trebuie să ai 4+ Regi Albi pe tablă în același timp
+ach_WARDEN_desc::Trebuie să ai 8+ piese la Închisoare în același timp
+ach_MIDNIGHT_DANCE_desc::Obține +4 Putere de Atac din Mișcarea Secretă
+
+
+
+
+
+  -- LIVE SPECIFIC
+  -- Used only on Xbox.
+HERO_BestThroneRank::Cel mai mare rang în modul Tron
+HERO_BestThroneTime::Cel mai rapid timp în modul Tron (orice rang)
+HERO_BestEndless::Cel mai înalt nivel în modul Nesfârșit
+HERO_HighscoreChase::Cel mai bun scor în modul Fugar
+  -- Shown as player's status.
+Presence_RP_menu::În meniu
+Presence_RP_tutorial::În tutorial
+Presence_RP_throne::În Modul Tron - Rang {0}
+Presence_RP_endless::În Modul Nesfârșit - Nivel {0}
+Presence_RP_chase::În Modul Fugar
+
+  -- PSN SPECIFIC
+  -- Used only on PS4 & PS5
+ach_PLATINIUM::Regele Puștii
+ach_PLATINIUM_desc::Ai obținut toate trofeele
+ui_trophies::Trofee: $0%
+
+  -- STORIES
+  -- Intro to throne mode (vig_1 is also used for the tutorial, and the tutorial ends with a variation of vig_2 and vig_3)
+vig_1::Regele Negru a fost un conducător foarte extravagant și neplăcut. Cu trecerea anilor, tot mai mulți supuși s-au dus la Regele Alb, care le-a oferit salarii mai mari și un program de muncă rezonabil. După aceea, Regelui Negru i-au fost luate și averea și castelul. Cavalerii și Caii l-au dezertat și ei. Chiar și Regina l-a abandonat.
+  -- Black bishop prophesizes the king's anger will lead him to his demise. Also mentions "the claim over thyne subjects' souls" referring to getting the pieces' souls when you kill them in the game.
+vig_2::Până să plece și el, ultimul Nebun Negru a mers la Regele Negru și i-a spus "Ai fost un Rege groaznic, dar binecuvântarea rămâne. Măria Ta rămâne în posesia sufletelor celor care Te-au slujit, deci frica mâniei Tale încă ne paște. Așa că fă să fi atent, și să ai grijă, întrucât furia numai furie naște și îți va aduce propriul sfârșit."
+  -- Black King angry.
+vig_3::Dar Regele Negru nu mai avea nimic, nici măcar o Tură lăsată pe numele lui. Tot ce mai avea era arma lui regală, cioburile demnității sale și mânia prevestită. "Propriul sfârșit? Hai că da, sigur. Ce crede că aș putea să mai pierd acum? Le arăt eu lor!" În mânia sa oarbă, și-a încărcat arma și a mers să riște un ultim șah-mat.
+
+  -- Transition to the boss big white king.
+vig_4::"Atâta muncă și trudă ca să se simtă bine veniți și în siguranță, dusă pe apa sâmbetei... Și atâția supuși, făcuți praf și pulbere de un nenorocit cu o pușcă!" Regele Alb nu mai putea tolera asta nici măcar o clipă în plus. Cuprins de furie, Regele Alb a decis să înfrângă personal maniacul ăsta egoist.
+  -- Variant for when the Theocracy card is in play. The White King takes back the rule from the bishops.
+vig_5::"Atâta muncă și trudă ca să se simtă bine veniți și în siguranță, dusă pe apa sâmbetei... Și atâția supuși, făcuți praf și pulbere de un nenorocit cu o pușcă!" Regele Alb nu mai putea permite Nebunilor să lase regatul să cadă în ruină. Cuprins de furie, Regele Alb a decis să înfrângă personal maniacul ăsta egoist.
+
+  -- Normal win
+vig_6::Și astfel, furia Regelui Negru i-a adus victoria. Era timpul ca el să revendice castelul și supușii Regelui Alb, și ca aceștia să-i îndure conducerea nemiloasă.
+vig_7::"Fiți fericiți!" le spunea el. "Măcar voi n-ați fost făcuți praf și pulbere!" râse acesta, ridicând arma în aer. Neînfrânt, Regele Negru nu a învățat absolut nimic. Astfel, nu va dura deloc mult timp până când un nou Rege Alb va apărea și povestea se va repeta.
+
+  -- SECRET ENDINGS
+  -- On killing the Black Bishop:
+vig_8::"Pf! Al cui e sfârșitul acum, Nebunule?!" a țipat acesta. În momentul în care Nebunul Negru a murit, Cartea Roșie i-a zburat din mâini și s-a ridicat ușor către înalturile cerului...
+  -- The following is only used if a secret condition is respected of killing the bishop. Otherwise the normal ending is shown instead after this.
+
+vig_9::"S-o crezi tu p-asta!" Cu arma deja încărcat, Regele Negru a pus ținta pe Cartea Roșie...
+vig_10::... și a spulberat-o din plin. Pagini rupte și sfârtecate cădeau ușor din ceruri ca niște fulgi de nea. "Carte sfântă... Poate dacă mă ștergeam eu cu ea!" a zis el. "Nimeni nu e mai presus și mai sfânt ca mine și ca arma asta! Nimeni!"
+vig_12::"Fiți fericiți!" le spunea el. "Măcar voi n-ați fost făcuți praf și pulbere!" râse acesta ca un diavol, ridicând arma în aer. "Și acum, e timpul pentru on nouă lege!" Acesta arată către rămășițele fluturânde ale Cărții Roșii. "Fără cărți sfinte, fără cărți normale și fără cărți de orice alt fel sau modă! Nici una, niciodată, nici acum, nici altă dată de acum și până-n vecie! Eu sunt noul vostru Dumnezeu, Dumnezeul Puștii! Ve-ți face porunca mea cuvânt divin și literă de lege!" Domnia sa avea să fie lipsită de milă și temută de toți până la adânci bătrâneți.
+
+  -- Shown after defeating the secret boss queen. ("The Blight")
+  -- Should read as not-so-subtle freaky erotica. Don't use direct sexual words but lean hard into the double-entendres. Have fun with it!
+  -- Don't make it too long. The original text is already quite close to the limit of what can be displayed at once.
+vig_13::Tentaculele astea aveau să îl bântuie și frământe pe Regele Negru timp de multe nopți toride și nedormite. Simplul gând că aceste membre, alunecoase și lipsite de oase, veneau mișcându-se peste corpul lui, strângându-l de jur împrejur cu o forță senzuală și voluptoasă, era suficient să-l înnebunească. Felul în care îi consuma vitalitatea, Regina sa a fost mereu o bestie avidă și inepuizabilă... Acum, în locul vocii ei suave, Regele Negru trebuia să se mulțumească cu liniștea singurătății în timp ce lustruia țeava armeir sale.
+  -- Then the normal ending is shown.
+
+  -- Shown after the black king steals a horse from one of the secret boss horsemen of the apocalypse and leaves the board.
+  -- The black king found a "job opening" as a horseman of the apocalypse, leaving his old role of king.
+vig_14::Poți ghici cine a reușit să devină o problemă de grad Biblic? Sătul să se mai chinuie cu servitori inutili și proști, Regele Negru a depus dosarul pentru o meserie potrivită lui! Nu o să fie rost de discuție sau negociere cu el, doar distrugere și moarte oriunde îl duce al său Cal Palid. Satan ai grijă, Regele Puștii a început să treacă prin câmpul muncii și ambiția lui e necurată.
+
+  -- Shown after defeating the secret boss Horsemen of the Apocalypse
+  -- Should mention the artifacts because they are shown in the accompanying illustration. Please do your best to translate the last joke about the horsemen's Last Judgement/Apocalypse being the black king's "thursday". (i.e. a day like any other)
+vig_15::"Călăreții Apocalipsei, poate apocalipsa ia călărit pe ei!" rânjește Regele Negru, atârnând armele acestora pe perete. Nebunul Negru îl mai avertizase în trecut, spre dezinteresul lui regal, de cei care aveau să aducă Judecata Finală, Călăreții care aveau să aducă Sfârșitul Timpului. Poate că pentru ei a fost Judecata Finală, dar pentru Regele Puștii a fost joi.
+
+
+  -- PLURALS
+  -- This is where you define pluralization rules!
+  -- The first rule defines the default behaviour for any word.
+  -- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+
+*
+*:s:
+
+  -- For any word that is spelt differently when pluralized, use either of these syntaxes:
+  -- child:s:children
+  -- child:2:children
+  -- Use this second version to define a puralization for a specific number. (here 2) Outside percentages the game only uses numbers below 10, so there's no need to define rules for numbers above 10. In case of unnumbered plurals (eg: "knight(s) get +2 HP") then the game internally uses the number 999. So you can write a specific rule for 999 for these cases like so:
+  -- knight:999:knights
+  -- Both versions of the word should be in your language. The original word should be identical to how you wrote it previously in this file, including capitalization(!).
+
+  -- This is used for piece names (full names, not the short versions), for the translation for "shell", and for any words you might have set between braces so you could write its proper plural form here.
+
+  -- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+  -- child:s:children
+  -- child:2:children
+cartuș:s:cartușe
+Prinț:s:Prinți
+Spion:s:Spioni
+Suflet:s:Suflete
+Pion:s:Pioni
+Cal:s:Cai
+Nebun:s:Nebuni
+Tură:s:Ture
+Regină:s:Regine
+Rege:s:Regi
+Boss:s:Boși
+Asasin:s:Asasini
+Gardian:s:Gardieni
+rundă:s:runde
+Spațiu:s:Spații
+punct:s:puncte
+Salt:s:Salturi
+suflet:s:suflete
+tip:s:tipuri
+pătrat:s:pătrate
+Piatră:s:Pietre
+Grenadă:s:Grenade
+Cartuș:s:Cartușe
+-- If your language doesn't add 's's at the end of plural words (like in Chinese, Japanese or Korean) please set this first line to '*:s:'. (i.e.: remove the s just before the linebreak) This is very important, otherwise you'll see 's's popping up everywhere.
+-- child:s:children
+-- child:2:children
+man:s:men
+
+

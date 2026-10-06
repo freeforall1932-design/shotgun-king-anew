@@ -174,67 +174,63 @@ itself silently ignores those too.
 
 ---
 
-### Step 5 — launch the copy and play a minute (Build-6 live test)
+### Step 5 — Build 9 live test (only the tests)
 
-1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
-   (Step 4 printed its exact path).
-2. To open the **mod menu**, click **Play** — it is the **top entry** of
-   that screen.
-3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
-   — **black text = OFF, white text = ON**. The build writes
-   `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
-   (ON) and the 13 workshop mods black (OFF). The **up/down arrows only
-   change load priority**. Build 7 shows a `< BACK` button and the white/black
-   legend on the mod-list screen (`SKUI\|menu\|widgets_added=true` in the log
-   is the proof); note whether they appear and whether Back exits without
-   save-and-reboot.
-4. Start a run and play a couple of turns. Find the native **SK DEV** text
-   button near the bottom of the board; click it to reveal the controls.
-   **Build 7 layout — page 1:** `+3 AMMO` (reserve) · `RELOAD` · `CLIP+` ·
-   `SAFE:off/on` · `CARD:AUTO/LIST` · `CARD NOW` · `CARDS>` · `SPAWN...` ·
-   `GOD:off/on` · `DMG:off/on` · `DMG+` · `CRIT+` · `CLOSE`.
-   Click each one **once**, in this order if convenient:
-   1. `+3 AMMO` (reserve adds 3), `RELOAD` (chamber fills), `CLIP+` (bumps
-      `stack.chamber_max` — a status experiment; note if anything changes).
-   2. `CARD NOW` (takes a card), then `CARDS>` → take any card from the list →
-      `FILT:ALL`/`FILT:PIECE` filters to piece/summon cards (e.g. Right-hand)
-      → the piece it summons arrives on a neighbouring square.
-   3. `SPAWN...` → pick `knight`/`bishop`/etc. — the ally should appear on a
-      DIAGONAL neighbour (never blocking your 1-tile move).
-   4. `GOD:on`, then let a piece hit you lethally: the king should dodge to a
-      free square instead of dying.
-   5. `DMG:on`, then `DMG+`/`CRIT+` and fire a few shots: damage rolls (and
-      crits on piercing shots) appear in the log as `SKD|dmg|…`.
-   6. `SAFE:on` limits a boot to ONE gameplay-mutating call (use it if a
-      control ever crashes the game — it makes the culprit obvious).
-   7. `CLOSE` — the panel (and its buttons) must disappear for real.
-   Every control logs an intent line (`SKE|call|<name>=start`) before it runs,
-   so if the game dies, `log.txt` names the control. The diagnostic probes all
-   run at load; a crash after a click still leaves a complete harvest. Note
-   crashes, UI overlap, or wrong behaviour. Then quit normally.
+Launch the game `.exe` in `E:\testing\ShotgunKing-Modded` (Step 4 printed the
+path). Click **Play** for the mod menu. Check each item and report it by its
+number (e.g. "A3 failed: …").
 
-Build 7 writes its load/hook proof plus the card/offer/soul/damage/input/UI
-probes and the engine-call trace to `log.txt`. The game prefixes every line with `  . ` — that is normal.
+**Red text rule:** any red text on the main menu or mod menu, from a mod that
+is ON, is an **error**. Write down the exact words. `log.txt` keeps them, and
+`notes/red-warnings.md` maps each one to a code and a fix.
 
-> **Build 5 crashed at boot (run 4)** — it probed an input name the engine did
-> not know, and SUGAR treats that as fatal. Build 6 (run 5: booted and played
-> 22 min cleanly) and Build 7 only probe inputs the game
-> itself published, so that crash cannot repeat; if the game ever quits at boot
-> again, send me `log.txt` **and** the newest `crash_log_*.txt` — the last
-> `ERR`/`Stack traceback` block names the exact line.
+**A. Mod menu**
+
+| # | Do | Pass looks like |
+|---|---|---|
+| A1 | Open the mod menu | A small legend at the **far left, vertically centred**, in separate short lines: `MOD MENU` · `WHITE = ON` / `DARK = OFF` · `CLICK A NAME` / `TO TOGGLE IT` · `ARROWS = LOAD ORDER`, then a status line. It doesn't overlap the rows, and hovering over it changes nothing (it never turns red). |
+| A2 | Click any mod's name | Its text flips `OFF` ↔ `ON` (dark ↔ white) **at once**, without leaving the menu. |
+| A3 | Click `The Magnificent Quartz Army` ON, then OFF again | The bottom button first reads `Save and Reboot`, then reads **`Back`** again, and clicking it **returns to the title** (run-6 bug: it stayed stuck). Moving a mod up and then back down behaves the same. |
+| A4 | Keep **`SK Rework` ON** (it runs these tests). Turn every other mod OFF, then turn **only** `Disgraced Justice` ON | Red legend lines appear: `E1 TERMINAL IS OFF` and `E3 COLLECTION IS OFF`, each followed by `FOR …` naming the mods, plus an `AUTO-FIX` button. |
+| A5 | Click `AUTO-FIX` | The menu reopens in dependency order. `Glacies' Collection` and `Glac Terminal` are now ON, `Glac Terminal` is the **last** row, the legend says `DEPENDENCIES OK`, and the button reads `Save and Reboot`. Click it: after the reboot the main menu shows **no red text**. |
+| A6 | Turn **all** mods ON (click AUTO-FIX if any `E` line shows), then Save and Reboot | **No red text** on the main menu or mod menu. Quartz Army and Extra Features need Glac Terminal too: they print no red text of their own, so the legend's `E1` is the only warning for them. |
+
+**B. Throne-like modes** (keep all mods ON from A6; Quartz Army and Royal Card Lab need Glac Terminal)
+
+| # | Do | Pass looks like |
+|---|---|---|
+| B1 | Start **Quartz Throne** and open its gun and rank choice | 9 guns (Solomon, Victoria, Ramesses II, Richard III, Makeda, Alexander, Yvan IV, Attila, Montezuma), **all unlocked**, with the right icons. **All 15 ranks** are selectable. |
+| B2 | Pick a non-default gun and rank, play a level (or quit the run), then **close the game completely and relaunch** | Quartz Throne still has every gun and rank unlocked and remembers your choice. Before Build 9, Quartz lost its unlocks on every boot. |
+| B3 | Same check in **Fairy Endless** (choose, close the game, relaunch) | 9 guns, all unlocked, still there after the relaunch. |
+| B4 | Start **Nightmare** and **Card Lab** | Both list the same 9 guns, and the gun icons are correct (no wrong or blank sprites). |
+
+**C. SK DEV panel** (Build 8, not tested live yet). In a normal Throne run,
+click the **`SK DEV`** tab at the bottom left. While the box is open, every
+click belongs to it.
+
+| # | Do | Pass looks like |
+|---|---|---|
+| C1 | `CLIP+` | The king does **not** move and the panel stays open (run-6 bug). |
+| C2 | `+3 AMMO`, then `RELOAD` | Reserve +3, then the chamber fills. Labels update immediately. |
+| C3 | `CARD NOW`; then `CARDS >`, take one card, try `FILT`, then `< BACK` | A card is taken each time; `FILT` narrows the list to piece/summon cards. |
+| C4 | `SPAWN >`, then pick `knight` | An ally appears on a diagonal neighbour. |
+| C5 | `GOD:on`, then take a lethal hit | The king dodges to a free square instead of dying. |
+| C6 | `DMG:on`, then `DMG+` / `CRIT+`, then fire a few shots | Damage changes; `SKD\|dmg\|…` lines appear in the log. |
+| C7 | `CLOSE` | Only the tab remains, and the turn continues normally. |
+| C8 | Level up once; then die or resign and start a new run | The tab hides during the card choice and comes back afterwards. It is there in the new run too. |
+
+Then quit normally and do Step 6. If the game crashes, also send the newest
+`crash_log_*.txt`: every mutating control logs `SKE|call|<name>=start` first,
+so the log names the culprit.
 
 | Line/prefix in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=7 loaded (mod_index=…)` | the mod loaded |
-| `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
-| `SKH\|…` | additive hook registrations |
-| `SKW\|turn=1\|…` | first per-turn state sample |
-| `SKA2\|probe\|<block>=done` | a probe block finished (cards/exclude/souls/bank/input) |
-| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | card, offer, soul/scepter, damage, input and UI probes (static dumps follow READY) |
-| `SKUI\|panel\|…`, `SKUI\|card\|…`, `SKUI\|spawn\|…`, `SKUI\|dodge\|…`, `SKUI\|cfg\|…` | build-7 panel state, card/spawn pickers, dodge routes and the live damage config |
-| `SKE\|call\|<name>=start` … `=ok` | an engine-mutating control ran; a `=start` with no matching `=ok` names the control that crashed the game |
-| `SKD\|dmg\|before=…\|after=…\|crit=…` | the configured damage/crit roll applied to a fired bullet |
-| `SK-REWORK: READY build=7 hooks=…` | load and registrations reached the marker |
+| `SK-REWORK: BUILD=9 loaded (mod_index=…)` / `READY build=9 hooks=…` | the mod loaded and reached the end of its setup |
+| `SKUI\|modcheck\|boot\|issues=N\|codes=…` | load-order check at boot (`issues=0` = clean) |
+| `SKUI\|modmenu\|sync=…\|back=…\|issues=…\|codes=…` | mod menu: live toggle, Back state, E-codes; `autofix=true\|moved=…\|enabled=…` after AUTO-FIX |
+| `SK-REWORK: Quartz Throne guns=9 newly_unlocked=…` (also `Fairy Endless`), `… ranks=15 max_rank_was=… now=15` | the mode's all-guns (and Quartz all-ranks) unlock ran |
+| ` !! <red text>` | mod error → code in `notes/red-warnings.md` (`parse_log.py --print`, section 1b) |
+| `SKUI\|panel\|…`, `SKE\|call\|<name>=start` … `=ok`, `SKD\|dmg\|…` | panel state, engine-call trace, damage rolls |
 
 ---
 
@@ -318,9 +314,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | click Play → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-6 Back/legend if shown |
-| 4 | Step 5 in-run panel | `SK DEV` opens page 1; note ammo/reload/clip, card (AUTO/LIST/FILT), spawn (piece + square), God Mode dodge, damage/crit rolls, SAFE, and that CLOSE really removes the panel; note the mod-menu legend/Back; report crashes |
-| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=7`, `SK-REWORK: PROBE done build=7`, the `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines, and the `SKE\|call`/`SKD\|dmg` build-7 traces |
+| 3 | Step 5 A (mod menu) | A1–A6 pass: left-centre legend, live ON/OFF text, Back returns after on→off, AUTO-FIX fixes E-codes, no red text with all mods ON |
+| 4 | Step 5 B + C (modes, panel) | 9 guns unlocked in Quartz/Fairy that survive a relaunch; Nightmare/Card Lab list 9; panel C1–C8 pass; report crashes |
+| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=9`, `SKUI\|modcheck\|boot`, `SKUI\|modmenu`, `SKUI\|panel\|entity=created` |
 | 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
@@ -336,7 +332,7 @@ the game crashed.
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
 | 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted (runs 1–4); Build-6 probes target the remaining unknowns |
-| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 6 ran live in run 5 (panel + actions verified; three bugs found and fixed); **Build 7** adds damage/crit, reload/clip, card + spawn pickers, dodge and real CLOSE — sandbox-tested 47/47, owner live run pending |
+| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 7 ran live in run 6 (bank + menu widgets proven; the panel click also moved the king). **Build 8** rebuilt the panel as a click-consuming overlay against the decoded game source; **Build 9** adds the mod-menu fixes (live ON/OFF, Back, left legend, E-codes + AUTO-FIX). Sandbox-tested 64/64; owner live run pending |
 | 3 | ammo rework, staged A → B → C | ⛔ queued after Build-6 live probes/playtest |
 | 4 | card picker + enemy picker | ⛔ queued after Build-6 live probes/playtest |
 | 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-6 live probes/playtest |

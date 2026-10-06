@@ -211,10 +211,45 @@ Get-ChildItem -LiteralPath $modsRoot -Recurse -File -ErrorAction SilentlyContinu
 # last) and a closing brace with no trailing newline. Without this file the
 # game starts mods OFF (black text in the mod menu) - writing it means the
 # copy boots with sk-rework already ON, no in-game toggling needed.
-$modNames = @(Get-ChildItem -LiteralPath $modsRoot -Directory |
+#
+# LOAD ORDER (Build 8): the game loads mods top-to-bottom in this file, and
+# several workshop mods check what is ALREADY loaded (game source
+# code/mods.lua run_mods: MODS[] fills as each mod loads). Verified in the
+# vendored scripts:
+#   - Glac Terminal gathers hook functions (upd, draw_N, on_fire, ...) from
+#     every mod loaded BEFORE it, so it must be LAST. Collection, Retry, Art
+#     of War, Royal Card Lab and Grenade Predictor warn "must be loaded above
+#     Glac Terminal"; Disgraced Justice silently loses its 5 hooks otherwise.
+#   - The Art of War reads Glacies' Collection from MODS at load -> Collection
+#     must be above it. Disgraced Justice also requires Collection.
+#   - Extra Features and Quartz Army also need Terminal (info.lua), but warn
+#     about nothing; both sit above it in this list. SK Rework's mod-menu
+#     check (E1-E4, script.lua section 5) uses the same rules and order.
+# The old alphabetical sort put "glac terminal" 4th = the 5 red warnings in
+# run 6. Folders not in this list go just above Glac Terminal, alphabetical.
+$loadOrder = @(
+    "sk-rework",
+    "glacies collection",   # Glacies' Collection - library, before its users
+    "extra features",       # Glacies' Extra Features
+    "the art of war",       # needs Collection above, Terminal below
+    "disgraced_justice",    # needs Collection; Terminal hooks
+    "retry",                # Retry after Death - Terminal below
+    "royal card lab",       # Terminal below
+    "grenade predictor",    # Terminal below
+    "show exclude",         # Better Codex
+    "nightmare",
+    "some_fairy_pieces",
+    "the_magnificient_quartz_army",
+    "Shootout"
+)
+$loadLast = @("glac terminal")  # Glacies Module Terminal - ALWAYS last
+$present = @(Get-ChildItem -LiteralPath $modsRoot -Directory |
     Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "info.lua") } |
-    Sort-Object -Property @{Expression = { if ($_.Name -eq "sk-rework") { "" } else { $_.Name } }} |
     Select-Object -ExpandProperty Name)
+$modNames = @()
+foreach ($n in $loadOrder) { $modNames += @($present | Where-Object { $_ -eq $n }) }
+$modNames += @($present | Where-Object { ($loadOrder -notcontains $_) -and ($loadLast -notcontains $_) } | Sort-Object)
+foreach ($n in $loadLast) { $modNames += @($present | Where-Object { $_ -eq $n }) }
 if ($modNames.Count -gt 0) {
     $lines = @("return {")
     foreach ($mn in $modNames) {

@@ -106,6 +106,27 @@ blade, ...}` (see Fairy Endless). `mode_description` in info.lua registers them.
    `load_mod("name")` registration).
 4. Mod built for a different game version (we have v1.623b).
 5. Nested folder from double extraction (`mods/Better Codex/Better Codex/`).
+6. **Asset loader argument order** (decoded source, session 10): inside a mod,
+   `newsrf/newsfx/newmus/newfnt` must be `(name, "file.ext")`. The reversed
+   order loads a file literally named `mods/<mod>/<name>` and fails with
+   `didn't match any files`. Seven vendored mods had it; they are patched
+   (`dist-overlay/README.md`, "Local patches").
+7. **Load order** — `MODS[]` fills top to bottom, so a dependency must sit
+   ABOVE its dependents, and Glac Terminal must be LAST (it collects hook
+   functions only from mods loaded before it). `build-dist.ps1` writes the
+   verified order. From Build 9, the mod menu shows load-order problems as
+   red `E1`–`E4` lines with an **AUTO-FIX** button.
+   Terminal's clients: Collection, Extra Features, Art of War, Disgraced
+   Justice, Retry, Card Lab, Grenade Predictor, Quartz Army. Extra Features
+   and Quartz print **no** red text without it; they just lose features.
+8. **Red text = error** (owner rule): any red line a turned-on mod prints on
+   the main menu or mod menu means a clash or a malfunction. Every known text
+   has a code (`T1`…`B1`) in `notes/red-warnings.md`, and
+   `parse_log.py --print` lists them in section 1b.
+9. **Throne-like modes with stale gun lists** (Build 9): Quartz Throne,
+   Fairy Endless, Nightmare and Card Lab had old partial copies of the Throne
+   guns, and Quartz never saved its bank. Fixed in the overlay; see
+   `dist-overlay/README.md`, "Local patches (Build 9…)".
 
 ## King's Court — the "mod that wouldn't load", diagnosed 2026-10-03
 

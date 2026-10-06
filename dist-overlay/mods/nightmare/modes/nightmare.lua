@@ -9,15 +9,17 @@ ban={"Devil's Deception",
 "Sacrifice",
 "Patience"}
 
-weapons={
+weapons={ -- SK-REWORK (Build 8 item 4): full base-game Throne list (9 guns,
+	-- game code/modes/throne.lua); firerange made absolute (throne base=3).
 	{ gid=0, name="Solomon",			chamber_max=2, firepower=4, firerange=3, spread=55, ammo_max=6, },
 	{ gid=1, name="Victoria", 		chamber_max=1, firepower=5, firerange=4, spread=45, ammo_max=3, },
 	{ gid=2, name="Ramesses II",	chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=5, knockback=50, },
-	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=25 },
-	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2 },
+	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=40 },
+	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2, butcher=1 },
 	{ gid=5, name="Alexander",		chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=8, search=1 },
 	{ gid=6, name="Yvan IV",			chamber_max=1, firepower=4, firerange=2, spread=50, ammo_max=6, all_freereload=1 },
-
+	{ gid=7, name="Attila",				chamber_max=1, firepower=4, firerange=3, spread=65, ammo_max=5,	grenades_max=1, special="grenade", reload_grenade=1, grenade_dmg=-1 },
+	{ gid=8, name="Montezuma",		chamber_max=3, firepower=3, firerange=3, spread=65, ammo_max=6,	sheath=1 },
 }
 ranks={
 	{ nothing=1 },
@@ -52,7 +54,9 @@ base={
 -- X1 weapon pref
 
 function initialize()
-	newsrf("weapons.png", "weapons")
+	-- SK-REWORK (Build 8 item 4): weapons.png here is an old 7-gun copy of the
+	-- base sheet; the engine's boot-loaded 9-gun 'weapons' sheet is used.
+	--newsrf("weapons", "weapons.png")
 	mode.ranks_index=mid(0,SAVE.nightmare.rank_sel or 0,#ranks-1)
 	mode.weapons_index=mid(0,SAVE.nightmare.weapon_sel or 0,#weapons-1)
 

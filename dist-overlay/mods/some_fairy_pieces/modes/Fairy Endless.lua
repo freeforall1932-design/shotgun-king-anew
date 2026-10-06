@@ -14,12 +14,17 @@ setup={
 	slots_max={10,10},
 }
 
-weapons={ -- The vanille Throne shotguns
+weapons={ -- SK-REWORK (Build 8 item 4): full base-game Throne list (9 guns,
+	-- game code/modes/throne.lua); firerange made absolute (throne base=3).
 	{ gid=0, name="Solomon",			chamber_max=2, firepower=4, firerange=3, spread=55, ammo_max=6, },
 	{ gid=1, name="Victoria", 		chamber_max=1, firepower=5, firerange=4, spread=45, ammo_max=3, },
 	{ gid=2, name="Ramesses II",	chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=5, knockback=50, },
-	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=25 },
-	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2 },
+	{ gid=3, name="Richard III",	chamber_max=3, firepower=3, firerange=5, spread=75, ammo_max=8, pierce=40 },
+	{ gid=4, name="Makeda",				chamber_max=2, firepower=3, firerange=3, spread=50, ammo_max=6, blade=2, butcher=1 },
+	{ gid=5, name="Alexander",		chamber_max=2, firepower=4, firerange=3, spread=65, ammo_max=8, search=1 },
+	{ gid=6, name="Yvan IV",			chamber_max=1, firepower=4, firerange=2, spread=50, ammo_max=6, all_freereload=1 },
+	{ gid=7, name="Attila",				chamber_max=1, firepower=4, firerange=3, spread=65, ammo_max=5,	grenades_max=1, special="grenade", reload_grenade=1, grenade_dmg=-1 },
+	{ gid=8, name="Montezuma",		chamber_max=3, firepower=3, firerange=3, spread=65, ammo_max=6,	sheath=1 },
 }
 
 base={
@@ -29,10 +34,32 @@ base={
 	gain={3,0,0,0,1,5,2,0},
 }
 
+-- SK-REWORK (Build 9, owner's Build 8 item 4): this mode keeps its gun
+-- unlocks in its OWN bank, so the base Throne's unlocks never applied and
+-- every gun had to be earned again (owner, run 6). Owner's 100% intent:
+-- unlock all guns on initialize. check_unlocks already saved the bank;
+-- save_preferences now flushes it too, so the chosen gun survives a
+-- relaunch. Set SK_ALL_GUNS = false to earn guns normally (Attila is a
+-- base-Throne dig secret with no rule here, so it stays locked then).
+local SK_ALL_GUNS = true
+local function sk_savbnk()
+	if type(savbnk) == "function" then savbnk() end
+end
+local function sk_unlock_all_guns(tag)
+	if not SK_ALL_GUNS then return end
+	local changed = 0
+	for i = 2, #weapons do
+		if bget(i, 4) ~= 1 then bset(i, 4, 1) changed = changed + 1 end
+	end
+	if changed > 0 then sk_savbnk() end
+	log("SK-REWORK: " .. tag .. " guns=" .. #weapons .. " newly_unlocked=" .. changed)
+end
+
 function initialize()
 	-- You have to create a bank if you want to save stuff.
 	-- This isn't needed if you already created a save bank in your script.lua file.
 	newbnk(128,64,4)
+	sk_unlock_all_guns("Fairy Endless")
 	mode.ranks_index=bget(0,4)
 	mode.weapons_index=bget(1,4)
 end
@@ -161,6 +188,10 @@ function check_unlocks()
 	if stack.knockback>=100 then unlock(3) end
 	if stack.chamber_max>=4 then unlock(4) end
 	if stack.blade and stack.blade>=4 then unlock(5) end
+	-- SK-REWORK (Build 8 item 4): base Throne rules for the added guns
+	if (inter.searched or 0) >= 4 then unlock(6) end
+	if stack.firerange==0 then unlock(7) end
+	if (stack.sheath or 0)>=2 then unlock(9) end
 	savbnk()
 
 	
@@ -170,6 +201,7 @@ function save_preferences()
 	bset(0,4,mode.ranks_index)
 	bset(1,4,mode.weapons_index)
 	save()
+	sk_savbnk() -- SK-REWORK
 	--log(mode.ranks_index)
 end
 

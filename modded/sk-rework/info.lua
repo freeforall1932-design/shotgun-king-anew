@@ -3,27 +3,29 @@ name="sk-rework" -- must match this mod's folder name
 title="SK Rework"
 by="freeforall1932"
 description=[[
-SK Rework — Build 7 (run-5 absorbed: panel fix, damage/crit, ammo, dodge,
-pickers). Build 6 ran live through gameplay on 2026-10-04 (run 5, ~22 min,
-clean shutdown) and answered every open probe question.
+SK Rework — Build 9 (Build 8's overlay panel + a reworked mod menu; written
+against the decoded game source). The dev panel is now an overlay that owns no engine
+buttons, so a click on it can never move the king or end your turn.
 
-DEV PANEL (SK DEV button, bottom-left of the board): +3 reserve ammo,
-RELOAD the chamber (the global `reload`), CLIP+ (chamber_max, guessed field),
-CARD:AUTO/LIST (auto = the game's own pick, LIST = browse every card and
-take any of them; summon-family cards also bring their `allies` piece in),
-SPAWN... (pick the piece; the square prefers a DIAGONAL neighbour so the
-ally never blocks the king's 1-tile move), GOD (HP refill + Mist-style dodge
-to a free square on a lethal hit), DMG on/off + DMG+ / CRIT+ (per-bullet
-damage, crit chance, crit damage; pierce auto-crits while DMG is on), SAFE
-(one engine-mutating action per boot) and CLOSE (uses the engine's own
-remove_buts(); the panel rebuilds its header on the next turn).
+DEV PANEL: click the small "SK DEV" tab in the bottom-left corner. A box
+opens over the board, like the card-choice screen. While it is open every
+click belongs to the panel; click outside the box or CLOSE to return to the
+game. Page 1: +3 AMMO (reserve), RELOAD, CLIP+ (chamber_max), SAFE,
+CARD:AUTO/LIST, CARD NOW, CARDS > (browse and take any card, FILT:PIECE for
+piece/summon cards), SPAWN > (pick an ally piece; the square prefers a
+DIAGONAL neighbour), GOD (HP refill + Mist-style dodge on a lethal hit), DMG
+on/off, DMG+ and CRIT+ (the labels show the current values). Labels update
+live after every click. The panel hides itself during card choices, the
+pause menu and game over, and comes back on every new run.
 
 Damage/crit values and the toggles persist in this mod's own bank save
 (save/mods/sk-rework.bnk, format 128:64:4 hex; magic cell 505).
 
-MOD MENU: adds a Back button and the WHITE=ON / BLACK=OFF legend on the
-mod-list screen, using the real menu button ids harvested live in run 5
-(mods / save_back / " ON " / "OFF ").
+MOD MENU: clicking a mod name flips its ON/OFF text at once; undoing a
+change turns "Save and Reboot" back into "Back"; a small legend sits on the
+far left (WHITE = ON / DARK = OFF) with a live load-order check. Red E1-E4
+lines name missing or misplaced dependencies (Glac Terminal last, Glacies'
+Collection above Art of War / Disgraced Justice), and AUTO-FIX repairs them.
 
 DIAGNOSTICS: full card fields and EXCLUDE pairs (SKCF|), offer flow (SKOF|),
 souls/scepters/pieces (SKS|), damage/bullet/damage-roll route (SKD|),

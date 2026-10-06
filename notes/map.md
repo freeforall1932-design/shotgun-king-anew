@@ -1,5 +1,10 @@
 # notes/map.md — code map of Shotgun King
 
+> **Session 10:** the decoded game source is in `game/decoded/`, and the engine
+> facts read from it (with line numbers) are in `notes/game-internals.md`.
+> Where that file and this live-derived map disagree, the decoded source is
+> more reliable.
+
 **Game version:** v1.623b (from owner's archive name) · **Engine: SUGAR v0.0.8f**
 (custom Lua engine by Rémy Devaux — NOT Godot; runtime version from live logs,
 see PLANNING.md §0.5) · **Scripting:** LuaJIT 2.1 / Lua 5.1.
