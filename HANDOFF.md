@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-05 (session 9, branch `arena/01a10d48-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-06 (session 10, branch `arena/6424942a-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -24,19 +24,43 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a10d48-shotgun-king-anew` (session-fixed). **Session 9's work is merged to `main` as PR #8** (merge commit `2975dba`), so `main` is current and a fresh session can branch from it; earlier sessions = PRs #1–#7 |
-| Our mod | `modded/sk-rework/` (**Build 7** — run-5 fixes + features: panel v2 with the engine's own `remove_buts()` CLOSE and per-action page rebuild, damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages + cardless fallback + summon-on-card, spawn piece picker with diagonal-first squares, Mist-style dodge, `SKE|call|` intent logging + SAFE mode, bank restore, menu legend on the real run-5 ids) |
-| Log parser + smoke test | `tools/parse_log.py` (**44/44**: `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mod_smoketest.py` (**47/47** × both `all()` semantics × default Lua/LuaJIT 2.1; the fake engine chains multiple appends per target like the real one, models `remove_buts`/`goto_sq`/`flr`/`mk_bullet`, and re-raises the fatal unknown-id `btn()` error) |
-| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–5; run 5's raw pack (`run 5 i believe or latest run/`: log, save/bank files, critique) is absorbed and kept as the newest evidence; the run-4 pack was deleted |
+| Working branch | `arena/6424942a-shotgun-king-anew` (session 10, session-fixed; branched from `main` @ `aedfc71`, fast-forwarded to the owner's zip upload `a9e5dd2`). Session 9 = PR #8 (`2975dba`); earlier sessions = PRs #1–#7 |
+| **Owner's game copy (unpacked)** | **`game/`** in this branch — exe, dlls, `data.sgr`, `lang/`, `mods/` (workshop originals), `save/`, `log.txt`, `settings.txt`. **Read §2b before touching it** |
+| **Decoded game source** | **`game/decoded/`**: `code.lua` (main, ~15.4k lines), `code/*.lua` (menu, mods sandbox, gamepad, save, codex…), `code/modes/*.lua`, `libs/*.lua`, `lang/`, `assets/gfx/*.png`, shaders. Produced by `tools/sgr_extract.py`; the engine facts are summarised in **`notes/game-internals.md`** |
+| Our mod | `modded/sk-rework/` (**Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids) |
+| Log parser + smoke test | `tools/parse_log.py` (**44/44**: `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mod_smoketest.py` (**59/59** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, and re-raises the fatal unknown-id `btn()` error) |
+| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–6; raw packs `run 5 i believe or latest run/` and **`run 6 wow/`** (critique, powershell output, log, modlist, save, 4 crash logs) |
 | Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
-| 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
-| Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
-| Knowledge | `notes/` (map.md = code map, mods.md = mod inventory + API, review-2026-10-03.md = pre-live-test review, changelog.md, data-sgr-filelist.txt) |
-| Owner archives + extracted game + modding guide | `uploads/` (**gitignored**) — **NOT present in this session's sandbox**; lives on the owner's machine |
-| Full extracted game | was `/tmp/skgame/…` — **gone** (ephemeral). Re-extract from owner's rars if needed |
+| 13 workshop mods, vendored, name-verified | `dist-overlay/mods/`. **7 are locally patched** (asset-loader argument order). The list, the Quartz/Shootout note and the load order are in `dist-overlay/README.md` |
+| Tools | `tools/` (build-dist.ps1 (writes the dependency-ordered `modlist.lua`), install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, **sgr_extract.py** (data.sgr decoder), mod-dev.md, recover.md) |
+| Knowledge | `notes/` (**game-internals.md = engine facts from the decoded source, with line numbers**, map.md = live-derived code map, mods.md = mod inventory + API, review-2026-10-03.md, changelog.md, data-sgr-filelist.txt) |
+| Owner archives + modding guide | `uploads/` (**gitignored**) — not in the sandbox; lives on the owner's machine. The game itself is now in `game/` (above) |
+
+## 2b. Game-files policy (owner's instruction, session 10) — READ FIRST
+
+- The owner's game copy is stored **unpacked in this branch under `game/`**
+  (it arrived on `main` as a 4-part split zip, was extracted with all CRCs
+  OK, and the zips were removed so the owner never has to upload again).
+  `.gitignore` has an explicit exception (`!game/`, `!game/**`) for it.
+- **To inspect the game, future sessions check out / fetch branch
+  `arena/6424942a-shotgun-king-anew` and open `game/`** (or `game/decoded/`
+  for readable source). Don't ask the owner to put the game on `main` again.
+- **Never delete `game/`, before or after merging.** The owner removes it
+  manually after testing, or a later debug session does so when the owner
+  asks. Don't "clean it up" on your own initiative.
+- Decoding: `python3 tools/sgr_extract.py game/data.sgr game/decoded` (pure
+  Python, ~24 s; `--all` adds fonts/sfx/music, ~92 MB; `--list` prints the
+  entry table). Format: `notes/game-internals.md` §0.
+- Assets for modding (symbols, sprites) can be taken from
+  `game/decoded/assets/gfx/*.png`. Personal use only (§8).
 
 ## 3. Hard-won facts (do not re-derive)
+
+> Session 10: the facts below came from live runs. Where the decoded source
+> (`notes/game-internals.md`) refines them, that file is the more reliable
+> one; the corrections are inline.
+
 
 1. **Mod folder name MUST equal `name=` in info.lua.** Mismatch = silent
    no-load. Mods must be unpacked folders — zips/rars in `mods/` are ignored.
@@ -48,19 +72,25 @@ game's own mod system).
    mods: `for k in all(gimme("global"))` yields global names;
    `for i,v in ipairs(MODLIST) do if v.title == "…"` finds your own mod.
 2b. **🛑 `btn()` is fatal on unknown ids — live-proven by crashing build 5
-   (run 4, `ERR Button left for player 0 doesn't exist.`, game quits).** There
-   is no `pcall` in the mod sandbox, so it cannot be caught. Only call
+   (run 4, `ERR Button left for player 0 doesn't exist.`, game quits).** It is
+   an engine-side fatal, so it cannot be caught. *(Session 10: `pcall` is not
+   on the sandbox's forbidden list; Build 8 uses it only around its panel,
+   behind a `type(pcall)` check, and logs `pcall=` so run 7 confirms it.)* Only call
    `btn/btnp/btnr/defbtn` with ids the running game published: the
    `INPUT_ASSIGNEMENT` actions (`validate/cancel/shoot/special/reload/unsafe`),
    `ctrl`, and the bound mouse codes `m:lb/m:rb/m:mb`. Everything else —
    `left`, `right`, `middle`, `mouse4`, `wheel`… — is a one-way ticket.
    **General rule: engine calls take only confirmed arguments.**
-2c. **Engine UI: `del(ents, e)` does NOT remove `mk_text_but` groups** — run 5
-   showed the panel's state flipping to closed while its buttons stayed on
-   screen. The engine's own **`remove_buts()`** is the proven primitive
-   (disgraced_justice ×7, glac terminal); it clears the button layer, so a mod
-   panel must be rebuilt afterwards (sk-rework does this on the next turn /
-   next click).
+2c. **Engine UI (corrected in session 10 from the source):** `mk_text_but`
+   returns a visual entity whose CHILD is the button. Remove the group with
+   **`kl(group)`** (the old `del(ents, child)` removed nothing, because the
+   child lives in `group.ents`). **Never call `remove_buts()` from a mod:**
+   the game calls it ~40× per turn, and it also ends the player's turn state
+   (`selecting/playing/aiming=false`, squares unselectable). That is what
+   broke Build 7. Overlapping buttons **all** fire on one click. `reset()`
+   empties `ents` at every `init_game`. A mod writes engine globals only for
+   the sandbox's *replaceable* keys (incl. `mcl/mlb/mcr/mx/my`, not
+   `cancel_but`). Full detail: `notes/game-internals.md` §1–2.
 2d. **Mod-menu button ids are plain strings**: `play options codex credits quit
    mods throne endless chase charnier tutorial back save_back`, the mod-list
    rows `" ON "` / `"OFF "` and the arrows `é`/`è` (a later pass repeats them
@@ -103,8 +133,14 @@ game's own mod system).
    for plain mods (live-proven); `append/prepend/gimme` are mod-env functions
    (absent from `gimme("global")` but working). Never define global `on_*`
    names (can shadow Glac Terminal's dispatch).
-5. **data.sgr** = 79 MB package with all 278 game files. Format undocumented;
-   **decision: don't crack it** — runtime `gimme()` dump gives the same intel.
+5. **data.sgr** = 79 MB package with all 278 game files. **Cracked in session
+   10** (XOR/xorwow cipher + zlib + a simple container) →
+   `tools/sgr_extract.py`, output committed in `game/decoded/`.
+5b. **Mod asset loaders take `(name, "file.ext")`** — the reversed order
+   silently loads nothing (run 6: 21 × `didn't match any files`, Fairy fatal
+   `inexistent surface`). **Mods load top-to-bottom from `modlist.lua`**, and
+   Glac Terminal must be last. Both are fixed in the build
+   (`dist-overlay/README.md`).
 6. The analyzed game copy is a Goldberg-emu repack (owner's); Steam Workshop
    upload won't work there, modding works fine.
 7. `King's Court` (owner's mods/) is a 2022 pre-info.lua legacy mod — won't
@@ -155,62 +191,65 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 9)
+## 5. Current state & immediate next step (session 10)
 
-**Run 5 happened (owner, 2026-10-04) and it was a full success for Build 6**:
-one clean boot, ~22 minutes of real play (`READY build=6 hooks=30 globals=920`,
-`Application ran for 1311.772 s`), every probe block completed, and all four
-open Build-6 questions answered — panel renders + actions fire, the real menu
-ids are captured, the bank write path is proven, and the damage route is
-traced (`mk_bullet` → `bullet.dmg` → `hit(p,dmg,tags)` → `fx_dmg(p,dmg)`;
-`ev_hit` never fires). Full absorption: `notes/map.md` run-5 section,
-`SUMMARY.md` Run 5, `PLANNING.md` §0.7b.
+**Run 6 (owner, 2026-10-05, Build 7)** proved the bank read-back
+(`SKUI|bank|ready=true|magic=505`) and the mod-menu widgets. It also
+exposed the panel bug: SK DEV → CLIP+ moved the king, and the panel never
+came back. With all mods ON there were 4 crash logs (`fairy_cards`) and red
+load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
 
-**Run 5 also exposed three real bugs and produced 8 owner asks**, all of which
-Build 7 addresses:
-1. **The panel never really closed** — the engine ignores `del(ents, e)` on
-   `mk_text_but` groups, so the mod's state and the on-screen buttons diverged
-   (owner: "close it doesnt close the ui", "button is frozen to brown").
-   Build 7 clears through the engine's own `remove_buts()` and rebuilds the
-   page after every action so the labels always show live state.
-2. **The mod-menu legend could never attach** — the predicate compared MODLIST
-   titles to ids; the real ids are `play/mods/save_back/" ON "/"OFF "` etc.
-   Build 7 arms on the harvested ids.
-3. **Spawn-ally only ever made a pawn and could block the king's 1-tile move**
-   — Build 7 adds a piece picker page and a square picker that prefers a
-   DIAGONAL neighbour, plus summon-on-card for the ext=3 `allies` cards.
+**Session 10 did:**
+1. Stored the owner's game in `game/` (§2b), cracked `data.sgr`, and
+   committed the decoded source plus `tools/sgr_extract.py`; findings in
+   `notes/game-internals.md`.
+2. **Build 8 item 1 — the panel**, rebuilt from the source facts: one plain
+   draw entity at dp 15, plus an `append("gamepad_ctrl")` hook that
+   hit-tests the tab/box and consumes the click (`mcl/mcr/mlb=false`)
+   before any `mk_but` updates. Modal while open (outside click / CLOSE
+   closes it); hidden while `leveling`/`pause`/`menu`/`any_card_menu`;
+   re-created when `ents` is replaced; pico-font 9 px buttons; live labels;
+   a fast-forward click lock. Never calls `remove_buts()`.
+3. **Item 2:** 7 workshop mods patched to `newsrf(name, "file")`.
+   Quartz/Shootout no longer override base sheets.
+4. **Item 3:** `build-dist.ps1` writes the dependency order, Glac Terminal
+   last.
+5. Verified without the game: smoke **59/59** ×4 (real sandbox write rules;
+   mutation-checked), parser 44/44, codec 2/2, all 37 mod Lua files compile
+   under LuaJIT 2.1. `build-dist.ps1` couldn't be executed (no `pwsh`); its
+   ordering logic was checked against the folder list in Python.
 
-**Build 7 also ships the feature work the run-5 answers unblocked**: the
-damage/crit/pierce system (applied at `mk_bullet`, persisted), RELOAD +
-CLIP+ (`reload`, `stack.chamber_max`), card AUTO/LIST pages with the cardless
-fallback, Mist-style dodge on lethal hits, `SKE|call|<name>=start/=ok`
-intent logging (so a crash names the failing control) and a `SAFE` toggle that
-limits a boot to one gameplay-mutating engine call.
+**Next: owner live run of Build 8** (INSTALL Step 4 onwards). Rebuild with
+`build-dist.ps1`, then in a run:
+- click the bottom-left `SK DEV` tab, then `CLIP+` (the king must not move);
+- click `+3 AMMO`, `RELOAD` and `CARD NOW`;
+- `CARDS >`: take one card, try `FILT`;
+- `SPAWN >`: pick a knight;
+- `GOD:on`, then take a lethal hit;
+- `DMG:on` + `DMG+`/`CRIT+`, then fire a few shots;
+- `SAFE`, then `CLOSE` (the turn continues);
+- level up once (the tab hides, then returns); start a new run (the tab is
+  back);
+- in the mod menu, turn all mods ON once (no red load-order warnings).
 
-**Next: owner live run of Build 7, control by control.** Rebuild the copy
-(`build-dist.ps1`, or `apply.ps1` over it), then in play click each SK DEV
-control once — `+3 AMMO`, `RELOAD`, `CLIP+`, `CARD:AUTO`, `CARD NOW`, `CARDS>`
-(take a card), `SPAWN...` (pick a knight), `GOD:on` then take a lethal hit,
-`DMG:on` + `DMG+` + `CRIT+` then fire a few shots, `SAFE`, `CLOSE` — and open
-the mod menu once for the legend. Collect with `apply.ps1 -GetInsights`; if
-the game dies, send `log.txt` **and** the newest `crash_log_*.txt` (the parser
-now names the last engine call that started but never finished).
+Collect with `apply.ps1 -GetInsights`.
 
-Verified without the game this session: smoke test **47/47** under both
-`all()` semantics on default Lua and LuaJIT 2.1 (including the panel
-close-state regression, the offer-screen guard that keeps a stray click from
-wiping the engine's level-up buttons, damage rolls, dodge route validation,
-SAFE blocking, card list pages and the fake engine's multi-append chaining);
-parser
-**44/44** (incl. the dangling-call crash-forensics case and a Build-7 render
-check); save codec 2/2; Python compilation.
+**Approved items still open:** none. **Awaiting approval:**
+- (4) the 100% tool writes per-mod `.bnk` gun unlocks, and the mods' gun
+  lists are completed;
+- (5) mod-menu polish: legend chunks on the far-left, live ON/OFF text,
+  Back after on→off;
+- (6) a test-checklist rewrite.
 
 ## 6. Owner (human) intervention points
 
 - ~~Harvest + verification runs 1–3~~ **DONE and consolidated**
 - ~~Build 6 playtest~~ **done (run 5)**
-- Apply Build 7 to the modded copy (rebuild keeps the pre-enable + unlock) and
-  playtest it control-by-control (list in §5 / `WORKLIST.md` owner to-do).
+- ~~Build 7 playtest~~ **done (run 6)**
+- Rebuild with Build 8 and playtest it from INSTALL Step 4 (list in §5 /
+  `WORKLIST.md` owner to-do).
+- Delete `game/` from the branch yourself once testing no longer needs it
+  (agents never do that unprompted, §2b).
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
   newest `crash_log_*.txt` — the parser names the last engine call that started
   and never finished, so the failing control is identifiable from the log.
@@ -233,13 +272,19 @@ check); save codec 2/2; Python compilation.
   (plain `python3 tools/mod_smoketest.py` fails on `import lupa`).
 - `uploads/` is gitignored and **absent in this session** — docs referencing
   it describe the owner's machine.
-- No unrar/7z preinstalled; unrar was compiled last session (that binary is
-  in `uploads/tools/`, not in git).
+- No unrar/7z/bsdtar/xxd preinstalled. A *multi-volume* zip can't be joined
+  with `zip -s 0`/`zipfile`; session 10 used a small custom extractor
+  (ephemeral `/tmp/gz/extract.py`). The game is already unpacked in `game/`.
+- Exe analysis venv (ephemeral): `python3 -m venv /tmp/skvenv &&
+  /tmp/skvenv/bin/pip install lupa pefile capstone` (capstone needs
+  `skipdata=True`; don't name a script `dis.py`).
 
 ## 8. Rules that still stand
 
 - Never commit game assets or archives (`.gitignore` guards: *.rar *.zip
   *.exe *.dll *.sgr, uploads/, dist/, save_backup_/, __pycache__/).
+  **Sole exception: `game/`** (owner's explicit instruction, §2b), which is
+  never deleted by an agent.
 - Workshop mods in `dist-overlay/` are mirrored for the owner's personal
   build (owner confirmed freely distributed); remove on author request.
 - Mod code: additive hooks only, `-- SK-REWORK:` markers, stable hook ids,

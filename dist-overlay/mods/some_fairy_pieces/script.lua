@@ -3,12 +3,12 @@
 -- Loading and writing files is authorized but only within your mod's folder. Paths should be relative to the mod folder.
 
 -- These will replace the vanilla game's surfaces. If multiple mods do this for the same surfaces, only the last one loaded will take effect. Here we're doing it to give the Black King a moustache.
-newsrf("title_sfps.png", "title_sfps")
-newsrf("gfx_sfps.png", "gfx_sfps")
+newsrf("title_sfps", "title_sfps.png")
+newsrf("gfx_sfps", "gfx_sfps.png")
 
 -- Make sure your mod's unique surfaces have unique names so they don't unintentionally replace each other.
-newsrf("cards_fairys.png", "fairy_cards")
-newsrf("pieces_fairys.png", "fairy_pieces")
+newsrf("fairy_cards", "cards_fairys.png")
+newsrf("fairy_pieces", "pieces_fairys.png")
 
 -- You may create a save bank for your mod with this function:
 -- newbnk(128,64,4)

@@ -52,7 +52,7 @@ base={
 -- X1 weapon pref
 
 function initialize()
-	newsrf("weapons.png", "weapons")
+	newsrf("weapons", "weapons.png")
 	mode.ranks_index=mid(0,SAVE.nightmare.rank_sel or 0,#ranks-1)
 	mode.weapons_index=mid(0,SAVE.nightmare.weapon_sel or 0,#weapons-1)
 

@@ -21,7 +21,7 @@ if not SAVE.nightmare then SAVE.nightmare = {} end
 -- 128 and 64 are the dimensions of that bank, 4 is the depth which defines how big numbers can be in this bank. A depth of 1 means numbers above 255 cannot be stored in this bank. In doubt, set it to 4, it's the maximum value and it allows numbers up to 4,294,967,295. Banks cannot store negative values however.
 -- You can save your bank to a file in the player's save folder by calling savbnk(). Each mod gets one bank and a corresponding save file.
 
-newsrf("cards.png","nightmare")
+newsrf("nightmare","cards.png")
 
 add(CARDS,{gid=0, spsheet="nightmare", team=0, n=1, pwe=0, id="Nightmare Blank", played=1, ignored=0})
 

@@ -14,7 +14,7 @@ append("set_mode",function()
 end,"get settings")
 
 -- newbnk(128,64,4)
-newsrf("gfx.png","collection_gfx")
+newsrf("collection_gfx","gfx.png")
 
 for i,v in ipairs(MODLIST) do if v.title == "Glacies' Collection" then
 	mod_index,mod = i,v

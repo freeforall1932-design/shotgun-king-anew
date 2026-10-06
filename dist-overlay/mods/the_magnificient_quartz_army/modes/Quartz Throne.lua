@@ -68,7 +68,7 @@ intro=true
 
 function initialize()
 
-	newsrf("tmqa_weapons.png", "weapons")
+	newsrf("weapons", "tmqa_weapons.png")
 	mode.ranks_index=mid(0,bget(0,4),#ranks-1)
 	mode.weapons_index=mid(0,bget(1,4),#weapons-1)
 	

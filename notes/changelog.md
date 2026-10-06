@@ -1,3 +1,62 @@
+## 2026-10-06 — session 10: run 6 absorbed, game decoded, Build 8 items 1–3
+
+- **`game/`** (commit d4cb2f5): the owner's game copy, extracted from the
+  4-part split zip on `main` (315 files, all CRCs OK). The zips were removed
+  from `live testing result/`, and `.gitignore` has a `!game/` exception.
+  Policy (never delete; future sessions read it from this branch):
+  HANDOFF §2b.
+- **`tools/sgr_extract.py`** (new): pure-Python `data.sgr` decoder (xorwow XOR
+  cipher + zlib + container; `--all`, `--list`). Its output, committed as
+  **`game/decoded/`** (54 files: all Lua source, gfx, lang, shaders).
+- **`notes/game-internals.md`** (new): engine facts with line numbers: the
+  main loop / `gamepad_ctrl` order, `mk_but` / `mk_text_but` / `remove_buts`
+  / `reset` / `kl`, draw depths, the screen geometry, the mod sandbox's
+  replaceable / forbidden keys and asset-loader wrapper, `append`
+  semantics, the mod load order, and the weapons list.
+- `modded/sk-rework/script.lua` — **BUILD=8**. §4 panel rewritten as a
+  self-drawn overlay:
+  - one entity (dp 15, no `button` flag), with
+    `panel_frame` appended to `gamepad_ctrl` (hit test, click consume via
+    `mcl/mcr/mlb=false`, pointer parked at -1,-1 while the modal box is
+    open, fast-forward click lock);
+  - `build_items` lays out pages 1/2/3 (cards 15 per page, spawn 16 per
+    page, both paged) in a 204-px box over the board; `panel_draw` uses
+    pico-font 9-px buttons; the `SK DEV` tab is in the bottom-left corner;
+  - re-created when `ents` changes; hidden while
+    `leveling/pause/menu/any_card_menu/codex`; `pcall` wraps only when it
+    exists;
+  - removed: `clear_native_buttons`, `ensure_dev_panel`, `make_*_page`,
+    `offer_active` and the `remove_buts` CLOSE; `destroy_group` now uses
+    `kl()`;
+  - the `new_turn` hook no longer touches the panel; `init_game` calls
+    `panel_reset`.
+- `modded/sk-rework/info.lua` — Build-8 description.
+- `dist-overlay/mods/` — 7 workshop mods patched to the sandbox's
+  `newsrf/newsfx(name, "file.ext")` order. Quartz Army and Shootout
+  register `tmqa_*` / `shootout_gfx` instead of overriding the base
+  `gfx/cards/title/tutorial`, and Quartz's cards and pieces point at its own
+  sheets. Documented in `dist-overlay/README.md`.
+- `tools/build-dist.ps1` — `modlist.lua` is written in an explicit
+  dependency order (Collection above Art of War / Disgraced Justice; every
+  Terminal client above it; **Glac Terminal last**; unknown folders
+  alphabetical just above the Terminal) instead of alphabetical order.
+- `tools/mod_smoketest.py` — the mod now loads through a copy of the
+  engine's sandbox (`ENGINE_REPLACEABLE` from `code/mods.lua`). A refused
+  write fails the run.
+  - The fake engine models `gamepad_ctrl` (mouse → hooks → what the board
+    sees), `mke`/`kl`, the real `remove_buts` button filter, `font` /
+    `lprint` / `rectfill` / `rect` / `sfx`.
+  - The panel is driven by the coordinates it draws.
+  - 14 new checks, including CLIP+ over the board never reaching a square,
+    the new-run rebuild, survival of `remove_buts`, the fast-forward
+    double-lp guard, modal swallow, hidden-while-leveling, live labels,
+    and no refused global writes.
+  - **59/59 × value/pair × default/LuaJIT.** Mutation-checked (3 injected
+    bugs, each caught by its check).
+- Docs: HANDOFF (session 10, §2b policy, corrected facts 2b/2c/5),
+  `live testing result/SUMMARY.md` Run 6, WORKLIST, INSTALL Step 5 (Build-8
+  test list), README status rows, `notes/mods.md` pitfalls 6–7.
+
 ## 2026-10-05 — session 9: run 5 absorbed, Build 7 shipped
 
 - `modded/sk-rework/script.lua` — **BUILD=7**. New §1b runtime layer (config

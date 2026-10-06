@@ -4,11 +4,11 @@ do
     palette(pal)
 end
 
-newsrf("tmqa_title.png", "title")
-newsrf("tmqa_gfx.png", "gfx")
-newsrf("tmqa_tutorial.png", "tutorial")
-newsrf("tmqa_cards.png", "cards")
-newsrf("tmqa_pieces.png", "pieces")
+newsrf("tmqa_title", "tmqa_title.png")
+newsrf("tmqa_gfx", "tmqa_gfx.png")
+newsrf("tmqa_tutorial", "tmqa_tutorial.png")
+newsrf("tmqa_cards", "tmqa_cards.png")
+newsrf("tmqa_pieces", "tmqa_pieces.png")
 
 newbnk(128,64,4)
 
@@ -136,7 +136,7 @@ add(PIECES, {type=morkitechunk,
         { id="line",4,7,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 1 or 0, x, y, angle)
 		else
@@ -144,11 +144,11 @@ add(PIECES, {type=morkitechunk,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(16, x, y, 1.5, 1.5)
 	end
 })
@@ -164,7 +164,7 @@ add(PIECES, {type=tmqacat,
 		{ id="line",4,7,1,  atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 3 or 2, x, y, angle)
 		else
@@ -172,11 +172,11 @@ add(PIECES, {type=tmqacat,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -191,7 +191,7 @@ add(PIECES, {type=tmqafox,
         { id="jump", move=1, atk=1, 0,2, 2,2, 2,0, 2,-2, 0,-2, -2,-2, -2,0, -2,2 }
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 5 or 4, x, y, angle)
 		else
@@ -199,11 +199,11 @@ add(PIECES, {type=tmqafox,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -220,7 +220,7 @@ add(PIECES, {type=tmqawolf,
 		{ id="line",1,1,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 7 or 6, x, y, angle)
 		else
@@ -228,11 +228,11 @@ add(PIECES, {type=tmqawolf,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -249,7 +249,7 @@ add(PIECES, {type=tmqaplaguedoctor,
 		{ id="line",4,7,1,  move=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 9 or 8, x, y, angle)
 		else
@@ -257,11 +257,11 @@ add(PIECES, {type=tmqaplaguedoctor,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -279,7 +279,7 @@ add(PIECES, {type=tmqacatapult,
 		{ id="line",2,2,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 11 or 10, x, y, angle)
 		else
@@ -287,11 +287,11 @@ add(PIECES, {type=tmqacatapult,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -308,7 +308,7 @@ add(PIECES, {type=tmqalieutenant,
 		{ id="line",4,5,1,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 13 or 12, x, y, angle)
 		else
@@ -316,11 +316,11 @@ add(PIECES, {type=tmqalieutenant,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -335,7 +335,7 @@ add(PIECES, {type=tmqabulwark,
         { id="line",4,7,2,  move=11 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 15 or 14, x, y, angle)
 		else
@@ -343,11 +343,11 @@ add(PIECES, {type=tmqabulwark,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -362,7 +362,7 @@ add(PIECES, {type=tmqawraith,
         { id="line",0,7,8,  move=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 49 or 48, x, y, angle)
 		else
@@ -370,11 +370,11 @@ add(PIECES, {type=tmqawraith,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -391,7 +391,7 @@ add(PIECES, {type=tmqadog,
 		{ id="line",2,3,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 51 or 50, x, y, angle)
 		else
@@ -399,11 +399,11 @@ add(PIECES, {type=tmqadog,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -419,7 +419,7 @@ add(PIECES, {type=tmqatanuki,
 		{ id="line",0,3,8,  move=1 }
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 53 or 52, x, y, angle)
 		else
@@ -427,11 +427,11 @@ add(PIECES, {type=tmqatanuki,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -447,7 +447,7 @@ add(PIECES, {type=tmqawatchtower,
         { id="jump", atk=1, 0,3, 1,2, 2,1, 3,0, 2,-1, 1,-2, 0,-3, -1,-2, -2,-1, -3,0, -2,1, -1,2 }
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 55 or 54, x, y, angle)
 		else
@@ -455,11 +455,11 @@ add(PIECES, {type=tmqawatchtower,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -477,7 +477,7 @@ add(PIECES, {type=tmqabowman,
 		{ id="line",4,5,1,  atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 57 or 56, x, y, angle)
 		else
@@ -485,11 +485,11 @@ add(PIECES, {type=tmqabowman,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -504,7 +504,7 @@ add(PIECES, {type=tmqastatue,
 
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 59 or 58, x, y, angle)
 		else
@@ -512,11 +512,11 @@ add(PIECES, {type=tmqastatue,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -531,7 +531,7 @@ add(PIECES, {type=tmqacaduceus,
 
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 61 or 60, x, y, angle)
 		else
@@ -539,11 +539,11 @@ add(PIECES, {type=tmqacaduceus,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -559,7 +559,7 @@ add(PIECES, {type=tmqaluckycat,
 		{ id="line",4,7,3,  atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 99 or 98, x, y, angle)
 		else
@@ -567,11 +567,11 @@ add(PIECES, {type=tmqaluckycat,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -587,7 +587,7 @@ add(PIECES, {type=tmqakitsune,
         { id="jump", move=1, atk=1, 0,2, 2,2, 2,0, 2,-2, 0,-2, -2,-2, -2,0, -2,2 }
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 101 or 100, x, y, angle)
 		else
@@ -595,11 +595,11 @@ add(PIECES, {type=tmqakitsune,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -617,7 +617,7 @@ add(PIECES, {type=tmqahellhound,
 		{ id="jump", move=1, 3,-3, -3,-3, 0,3, 6,-6, -6,-6, 0,6 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 103 or 102, x, y, angle)
 		else
@@ -625,11 +625,11 @@ add(PIECES, {type=tmqahellhound,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -646,7 +646,7 @@ add(PIECES, {type=tmqaguardianangel,
 		{ id="line",4,7,1,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 105 or 104, x, y, angle)
 		else
@@ -654,11 +654,11 @@ add(PIECES, {type=tmqaguardianangel,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -676,7 +676,7 @@ add(PIECES, {type=tmqaironcladmortar,
 		{ id="line",2,2,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 107 or 106, x, y, angle)
 		else
@@ -684,11 +684,11 @@ add(PIECES, {type=tmqaironcladmortar,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -705,7 +705,7 @@ add(PIECES, {type=tmqacolonel,
 		{ id="line",4,5,1,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 109 or 108, x, y, angle)
 		else
@@ -713,11 +713,11 @@ add(PIECES, {type=tmqacolonel,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -733,7 +733,7 @@ add(PIECES, {type=tmqabastion,
 		{ id="line",0,7,1,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 111 or 110, x, y, angle)
 		else
@@ -741,11 +741,11 @@ add(PIECES, {type=tmqabastion,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -761,7 +761,7 @@ add(PIECES, {type=tmqapoltergeist,
 		{ id="line",0,3,1,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 145 or 144, x, y, angle)
 		else
@@ -769,11 +769,11 @@ add(PIECES, {type=tmqapoltergeist,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -790,7 +790,7 @@ add(PIECES, {type=tmqadogspirit,
 		{ id="line",2,3,8,  move=1, atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 147 or 146, x, y, angle)
 		else
@@ -798,11 +798,11 @@ add(PIECES, {type=tmqadogspirit,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -819,7 +819,7 @@ add(PIECES, {type=tmqayokai,
 		{ id="jump", move=1, atk=1, 0,6, 0,-6, 6,0, -6,0 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 149 or 148, x, y, angle)
 		else
@@ -827,11 +827,11 @@ add(PIECES, {type=tmqayokai,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -848,7 +848,7 @@ add(PIECES, {type=tmqawarmachine,
         { id="jump", atk=1, 0,3, 1,2, 2,1, 3,0, 2,-1, 1,-2, 0,-3, -1,-2, -2,-1, -3,0, -2,1, -1,2 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 151 or 150, x, y, angle)
 		else
@@ -856,11 +856,11 @@ add(PIECES, {type=tmqawarmachine,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -878,7 +878,7 @@ add(PIECES, {type=tmqaballista,
 		{ id="line",4,5,2,  atk=1 },
     },
 	custom_dr = function(e,x,y,angle)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		if angle then
 			aspr(e.iron and 153 or 152, x, y, angle)
 		else
@@ -886,11 +886,11 @@ add(PIECES, {type=tmqaballista,
 		end
 	end,
 	custom_debris = function(p,x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		sspr(24,16,8,8,x-4,y-4)
 	end,
 	custom_move_dr = function(x,y)
-		spritesheet("pieces")
+		spritesheet("tmqa_pieces")
 		spr(18, x, y, 2, 2)
 	end
 })
@@ -898,130 +898,130 @@ add(PIECES, {type=tmqaballista,
 
 local new_cards = {
 
-	{ gid=180, 	spsheet="cards", 	team=1, 	n=1, id="Cat Lady",					need={tmqacat,tmqacat}, gain={4}, queen_peace=1, flip_on="no_tmqacat"	},
-	{ gid=181, 	spsheet="cards", 	team=1, 	n=2, id="Kingly Kitty",				pwe=5, need={5}, gain={tmqacat}, king_hp=1	},
-	{ gid=182, 	spsheet="cards", 	team=1, 	n=1, id="Yarn Ball",				need={tmqacat}, tmqacat_tempo=1, tmqacat_shield=1	},
-	{ gid=183, 	spsheet="cards", 	team=1, 	n=1, id="Faithful Leap",			need={tmqacat}, tmqacat_flying=1, tmqacat_cage=4	},
-	{ gid=184, 	spsheet="cards", 	team=1, 	n=2, id="Adoption Center",			need={3}, sac={3}, gain={tmqacat,tmqacat}, tmqacat_hp=1	},
+	{ gid=180, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Cat Lady",					need={tmqacat,tmqacat}, gain={4}, queen_peace=1, flip_on="no_tmqacat"	},
+	{ gid=181, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Kingly Kitty",				pwe=5, need={5}, gain={tmqacat}, king_hp=1	},
+	{ gid=182, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Yarn Ball",				need={tmqacat}, tmqacat_tempo=1, tmqacat_shield=1	},
+	{ gid=183, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Faithful Leap",			need={tmqacat}, tmqacat_flying=1, tmqacat_cage=4	},
+	{ gid=184, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Adoption Center",			need={3}, sac={3}, gain={tmqacat,tmqacat}, tmqacat_hp=1	},
 	
-	{ gid=185, 	spsheet="cards", 	team=1, 	n=2, id="Vicious Vulpes",			pwe=5, need={2}, sac={2}, gain={tmqafox,tmqafox} },
-	{ gid=186, 	spsheet="cards", 	team=1, 	n=1, id="Fathomless Den",			delay=10, gain={tmqafox}, cycle=1 },
-	{ gid=187, 	spsheet="cards", 	team=1, 	n=1, id="Shedding Season",			tmqafox_tempo=-2, tmqawolf_tempo=-2, dog_tempo=-2, tmqafox_hp=-1, wolf_hp=-1, dog_hp=-1 },
-	{ gid=188, 	spsheet="cards", 	team=1, 	n=1, id="Burrowing",				tmqafox_wraith=1, tmqafox_hp=2, tmqafox_rep=9, need_card="King's Shoulders" },
-	{ gid=189, 	spsheet="cards", 	team=1, 	n=2, id="Furcoat Fashion",			need={2,tmqafox}, tmqafox_hp=-2, bishop_hp=1, choose_bishop_plumed=1 },
+	{ gid=185, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Vicious Vulpes",			pwe=5, need={2}, sac={2}, gain={tmqafox,tmqafox} },
+	{ gid=186, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Fathomless Den",			delay=10, gain={tmqafox}, cycle=1 },
+	{ gid=187, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Shedding Season",			tmqafox_tempo=-2, tmqawolf_tempo=-2, dog_tempo=-2, tmqafox_hp=-1, wolf_hp=-1, dog_hp=-1 },
+	{ gid=188, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Burrowing",				tmqafox_wraith=1, tmqafox_hp=2, tmqafox_rep=9, need_card="King's Shoulders" },
+	{ gid=189, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Furcoat Fashion",			need={2,tmqafox}, tmqafox_hp=-2, bishop_hp=1, choose_bishop_plumed=1 },
 	
-	{ gid=190, 	spsheet="cards", 	team=1, 	n=2, id="Beast's Call",				pwe=5, need={1}, sac={1}, gain={tmqawolf,tmqawolf} },
-	{ gid=191, 	spsheet="cards", 	team=1, 	n=1, id="Heart of the Pack",		need={tmqawolf}, all_hp=2, tmqawolf_curse=1 },
-	{ gid=192, 	spsheet="cards", 	team=1, 	n=1, id="Silverhound",				need={tmqawolf}, tmqawolf_iron=1, tmqawolf_cage=2, flip_on="only_tmqawolf" },
-	{ gid=193, 	spsheet="cards", 	team=1, 	n=1, id="Scavenging",				need={tmqawolf}, tmqawolf_hp=2, tmqawolf_shell=1 },
-	{ gid=194, 	spsheet="cards", 	team=1, 	n=2, id="Winter's Jeaopardy",		tmqawolf_tempo=-1, delay=20, gain={tmqawolf,tmqawolf,tmqawolf,tmqawolf} },
+	{ gid=190, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Beast's Call",				pwe=5, need={1}, sac={1}, gain={tmqawolf,tmqawolf} },
+	{ gid=191, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Heart of the Pack",		need={tmqawolf}, all_hp=2, tmqawolf_curse=1 },
+	{ gid=192, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Silverhound",				need={tmqawolf}, tmqawolf_iron=1, tmqawolf_cage=2, flip_on="only_tmqawolf" },
+	{ gid=193, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Scavenging",				need={tmqawolf}, tmqawolf_hp=2, tmqawolf_shell=1 },
+	{ gid=194, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Winter's Jeaopardy",		tmqawolf_tempo=-1, delay=20, gain={tmqawolf,tmqawolf,tmqawolf,tmqawolf} },
 	
-	{ gid=195, 	spsheet="cards", 	team=1, 	n=2, id="Doctor's Orders",			pwe=5, gain={tmqaplaguedoctor}, leader_hp=-1 },
-	{ gid=196, 	spsheet="cards", 	team=1, 	n=1, id="Quarantine",				gain={tmqaplaguedoctor}, pawn_prison=tmqaplaguedoctor, tmqaplaguedoctor_tempo=-1 },
-	{ gid=197, 	spsheet="cards", 	team=1, 	n=1, id="Addressing Problems",		need={tmqaplaguedoctor}, tmqaplaguedoctor_orth=1, tmqaplaguedoctor_cage=2 },
-	{ gid=198, 	spsheet="cards", 	team=1, 	n=1, id="Miracle Cure",				need={tmqaplaguedoctor}, tmqaplaguedoctor_healer=2, tmqaplaguedoctor_tempo=-2 },
-	{ gid=199, 	spsheet="cards", 	team=1, 	n=1, id="Scapegoating",				need={tmqaplaguedoctor}, all_tempo=-2, tmqaplaguedoctor_curse=1 },
+	{ gid=195, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Doctor's Orders",			pwe=5, gain={tmqaplaguedoctor}, leader_hp=-1 },
+	{ gid=196, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Quarantine",				gain={tmqaplaguedoctor}, pawn_prison=tmqaplaguedoctor, tmqaplaguedoctor_tempo=-1 },
+	{ gid=197, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Addressing Problems",		need={tmqaplaguedoctor}, tmqaplaguedoctor_orth=1, tmqaplaguedoctor_cage=2 },
+	{ gid=198, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Miracle Cure",				need={tmqaplaguedoctor}, tmqaplaguedoctor_healer=2, tmqaplaguedoctor_tempo=-2 },
+	{ gid=199, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Scapegoating",				need={tmqaplaguedoctor}, all_tempo=-2, tmqaplaguedoctor_curse=1 },
 	
-	{ gid=200, 	spsheet="cards", 	team=1, 	n=2, id="Heavy Artillery",			pwe=5, need={3}, sac={3}, gain={tmqacatapult,tmqacatapult} },
-	{ gid=201, 	spsheet="cards", 	team=1, 	n=2, id="Afield Reinforcement",		delay=15, gain={tmqacatapult,tmqacatapult} },
-	{ gid=202, 	spsheet="cards", 	team=1, 	n=1, id="Flanking Manoeuvre",		need={1,tmqacatapult}, tmqacatapult_flying=1, knight_swap={tmqacatapult}, tmqacatapult_swap={1} },
-	{ gid=203, 	spsheet="cards", 	team=1, 	n=1, id="Frontline Dispatcher",		need={tmqacatapult}, alarm=2, tmqacatapult_tempo=-1, flip_on="no_tmqacatapult"	},
-	{ gid=204, 	spsheet="cards", 	team=1, 	n=2, id="Fowardice Rusher",			need={tmqacatapult}, knight_tempo=-1, bishop_tempo=-1, tmqacatapult_hp=-2	},
+	{ gid=200, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Heavy Artillery",			pwe=5, need={3}, sac={3}, gain={tmqacatapult,tmqacatapult} },
+	{ gid=201, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Afield Reinforcement",		delay=15, gain={tmqacatapult,tmqacatapult} },
+	{ gid=202, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Flanking Manoeuvre",		need={1,tmqacatapult}, tmqacatapult_flying=1, knight_swap={tmqacatapult}, tmqacatapult_swap={1} },
+	{ gid=203, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Frontline Dispatcher",		need={tmqacatapult}, alarm=2, tmqacatapult_tempo=-1, flip_on="no_tmqacatapult"	},
+	{ gid=204, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Fowardice Rusher",			need={tmqacatapult}, knight_tempo=-1, bishop_tempo=-1, tmqacatapult_hp=-2	},
 	
-	{ gid=205, 	spsheet="cards", 	team=1, 	n=2, id="Noteworthy Promotion",		pwe=5, need={0,0,0}, sac={0,0}, gain={tmqalieutenant,tmqalieutenant} },
-	{ gid=206, 	spsheet="cards", 	team=1, 	n=2, id="Delayed Action",			tmqalieutenant_hp=1, delay=5, gain={tmqalieutenant} },
-	{ gid=207, 	spsheet="cards", 	team=1, 	n=1, id="Hardened Position",		need={tmqalieutenant}, pawn_iron=1, pawn_tempo=1, flip_on="no_tmqalieutenant" },
-	{ gid=208, 	spsheet="cards", 	team=1, 	n=1, id="Assault Position",			need={tmqalieutenant}, pawn_tempo=-5, pawn_hp=1, flip_on="no_tmqalieutenant" },
-	{ gid=209, 	spsheet="cards", 	team=1, 	n=1, id="Independance Position",	need={tmqalieutenant}, pawn_healer=0, pawn_tempo=-1, flip_on="no_tmqalieutenant" },
+	{ gid=205, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Noteworthy Promotion",		pwe=5, need={0,0,0}, sac={0,0}, gain={tmqalieutenant,tmqalieutenant} },
+	{ gid=206, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Delayed Action",			tmqalieutenant_hp=1, delay=5, gain={tmqalieutenant} },
+	{ gid=207, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Hardened Position",		need={tmqalieutenant}, pawn_iron=1, pawn_tempo=1, flip_on="no_tmqalieutenant" },
+	{ gid=208, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Assault Position",			need={tmqalieutenant}, pawn_tempo=-5, pawn_hp=1, flip_on="no_tmqalieutenant" },
+	{ gid=209, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Independance Position",	need={tmqalieutenant}, pawn_healer=0, pawn_tempo=-1, flip_on="no_tmqalieutenant" },
 	
-	{ gid=210, 	spsheet="cards", 	team=1, 	n=2, id="Fortify the Army",			pwe=5, need={0}, sac={0}, gain={tmqabulwark,tmqabulwark} },
-	{ gid=211, 	spsheet="cards", 	team=1, 	n=1, id="Meatshield",				need={2}, bishop_rep=tmqabulwark, rook_rep=tmqabulwark, tmqabulwark_tempo=1 },
-	{ gid=212, 	spsheet="cards", 	team=1, 	n=1, id="Precariousness",			need={tmqabulwark,8}, tmqabulwark_castle=1, leader_tempo=1 },
-	{ gid=213, 	spsheet="cards", 	team=1, 	n=1, id="Shot Deflector",			need={tmqabulwark,1}, sac={1}, tmqabulwark_protect=1, tmqabulwark_hp=-2 },
-	{ gid=214, 	spsheet="cards", 	team=1, 	n=1, id="Communal Protection",		need={tmqabulwark,bulwark}, all_hp=1, tmqabulwark_hp=-3 },
+	{ gid=210, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Fortify the Army",			pwe=5, need={0}, sac={0}, gain={tmqabulwark,tmqabulwark} },
+	{ gid=211, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Meatshield",				need={2}, bishop_rep=tmqabulwark, rook_rep=tmqabulwark, tmqabulwark_tempo=1 },
+	{ gid=212, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Precariousness",			need={tmqabulwark,8}, tmqabulwark_castle=1, leader_tempo=1 },
+	{ gid=213, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Shot Deflector",			need={tmqabulwark,1}, sac={1}, tmqabulwark_protect=1, tmqabulwark_hp=-2 },
+	{ gid=214, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Communal Protection",		need={tmqabulwark,bulwark}, all_hp=1, tmqabulwark_hp=-3 },
 	
-	{ gid=215, 	spsheet="cards", 	team=1, 	n=1, id="Vengeful Spirits",			pwe=5, need={1,2}, knight_rep=tmqawraith, bishop_rep=tmqawraith, bad_shells=1 },
-	{ gid=216, 	spsheet="cards", 	team=1, 	n=1, id="Sacrilegious Spirits",		pwe=5, need={3,4}, rook_rep=tmqawraith, queen_rep=tmqawraith, bad_shells=2 },
-	{ gid=217, 	spsheet="cards", 	team=1, 	n=1, id="Death's Benediction",		gain={tmqawraith,tmqawraith}, tmqawraith_healer=1, tmqawraith_tempo=1 },
-	{ gid=218, 	spsheet="cards", 	team=1, 	n=1, id="Limbo State",				gain={tmqawraith}, pawn_tmqawraith=1, flip_on="no_tmqawraith" },
-	{ gid=219, 	spsheet="cards", 	team=1, 	n=1, id="Whispers from Beyond",		gain={tmqawraith}, spread=30, flip_on="no_tmqawraith" },
+	{ gid=215, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Vengeful Spirits",			pwe=5, need={1,2}, knight_rep=tmqawraith, bishop_rep=tmqawraith, bad_shells=1 },
+	{ gid=216, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Sacrilegious Spirits",		pwe=5, need={3,4}, rook_rep=tmqawraith, queen_rep=tmqawraith, bad_shells=2 },
+	{ gid=217, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Death's Benediction",		gain={tmqawraith,tmqawraith}, tmqawraith_healer=1, tmqawraith_tempo=1 },
+	{ gid=218, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Limbo State",				gain={tmqawraith}, pawn_tmqawraith=1, flip_on="no_tmqawraith" },
+	{ gid=219, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Whispers from Beyond",		gain={tmqawraith}, spread=30, flip_on="no_tmqawraith" },
 	
-	{ gid=220, 	spsheet="cards", 	team=1, 	n=2, id="Monarch's Best Friend",	pwe=5, need={5}, gain={tmqadog}, king_hp=2, queen_tempo=-1 },
-	{ gid=221, 	spsheet="cards", 	team=1, 	n=2, id="Beyong Fetch Game",		gain={tmqadog,tmqadog}, tmqadog_hp=3, soul_slot=1 },
-	{ gid=222, 	spsheet="cards", 	team=1, 	n=1, id="Inscribed Collar",			need={tmqadog}, tmqadog_sanctity=1, tmqadog_tempo=-1, descremember=1 },
-	{ gid=223, 	spsheet="cards", 	team=1, 	n=1, id="Preposterous Zoomer",		need={tmqadog}, tmqadog_orth=1, tmqadog_leaderbond=-2 },
-	--{ gid=224, 	spsheet="cards", 	team=1, 	n=1, id="Doghood's Grip",		need={tmqadog}, descrise=1, descsomething=1, need_card={"Inscribed Collar","Anthropomorphism"} },
+	{ gid=220, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Monarch's Best Friend",	pwe=5, need={5}, gain={tmqadog}, king_hp=2, queen_tempo=-1 },
+	{ gid=221, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Beyong Fetch Game",		gain={tmqadog,tmqadog}, tmqadog_hp=3, soul_slot=1 },
+	{ gid=222, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Inscribed Collar",			need={tmqadog}, tmqadog_sanctity=1, tmqadog_tempo=-1, descremember=1 },
+	{ gid=223, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Preposterous Zoomer",		need={tmqadog}, tmqadog_orth=1, tmqadog_leaderbond=-2 },
+	--{ gid=224, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Doghood's Grip",		need={tmqadog}, descrise=1, descsomething=1, need_card={"Inscribed Collar","Anthropomorphism"} },
 	
-	{ gid=225, 	spsheet="cards", 	team=1, 	n=2, id="Unistone Creature",		pwe=5, need={3}, sac={3}, gain={tmqatanuki} },
-	{ gid=226, 	spsheet="cards", 	team=1, 	n=1, id="Illusion of Defeat",		need={0,0}, pawn_rep=tmqatanuki, tmqatanuki_hp=-2 },
-	{ gid=227, 	spsheet="cards", 	team=1, 	n=1, id="Bract Shield",				need={tmqatanuki}, tmqatanuki_shield=1 },
-	{ gid=228, 	spsheet="cards", 	team=1, 	n=1, id="Switcheroo",				need={tmqatanuki,8}, tmqatanuki_castle=1, tmqatanuki_hp=1 },
-	{ gid=229, 	spsheet="cards", 	team=1, 	n=1, id="Leaf in the Wind",			need={tmqatanuki}, tmqatanuki_tempo=-3, tmqatanuki_cage=3 },
+	{ gid=225, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Unistone Creature",		pwe=5, need={3}, sac={3}, gain={tmqatanuki} },
+	{ gid=226, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Illusion of Defeat",		need={0,0}, pawn_rep=tmqatanuki, tmqatanuki_hp=-2 },
+	{ gid=227, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Bract Shield",				need={tmqatanuki}, tmqatanuki_shield=1 },
+	{ gid=228, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Switcheroo",				need={tmqatanuki,8}, tmqatanuki_castle=1, tmqatanuki_hp=1 },
+	{ gid=229, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Leaf in the Wind",			need={tmqatanuki}, tmqatanuki_tempo=-3, tmqatanuki_cage=3 },
 	
-	{ gid=230, 	spsheet="cards", 	team=1, 	n=3, id="Lookout Settlement",		pwe=5, gain={tmqawatchtower}, descwatchtowercenter=1 },
-	{ gid=231, 	spsheet="cards", 	team=1, 	n=1, id="Midfield Campsite",		gain={tmqawatchtower,tmqawatchtower}, descwatchtowercenter=1, tmqawatchtower_peace=1, flip_on="first-reload" },
-	{ gid=232, 	spsheet="cards", 	team=1, 	n=1, id="Nursebay",					need={tmqawatchtower}, tmqawatchtower_healer=1 },
-	{ gid=233, 	spsheet="cards", 	team=1, 	n=1, id="Secret Hideout",			need={tmqawatchtower}, tmqawatchtower_bodyguard=1, tmqawatchtower_hp=-3 },
-	{ gid=234, 	spsheet="cards", 	team=1, 	n=2, id="Calling for Backups",		need={tmqawatchtower}, alarm=1, delay=4, cycle=1, gain={0}, flip_on="no_tmqawatchtower" },
+	{ gid=230, 	spsheet="tmqa_cards", 	team=1, 	n=3, id="Lookout Settlement",		pwe=5, gain={tmqawatchtower}, descwatchtowercenter=1 },
+	{ gid=231, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Midfield Campsite",		gain={tmqawatchtower,tmqawatchtower}, descwatchtowercenter=1, tmqawatchtower_peace=1, flip_on="first-reload" },
+	{ gid=232, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Nursebay",					need={tmqawatchtower}, tmqawatchtower_healer=1 },
+	{ gid=233, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Secret Hideout",			need={tmqawatchtower}, tmqawatchtower_bodyguard=1, tmqawatchtower_hp=-3 },
+	{ gid=234, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Calling for Backups",		need={tmqawatchtower}, alarm=1, delay=4, cycle=1, gain={0}, flip_on="no_tmqawatchtower" },
 	
-	{ gid=235, 	spsheet="cards", 	team=1, 	n=2, id="Ranging Opportunities",	pwe=5, need={2}, sac={2}, gain={tmqabowman} },
-	{ gid=236, 	spsheet="cards", 	team=1, 	n=2, id="Archer Tower",				need={3}, sac={3}, gain={tmqabowman,tmqabowman}, tmqabowman_cage=1 },
-	{ gid=237, 	spsheet="cards", 	team=1, 	n=1, id="Selfish Cares",			need={tmqabowman}, tmqabowman_healer=0 },
-	{ gid=238, 	spsheet="cards", 	team=1, 	n=1, id="Iron Crossbow",			need={tmqabowman}, tmqabowman_iron=1, tmqabowman_tempo=3, flip_on="only_tmqabowman" },
-	{ gid=239, 	spsheet="cards", 	team=1, 	n=1, id="Gattling Bow",				need={tmqabowman}, tmqabowman_bow=3, rook_tempo=-2, flip_on="first-reload" },
+	{ gid=235, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Ranging Opportunities",	pwe=5, need={2}, sac={2}, gain={tmqabowman} },
+	{ gid=236, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Archer Tower",				need={3}, sac={3}, gain={tmqabowman,tmqabowman}, tmqabowman_cage=1 },
+	{ gid=237, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Selfish Cares",			need={tmqabowman}, tmqabowman_healer=0 },
+	{ gid=238, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Iron Crossbow",			need={tmqabowman}, tmqabowman_iron=1, tmqabowman_tempo=3, flip_on="only_tmqabowman" },
+	{ gid=239, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Gattling Bow",				need={tmqabowman}, tmqabowman_bow=3, rook_tempo=-2, flip_on="first-reload" },
 	
-	{ gid=300, 	spsheet="cards", 	team=1, 	n=2, id="Anthropomorphism",			tmqacat_hp=1, tmqafox_hp=1, tmqawolf_hp=1, tmqadog_hp=1, tmqatanuki_hp=1, bishop_hp=-1 },
-	{ gid=301, 	spsheet="cards", 	team=1, 	n=2, id="Constru-Polisher",			rook_tempo=-1, tmqabulwark_tempo=1, tmqatanuki_tempo=1, tmqawatchtower_hp=2, tmqabowman_hp=1 },
-	{ gid=302, 	spsheet="cards", 	team=1, 	n=2, id="Fursome Cleaning",			pwe=5, gain={2,2}, tmqacat_hp=-1, tmqadog_hp=-1 },
-	{ gid=303, 	spsheet="cards", 	team=1, 	n=1, id="Royal Family",				need={5}, gain={tmqadog,tmqacat,tmqalieutenant}, queen_hp=-2, king_hp=-2 },
-	{ gid=304, 	spsheet="cards", 	team=1, 	n=2, id="Outsiding Army",			pwe=5, delay=15, gain={tmqalieutenant,tmqawatchtower,tmqabowman} },
-	{ gid=305, 	spsheet="cards", 	team=1, 	n=1, id="Like Cats and Dogs",		need={tmqacat,tmqadog}, tmqacat_hp=1, tmqadog_hp=1, tmqacat_swap={tmqadog}, tmqadog_swap={tmqacat} },
-	{ gid=306, 	spsheet="cards", 	team=1, 	n=1, id="Sniffin' Snoot",			gain={tmqadog}, tmqadog_tempo=-1, tmqadog_uncover=1, need_tag={"cloak"}  },
-	{ gid=307, 	spsheet="cards", 	team=1, 	n=1, id="The Scab",					need={0,0,tmqatanuki}, tmqatanuki_investigate=1, tmqatanuki_swap={0}, need_tag={"mission"} },
-	{ gid=308, 	spsheet="cards", 	team=1, 	n=1, id="Off-Leash",				gain={tmqadog}, tmqadog_carry=1, tmqadog_tempo=1 },
-	{ gid=309, 	spsheet="cards", 	team=1, 	n=1, id="Domestication",			gain={tmqafox, tmqawolf}, tmqafox_rep=tmqadog, tmqawolf_rep=tmqadog, tmqafox_hp=-1, tmqawolf_hp=-1 },
-	{ gid=310, 	spsheet="cards", 	team=1, 	n=2, id="Back to Bones",			gain={tmqawolf, tmqawolf, tmqadog}, mist=1 },
-	{ gid=311, 	spsheet="cards", 	team=1, 	n=1, id="Plaguebringer",			gain={tmqaplaguedoctor}, tmqaplaguedoctor_hp=1, rats=1 },
-	{ gid=312, 	spsheet="cards", 	team=1, 	n=2, id="Bottom of the Food Chain",	gain={tmqacat}, rats=-1, tmqacat_poison=5, need_tag={"rats"} },
-	{ gid=313, 	spsheet="cards", 	team=1, 	n=1, id="Surprise Promotion",		need={tmqalieutenant}, gain={0}, tmqalieutenant_emergency=1 },
-	{ gid=314, 	spsheet="cards", 	team=1, 	n=1, id="Bloodvision",				gain={tmqawolf}, tmqawolf_vampire=1, need_tag="bleed" },
-	{ gid=315, 	spsheet="cards", 	team=1, 	n=1, id="Sticky Furball",			gain={tmqacat}, paralysis=3, tmqacat_catapult=1 },
-	{ gid=316, 	spsheet="cards", 	team=1, 	n=2, id="Hoarder",					gain={tmqafox}, delay=10, cycle=1, delayed={ammo_max=-1} },
-	{ gid=317, 	spsheet="cards", 	team=1, 	n=1, id="Bullseye",					gain={tmqabowman}, tmqabowman_tempo=-1, bad_shells=2, tmqabowman_curse=1 },
-	{ gid=318, 	spsheet="cards", 	team=1, 	n=1, id="Superior Intellect",		ai_lvl=1, ammo_max=-1, search=1, need_card={"Anthropomorphism"} },
-	{ gid=319, 	spsheet="cards", 	team=1, 	n=1, id="Vixens", 					gain={tmqafox, tmqafox}, tmqafox_killprom=4, queen_hp=-1 },
-	{ gid=320, 	spsheet="cards", 	team=1, 	n=1, id="Shelf Knocker", 			delay=10, delayed={gain={tmqacat}, soul_sink=1, tmqacat_hp=-1}	 },
-	{ gid=321, 	spsheet="cards", 	team=1, 	n=1, id="9 lives", 					need={tmqacat, tmqacat}, tmqacat_rep=tmqacat, tmqacat_tempo=2, flip_on="only_tmqacat" },
-	{ gid=322, 	spsheet="cards", 	team=1, 	n=1, id="Monarchic Statue", 		gain={tmqatanuki}, tmqatanuki_hp=-2, tmqatanuki_rep=tmqastatue, descstatueleader=1 },
-	{ gid=323, 	spsheet="cards", 	team=1, 	n=1, id="Incessant Geckering", 		need={tmqafox}, spread=20, firerange=-1, flip_on="no_tmqafox" },
-	{ gid=324, 	spsheet="cards", 	team=1, 	n=1, id="Archery Class", 			sac={0,0}, gain={tmqabowman,tmqabowman}, delay=15 },
-	{ gid=325, 	spsheet="cards", 	team=1, 	n=1, id="Centaur", 					sac={1}, gain={tmqabowman}, tmqabowman_hp=-1, tmqabowman_tempo=-1 },
-	{ gid=326, 	spsheet="cards", 	team=1, 	n=1, id="Pack Hunting", 			sac={3}, gain={tmqawolf,tmqawolf,tmqawolf}, tmqawolf_carry=1, tmqawolf_tempo=2 },
-	{ gid=327, 	spsheet="cards", 	team=1, 	n=1, id="Beast Rider", 				need={tmqawolf}, gain={0}, pawn_hp=1, pawn_tempo=-1, flip_on="no_tmqawolf" },
-	{ gid=328, 	spsheet="cards", 	team=1, 	n=1, id="Relocation", 				need={0,0,0}, tmqawatchtower_orth=1, flip_on="no_pawn" },
-	{ gid=329, 	spsheet="cards", 	team=1, 	n=1, id="Shinto Shrine", 			tmqafox_rep=tmqawraith, tmqatanuki_rep=tmqawraith, tmqafox_tempo=-1, tmqatanuki_tempo=-1 },
-	{ gid=330, 	spsheet="cards", 	team=1, 	n=1, id="Frightening Visage", 		gain={tmqawraith}, tmqawraith_pike=1, tmqawraith_despair=1 },
-	{ gid=331, 	spsheet="cards", 	team=1, 	n=1, id="Phasmophobia", 			need={tmqawraith}, gain={tmqacat,tmqacat}, tmqacat_tempo=-99, tmqacat_peace=1, tmqawraith_curse=1 },
-	{ gid=332, 	spsheet="cards", 	team=1, 	n=1, id="Cursed Tombstone", 		delay=10, gain={tmqawraith}, cycle=1 },
-	{ gid=333, 	spsheet="cards", 	team=1, 	n=1, id="Canine Ambush", 			delay=25, gain={tmqadog,tmqafox,tmqawolf,tmqatanuki} },
-	{ gid=334, 	spsheet="cards", 	team=1, 	n=1, id="Marche Avant", 			need={0,0}, tmqalieutenant_push=2, tmqalieutenant_tempo=-1 },
-	{ gid=335, 	spsheet="cards", 	team=1, 	n=1, id="Pocket Knife", 			need={tmqabowman}, tmqabowman_pike=1 },
-	{ gid=336, 	spsheet="cards", 	team=1, 	n=1, id="The Caduceus", 			need={tmqaplaguedoctor}, tmqaplaguedoctor_rep=tmqacaduceus, desccaduceus=1 },
+	{ gid=300, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Anthropomorphism",			tmqacat_hp=1, tmqafox_hp=1, tmqawolf_hp=1, tmqadog_hp=1, tmqatanuki_hp=1, bishop_hp=-1 },
+	{ gid=301, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Constru-Polisher",			rook_tempo=-1, tmqabulwark_tempo=1, tmqatanuki_tempo=1, tmqawatchtower_hp=2, tmqabowman_hp=1 },
+	{ gid=302, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Fursome Cleaning",			pwe=5, gain={2,2}, tmqacat_hp=-1, tmqadog_hp=-1 },
+	{ gid=303, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Royal Family",				need={5}, gain={tmqadog,tmqacat,tmqalieutenant}, queen_hp=-2, king_hp=-2 },
+	{ gid=304, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Outsiding Army",			pwe=5, delay=15, gain={tmqalieutenant,tmqawatchtower,tmqabowman} },
+	{ gid=305, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Like Cats and Dogs",		need={tmqacat,tmqadog}, tmqacat_hp=1, tmqadog_hp=1, tmqacat_swap={tmqadog}, tmqadog_swap={tmqacat} },
+	{ gid=306, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Sniffin' Snoot",			gain={tmqadog}, tmqadog_tempo=-1, tmqadog_uncover=1, need_tag={"cloak"}  },
+	{ gid=307, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="The Scab",					need={0,0,tmqatanuki}, tmqatanuki_investigate=1, tmqatanuki_swap={0}, need_tag={"mission"} },
+	{ gid=308, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Off-Leash",				gain={tmqadog}, tmqadog_carry=1, tmqadog_tempo=1 },
+	{ gid=309, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Domestication",			gain={tmqafox, tmqawolf}, tmqafox_rep=tmqadog, tmqawolf_rep=tmqadog, tmqafox_hp=-1, tmqawolf_hp=-1 },
+	{ gid=310, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Back to Bones",			gain={tmqawolf, tmqawolf, tmqadog}, mist=1 },
+	{ gid=311, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Plaguebringer",			gain={tmqaplaguedoctor}, tmqaplaguedoctor_hp=1, rats=1 },
+	{ gid=312, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Bottom of the Food Chain",	gain={tmqacat}, rats=-1, tmqacat_poison=5, need_tag={"rats"} },
+	{ gid=313, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Surprise Promotion",		need={tmqalieutenant}, gain={0}, tmqalieutenant_emergency=1 },
+	{ gid=314, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Bloodvision",				gain={tmqawolf}, tmqawolf_vampire=1, need_tag="bleed" },
+	{ gid=315, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Sticky Furball",			gain={tmqacat}, paralysis=3, tmqacat_catapult=1 },
+	{ gid=316, 	spsheet="tmqa_cards", 	team=1, 	n=2, id="Hoarder",					gain={tmqafox}, delay=10, cycle=1, delayed={ammo_max=-1} },
+	{ gid=317, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Bullseye",					gain={tmqabowman}, tmqabowman_tempo=-1, bad_shells=2, tmqabowman_curse=1 },
+	{ gid=318, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Superior Intellect",		ai_lvl=1, ammo_max=-1, search=1, need_card={"Anthropomorphism"} },
+	{ gid=319, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Vixens", 					gain={tmqafox, tmqafox}, tmqafox_killprom=4, queen_hp=-1 },
+	{ gid=320, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Shelf Knocker", 			delay=10, delayed={gain={tmqacat}, soul_sink=1, tmqacat_hp=-1}	 },
+	{ gid=321, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="9 lives", 					need={tmqacat, tmqacat}, tmqacat_rep=tmqacat, tmqacat_tempo=2, flip_on="only_tmqacat" },
+	{ gid=322, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Monarchic Statue", 		gain={tmqatanuki}, tmqatanuki_hp=-2, tmqatanuki_rep=tmqastatue, descstatueleader=1 },
+	{ gid=323, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Incessant Geckering", 		need={tmqafox}, spread=20, firerange=-1, flip_on="no_tmqafox" },
+	{ gid=324, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Archery Class", 			sac={0,0}, gain={tmqabowman,tmqabowman}, delay=15 },
+	{ gid=325, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Centaur", 					sac={1}, gain={tmqabowman}, tmqabowman_hp=-1, tmqabowman_tempo=-1 },
+	{ gid=326, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Pack Hunting", 			sac={3}, gain={tmqawolf,tmqawolf,tmqawolf}, tmqawolf_carry=1, tmqawolf_tempo=2 },
+	{ gid=327, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Beast Rider", 				need={tmqawolf}, gain={0}, pawn_hp=1, pawn_tempo=-1, flip_on="no_tmqawolf" },
+	{ gid=328, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Relocation", 				need={0,0,0}, tmqawatchtower_orth=1, flip_on="no_pawn" },
+	{ gid=329, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Shinto Shrine", 			tmqafox_rep=tmqawraith, tmqatanuki_rep=tmqawraith, tmqafox_tempo=-1, tmqatanuki_tempo=-1 },
+	{ gid=330, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Frightening Visage", 		gain={tmqawraith}, tmqawraith_pike=1, tmqawraith_despair=1 },
+	{ gid=331, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Phasmophobia", 			need={tmqawraith}, gain={tmqacat,tmqacat}, tmqacat_tempo=-99, tmqacat_peace=1, tmqawraith_curse=1 },
+	{ gid=332, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Cursed Tombstone", 		delay=10, gain={tmqawraith}, cycle=1 },
+	{ gid=333, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Canine Ambush", 			delay=25, gain={tmqadog,tmqafox,tmqawolf,tmqatanuki} },
+	{ gid=334, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Marche Avant", 			need={0,0}, tmqalieutenant_push=2, tmqalieutenant_tempo=-1 },
+	{ gid=335, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Pocket Knife", 			need={tmqabowman}, tmqabowman_pike=1 },
+	{ gid=336, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="The Caduceus", 			need={tmqaplaguedoctor}, tmqaplaguedoctor_rep=tmqacaduceus, desccaduceus=1 },
 
-	{ gid=337, 	spsheet="cards", 	team=1, 	n=1, id="Elite Medallion", 			pwe=6, descelitemedallion=1 },
-	{ gid=338, 	spsheet="cards", 	team=1, 	n=1, id="Activated Elite Medallion",	pwe=0, descelitemedallionactivated=1 },
-	{ gid=340, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Luck",			pwe=100000, sac={tmqacat}, gain={tmqaluckycat}, need_card={"Elite Medallion"} },
-	{ gid=341, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Tail",			pwe=100000, sac={tmqafox}, gain={tmqakitsune}, need_card={"Elite Medallion"} },
-	{ gid=342, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Hell",			pwe=100000, sac={tmqawolf}, gain={tmqahellhound}, need_card={"Elite Medallion"} },
-	{ gid=343, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Heaven",			pwe=100000, sac={tmqaplaguedoctor}, gain={tmqaguardianangel}, need_card={"Elite Medallion"} },
-	{ gid=344, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Plating",			pwe=100000, sac={tmqacatapult}, gain={tmqaironcladmortar}, need_card={"Elite Medallion"} },
-	{ gid=345, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Promotion",		pwe=100000, sac={tmqalieutenant}, gain={tmqacolonel}, need_card={"Elite Medallion"} },
-	{ gid=346, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Wall",			pwe=100000, sac={tmqabulwark}, gain={tmqabastion}, need_card={"Elite Medallion"} },
-	{ gid=347, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Manor",			pwe=100000, sac={tmqawraith}, gain={tmqapoltergeist}, need_card={"Elite Medallion"} },
-	{ gid=348, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Death",			pwe=100000, sac={tmqadog}, gain={tmqadogspirit}, need_card={"Elite Medallion"} },
-	{ gid=349, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Trickster",		pwe=100000, sac={tmqatanuki}, gain={tmqayokai}, need_card={"Elite Medallion"} },
-	{ gid=350, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Machine",			pwe=100000, sac={tmqawatchtower}, gain={tmqawarmachine}, need_card={"Elite Medallion"} },
-	{ gid=351, 	spsheet="cards", 	team=1, 	n=1, id="Elitism: Trebuchet",		pwe=100000, sac={tmqabowman}, gain={tmqaballista}, need_card={"Elite Medallion"} },
+	{ gid=337, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elite Medallion", 			pwe=6, descelitemedallion=1 },
+	{ gid=338, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Activated Elite Medallion",	pwe=0, descelitemedallionactivated=1 },
+	{ gid=340, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Luck",			pwe=100000, sac={tmqacat}, gain={tmqaluckycat}, need_card={"Elite Medallion"} },
+	{ gid=341, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Tail",			pwe=100000, sac={tmqafox}, gain={tmqakitsune}, need_card={"Elite Medallion"} },
+	{ gid=342, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Hell",			pwe=100000, sac={tmqawolf}, gain={tmqahellhound}, need_card={"Elite Medallion"} },
+	{ gid=343, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Heaven",			pwe=100000, sac={tmqaplaguedoctor}, gain={tmqaguardianangel}, need_card={"Elite Medallion"} },
+	{ gid=344, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Plating",			pwe=100000, sac={tmqacatapult}, gain={tmqaironcladmortar}, need_card={"Elite Medallion"} },
+	{ gid=345, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Promotion",		pwe=100000, sac={tmqalieutenant}, gain={tmqacolonel}, need_card={"Elite Medallion"} },
+	{ gid=346, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Wall",			pwe=100000, sac={tmqabulwark}, gain={tmqabastion}, need_card={"Elite Medallion"} },
+	{ gid=347, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Manor",			pwe=100000, sac={tmqawraith}, gain={tmqapoltergeist}, need_card={"Elite Medallion"} },
+	{ gid=348, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Death",			pwe=100000, sac={tmqadog}, gain={tmqadogspirit}, need_card={"Elite Medallion"} },
+	{ gid=349, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Trickster",		pwe=100000, sac={tmqatanuki}, gain={tmqayokai}, need_card={"Elite Medallion"} },
+	{ gid=350, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Machine",			pwe=100000, sac={tmqawatchtower}, gain={tmqawarmachine}, need_card={"Elite Medallion"} },
+	{ gid=351, 	spsheet="tmqa_cards", 	team=1, 	n=1, id="Elitism: Trebuchet",		pwe=100000, sac={tmqabowman}, gain={tmqaballista}, need_card={"Elite Medallion"} },
 }
 
 

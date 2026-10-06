@@ -16,7 +16,7 @@ for i,v in ipairs(MODLIST) do if v.title == "Royal Card Lab" then
 	break
 end end
 
-newsrf("cards.png", "wild_card")
+newsrf("wild_card", "cards.png")
 newbnk(128,64,4)
 
 local new_cards = {

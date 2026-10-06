@@ -106,6 +106,15 @@ blade, ...}` (see Fairy Endless). `mode_description` in info.lua registers them.
    `load_mod("name")` registration).
 4. Mod built for a different game version (we have v1.623b).
 5. Nested folder from double extraction (`mods/Better Codex/Better Codex/`).
+6. **Asset loader argument order** (decoded source, session 10): inside a mod,
+   `newsrf/newsfx/newmus/newfnt` must be `(name, "file.ext")`. The reversed
+   order loads a file literally named `mods/<mod>/<name>` and fails with
+   `didn't match any files`. Seven vendored mods had it; they are patched
+   (`dist-overlay/README.md`, "Local patches").
+7. **Load order** — `MODS[]` fills top to bottom, so a dependency must sit
+   ABOVE its dependents, and Glac Terminal must be LAST (it collects hook
+   functions only from mods loaded before it). `build-dist.ps1` writes the
+   verified order.
 
 ## King's Court — the "mod that wouldn't load", diagnosed 2026-10-03
 

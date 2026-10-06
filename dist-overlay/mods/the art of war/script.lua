@@ -18,12 +18,12 @@ signature = "the art of war"
 -- 	break
 -- end end
 
-newsrf("cards.png","the art of war: cards")
-newsrf("gfx.png","the art of war: gfx")
+newsrf("the art of war: cards","cards.png")
+newsrf("the art of war: gfx","gfx.png")
 
-newsfx("sfx/shout.wav","shout")
-newsfx("sfx/drum1.wav","drum1")
-newsfx("sfx/drum2.wav","drum2")
+newsfx("shout","sfx/shout.wav")
+newsfx("drum1","sfx/drum1.wav")
+newsfx("drum2","sfx/drum2.wav")
 
 local bundles = {
 	art_of_war = 1,

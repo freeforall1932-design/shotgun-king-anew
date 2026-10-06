@@ -1,5 +1,20 @@
--- SK-REWORK build 7 — Dev Panel v2, damage/crit, ammo, dodge, pickers
+-- SK-REWORK build 8 — overlay Dev panel (owns no engine buttons)
 -- =====================================================================
+-- Build 7 was run live on 2026-10-05 (run 6). Bank read-back and the menu
+-- widgets were proven, but clicking SK DEV then CLIP+ moved the king and
+-- the panel never came back. Build 8 is the first build written against
+-- the DECODED GAME SOURCE (game/decoded, see notes/game-internals.md):
+--   * PANEL: three confirmed root causes - reset() wipes `ents` at every
+--     init_game (stale panel_present flag), remove_buts() (which Build 7's
+--     CLOSE used) also ends the player's turn, and overlapping mk_but
+--     buttons ALL fire on one click. The panel is now one plain draw entity
+--     plus an append() on gamepad_ctrl() that consumes clicks (mcl/mlb=
+--     false) before any board button updates. Smaller pico-font buttons, a
+--     modal box over the board like the card-choice screen, an "SK DEV" tab
+--     in the bottom-left corner. Details in section 4.
+--   * destroy_group() now uses kl(group) (the old del(ents, child) removed
+--     nothing - the child lives in group.ents).
+-- ---------------------------------------------------------------------
 -- Build 6 was run live on 2026-10-04 (run 5, ~22 min, clean shutdown) and
 -- every Build-6 question was answered. Build 7 absorbs that evidence:
 --   * PANEL (run 5 finding): the panel rendered and all cheats fired, but
@@ -56,18 +71,21 @@
 --     (native UI + config persistence).
 --
 -- Safety rules:
---   * No pcall/loadfile. Every value is nil/boolean-safe via sv().
+--   * No loadfile. Every value is nil/boolean-safe via sv(). pcall is used
+--     ONLY around the Build 8 panel and only if type(pcall)=="function"
+--     (logged as SKUI|panel|...|pcall=); engine-side fatals such as
+--     btn(<unknown id>) quit the game outside Lua and cannot be caught.
 --   * ENGINE CALLS TAKE ONLY CONFIRMED ARGUMENTS. A wrong argument to some
 --     engine functions is fatal and unrecoverable (run 4: btn("left")).
 --   * No global on_* or upd dispatcher. Engine integration is append() /
---     prepend() only; `e.upd` is not used.
+--     prepend() only; `e.upd` is not used (the panel entity only has `dr`).
 --   * Probe loops and output are capped. Static §0.7 probes run only after
 --     the READY marker so their failure cannot hide the load verdict, and
 --     every block ends with an SKA2|probe|<name>=done checkpoint.
 --   * The gameplay buttons are opt-in. No gameplay code runs unless clicked.
 -- =====================================================================
 
-local BUILD = 7
+local BUILD = 8
 local CAP_FIRST = 30
 local CAP_EVERY = 25
 local MAX_FIELDS = 16
@@ -78,8 +96,6 @@ local MAX_CARDS = 400
 local MAX_PIECES = 128
 local MAX_EXCLUDES = 512
 local MAX_ENTS_SCAN = 2000
-local PANEL_PAGE_BUTTONS = 6
-local SPAWN_PICK_BUTTONS = 6
 
 -- ---------- tiny helpers (nil-safe; no dependencies on unavailable APIs)
 local function sv(v)
@@ -177,7 +193,6 @@ end
 local cfg = { on = 0, dmg_min = 1, dmg_max = 1, crit = 0, crit_dmg = 2, pierce_crit = 1 }
 local card_mode = "auto"          -- "auto" (game pick) | "list" (browse + take)
 local card_filter = "all"         -- "all" | "piece" (piece/summon-related cards)
-local offer_active = false        -- level-up/offer screen open: never touch buttons
 local safe_mode = 0               -- 1 = one engine-mutating action per boot
 local safe_budget = 1
 local safe_used = {}
@@ -186,20 +201,9 @@ local bank_dirty = false
 local bank_flush_gate = 0
 local god_mode = false
 local rand_state = 20261005
-local dev_actions = {}
-local dev_open = false
-local dev_page = 1
 local card_page = 1
 local spawn_pick = nil
-local panel_present = false
-local dev_header = nil
-local dev_y = nil
-local panel_creation_logged = false
-local make_dev_actions
-local make_card_page
-local make_spawn_page
-local ensure_dev_panel
-local reopen_page
+local reopen_page                 -- section 4: mark the panel for a label refresh
 
 local function prand()
 	rand_state = (rand_state * 48271) % 2147483647
@@ -510,65 +514,31 @@ local function hookf(target, fn, id, use_prepend)
 	return true
 end
 
+-- Removes one of OUR mk_text_but groups. kl() on the group itself is the
+-- engine's own removal (code.lua kl: del from the parent's ents, dead=true);
+-- the child button lives in group.ents and goes with it. (Builds 6-7 called
+-- del(ents, child) - the child was never in `ents`, so nothing was removed.)
 local function destroy_group(group)
-	if type(group) ~= "table" or type(group.ents) ~= "table" then return end
-	if type(del) ~= "function" or type(ents) ~= "table" then return end
-	for i = 1, 8 do
-		local e = group.ents[i]
-		if e ~= nil then del(ents, e) end
+	if type(group) ~= "table" then return end
+	if type(kl) == "function" then
+		kl(group)
+	elseif type(del) == "function" and type(ents) == "table" then
+		del(ents, group)
 	end
 end
 
--- ---------- 4. Dev panel v2: pages, real CLOSE, live actions ----------
--- Run 5 proved the engine ignores del(ents, e) on mk_text_but groups: the
--- panel "closed" itself while its visuals stayed (open=true then open=false
--- in the same frame, frozen brown buttons for the owner). The engine's own
--- remove_buts() is the proven primitive (disgraced_justice, glac terminal),
--- so v2 clears through it and rebuilds the header on the next turn.
+-- ---------- 4. Dev panel (Build 8): cheats + self-drawn overlay ----------
+-- native_button is kept ONLY for the main-menu widgets (section 5); the
+-- in-run panel below no longer creates engine buttons at all.
 local function native_button(x, y, w, label, fn, store)
 	if type(mk_text_but) ~= "function" then return nil end
 	local group = mk_text_but(x, y, w, label, fn)
 	if store and type(group) == "table" then
 		store[#store + 1] = group
 	end
-	if type(group) == "table" and type(group.ents) == "table" and group.ents[1] then
-		local n = capped("native_button_fields")
-		if n then dump_fields("dev_button_" .. sv(n), group.ents[1], 8, "SKI") end
-	end
 	return group
 end
 
-local function clear_native_buttons(reason)
-	if offer_active and reason ~= "offer_guard" then
-		-- An offer/level-up screen owns the button layer right now: clearing
-		-- here would delete the engine's own card buttons. Defer instead.
-		local n = capped("panel_offer_guard")
-		if n then log("SKUI|panel|deferred=offer_active|reason=" .. sv(reason)) end
-		return
-	end
-	if type(remove_buts) == "function" then
-		ecall("remove_buts", remove_buts)
-		log("SKUI|panel|clear=remove_buts|reason=" .. sv(reason))
-	else
-		if type(del) == "function" and type(ents) == "table" then
-			for i = 1, 24 do
-				local g = dev_actions[i]
-				if g and type(g.ents) == "table" then
-					for j = 1, 8 do
-						if g.ents[j] then del(ents, g.ents[j]) end
-					end
-				end
-			end
-		end
-		log("SKUI|panel|clear=del_fallback|reason=" .. sv(reason))
-	end
-	dev_open = false
-	panel_present = false
-	dev_header = nil
-	for i = 1, 24 do dev_actions[i] = nil end
-end
-
--- --- actions -----------------------------------------------------------
 local function cheat_ammo_reserve()
 	local before = ammo
 	ecall("inc_ammo", inc_ammo, 3)
@@ -779,207 +749,354 @@ local function cheat_safe_toggle()
 	reopen_page(1)
 end
 
--- --- page builders -----------------------------------------------------
--- Rebuild the panel on a given page. Used after every state change so the
--- button labels always show the CURRENT state (run-5 ask: "when I press it
--- it doesnt change state to on or off in text").
+-- --- Build 8 panel: a self-drawn overlay that owns NO engine buttons -----
+-- Run-6 post-mortem, every point confirmed in the decoded game source
+-- (game/decoded/code.lua, see notes/game-internals.md):
+--   (a) init_game -> reset() does `ents={}` (code.lua:290). Build 7 kept its
+--       panel_present flag across that, so the panel was never rebuilt
+--       ("the panel was gone for good").
+--   (b) Build 7's CLOSE / page switches called remove_buts() (code.lua:15107),
+--       which also sets selecting/playing/aiming=false and clears every
+--       square's `selectable` flag -> the player's turn was broken.
+--   (c) mk_text_but's visual entity carries no `button` flag (only its child
+--       does), so remove_buts() left dead ghosts (run 5), and the panel's
+--       buttons sat on top of the board's square buttons: mk_but fires EVERY
+--       button under the cursor, so one click ran CLIP+ and moved the king.
+-- Build 8 design:
+--   * ONE plain entity (no `button` flag, dp=15 = drawn after DP_TOP) draws
+--     the panel. remove_buts() never touches it; it is re-created whenever
+--     the engine replaces `ents` (new run) or kills it.
+--   * Input is read in an append() on gamepad_ctrl(): _update's lp() runs it
+--     BEFORE foreach(ents,upe), right after it sets mx/my/mcl/mlb. While the
+--     pointer is on the SK DEV tab, or anywhere while the panel is open
+--     (modal, like the card-choice screen), the click is consumed with
+--     mcl/mcr/mlb=false - the engine's own idiom (menu.lua) and keys a mod is
+--     allowed to write (safe_require "replaceable" list). No board button
+--     ever sees it. (cancel_but is NOT replaceable: a mod write would land in
+--     the mod's own env table and the engine would never see it.)
+--   * Hidden while a card choice (leveling), the pause menu, the codex or any
+--     menu is up, so it never fights those screens.
+local PANEL_DP = 15
+local PANEL_W = 204
+local BTN_H = 9
+local ROW_H = 11
+local CARD_PAGE_SIZE = 15   -- 3 columns x 5 rows
+local SPAWN_PAGE_SIZE = 16  -- 4 columns x 4 rows
+local spawn_page = 1
+local ui = {ent = nil, ents_ref = nil, open = false, page = 1, items = nil,
+	box = nil, title = "", hot = nil, click_lock = false, errors = 0,
+	frames = 0, consumed = 0}
+local has_pcall = type(pcall) == "function"
+
+local function panel_scr()
+	return (type(MCW) == "number" and MCW) or 320, (type(MCH) == "number" and MCH) or 180
+end
+
+local function tab_rect()
+	local _, sh = panel_scr()
+	return 2, sh - BTN_H - 2, 31, BTN_H
+end
+
+local function in_rect(px, py, x, y, w, h)
+	return type(px) == "number" and type(py) == "number"
+		and px >= x and px < x + w and py >= y and py < y + h
+end
+
+local function panel_visible()
+	if not ingame or hero == nil then return false end
+	if pause or leveling or menu or any_card_menu then return false end
+	if codex and not codex.dead then return false end
+	return true
+end
+
+-- Called by every action after a state change: the item list (and so every
+-- ON/OFF label) is rebuilt on the next frame.
 reopen_page = function(page)
-	dev_page = page or 1
-	clear_native_buttons("reopen_page" .. sv(dev_page))
-	ensure_dev_panel()
-	make_dev_actions()
+	ui.page = page or ui.page or 1
+	ui.items = nil
 end
 
-local function pager_rows()
-	dev_page = 1
-	card_page = 1
-	reopen_page(1)
+local function panel_set_open(open, via)
+	ui.open = open and true or false
+	ui.page = 1
+	ui.items = nil
+	ui.hot = nil
+	log("SKUI|panel|open=" .. sv(ui.open) .. "|via=" .. sv(via))
+	if ui.open then log(cfg_line()) end
 end
 
-make_dev_actions = function()
-	if type(mk_text_but) ~= "function" then return end
-	if offer_active then
-		local n = capped("panel_offer_guard_open")
-		if n then log("SKUI|panel|deferred=offer_active|action=open") end
-		return
-	end
-	dev_open = true
-	panel_present = true
-	local sw = (type(MCW) == "number" and MCW) or 320
-	local width, gap = 62, 5
-	local total = width * 3 + gap * 2
-	local x0 = (sw - total) / 2
-	x0 = ifloor(x0)
-	local y = (dev_y or 0) + 10
-	local y2 = y + 10
-	local y3 = y + 20
-	local y4 = y + 30
-	if dev_page == 2 then
-		make_card_page(x0, y, width, gap)
-		return
-	end
-	if dev_page == 3 then
-		make_spawn_page(x0, y, width, gap)
-		return
-	end
-	local cols, cw, cg = 4, 55, 4
-	local total_w = cols * cw + (cols - 1) * cg
-	local cx = ifloor((sw - total_w) / 2)
-	local cx2, cx3, cx4 = cx + cw + cg, cx + 2 * (cw + cg), cx + 3 * (cw + cg)
-	native_button(cx, y, cw, "+3 AMMO", cheat_ammo_reserve, dev_actions)
-	native_button(cx2, y, cw, "RELOAD", cheat_reload, dev_actions)
-	native_button(cx3, y, cw, "CLIP+", cheat_clip, dev_actions)
-	native_button(cx4, y, cw, safe_mode == 1 and "SAFE:on" or "SAFE:off", cheat_safe_toggle, dev_actions)
-	native_button(cx, y2, cw, card_mode == "list" and "CARD:LIST" or "CARD:AUTO", cheat_card_mode, dev_actions)
-	native_button(cx2, y2, cw, "CARD NOW", cheat_random_card, dev_actions)
-	native_button(cx3, y2, cw, "CARDS>", function()
-		card_page = 1
-		reopen_page(2)
-	end, dev_actions)
-	native_button(cx4, y2, cw, "SPAWN...", function()
-		spawn_pick = nil
-		reopen_page(3)
-	end, dev_actions)
-	native_button(cx, y3, cw, god_mode and "GOD:on" or "GOD:off", cheat_god_mode, dev_actions)
-	native_button(cx2, y3, cw, cfg.on == 1 and "DMG:on" or "DMG:off", cheat_dmg_toggle, dev_actions)
-	native_button(cx3, y3, cw, "DMG+", cheat_dmg_cycle, dev_actions)
-	native_button(cx4, y3, cw, "CRIT+", cheat_crit_cycle, dev_actions)
-	native_button(cx, y4, cw, "CLOSE", function()
-		clear_native_buttons("close_clicked")
-		log("SKUI|panel|open=false")
-	end, dev_actions)
-	log("SKUI|panel|open=true|page=1|buttons=" .. sv(#dev_actions))
-	log(cfg_line())
+local function short(s, n)
+	s = sv(s)
+	if #s > n then s = s:sub(1, n) end
+	return s
 end
 
-make_card_page = function(x0, y, width, gap)
-	local pool = apply_card_filter(eligible_cards())
-	local sw = (type(MCW) == "number" and MCW) or 320
-	local pages = 1
-	if #pool > PANEL_PAGE_BUTTONS then
-		pages = ifloor((#pool + PANEL_PAGE_BUTTONS - 1) / PANEL_PAGE_BUTTONS)
-	end
-	if card_page > pages then card_page = pages end
-	if card_page < 1 then card_page = 1 end
-	local first = (card_page - 1) * PANEL_PAGE_BUTTONS + 1
-	local per_row = 3
-	local card_w, card_gap = 100, 5
-	local card_x0 = ifloor((sw - (per_row * card_w + (per_row - 1) * card_gap)) / 2)
-	if card_x0 < 0 then card_x0 = 0 end
-	for i = 0, PANEL_PAGE_BUTTONS - 1 do
-		local ca = pool[first + i]
-		if ca == nil then break end
-		local col = i % per_row
-		local row = ifloor(i / per_row)
-		local label = sv(ca.id)
-		if #label > 13 then label = label:sub(1, 13) end
-		local card_id = sv(ca.id)
-		native_button(card_x0 + col * (card_w + card_gap), y + row * 10, card_w, label, function()
-			take_card_by_id(card_id)
-			reopen_page(2)
-		end, dev_actions)
-	end
-	local y4 = y + 22
-	native_button(x0, y4, width, "<PREV", function()
-		card_page = card_page - 1
-		reopen_page(2)
-	end, dev_actions)
-	native_button(x0 + width + gap, y4, width, "NEXT>", function()
-		card_page = card_page + 1
-		reopen_page(2)
-	end, dev_actions)
-	native_button(x0 + 2 * (width + gap), y4, width, "<BACK", pager_rows, dev_actions)
-	native_button(x0 + 3 * (width + gap), y4, width,
-		card_filter == "piece" and "FILT:PIECE" or "FILT:ALL", function()
-			card_filter = (card_filter == "piece") and "all" or "piece"
-			card_page = 1
-			log("SKUI|panel|card_filter=" .. sv(card_filter))
-			reopen_page(2)
-		end, dev_actions)
-	log("SKUI|card|page=" .. sv(card_page) .. "/" .. sv(pages) .. "|pool=" .. sv(#pool)
-		.. "|filter=" .. sv(card_filter))
+local function page_count(n, per)
+	if n <= per then return 1 end
+	return ifloor((n + per - 1) / per)
 end
 
-make_spawn_page = function(x0, y, width, gap)
-	local sw = (type(MCW) == "number" and MCW) or 320
-	local names = {}
-	if type(PIECES) == "table" and type(all) == "function" then
-		local n = 0
-		for a, b in all(PIECES) do
-			local p = iter_value(a, b)
-			n = n + 1
-			if n > MAX_PIECES then break end
-			if type(p) == "table" and type(p.type) == "number" and p.name ~= nil then
-				names[#names + 1] = p
-			end
+local function piece_choices()
+	local out = {}
+	if type(PIECES) ~= "table" or type(all) ~= "function" then return out end
+	local n = 0
+	for a, b in all(PIECES) do
+		local p = iter_value(a, b)
+		n = n + 1
+		if n > MAX_PIECES then break end
+		if type(p) == "table" and type(p.type) == "number" and p.name ~= nil then
+			out[#out + 1] = p
 		end
 	end
-	local shown = 0
-	for i = 1, #names do
-		if shown >= SPAWN_PICK_BUTTONS * 2 then break end
-		local p = names[i]
-		local col = (i - 1) % SPAWN_PICK_BUTTONS
-		local row = ifloor((i - 1) / SPAWN_PICK_BUTTONS)
-		local ptype = p.type
-		local label = sv(p.name)
-		if #label > 11 then label = label:sub(1, 11) end
-		local pw, pg = 50, 2
-		local px0 = ifloor((sw - (SPAWN_PICK_BUTTONS * pw + (SPAWN_PICK_BUTTONS - 1) * pg)) / 2)
-		if px0 < 0 then px0 = 0 end
-		native_button(px0 + (i - 1) * (pw + pg), y, pw, label, function()
-			spawn_pick = ptype
-			spawn_ally(ptype, "panel_pick")
-			reopen_page(3)
-		end, dev_actions)
-		shown = shown + 1
-	end
-	native_button(x0, y + 12, width, "<BACK", pager_rows, dev_actions)
-	log("SKUI|spawn|page=1|choices=" .. sv(shown) .. "|selected=" .. sv(spawn_pick))
+	return out
 end
 
-ensure_dev_panel = function()
-	if offer_active then
-		local n = capped("panel_offer_guard_hdr")
-		if n then log("SKUI|panel|deferred=offer_active|action=header") end
-		return
-	end
-	if type(mk_text_but) ~= "function" then
-		if not panel_creation_logged then
-			log("SKUI|panel|available=false|reason=mk_text_but_missing")
-			panel_creation_logged = true
+local function build_items()
+	local sw, sh = panel_scr()
+	local entries, bottom = {}, {}
+	local cols, cw, gap = 4, 46, 4
+	local title
+	if ui.page == 2 then
+		local pool = apply_card_filter(eligible_cards())
+		local pages = page_count(#pool, CARD_PAGE_SIZE)
+		if card_page > pages then card_page = pages end
+		if card_page < 1 then card_page = 1 end
+		local first = (card_page - 1) * CARD_PAGE_SIZE + 1
+		for i = first, first + CARD_PAGE_SIZE - 1 do
+			local ca = pool[i]
+			if ca == nil then break end
+			local card_id = sv(ca.id)
+			entries[#entries + 1] = {short(card_id, 15), function()
+				take_card_by_id(card_id)
+				reopen_page(2)
+			end}
 		end
-		return
-	end
-	if panel_present and dev_header ~= nil then
-		return
-	end
-	dev_header = nil
-	panel_present = false
-	local screen_h = (type(MCH) == "number" and MCH) or 180
-	dev_y = ((type(board_y) == "number" and board_y) or 0) + 16 * 8 + 3
-	-- 4 action rows below the header need ~42 px of headroom, so clamp higher
-	-- than build 6 did (run 5: y=148 with 2 rows fit, 4 rows would not).
-	local last_y = screen_h - 52
-	if dev_y > last_y then dev_y = last_y end
-	if dev_y < 0 then dev_y = 0 end
-	local screen_w = (type(MCW) == "number" and MCW) or 320
-	local title = native_button(4, dev_y, 44, "SK DEV", function()
-		if dev_open then
-			clear_native_buttons("header_close")
-			log("SKUI|panel|open=false")
-		else
-			make_dev_actions()
+		cols, cw = 3, 64
+		title = "CARDS " .. sv(card_page) .. "/" .. sv(pages) .. "  (" .. sv(#pool)
+			.. (card_filter == "piece" and " piece" or "") .. ")"
+		if #pool == 0 then title = "CARDS - none eligible" end
+		bottom = {
+			{"< PREV", function() card_page = card_page - 1; reopen_page(2) end},
+			{"NEXT >", function() card_page = card_page + 1; reopen_page(2) end},
+			{card_filter == "piece" and "FILT:PIECE" or "FILT:ALL", function()
+				card_filter = (card_filter == "piece") and "all" or "piece"
+				card_page = 1
+				log("SKUI|panel|card_filter=" .. sv(card_filter))
+				reopen_page(2)
+			end, card_filter == "piece"},
+			{"< BACK", function() reopen_page(1) end},
+		}
+		log("SKUI|card|page=" .. sv(card_page) .. "/" .. sv(pages) .. "|pool=" .. sv(#pool)
+			.. "|filter=" .. sv(card_filter))
+	elseif ui.page == 3 then
+		local names = piece_choices()
+		local pages = page_count(#names, SPAWN_PAGE_SIZE)
+		if spawn_page > pages then spawn_page = pages end
+		if spawn_page < 1 then spawn_page = 1 end
+		local first = (spawn_page - 1) * SPAWN_PAGE_SIZE + 1
+		for i = first, first + SPAWN_PAGE_SIZE - 1 do
+			local p = names[i]
+			if p == nil then break end
+			local ptype = p.type
+			entries[#entries + 1] = {short(p.name, 10), function()
+				spawn_pick = ptype
+				spawn_ally(ptype, "panel_pick")
+				reopen_page(3)
+			end, spawn_pick == ptype}
 		end
-	end)
-	dev_header = title
-	panel_present = title ~= nil
-	if not panel_creation_logged then
-		log("SKUI|panel|available=true|native=mk_text_but")
-		panel_creation_logged = true
+		title = "SPAWN ALLY " .. sv(spawn_page) .. "/" .. sv(pages)
+		bottom = {
+			{"< PREV", function() spawn_page = spawn_page - 1; reopen_page(3) end},
+			{"NEXT >", function() spawn_page = spawn_page + 1; reopen_page(3) end},
+			{"< BACK", function() reopen_page(1) end},
+		}
+		log("SKUI|spawn|page=" .. sv(spawn_page) .. "/" .. sv(pages) .. "|choices=" .. sv(#names)
+			.. "|selected=" .. sv(spawn_pick))
+	else
+		ui.page = 1
+		entries = {
+			{"+3 AMMO", cheat_ammo_reserve},
+			{"RELOAD", cheat_reload},
+			{"CLIP+", cheat_clip},
+			{safe_mode == 1 and "SAFE:on" or "SAFE:off", cheat_safe_toggle, safe_mode == 1},
+			{card_mode == "list" and "CARD:LIST" or "CARD:AUTO", cheat_card_mode},
+			{"CARD NOW", cheat_random_card},
+			{"CARDS >", function() card_page = 1; reopen_page(2) end},
+			{"SPAWN >", function() spawn_page = 1; reopen_page(3) end},
+			{god_mode and "GOD:on" or "GOD:off", cheat_god_mode, god_mode},
+			{cfg.on == 1 and "DMG:on" or "DMG:off", cheat_dmg_toggle, cfg.on == 1},
+			{"DMG+ " .. sv(cfg.dmg_min) .. "-" .. sv(cfg.dmg_max), cheat_dmg_cycle},
+			{"CRIT+ " .. sv(cfg.crit) .. "%", cheat_crit_cycle},
+		}
+		title = "SK DEV  build " .. sv(BUILD)
+		bottom = {{"CLOSE", function() panel_set_open(false, "close") end}}
 	end
-	if dev_header and type(dev_header.ents) == "table" and dev_header.ents[1] then
-		log("SKUI|panel|width=" .. sv(screen_w) .. "|y=" .. sv(dev_y))
+	local rows = ifloor((#entries + cols - 1) / cols)
+	if rows < 1 then rows = 1 end
+	local bh = 13 + rows * ROW_H + 3 + ROW_H + 1
+	local bx = ifloor((sw - PANEL_W) / 2)
+	local by = ifloor(((type(board_y) == "number" and board_y) or 30) + (128 - bh) / 2)
+	if by > sh - bh - 2 then by = sh - bh - 2 end
+	if by < 2 then by = 2 end
+	ui.box = {x = bx, y = by, w = PANEL_W, h = bh}
+	ui.title = title
+	local items = {}
+	local gx = bx + ifloor((PANEL_W - (cols * cw + (cols - 1) * gap)) / 2)
+	for i, en in ipairs(entries) do
+		local c = (i - 1) % cols
+		local r = ifloor((i - 1) / cols)
+		items[#items + 1] = {x = gx + c * (cw + gap), y = by + 13 + r * ROW_H, w = cw,
+			h = BTN_H, label = en[1], fn = en[2], on = en[3]}
 	end
+	local bw = 46
+	local bxx = bx + ifloor((PANEL_W - (4 * bw + 3 * gap)) / 2)
+	local byy = by + 13 + rows * ROW_H + 3
+	for i, en in ipairs(bottom) do
+		items[#items + 1] = {x = bxx + (i - 1) * (bw + gap), y = byy, w = bw, h = BTN_H,
+			label = en[1], fn = en[2], on = en[3]}
+	end
+	ui.items = items
+	ui.hot = nil
+	log("SKUI|panel|page=" .. sv(ui.page) .. "|items=" .. sv(#items) .. "|box="
+		.. sv(bx) .. "," .. sv(by) .. "," .. sv(PANEL_W) .. "x" .. sv(bh))
+end
+
+local function draw_button(x, y, w, h, label, hot, on)
+	rectfill(x, y, x + w - 1, y + h - 1, hot and 5 or 3)
+	if on and type(rect) == "function" then rect(x, y, x + w - 1, y + h - 1, 4) end
+	lprint(label, x + w / 2, y + 2, 4, 1)
+end
+
+local function panel_draw_inner()
+	local tx, ty, tw, th = tab_rect()
+	draw_button(tx, ty, tw, th, "SK DEV", ui.hot == "tab", ui.open)
+	if not (ui.open and ui.items and ui.box) then return end
+	local b = ui.box
+	rectfill(b.x - 1, b.y - 1, b.x + b.w, b.y + b.h, 4)
+	rectfill(b.x, b.y, b.x + b.w - 1, b.y + b.h - 1, 0)
+	lprint(ui.title, b.x + b.w / 2, b.y + 4, 4, 1)
+	for i, it in ipairs(ui.items) do
+		draw_button(it.x, it.y, it.w, it.h, it.label, ui.hot == i, it.on)
+	end
+end
+
+local function panel_draw(e)
+	if not panel_visible() then return end
+	if type(rectfill) ~= "function" or type(lprint) ~= "function" then return end
+	local sav = nil
+	if type(font) == "function" then
+		sav = font()
+		font("pico")
+	end
+	if has_pcall then
+		local ok, err = pcall(panel_draw_inner)
+		if not ok then
+			ui.errors = ui.errors + 1
+			if ui.errors <= 3 then log("SKUI|panel|draw_error=" .. sv(err)) end
+		end
+	else
+		panel_draw_inner()
+	end
+	if sav ~= nil then font(sav) end
+end
+
+local function run_item(it)
+	log("SKUI|panel|click=" .. sv(it.label) .. "|page=" .. sv(ui.page))
+	if type(it.fn) ~= "function" then return end
+	if has_pcall then
+		local ok, err = pcall(it.fn)
+		if not ok then log("SKUI|panel|action_error=" .. sv(err) .. "|action=" .. sv(it.label)) end
+	else
+		it.fn()
+	end
+	if ui.open and ui.items ~= nil and it.fn ~= nil then
+		-- every click refreshes labels (ON/OFF text follows the state live)
+		ui.items = nil
+	end
+end
+
+local function panel_frame()
+	if not ingame or type(mke) ~= "function" then return end
+	-- (Re)create the draw entity: new run (engine replaced `ents`) or killed.
+	if ui.ent == nil or ui.ent.dead or ui.ents_ref ~= ents then
+		local fresh_run = ui.ents_ref ~= ents
+		local e = mke(0, 0, 0)
+		e.dp = PANEL_DP
+		e.dr = panel_draw
+		e.sk_panel = true
+		ui.ent, ui.ents_ref = e, ents
+		if fresh_run then
+			ui.open, ui.page, ui.items, ui.hot = false, 1, nil, nil
+		end
+		log("SKUI|panel|entity=created|fresh_run=" .. sv(fresh_run) .. "|dp=" .. sv(PANEL_DP)
+			.. "|pcall=" .. sv(has_pcall))
+	end
+	if not panel_visible() then
+		ui.hot = nil
+		ui.click_lock = false
+		return
+	end
+	if ui.open and ui.items == nil then build_items() end
+	local px, py = mx, my
+	local hot = nil
+	local tx, ty, tw, th = tab_rect()
+	if in_rect(px, py, tx, ty, tw, th) then
+		hot = "tab"
+	elseif ui.open and ui.items then
+		for i, it in ipairs(ui.items) do
+			if in_rect(px, py, it.x, it.y, it.w, it.h) then hot = i; break end
+		end
+	end
+	if hot ~= ui.hot then
+		ui.hot = hot
+		if hot ~= nil and type(sfx) == "function" then sfx("tic", .5) end
+	end
+	if hot == nil and not ui.open then
+		ui.click_lock = false
+		return
+	end
+	-- Over the tab, or modal panel open: this click belongs to us only.
+	-- (fast-forward runs lp() several times per frame with the same mcl, so a
+	-- lock makes one physical click run one action.)
+	local clicked = (mcl and not ui.click_lock) and true or false
+	ui.click_lock = mcl and true or false
+	if mcl or mcr or mlb then ui.consumed = ui.consumed + 1 end
+	mcl = false
+	mcr = false
+	mlb = false
+	if ui.open and MOUSE then
+		-- park the engine's pointer off the board so no square under the
+		-- overlay highlights; gamepad_ctrl re-reads the real mouse next frame
+		mx = -1
+		my = -1
+	end
+	if not clicked then return end
+	if hot == "tab" then
+		panel_set_open(not ui.open, "tab")
+	elseif type(hot) == "number" and ui.items and ui.items[hot] then
+		run_item(ui.items[hot])
+	elseif ui.open and ui.box and not in_rect(px, py, ui.box.x, ui.box.y, ui.box.w, ui.box.h) then
+		panel_set_open(false, "outside_click")
+	end
+	-- rebuild in the SAME frame so this frame's draw never shows an empty box
+	if ui.open and ui.items == nil and panel_visible() then build_items() end
+end
+
+local function panel_frame_safe()
+	if has_pcall then
+		local ok, err = pcall(panel_frame)
+		if not ok then
+			ui.errors = ui.errors + 1
+			if ui.errors <= 3 then log("SKUI|panel|frame_error=" .. sv(err)) end
+		end
+	else
+		panel_frame()
+	end
+end
+
+local function panel_reset(reason)
+	ui.open, ui.page, ui.items, ui.hot, ui.click_lock = false, 1, nil, nil, false
+	log("SKUI|panel|reset=" .. sv(reason))
 end
 
 
@@ -1045,10 +1162,8 @@ local function add_mod_menu_widgets(id)
 end
 
 -- ---------- 6. base diagnostic hooks ----------------------------------
--- SK-REWORK: append new_turn for world state, panel recovery, and God Mode HP refresh.
+-- SK-REWORK: append new_turn for world state and God Mode HP refresh.
 hookf("new_turn", function()
-	offer_active = false
-	ensure_dev_panel()
 	bank_flush(false)
 	if god_mode and hero and type(hero.hp) == "number" and hero.hp < 99 then hero.hp = 99 end
 	local n = capped("turn")
@@ -1100,15 +1215,23 @@ hookf("add_card", function(ca, ...)
 	if n <= 5 and type(ca) == "table" then dump_fields("card", ca) end
 end, "sk-rework:add_card")
 
--- SK-REWORK: append init_game to install native panel buttons in a run.
+-- SK-REWORK: append init_game - a new run starts with the panel collapsed.
+-- (reset() just replaced `ents`; panel_frame re-creates the draw entity.)
 hookf("init_game", function(...)
-	offer_active = false
-	dev_open = false
-	for i = 1, 16 do dev_actions[i] = nil end
-	ensure_dev_panel()
+	panel_reset("init_game")
 	local n = capped("init_game")
 	if n then log("SKE|init_game|n=" .. sv(n)) end
 end, "sk-rework:init_game")
+
+-- SK-REWORK: append gamepad_ctrl - the Build 8 panel's per-frame input +
+-- draw-entity upkeep. _update's lp() calls gamepad_ctrl() right after the
+-- engine reads the mouse and BEFORE any entity/button updates, so a click
+-- consumed here never reaches a board square (see section 4).
+if type(gamepad_ctrl) == "function" then
+	hookf("gamepad_ctrl", panel_frame_safe, "sk-rework:panel")
+else
+	log("SKUI|panel|available=false|reason=gamepad_ctrl_missing")
+end
 
 -- God Mode protects against the confirmed hit(p,dmg,tags) route; a huge HP
 -- refill also covers normal turns. Other death routes remain a live-probe item.
@@ -1150,10 +1273,9 @@ local function offer_probe(name, a1, a2, a3)
 	end
 end
 if known["level_up"] then
-	-- SK-REWORK: append level_up to observe draft filters/choices and to
-	-- protect the engine's offer buttons from our panel's remove_buts().
+	-- SK-REWORK: append level_up to observe draft filters/choices. (The
+	-- Build 8 panel hides itself while `leveling` is set - no guard needed.)
 	hookf("level_up", function(data, next_fn, ...)
-		offer_active = true
 		offer_probe("level_up", data, next_fn, nil)
 	end, "sk-rework:offer-level-up")
 end

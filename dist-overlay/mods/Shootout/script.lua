@@ -3,7 +3,7 @@
 -- Loading and writing files is authorized but only within your mod's folder. Paths should be relative to the mod folder.
 
 -- These will replace the vanilla game's surfaces. If multiple mods do this for the same surfaces, only the last one loaded will take effect. Here we're doing it to give the Black King a moustache.
-newsrf("gfx.png", "gfx")
+newsrf("shootout_gfx", "gfx.png")
 
 
 -- Make sure your mod's unique surfaces have unique names so they don't unintentionally replace each other.
