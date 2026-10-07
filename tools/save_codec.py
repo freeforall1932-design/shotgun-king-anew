@@ -15,10 +15,11 @@ Grammar (line-oriented):
     every entry line ends with a comma, including the last one in a table.
 
 This module parses that into plain Python dicts (numbers kept as raw strings
-so re-serialization is lossless) and serializes back. `--selftest` always runs
-synthetic parser/container roundtrips; optionally pass a directory of real
-saves to also verify their text layer. The six shipped v1.623b saves were
-verified byte-identical in an earlier live-data audit.
+so re-serialization is lossless) and serializes back. `--pack` validates the
+PUNKCAKE envelope and root table before opening its output. `--selftest` runs
+synthetic parser/container roundtrips plus malformed-syntax checks; optionally
+pass a directory of real saves to also verify their text layer. The six shipped
+v1.623b saves were verified byte-identical in an earlier live-data audit.
 Container note: that roundtrip guarantee is the TEXT layer (decode ->
 parse -> serialize == original text). Re-ENCODED containers use zlib
 level 9, which the game reads fine (live-proven), but whose bytes differ
@@ -45,7 +46,8 @@ FILE_RE = re.compile(r'^f"(.*)"$')
 # ── container ───────────────────────────────────────────────────────────────
 
 def decode_file(path: str) -> str:
-    data = open(path, "rb").read()
+    with open(path, "rb") as source:
+        data = source.read()
     (ln,) = struct.unpack(">I", data[:4])
     text = zlib.decompress(data[4:]).decode("utf-8")
     if len(text.encode()) != ln:
@@ -90,8 +92,12 @@ def parse(text: str) -> dict:
             stack.append(root)
             continue
         if stripped in ("}", "},"):
+            if not stack:
+                raise ValueError("unexpected closing brace")
             stack.pop()
             continue
+        if not stack:
+            raise ValueError("entry outside root table")
         m = KEY_RE.match(stripped)
         if not m:
             raise ValueError(f"unparsed line: {stripped!r}")
@@ -119,6 +125,8 @@ def parse(text: str) -> dict:
         raise ValueError(f"unparsed value: {val!r}")
     if stack:
         raise ValueError("unbalanced braces")
+    if root is None:
+        raise ValueError("missing root table")
     return root
 
 
@@ -164,7 +172,8 @@ def load_save(path: str) -> dict:
 
 
 def save_save(path: str, data: dict) -> None:
-    open(path, "wb").write(encode_text(serialize(data)))
+    with open(path, "wb") as target:
+        target.write(encode_text(serialize(data)))
 
 
 # ── helpers for editing ────────────────────────────────────────────────────
@@ -181,6 +190,13 @@ def s(x: str) -> tuple:
 
 
 # ── selftest ───────────────────────────────────────────────────────────────
+
+MALFORMED_PUNKCAKE = {
+    "missing root table": "PUNKCAKE\nFOREVER",
+    "unclosed root table": "PUNKCAKE\nt{\nFOREVER",
+    "extra closing brace": "PUNKCAKE\nt{\n}\n}\nFOREVER",
+    "entry after root table": "PUNKCAKE\nt{\n}\ns\"late\"\x1f: n1,\nFOREVER",
+}
 
 SYNTHETIC_SAVES = {
     "reg.sav": (
@@ -240,6 +256,17 @@ def run_selftest(savedir=None) -> int:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
 
+    for label, text in MALFORMED_PUNKCAKE.items():
+        total += 1
+        try:
+            parse(text)
+        except ValueError:
+            ok += 1
+        except Exception as exc:
+            print(f"MALFORMED INPUT RAISED UNEXPECTED ERROR ({label}): {exc}")
+        else:
+            print(f"MALFORMED INPUT ACCEPTED: {label}")
+
     if savedir:
         for f in sorted(os.listdir(savedir)):
             if not f.endswith(".sav"):
@@ -251,7 +278,7 @@ def run_selftest(savedir=None) -> int:
             else:
                 print(f"ROUNDTRIP MISMATCH: {f}")
 
-    print(f"selftest: {ok}/{total} save roundtrip checks passed")
+    print(f"selftest: {ok}/{total} save codec checks passed")
     return 0 if (ok == total and total > 0) else 1
 
 
@@ -281,8 +308,15 @@ def main(argv):
 
     if "--pack" in flags:
         out = flags[flags.index("--pack") + 1]
-        text = open(path, encoding="utf-8").read()
-        open(out, "wb").write(encode_text(text))
+        with open(path, encoding="utf-8") as source:
+            text = source.read()
+        try:
+            parse(text)
+        except ValueError as exc:
+            print(f"refusing to pack invalid PUNKCAKE text: {exc}", file=sys.stderr)
+            return 1
+        with open(out, "wb") as packed:
+            packed.write(encode_text(text))
         print(f"packed -> {out}")
         return 0
 
