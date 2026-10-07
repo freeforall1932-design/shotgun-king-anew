@@ -8,8 +8,9 @@
 - This is a current-tree change only: earlier commits still contain the game
   blobs, so normal clone/history size is not reduced until a separate,
   coordinated history rewrite. [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
-  is open from the fixed Arena branch; no force-push or main-branch update is
-  made from this session. Main changes only after the PR is merged.
+  was merged on 2026-10-07 (merge commit `5227e42`) from the fixed Arena
+  branch; `main`'s current tree no longer tracks `game/`, but earlier commits
+  still contain the blobs. No force-push or history rewrite was performed.
 - **Kept the no-game tooling working:** `tools/mode_guns_check.py` now carries a
   checked-in snapshot of `throne.lua`'s expected gun list (verified byte-for-byte
   against the deleted file's `HEAD` revision) and re-parses the decoded source

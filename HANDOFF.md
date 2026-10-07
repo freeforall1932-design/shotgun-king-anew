@@ -24,7 +24,7 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/51c078d1-shotgun-king-anew` (current Arena session, branched from `main` @ `a0b09e4`; session-fixed) |
+| Working branch | `arena/51c078d1-shotgun-king-anew` (session-fixed, branched from `main` @ `a0b09e4`). [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11) merged 2026-10-07 → `main` @ `5227e42`: audit fixes + `game/` removed from the current tree |
 | **Owner's game copy** | Retained outside this branch by owner per the 2026-10-07 instruction; `game/` is excluded from the current tree. Earlier Git commits still contain it. |
 | **Engine reference** | `notes/game-internals.md` records verified engine facts. The decoded `game/` source and payload are not present in the current tree. |
 | Our mod | `modded/sk-rework/` (**Build 9** = Build 8 panel + the reworked mod menu: live ON/OFF text, Back restored after undoing a change, far-left legend with E1–E4 load-order codes + AUTO-FIX (§5 of script.lua, `notes/red-warnings.md`). **Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids — replaced in Build 9) |
@@ -310,8 +310,10 @@ features in `live testing result/SUMMARY.md` "Still open".
 - Rebuild with Build 9 and playtest it: INSTALL Step 4 (rebuild), then the
   Step 5 test list (A1–A6, B1–B4, C1–C8).
 - ✅ Owner approved removal of `game/` from the current tree on 2026-10-07;
-  the change is on the fixed Arena branch and [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
-  is open, awaiting merge. Git history is not rewritten by this change.
+  [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
+  was **merged** the same day — `main`'s current tree no longer tracks `game/`
+  (226 tracked files, 0 under `game/`). Git history is **not** rewritten by this
+  change: commits before the merge still contain the game blobs.
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
   newest `crash_log_*.txt` — the parser names the last engine call that started
   and never finished, so the failing control is identifiable from the log.

@@ -99,7 +99,7 @@ is not included. Rejected audit proposals remain unapplied.
       `HEAD` revision; re-parses `game/decoded/` automatically when present) and
       still passes **37/37**; `save_codec.py --selftest` passes 6/6 with no save
       directory.
-- [ ] Merge [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11) so `main`'s current tree no longer contains `game/`.
+- [x] Merge [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11) so `main`'s current tree no longer contains `game/`. — **merged 2026-10-07**, merge commit `5227e42`; `main` now tracks 226 files, none under `game/`.
 - [ ] Decide separately whether Git history should be rewritten. This change
       preserves prior commits, so the game blobs remain reachable and a normal
       clone may retain the old repository-size cost. Do not force-update history
