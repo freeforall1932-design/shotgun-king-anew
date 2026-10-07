@@ -1,0 +1,15 @@
+--- a/modded/sk-rework/script.lua
++++ b/modded/sk-rework/script.lua
+@@ -740,6 +740,16 @@
++-- SK-REWORK: Right-click ability cap removal (§0.7.6)
++local uncap_abilities = true
++if type(prepend) == "function" then
++    prepend("is_card_available", function(ca)
++        if uncap_abilities and type(ca) == "table" and ca.special ~= nil then
++            -- Bypass vanilla single-ability restriction
++            return true
++        end
++    end, "sk-rework:uncap-abilities")
++end
++
+ hookf("is_card_available", function(ca, ...)

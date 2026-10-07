@@ -1,0 +1,26 @@
+--- a/modded/sk-rework/script.lua
++++ b/modded/sk-rework/script.lua
+@@ -232,15 +232,14 @@
+ local ok = false
+ if type(goto_sq) == "function" then
+-    ecall("goto_sq_sq", goto_sq, hero.sq, sq) -- GUESS #1
+-    if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
+-    if not ok then
+-        ecall("goto_sq_hero", goto_sq, hero, sq) -- GUESS #2
+-        if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
+-    end
++    -- Confirmed signature from game/decoded/code.lua: goto_sq(piece, square)
++    ecall("goto_sq", goto_sq, hero, sq)
++    if hero.sq == sq or (hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py) then
++        ok = true
++    end
+ end
+-if not ok and hero.sq then
+-    hero.sq.px, hero.sq.py = sq.px, sq.py
+-    ok = hero.sq.px == sq.px
++if not ok and hero and sq then
++    if hero.sq then hero.sq.piece = nil end
++    hero.sq = sq
++    sq.piece = hero
++    ok = true
+ end

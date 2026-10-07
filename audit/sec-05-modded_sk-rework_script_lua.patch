@@ -1,0 +1,7 @@
+--- a/modded/sk-rework/script.lua
++++ b/modded/sk-rework/script.lua
+@@ -432,3 +432,4 @@
+ elseif id == "filt" then
+     card_filter = (card_filter == "all") and "piece" or "all"
++    card_page = 1 -- Fix: reset pagination index so smaller filtered pool is visible
+     log("SKUI|panel|action=card_filter|to=" .. sv(card_filter))

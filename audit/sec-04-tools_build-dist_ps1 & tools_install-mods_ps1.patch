@@ -1,0 +1,16 @@
+--- a/tools/build-dist.ps1
++++ b/tools/build-dist.ps1
+@@ -143,6 +143,8 @@
+-            $stage = Join-Path $env:TEMP ("sk-dist-zip-" + $z.BaseName)
++            $stage = Join-Path $env:TEMP ("sk-dist-zip-" + $z.BaseName + "-" + [guid]::NewGuid().ToString("N"))
++            $extractSub = Join-Path $stage "unpacked"
++            New-Item -ItemType Directory -Path $extractSub -Force | Out-Null
+             try {
+-                Expand-Archive -LiteralPath $z.FullName -DestinationPath $stage -Force
+-                $info = Get-ChildItem -LiteralPath $stage -Recurse -Filter info.lua -File -ErrorAction SilentlyContinue | Select-Object -First 1
++                Expand-Archive -LiteralPath $z.FullName -DestinationPath $extractSub -Force
++                $info = Get-ChildItem -LiteralPath $extractSub -Recurse -Filter info.lua -File -ErrorAction SilentlyContinue | Select-Object -First 1
+@@ -156,3 +158,3 @@
+                     if (Test-Path -LiteralPath $to) { Remove-Item -LiteralPath $to -Recurse -Force }
+-                    Move-Item -LiteralPath $info.Directory.FullName -Destination $to -Force
++                    Copy-Item -LiteralPath (Join-Path $info.Directory.FullName "*") -Destination $to -Recurse -Force

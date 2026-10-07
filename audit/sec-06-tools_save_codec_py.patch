@@ -1,0 +1,12 @@
+--- a/tools/save_codec.py
++++ b/tools/save_codec.py
+@@ -236,3 +236,8 @@
+     out = flags[flags.index("--pack") + 1]
+     raw_text = open(path, "r", encoding="utf-8").read()
++    try:
++        parse(raw_text)
++    except Exception as e:
++        sys.exit(f"ERROR: Cannot pack '{path}' — invalid PUNKCAKE syntax: {e}")
+     open(out, "wb").write(encode_text(raw_text))
+-    print(f"packed -> {out}")
++    print(f"packed (validated) -> {out}")

@@ -1,0 +1,29 @@
+--- a/modded/sk-rework/script.lua
++++ b/modded/sk-rework/script.lua
+@@ -190,4 +190,14 @@
++-- SK-REWORK: capture genuine boot-time active flags (engine has no mod.loaded)
++local boot_modlist = {}
++if type(MODLIST) == "table" then
++  for i, v in ipairs(MODLIST) do
++    if type(v) == "table" then
++      boot_modlist[v.title or v.folder or i] = { active = v.active and true or false, pos = i }
++    end
++  end
++end
++
+@@ -510,7 +520,11 @@
+ local function modlist_changed()
+   if type(MODLIST) ~= "table" then return false end
+   for i, mod in ipairs(MODLIST) do
+     if type(mod) == "table" then
+-      if mod.num ~= nil and mod.num ~= i then return true end
+-      if (mod.active and true or false) ~= (mod.loaded and true or false) then return true end
++      local key = mod.title or mod.folder or i
++      local snap = boot_modlist[key]
++      if snap then
++        if (mod.active and true or false) ~= snap.active then return true end
++        if i ~= snap.pos then return true end
++      end
+     end
+   end
+   return false
