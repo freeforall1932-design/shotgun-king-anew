@@ -1,11 +1,14 @@
 # Game internals — read from the decoded game source (session 10)
 
-> Source: the owner's own game copy, stored unpacked in this branch under
-> `game/` (see HANDOFF §2b, the game-files policy). `game/data.sgr` was decoded
-> with `tools/sgr_extract.py` into `game/decoded/`. All line numbers below refer
-> to `game/decoded/…`. **These are facts read from the code, not guesses.**
-> Where they contradict older live-test inferences (HANDOFF §3), this file is
-> the more reliable one, though the code still beats any note.
+> Source: the owner's own game copy, once stored unpacked in this branch under
+> `game/` and decoded with `tools/sgr_extract.py` into `game/decoded/`. That
+> payload was removed from the current tree at the owner's request
+> (2026-10-07, HANDOFF §2b), so the line numbers below refer to the historical
+> `game/decoded/…` revision and cannot be re-checked from this checkout unless
+> the decoded sources are supplied again. **These are facts read from the
+> code, not guesses.** Where they contradict older live-test inferences
+> (HANDOFF §3), this file is the more reliable one, though the code still
+> beats any note.
 
 ## 0. data.sgr container (implemented in `tools/sgr_extract.py`)
 

@@ -124,6 +124,11 @@ python tools/mod_smoketest.py --dump
 python tools/mode_guns_check.py    # Throne-like mode files: 9-gun list, unlocks, savbnk
 ```
 
+`mode_guns_check.py` no longer needs the game copy: the expected Throne gun
+list is a checked-in snapshot (verified against the decoded `throne.lua`), and
+the script re-parses `game/decoded/code/modes/throne.lua` automatically if you
+supply the decoded sources locally.
+
 The smoke test runs the mod under **both** possible `all()` semantics and,
 when bundled by `lupa`, the real LuaJIT 2.1 backend; it then feeds the captured
 lines through the parser so mod format and parser can't drift apart unnoticed.

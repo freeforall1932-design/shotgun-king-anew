@@ -10,6 +10,12 @@
   coordinated history rewrite. [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
   is open from the fixed Arena branch; no force-push or main-branch update is
   made from this session. Main changes only after the PR is merged.
+- **Kept the no-game tooling working:** `tools/mode_guns_check.py` now carries a
+  checked-in snapshot of `throne.lua`'s expected gun list (verified byte-for-byte
+  against the deleted file's `HEAD` revision) and re-parses the decoded source
+  when it exists, so the check still passes **37/37** without the game copy.
+  `save_codec.py --selftest` runs **6/6** without a save directory, and the
+  README/HANDOFF/VERIFICATION_RESULTS wording now matches what still runs.
 
 ## 2026-10-07 — External audit verification + selective fixes
 

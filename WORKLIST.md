@@ -94,6 +94,11 @@ is not included. Rejected audit proposals remain unapplied.
 - [x] Owner explicitly approved removing `game/` from the current branch tree
       (2026-10-07); the game payload is removed and `/game/` is ignored. The
       owner says another copy remains available outside this branch.
+- [x] Keep the tooling runnable without the payload: `mode_guns_check.py` uses a
+      checked-in Throne gun-list snapshot (verified against the removed file's
+      `HEAD` revision; re-parses `game/decoded/` automatically when present) and
+      still passes **37/37**; `save_codec.py --selftest` passes 6/6 with no save
+      directory.
 - [ ] Merge [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11) so `main`'s current tree no longer contains `game/`.
 - [ ] Decide separately whether Git history should be rewritten. This change
       preserves prior commits, so the game blobs remain reachable and a normal

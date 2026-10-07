@@ -5,8 +5,11 @@ Loads each patched mode file from dist-overlay/mods/*/modes/ under LuaJIT
 (lupa) with a fake mod bank and permissive stubs for everything else, then
 checks:
   * the gun list is the full base-game Throne list (9 guns, same names and
-    order as game/decoded/code/modes/throne.lua, firerange = 3 + throne's
-    delta because the mod modes' `base` has no firerange);
+    order as throne.lua from the decoded game source, firerange = 3 + throne's
+    delta because the mod modes' `base` has no firerange). The decoded payload
+    is no longer tracked, so the expected list is a checked-in snapshot; it is
+    re-parsed from `game/decoded/code/modes/throne.lua` automatically whenever
+    that file exists locally;
   * no mode re-registers the 'weapons' sheet (the engine boot-loads the
     9-gun base sheet; the mods shipped stale 5-/7-gun copies);
   * Quartz / Fairy: initialize() unlocks every gun in the mod bank and
@@ -30,6 +33,22 @@ except ImportError:  # pragma: no cover
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MODS = ROOT / "dist-overlay" / "mods"
 THRONE = ROOT / "game" / "decoded" / "code" / "modes" / "throne.lua"
+
+# Snapshot of throne.lua's expected (name, absolute firerange) list, captured
+# before the decoded game payload was removed from this tree at the owner's
+# request (2026-10-07). Keeps the check runnable without the game copy; it is
+# replaced by a live parse as soon as THRONE exists again.
+THRONE_SNAPSHOT = [
+    ("Solomon", 3),
+    ("Victoria", 4),
+    ("Ramesses II", 3),
+    ("Richard III", 5),
+    ("Makeda", 3),
+    ("Alexander", 3),
+    ("Yvan IV", 2),
+    ("Attila", 3),
+    ("Montezuma", 3),
+]
 
 MODES = {
     "Quartz Throne": ("the_magnificient_quartz_army/modes/Quartz Throne.lua", "bank"),
@@ -85,6 +104,8 @@ end
 
 
 def throne_guns():
+    if not THRONE.exists():
+        return list(THRONE_SNAPSHOT)
     src = THRONE.read_text(encoding="utf-8", errors="replace")
     block = re.search(r"^weapons\s*=\s*\{(.*?)^\}", src, re.S | re.M).group(1)
     guns = []
