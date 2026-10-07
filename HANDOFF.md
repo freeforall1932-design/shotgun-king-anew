@@ -310,8 +310,8 @@ features in `live testing result/SUMMARY.md` "Still open".
 - Rebuild with Build 9 and playtest it: INSTALL Step 4 (rebuild), then the
   Step 5 test list (A1–A6, B1–B4, C1–C8).
 - ✅ Owner approved removal of `game/` from the current tree on 2026-10-07;
-  cleanup change is being prepared on the fixed Arena branch. Git history is
-  not rewritten by this change.
+  the change is on the fixed Arena branch and [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
+  is open, awaiting merge. Git history is not rewritten by this change.
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
   newest `crash_log_*.txt` — the parser names the last engine call that started
   and never finished, so the failing control is identifiable from the log.

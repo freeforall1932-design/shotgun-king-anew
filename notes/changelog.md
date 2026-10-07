@@ -7,8 +7,9 @@
   remains available outside this branch.
 - This is a current-tree change only: earlier commits still contain the game
   blobs, so normal clone/history size is not reduced until a separate,
-  coordinated history rewrite. No force-push or main-branch update is made from
-  this session; main changes only after the PR is merged.
+  coordinated history rewrite. [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
+  is open from the fixed Arena branch; no force-push or main-branch update is
+  made from this session. Main changes only after the PR is merged.
 
 ## 2026-10-07 — External audit verification + selective fixes
 

@@ -94,7 +94,7 @@ is not included. Rejected audit proposals remain unapplied.
 - [x] Owner explicitly approved removing `game/` from the current branch tree
       (2026-10-07); the game payload is removed and `/game/` is ignored. The
       owner says another copy remains available outside this branch.
-- [ ] Merge the cleanup PR so `main`'s current tree no longer contains `game/`.
+- [ ] Merge [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11) so `main`'s current tree no longer contains `game/`.
 - [ ] Decide separately whether Git history should be rewritten. This change
       preserves prior commits, so the game blobs remain reachable and a normal
       clone may retain the old repository-size cost. Do not force-update history
