@@ -1,3 +1,36 @@
+## 2026-10-07 — Owner-approved current-tree game removal
+
+- The owner superseded the earlier session-10 instruction to retain `game/`.
+  Removed all 368 tracked game/payload/decoded/save/log files (about 115 MB) from
+  the current worktree and changed `.gitignore` to keep `/game/` out.
+- Updated README, HANDOFF, and A-01 tracking. The owner says a separate copy
+  remains available outside this branch.
+- This is a current-tree change only: earlier commits still contain the game
+  blobs, so normal clone/history size is not reduced until a separate,
+  coordinated history rewrite. No force-push or main-branch update is made from
+  this session; main changes only after the PR is merged.
+
+## 2026-10-07 — External audit verification + selective fixes
+
+- Reviewed the two audit reports and existing patch guides against the current
+  base tree; recorded verified findings, rejected patches, owner decision, and
+  remaining platform checks in `audit/VERIFICATION_RESULTS.md` and
+  `WORKLIST.md`. Did not apply the bundle or remove `game/`/rewrite history.
+- **Build safety:** added lexical source/output overlap rejection before
+  `-Clean`; Robocopy now captures its status, accepts 0–7, and stops on 8+.
+  Windows/Robocopy tests remain pending.
+- **Insights and saves:** `-GetInsights` now validates/stages/swaps a fresh
+  snapshot; `--restore --dry-run` is no-write. Unsupported `endless` schemas
+  fail before backup/write. `save_codec.py --pack` validates the root table
+  and malformed syntax before opening its output.
+- **Smoke + gameplay:** missing Lupa now runs parser selftest and exits 2 as a
+  documented skip. God Mode dodge uses only verified `goto_sq(hero, square)`;
+  the coordinate fallback is removed and the smoke model checks `.p` occupancy
+  even when SAFE blocks movement. Refreshed Build 9 `PLAY-THIS.txt` template.
+- Regression suite 7/7; mod smoke 68/68 ×4; parser 49/49; save codec/game-save
+  selftest 12/12. Lupa 2.8 was temporary under `/tmp`. PowerShell and live-game
+  checks remain pending.
+
 ## 2026-10-06 — Build 9 pre-PR audit (session 10)
 
 - type: fix + docs. The owner asked for a full review before the PR.

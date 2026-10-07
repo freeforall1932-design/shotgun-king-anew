@@ -32,6 +32,80 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
+## 🔴 Verified audit follow-ups (2026-10-07; current `main` @ `a0b09e4`)
+
+Source of verdicts and reviewed patch proposals: `audit/VERIFICATION_RESULTS.md`.
+The audit fixes below were applied selectively after owner approval. The owner
+has now also approved removing `game/` from the current tree; history rewriting
+is not included. Rejected audit proposals remain unapplied.
+
+### Protect data and build outputs
+
+- [x] **A-02 — guard `GameDir`/output overlap before `-Clean`.**
+      `build-dist.ps1` normalizes both paths and rejects equality or nesting in
+      either direction before deleting/creating the destination. The check is
+      lexical (`GetFullPath`), not junction/reparse-point aware.
+  - [ ] Run disposable Windows cases for equal, ancestor, descendant, and
+        sibling-prefix paths before relying on the guard for a real build.
+- [x] **A-03 / SEC-01 — interpret Robocopy status explicitly.** The script
+      captures `$LASTEXITCODE` immediately, temporarily disables
+      `PSNativeCommandUseErrorActionPreference` when available, accepts 0–7,
+      and aborts on 8+.
+  - [ ] Run Robocopy success/failure statuses with the native-command
+        preference both enabled and disabled on Windows.
+- [x] **A-05 — honor `--dry-run` during `--restore`.** Restore now prints a
+      preview and returns before deleting/copying. Temporary fixture test
+      verifies byte-identical current and backup save trees.
+- [x] **A-06 — validate and refresh `-GetInsights` as one snapshot.** Requires
+      an existing game folder and `log.txt`; optional modlist/save files are
+      staged in a fresh sibling directory, then swapped in after collection.
+      Swap failure attempts to restore the prior snapshot (and retains it at
+      the unique backup path if rollback itself fails); removed source files
+      cannot linger in the new pack.
+  - [ ] Run Windows tests for missing paths/log, stale-file removal, copy
+        failure before swap, and rollback after swap failure.
+
+### Make checks, saves, and instructions trustworthy
+
+- [x] **A-04 — report a missing Lupa smoke test as skipped, not passed.** The
+      script runs the independent parser selftest, reports `SKIPPED`, and exits
+      2. `tools/mod-dev.md` documents status 2 as skip, not pass. Regression
+      tests exercise both `lupa` present and absent.
+- [x] **SEC-03 — harden King dodge relocation.** Uses only the verified
+      `goto_sq(hero, square)` contract and confirms the resulting square and
+      `.p` occupant. Removed both the bad-argument guess and direct square
+      coordinate fallback. The smoke fake models pointer/occupancy changes and
+      confirms SAFE-blocked dodges leave all tile coordinates/occupants intact.
+- [x] **SEC-06 — validate `--pack` input before writing.** `parse()` now rejects
+      missing root tables, entries outside the root, and unmatched braces;
+      `--pack` validates before opening its output. Parser selftests and a
+      sentinel-output regression test pass.
+- [x] **SEC-07 — handle unsupported `endless` schemas explicitly.** The tool
+      supports the verified numeric scalar (and the existing missing-key
+      default), but rejects table/invalid shapes before creating a backup or
+      changing any save. Temporary fixtures test both the rejected shape and
+      supported scalar dry-run.
+- [x] **A-07 — refresh generated `PLAY-THIS.txt` copy** to describe Build 9's
+      game-state controls and state that sandbox testing is complete while
+      live-game validation remains pending.
+
+### A-01 — current-tree cleanup approved; history decision separate
+
+- [x] Owner explicitly approved removing `game/` from the current branch tree
+      (2026-10-07); the game payload is removed and `/game/` is ignored. The
+      owner says another copy remains available outside this branch.
+- [ ] Merge the cleanup PR so `main`'s current tree no longer contains `game/`.
+- [ ] Decide separately whether Git history should be rewritten. This change
+      preserves prior commits, so the game blobs remain reachable and a normal
+      clone may retain the old repository-size cost. Do not force-update history
+      without a separate explicit approval and coordination.
+
+**Triage:** SEC-02 is rejected (the engine sets `mod.loaded`); SEC-04 is not
+substantiated (no source-level ZIP self-move/lock found); SEC-05 is already
+handled by `card_page = 1` in the current source. SEC-08 is a documented queued
+feature already listed below, so it is not duplicated here. Do not apply the
+unified audit bundle or its rejected hunks.
+
 ## 🟠 Next features (Build 9 live validation first)
 
 - [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
@@ -76,10 +150,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       king and the panel never came back; 4 crash logs (`fairy_cards`
       surface) and red load-order warnings with all mods ON. Analysis:
       `live testing result/SUMMARY.md` Run 6.
-- [x] **Game files stored + decoded (session 10)** — the owner's copy is in
-      `game/` (never delete it, HANDOFF §2b); `data.sgr` cracked
-      (`tools/sgr_extract.py` → `game/decoded/`); the engine facts are in
-      `notes/game-internals.md`.
+- [x] **Game files stored + decoded (session 10)** — the prior-session import
+      decoded `data.sgr` (`tools/sgr_extract.py` → `game/decoded/`); its engine
+      facts are in `notes/game-internals.md`. The owner later approved removing
+      this copy from the current tree (2026-10-07); another copy is reported to
+      remain outside this branch, and earlier Git commits still retain the files.
 - [x] **Build 8 item 1 — panel rebuilt as an overlay** — one plain draw
       entity (dp 15, no `button` flag) and an `append("gamepad_ctrl")` hook
       that hit-tests and consumes clicks (`mcl/mcr/mlb=false`) before any
@@ -115,13 +190,11 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       list only (A1–A6 mod menu, B1–B4 modes, C1–C8 panel).
 - [ ] **Owner live-run Build 9** — INSTALL Step 4 (rebuild), then the Step 5
       test list.
-- [ ] **Guessed signatures now marked + validated at runtime** — `goto_sq`
-      (both plausible argument orders tried, result validated, `hero.sq`
-      fallback), `get_nearest_free_square(px,py)` (only called when it exists,
-      result validated), `stack.chamber_max` / `stack.ammo_max` field writes.
-      Each logs which route worked, so the next live pass replaces the guesses
-      with facts. `SAFE:on` in the panel limits a boot to one gameplay-mutating
-      engine call if a new guess turns out fatal.
+- [ ] **Remaining API guesses, independent of SEC-03 dodge fix** —
+      `get_nearest_free_square(px,py)` (only called when it exists, result
+      validated) and `stack.chamber_max` / `stack.ammo_max` field writes.
+      Validate those against the decoded/live contract before treating them as
+      stable; `SAFE:on` still limits gameplay-mutating calls during a probe.
 - [x] ~~**Finish Phase 2c after probes**~~ — run 5 proved the route
       (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`; `ev_hit` never fires), so
       Build 7 ships configurable damage + crit + pierce auto-crit, and the
@@ -149,6 +222,8 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       hardcoded list, no fixed count.** Expected bindings: RMB + two side
       buttons + optional middle click, remap menu, cycle if abilities exceed
       buttons. **Scepter cap relaxed too.** Probe results precede behavior.
+      SEC-08 was verified absent in the 2026-10-07 audit; it remains a planned
+      feature, not a fix to apply from the unverified `prepend` proposal.
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
       (shell economy) → **C** (shell types)  [owner decision §0.6]
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
@@ -282,6 +357,35 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    legend attaching (`SKUI|menu|widgets_added=true`).
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-07 (owner-approved current-tree game removal):**
+- ✅ Owner superseded the earlier retain-`game/` instruction. Removed the 368
+  tracked files (about 115 MB) from the current worktree and added `/game/` to
+  `.gitignore`; updated README/HANDOFF/A-01 wording.
+- ℹ️ This removes the payload from the branch tip, not from earlier Git commits.
+  `main` will remain unchanged until the cleanup PR is merged; history/clone-size
+  cleanup would require a separate, coordinated history rewrite.
+- ⏭ Prepare/push the change only on the session-fixed Arena branch and open a PR
+  from that branch; do not switch or force-update `main`.
+
+**2026-10-07 (external audit verification + selective fixes; current main @ `a0b09e4`):**
+- ✅ Read both audit pages and checked all distinct findings against the
+  current source. Verdicts, patch review, applied changes, and limits are in
+  `audit/VERIFICATION_RESULTS.md`.
+- ✅ Reviewed the patch guides before editing; rejected the bundle wholesale.
+  SEC-02 is false, SEC-05 is already handled, SEC-03's `.piece` field is wrong
+  (`.p` is the engine field), SEC-04's `-LiteralPath` wildcard will not expand,
+  and SEC-08's `prepend` return is ignored. The proposed `endless` nested
+  schema is unverified; the implementation fails closed instead.
+- ✅ Applied A-02/A-03/A-04/A-05/A-06/A-07 and SEC-03/SEC-06/SEC-07 fixes;
+  no game payload, save, or Git history was removed/rewritten. Added temporary
+  fixture regressions and updated the Build 9 play instructions.
+- ✅ Smoke **68/68 ×4** (default/LuaJIT 2.1, value/pair `all()` semantics),
+  regression suite **7/7**, parser **49/49**, codec/game-save selftest **12/12**.
+  Forced missing-Lupa branch returns the documented skip status 2.
+- ⏭ PowerShell/Robocopy and live-game validation remain pending because those
+  runtimes are unavailable here. A-01 was initially left open; the owner
+  subsequently approved current-tree removal (see the newer entry above).
 
 **2026-10-06 (session 10 — run 6 absorbed; game decoded; Build 8 items 1–3):**
 - ✅ Run 6 analysed (panel click-through, `remove_buts` turn break, stale
@@ -564,7 +668,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 | Built copy inherits a broken extracted mod from the original install | `-NoInheritMods` switch (todo) or temporarily rename `<game>\mods` before building |
 | Game update changes internals | mods are additive; re-run stub-mod dump, refresh map.md |
 | Old rar blobs still in git history | acceptable until deployment → private flip / history scrub / repo delete |
-| Repo public during dev | owner decision (§0.6); no game assets in tracked files |
+| Older public Git commits still contain the former `game/` payload and saves | Current-tree removal is approved; merge the cleanup PR. History scrub is separate; no legal conclusion or force-update without explicit approval |
 
 ## 👑 Owner to-do
 
@@ -581,4 +685,8 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       - C1–C8: the panel.
 
       Then run `apply.ps1 -GetInsights`.
-4. At deployment: flip private; optionally scrub history; or archive repo
+4. **A-01 current-tree removal is owner-approved** and is being prepared on
+      this fixed Arena branch. After merge, `main`'s current tree will omit
+      `game/`; earlier commits still retain it unless a separate history scrub
+      is explicitly approved. At deployment, flip private, optionally scrub
+      history, or archive the repo.
