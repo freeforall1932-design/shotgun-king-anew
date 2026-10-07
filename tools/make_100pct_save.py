@@ -30,6 +30,7 @@ Usage (works with stock python.org Python 3, no dependencies):
     python tools/make_100pct_save.py --game-dir "E:\\...\\Shotgun.King.The.Final.Checkmate.v1.623b"
     python tools/make_100pct_save.py --game-dir ... --dry-run   # show, don't write
     python tools/make_100pct_save.py --game-dir ... --restore   # restore newest backup
+    python tools/make_100pct_save.py --game-dir ... --restore --dry-run  # preview restore
 
 --game-dir points at the game folder whose save/ you want to change. To unlock
 a modded copy built by tools/build-dist.ps1, pass that copy's folder:
@@ -87,6 +88,22 @@ def require_saves(game_dir: str) -> str:
     return save_dir
 
 
+def current_endless_floor(prog: dict) -> int:
+    """Read only the numeric scalar shape verified in the game's prog.sav."""
+    value = prog.get("endless", ("n", "0"))
+    if not (isinstance(value, tuple) and len(value) == 2 and value[0] == "n"):
+        raise SystemExit(
+            "unsupported prog.sav schema: 'endless' is not a numeric scalar; "
+            "no save files were changed. Keep a backup and verify this game "
+            "version's save format before editing it.")
+    try:
+        return int(value[1] or 0)
+    except (TypeError, ValueError):
+        raise SystemExit(
+            "unsupported prog.sav schema: 'endless' has an invalid numeric "
+            "value; no save files were changed.")
+
+
 def main(argv):
     if "--game-dir" not in argv:
         print(__doc__)
@@ -104,12 +121,22 @@ def main(argv):
         src = os.path.join(game_dir, backups[-1])
         dst = save_dir_for(game_dir)
         print(f"restoring {src} -> {dst}")
+        if dry:
+            print("(dry run - restore preview only; no files changed)")
+            return 0
         if os.path.isdir(dst):
             shutil.rmtree(dst)
         shutil.copytree(src, dst)
         return 0
 
     save_dir = require_saves(game_dir)
+
+    # Validate the one version-sensitive value before creating a backup or
+    # writing any save, so unknown schema shapes fail closed without a partial
+    # unlock operation.
+    prog_path = os.path.join(save_dir, "prog.sav")
+    prog = load_save(prog_path)
+    cur_endless = current_endless_floor(prog)
 
     # ---- backup ----
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -129,8 +156,7 @@ def main(argv):
         save_save(p, ach)
 
     # ---- prog.sav: weapons, ranks, badges, endless floor ----
-    p = os.path.join(save_dir, "prog.sav")
-    prog = load_save(p)
+    p = prog_path
     throne = prog.setdefault("throne", {})   # F2: must exist in prog, not a copy
     unl = throne.setdefault("weapon_unl", {})
     for w in WEAPONS:
@@ -139,7 +165,6 @@ def main(argv):
     for w in range(1, 10):
         badges.setdefault(w, {})["rank"] = n(RANKS)
     throne["rank"] = n(RANKS)
-    cur_endless = int(prog.get("endless", ("n", "0"))[1] or 0)
     prog["endless"] = n(max(ENDLESS_FLOOR, cur_endless))
     print(f"prog: weapons 1-9 unlocked, throne rank {RANKS}, all badges rank "
           f"{RANKS}, endless floor {prog['endless'][1]} (chase unlocked)")

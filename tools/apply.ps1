@@ -84,35 +84,102 @@ if ($GetLog) {
 }
 
 if ($GetInsights) {
-    # Everything the dev side needs after a live run: the log, the mod-list
-    # file the game writes (its format decides whether the toolchain can
-    # pre-enable mods), and the save folder (codex/achievement key names).
-    if (-not $GameDir) { Write-Error "Pass -GameDir to use -GetInsights (e.g. -GameDir `"E:\testing\ShotgunKing-Modded`")" }
+    # Collect a new, self-contained snapshot and replace the previous one only
+    # after every required/available source has copied successfully.
+    if (-not $GameDir) {
+        Write-Error "Pass -GameDir to use -GetInsights (e.g. -GameDir `"E:\testing\ShotgunKing-Modded`")"
+    }
+    if (-not (Test-Path -LiteralPath $GameDir -PathType Container)) {
+        Write-Error "Game folder not found: $GameDir"
+    }
     $GameDir = Resolve-GameDir $GameDir
+    if (-not (Test-Path -LiteralPath $GameDir -PathType Container)) {
+        Write-Error "Resolved game folder not found: $GameDir"
+    }
+    $GameDir = (Get-Item -LiteralPath $GameDir -ErrorAction Stop).FullName
+
+    $logSrc = Join-Path $GameDir "log.txt"
+    if (-not (Test-Path -LiteralPath $logSrc -PathType Leaf)) {
+        Write-Error "No log.txt in $GameDir (launch the game from this folder first)."
+    }
+
     $dst = Join-Path $RepoRoot "uploads\game-insights"
-    New-Item -ItemType Directory -Path $dst -Force | Out-Null
-    foreach ($rel in @("log.txt", "mods\modlist.lua")) {
-        $src = Join-Path $GameDir $rel
-        if (Test-Path -LiteralPath $src) {
-            Copy-Item -LiteralPath $src -Destination (Join-Path $dst (Split-Path -Leaf $rel)) -Force
-            Write-Host "Fetched $rel -> $dst"
+    $parent = Split-Path -Parent $dst
+    New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    $token = [guid]::NewGuid().ToString("N")
+    $stage = Join-Path $parent ("game-insights.stage-" + $token)
+    $old = Join-Path $parent ("game-insights.old-" + $token)
+    $oldMoved = $false
+
+    try {
+        New-Item -ItemType Directory -Path $stage -ErrorAction Stop | Out-Null
+        Copy-Item -LiteralPath $logSrc -Destination (Join-Path $stage "log.txt") -Force -ErrorAction Stop
+
+        $modlistSrc = Join-Path $GameDir "mods\modlist.lua"
+        if (Test-Path -LiteralPath $modlistSrc -PathType Leaf) {
+            Copy-Item -LiteralPath $modlistSrc -Destination (Join-Path $stage "modlist.lua") -Force -ErrorAction Stop
         } else {
-            Write-Host "skip (not present): $rel" -ForegroundColor Yellow
+            Write-Host "skip (not present): mods\modlist.lua" -ForegroundColor Yellow
+        }
+
+        $saveSrc = Join-Path $GameDir "save"
+        if (Test-Path -LiteralPath $saveSrc -PathType Container) {
+            $saveSrc = (Get-Item -LiteralPath $saveSrc -ErrorAction Stop).FullName
+            $saveFiles = @(Get-ChildItem -LiteralPath $saveSrc -Recurse -File -Force -ErrorAction Stop)
+            foreach ($file in $saveFiles) {
+                $relative = $file.FullName.Substring($saveSrc.Length + 1)
+                $target = Join-Path (Join-Path $stage "save") $relative
+                $targetDir = Split-Path -Parent $target
+                New-Item -ItemType Directory -Path $targetDir -Force -ErrorAction Stop | Out-Null
+                Copy-Item -LiteralPath $file.FullName -Destination $target -Force -ErrorAction Stop
+            }
+            if ($saveFiles.Count -gt 0) {
+                Write-Host "Fetched save\ -> $stage\save"
+            } else {
+                Write-Host "skip (empty): save\" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "skip (not present): save\ (launch the game once first)" -ForegroundColor Yellow
+        }
+
+        if (Test-Path -LiteralPath $dst) {
+            Move-Item -LiteralPath $dst -Destination $old -ErrorAction Stop
+            $oldMoved = $true
+        }
+        try {
+            Move-Item -LiteralPath $stage -Destination $dst -ErrorAction Stop
+        } catch {
+            $swapError = $_
+            if ($oldMoved) {
+                try {
+                    if (Test-Path -LiteralPath $dst) {
+                        Remove-Item -LiteralPath $dst -Recurse -Force -ErrorAction Stop
+                    }
+                    Move-Item -LiteralPath $old -Destination $dst -ErrorAction Stop
+                    $oldMoved = $false
+                } catch {
+                    $rollbackError = $_
+                    throw "Snapshot swap failed ($($swapError.Exception.Message)); rollback also failed ($($rollbackError.Exception.Message)). The previous snapshot is retained at '$old'."
+                }
+            }
+            throw $swapError
+        }
+
+        if ($oldMoved) {
+            try {
+                Remove-Item -LiteralPath $old -Recurse -Force -ErrorAction Stop
+                $oldMoved = $false
+            } catch {
+                Write-Warning "New snapshot installed; previous snapshot was retained at '$old'."
+            }
+        }
+    } finally {
+        if (Test-Path -LiteralPath $stage) {
+            Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
-    $saveSrc = Join-Path $GameDir "save"
-    if (Test-Path -LiteralPath $saveSrc) {
-        Get-ChildItem -LiteralPath $saveSrc -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
-            $rel2  = $_.FullName.Substring($saveSrc.Length + 1)
-            $to2   = Join-Path (Join-Path $dst "save") $rel2
-            $dir2  = Split-Path -Parent $to2
-            if (-not (Test-Path -LiteralPath $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
-            Copy-Item -LiteralPath $_.FullName -Destination $to2 -Force
-        }
-        Write-Host "Fetched save\ -> $dst\save"
-    } else {
-        Write-Host "skip (not present): save\ (launch the game once first)" -ForegroundColor Yellow
-    }
+
+    Write-Host "Fetched current insight pack -> $dst"
     exit 0
 }
 

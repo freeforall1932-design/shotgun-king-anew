@@ -24,36 +24,35 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/6424942a-shotgun-king-anew` (session 10, session-fixed; branched from `main` @ `aedfc71`, fast-forwarded to the owner's zip upload `a9e5dd2`). Session 9 = PR #8 (`2975dba`); earlier sessions = PRs #1–#7 |
-| **Owner's game copy (unpacked)** | **`game/`** in this branch — exe, dlls, `data.sgr`, `lang/`, `mods/` (workshop originals), `save/`, `log.txt`, `settings.txt`. **Read §2b before touching it** |
-| **Decoded game source** | **`game/decoded/`**: `code.lua` (main, ~15.4k lines), `code/*.lua` (menu, mods sandbox, gamepad, save, codex…), `code/modes/*.lua`, `libs/*.lua`, `lang/`, `assets/gfx/*.png`, shaders. Produced by `tools/sgr_extract.py`; the engine facts are summarised in **`notes/game-internals.md`** |
+| Working branch | `arena/51c078d1-shotgun-king-anew` (current Arena session, branched from `main` @ `a0b09e4`; session-fixed) |
+| **Owner's game copy** | Retained outside this branch by owner per the 2026-10-07 instruction; `game/` is excluded from the current tree. Earlier Git commits still contain it. |
+| **Engine reference** | `notes/game-internals.md` records verified engine facts. The decoded `game/` source and payload are not present in the current tree. |
 | Our mod | `modded/sk-rework/` (**Build 9** = Build 8 panel + the reworked mod menu: live ON/OFF text, Back restored after undoing a change, far-left legend with E1–E4 load-order codes + AUTO-FIX (§5 of script.lua, `notes/red-warnings.md`). **Build 8**: an overlay dev panel that owns no engine buttons (one dp-15 draw entity + an `append("gamepad_ctrl")` click-consume hook, bottom-left `SK DEV` tab, modal box, live labels, hidden during card choice/pause/menus, re-created on every new run). Unchanged from Build 7: damage/crit/pierce at `mk_bullet`, RELOAD + CLIP+, card AUTO/LIST pages, spawn picker, Mist-style dodge, `SKE\|call\|` intent logging + SAFE, bank restore, menu legend on the real ids — replaced in Build 9) |
-| Log parser + smoke test | `tools/parse_log.py` (**49/49**: red mod text → error codes §1b, `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mode_guns_check.py` (**37/37**, Throne-like mode gun lists, Quartz ranks, a sweep of every mod gun list), `tools/mod_smoketest.py` (**66/66** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine chains appends, models `gamepad_ctrl`'s mouse read, `mke`/`kl`, `remove_buts`, `reset()`, the draw calls and board clicks, re-raises the fatal unknown-id `btn()` error, and runs a verbatim port of the engine's mod-menu `open_menu`/`act_menu`/`close_menu`) |
+| Log parser + smoke test | `tools/parse_log.py` (**49/49**: red mod text → error codes §1b, `!!` prefixes, multi-boot dedup, probe checkpoints, crash detection, **`SKE\|call` dangling-call forensics** + a Build-7 trace section), `tools/mode_guns_check.py` (**37/37** without the game copy: the expected Throne list is a checked-in snapshot verified against the decoded `throne.lua`, re-parsed live if `game/decoded/` is supplied; Throne-like mode gun lists, Quartz ranks, and a sweep of every mod gun list), `tools/mod_smoketest.py` (**68/68** × both `all()` semantics × default Lua/LuaJIT 2.1; the mod now runs inside a copy of the engine's **real sandbox write rules** (only replaceable keys reach the engine). The fake engine models the verified dodge pointer/`.p` occupancy and SAFE-blocked no-move case, chains appends, models `gamepad_ctrl` input/drawing and menu code, and re-raises fatal unknown-id `btn()` errors. Missing Lupa is an explicit skip, exit 2.) |
 | Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–6; raw packs `run 5 i believe or latest run/` and **`run 6 wow/`** (critique, powershell output, log, modlist, save, 4 crash logs) |
 | Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/`. **7 are locally patched** (asset-loader argument order). The list, the Quartz/Shootout note and the load order are in `dist-overlay/README.md` |
 | Tools | `tools/` (build-dist.ps1 (writes the dependency-ordered `modlist.lua`), install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, **sgr_extract.py** (data.sgr decoder), mod-dev.md, recover.md) |
 | Knowledge | `notes/` (**game-internals.md = engine facts from the decoded source, with line numbers**, map.md = live-derived code map, mods.md = mod inventory + API, review-2026-10-03.md, changelog.md, data-sgr-filelist.txt) |
-| Owner archives + modding guide | `uploads/` (**gitignored**) — not in the sandbox; lives on the owner's machine. The game itself is now in `game/` (above) |
+| Owner archives + modding guide | `uploads/` (**gitignored**) — not in the sandbox; lives on the owner's machine. The owner says the game copy remains outside this branch; this tree intentionally omits it. |
 
-## 2b. Game-files policy (owner's instruction, session 10) — READ FIRST
+## 2b. Game-files policy (owner update, 2026-10-07)
 
-- The owner's game copy is stored **unpacked in this branch under `game/`**
-  (it arrived on `main` as a 4-part split zip, was extracted with all CRCs
-  OK, and the zips were removed so the owner never has to upload again).
-  `.gitignore` has an explicit exception (`!game/`, `!game/**`) for it.
-- **To inspect the game, future sessions check out / fetch branch
-  `arena/6424942a-shotgun-king-anew` and open `game/`** (or `game/decoded/`
-  for readable source). Don't ask the owner to put the game on `main` again.
-- **Never delete `game/`, before or after merging.** The owner removes it
-  manually after testing, or a later debug session does so when the owner
-  asks. Don't "clean it up" on your own initiative.
-- Decoding: `python3 tools/sgr_extract.py game/data.sgr game/decoded` (pure
-  Python, ~24 s; `--all` adds fonts/sfx/music, ~92 MB; `--list` prints the
-  entry table). Format: `notes/game-internals.md` §0.
-- Assets for modding (symbols, sprites) can be taken from
-  `game/decoded/assets/gfx/*.png`. Personal use only (§8).
+- The owner explicitly superseded the session-10 decision to retain the
+  purchased game under `game/`. The owner says another copy remains available
+  outside this branch; `game/` is removed from this branch's current tree and
+  ignored by `.gitignore`.
+- This is a **current-tree removal, not a history rewrite**. Commits before
+  this cleanup still contain the game payload. The current session works only
+  on `arena/51c078d1-shotgun-king-anew`; `main` loses the current `game/` tree
+  after the cleanup change is merged.
+- Do not re-add a game copy, decoded payload, save, or runtime log to this
+  repository without a new explicit owner instruction. Use `notes/game-internals.md`
+  for the engine facts retained from the prior analysis.
+- A history scrub/force-update is a separate high-impact decision: obtain
+  explicit approval, coordinate with collaborators, and require fresh clones.
+
 
 ## 3. Hard-won facts (do not re-derive)
 
@@ -135,7 +134,8 @@ game's own mod system).
    names (can shadow Glac Terminal's dispatch).
 5. **data.sgr** = 79 MB package with all 278 game files. **Cracked in session
    10** (XOR/xorwow cipher + zlib + a simple container) →
-   `tools/sgr_extract.py`, output committed in `game/decoded/`.
+   `tools/sgr_extract.py`; output was committed in `game/decoded/` before the
+   owner-approved current-tree removal (older Git commits still retain it).
 5b. **Mod asset loaders take `(name, "file.ext")`** — the reversed order
    silently loads nothing (run 6: 21 × `didn't match any files`, Fairy fatal
    `inexistent surface`). **Mods load top-to-bottom from `modlist.lua`**, and
@@ -309,8 +309,9 @@ features in `live testing result/SUMMARY.md` "Still open".
 - ~~Build 7 playtest~~ **done (run 6)**
 - Rebuild with Build 9 and playtest it: INSTALL Step 4 (rebuild), then the
   Step 5 test list (A1–A6, B1–B4, C1–C8).
-- Delete `game/` from the branch yourself once testing no longer needs it
-  (agents never do that unprompted, §2b).
+- ✅ Owner approved removal of `game/` from the current tree on 2026-10-07;
+  the change is on the fixed Arena branch and [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
+  is open, awaiting merge. Git history is not rewritten by this change.
   Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
   newest `crash_log_*.txt` — the parser names the last engine call that started
   and never finished, so the failing control is identifiable from the log.
@@ -338,17 +339,17 @@ features in `live testing result/SUMMARY.md` "Still open".
   it describe the owner's machine.
 - No unrar/7z/bsdtar/xxd preinstalled. A *multi-volume* zip can't be joined
   with `zip -s 0`/`zipfile`; session 10 used a small custom extractor
-  (ephemeral `/tmp/gz/extract.py`). The game is already unpacked in `game/`.
+  (ephemeral `/tmp/gz/extract.py`). The game copy was removed from this tree
+  on 2026-10-07 per owner instruction; use the owner's external copy if needed.
 - Exe analysis venv (ephemeral): `python3 -m venv /tmp/skvenv &&
   /tmp/skvenv/bin/pip install lupa pefile capstone` (capstone needs
   `skipdata=True`; don't name a script `dis.py`).
 
 ## 8. Rules that still stand
 
-- Never commit game assets or archives (`.gitignore` guards: *.rar *.zip
-  *.exe *.dll *.sgr, uploads/, dist/, save_backup_/, __pycache__/).
-  **Sole exception: `game/`** (owner's explicit instruction, §2b), which is
-  never deleted by an agent.
+- Never commit game assets or archives (`.gitignore` guards: `/game/`, *.rar
+  *.zip *.exe *.dll *.sgr, uploads/, dist/, save_backup_/, __pycache__/).
+  No `game/` exception remains; older commits still contain the removed tree.
 - Workshop mods in `dist-overlay/` are mirrored for the owner's personal
   build (owner confirmed freely distributed); remove on author request.
 - Mod code: additive hooks only, `-- SK-REWORK:` markers, stable hook ids,

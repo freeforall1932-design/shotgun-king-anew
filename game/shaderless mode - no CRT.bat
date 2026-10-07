@@ -1,1 +1,0 @@
-start shotgun_king.exe shaderless

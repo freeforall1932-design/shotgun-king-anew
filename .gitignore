@@ -20,13 +20,9 @@ save_backup_*/
 *.exe
 *.dll
 
-# ── EXCEPTION (owner decision, session 10, 2026-10-06) ───────────────────────
-# game/ is the owner's game copy, committed ON PURPOSE so future sessions can
-# inspect it (game/decoded/ = data.sgr decoded by tools/sgr_extract.py).
-# Do NOT delete game/ — the owner (or a later session he asks) removes it after
-# the next debug run. See HANDOFF.md §2.
-!game/
-!game/**
+# Keep the owner's purchased game copy, decoded game payload, saves, and logs
+# outside this repository. The current tree intentionally carries no game/.
+/game/
 
 # ── Legacy guards from the abandoned Godot plan (kept just in case) ──────────
 *.pck

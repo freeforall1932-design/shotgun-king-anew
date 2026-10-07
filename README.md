@@ -4,18 +4,19 @@
 > It is the one canonical, click-by-click path (folder layout, exact commands,
 > what to report back). This README explains *what the project is* and *why*.
 
-A private, personal-use **mod project** for *Shotgun King: The Final
-Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
+A personal-use **mod project** for *Shotgun King: The Final Checkmate* v1.623b
+(PUNKCAKE Délicieux). Two related things live here:
 
-1. **A ready-to-play modded copy of the game** — 13 workshop mods plus our own
-   mod, assembled for you by a script.
+1. **A build recipe for a ready-to-play modded copy** — it assembles the
+   owner's separate base game with 13 workshop mods plus our own mod.
 2. **Our own mod** (`sk-rework`) — Build 9 has an overlay dev panel (an
    `SK DEV` tab bottom-left that opens a modal box over the board: ammo/
    reload/clip, card picker pages, spawn picker, damage/crit knobs, God-Mode
    dodge, SAFE mode), a reworked mod menu (live ON/OFF text, working Back, a
    far-left legend with E1–E4 load-order checks and AUTO-FIX), and probes for
-   the remaining gameplay APIs. Builds 8–9 are written against the
-   decoded game source (`game/decoded/`, `notes/game-internals.md`).
+   the remaining gameplay APIs. Builds 8–9 are written against engine facts
+   documented in `notes/game-internals.md`; the decoded game payload is not
+   included in the current tree.
    The advanced ammo rework, pickers, crit tuning, soul deck, and remapping
    remain planned follow-up work.
 
@@ -59,14 +60,14 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
-| `sk-rework` Build 9 (overlay dev panel + mod menu + damage/crit + pickers + diagnostics) | 🟡 sandbox-tested (smoke 66/66 ×4, mod sandbox and the engine's mod-menu code modelled); live run pending | build 7 ran live (run 6): bank read-back + menu widgets proven, but the panel's click also moved the king and the panel vanished on a new run. Both are root-caused in the decoded game source and fixed in build 8 |
+| `sk-rework` Build 9 (overlay dev panel + mod menu + damage/crit + pickers + diagnostics) | 🟡 sandbox-tested (smoke 68/68 ×4, mod sandbox and the engine's mod-menu code modelled); live run pending | build 7 ran live (run 6): bank read-back + menu widgets proven, but the panel's click also moved the king and the panel vanished on a new run. Both were root-caused from engine facts retained in `notes/game-internals.md` and fixed in build 8 |
 | `tools/parse_log.py` log parser | ✅ live-proven + Build-7 extensions tested | parses runs 1–5 with multi-boot dedup, crashed logs, `SKA2\|probe\|<block>=done` checkpoints, and the new `SKE\|call` trace — a crashed run names the engine call that started and never finished; red mod text is mapped to error codes (`notes/red-warnings.md`, §1b); selftest 49/49 |
-| `tools/mod_smoketest.py` | ✅ tested | runs Build 9 without the game (needs `lupa`); 66/66 checks under each `all()` semantics on default Lua + LuaJIT 2.1. The mod runs inside a copy of the engine's real sandbox (writes reach the engine only for replaceable keys); the fake engine re-raises the fatal `btn()` error, chains appends, and models `gamepad_ctrl`'s mouse read, `remove_buts`, `reset()` and board clicks |
+| `tools/mod_smoketest.py` | ✅ tested | runs Build 9 without game files (needs `lupa`); 68/68 checks under each `all()` semantics on default Lua + LuaJIT 2.1. The mod runs inside a copy of the engine's real sandbox (writes reach the engine only for replaceable keys); the fake engine re-raises the fatal `btn()` error, chains appends, and models `gamepad_ctrl`'s mouse read, `remove_buts`, `reset()` and board clicks |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
-| `tools/mode_guns_check.py` | ✅ tested | 37 checks that the four Throne-like mode files carry the base 9-gun list, offer every gun and save their bank, that Quartz opens all 15 ranks, and that no mod file anywhere keeps a stale gun list (Build 9) |
-| `tools/save_codec.py` | ✅ verified | real-save text roundtrip was previously checked on all 6 saves; `--selftest` now also runs 2 built-in parse/container checks without needing a save directory |
+| `tools/mode_guns_check.py` | ✅ tested (37/37, game copy not needed) | verifies Throne-like mode gun lists, Quartz ranks and the gun-list sweep; the expected Throne list is a checked-in snapshot verified against the decoded `throne.lua`, and the script re-parses a local `game/decoded/` source automatically if you supply one |
+| `tools/save_codec.py` | ✅ verified | real-save text roundtrip was checked on all 6 saves before the owner-approved removal; the built-in `--selftest` passes 6/6 synthetic/malformed-input checks without needing the deleted game saves |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
-| Dev-cheat panel | 🟡 Build 8 sandbox-tested (66/66 in Build 9); owner run pending | run 6: Build 7's panel click also hit the board square under it and `remove_buts()` broke the turn. Build 8 owns no engine buttons, consumes its clicks in a `gamepad_ctrl` hook, and re-creates itself on every new run |
+| Dev-cheat panel | 🟡 Build 8 sandbox-tested (68/68 in Build 9); owner run pending | run 6: Build 7's panel click also hit the board square under it and `remove_buts()` broke the turn. Build 8 owns no engine buttons, consumes its clicks in a `gamepad_ctrl` hook, and re-creates itself on every new run |
 | Damage/crit system, reload/clip, card picker pages, God-Mode dodge | 🟡 sandbox-tested; owner run pending (run 6 never got past CLIP+) | the run-5 log pinned the live route (`mk_bullet` → `bullet.dmg` → `hit` → `fx_dmg`; `ev_hit` never fires), so these ship as real controls instead of gated placeholders |
 | Right-click ability cap removal, soul deck, button-remap menu | 🟢 scoped; queued | still need live data: the offer-cap enforcement point, soul-slot internals (`add_soul`/`add_soul_slot` ran in run 5), and the isolated mouse4/mouse5 experiment |
 
@@ -108,10 +109,12 @@ the queued ammo rework and pickers.
 
 ### What to download
 
-The **whole repository** (~8.5 MB, no game files inside) — there is no
-single-file patch, and nothing here patches or modifies the game's `.exe` or
-`data.sgr`. Mods are folders; the tools need each other; the 13 workshop mods
-ship as folders too.
+The whole repository tree — there is no single-file patch, and nothing here
+patches or modifies the game's `.exe` or `data.sgr`. The current tree omits the
+owner's game folder. Earlier Git history still contains that folder, so this
+tree cleanup alone does not shrink the full clone/history; history rewriting
+would be a separate, coordinated operation. Mods are folders; the tools need
+each other; the 13 workshop mods ship as folders too.
 
 ---
 
@@ -230,8 +233,9 @@ current tasks: [`WORKLIST.md`](WORKLIST.md) · what changed when:
 ## ⚖️ Legal & credits
 
 - *Shotgun King: The Final Checkmate* is by **PUNKCAKE Délicieux**. This is a
-  private, personal-use mod project — no game assets are redistributed in the
-  tracked repository, and nothing here is for public release.
+  personal-use mod project. The current source tree omits the game payload, but
+  older Git commits still contain the former `game/` directory unless history
+  is separately rewritten. Nothing here patches the game's executable.
 - Vendored workshop mods in `dist-overlay/mods/` belong to their authors
   (Glacies, sub122, Lorina Sonetto & Bob Qwerty, Willhart, …), mirrored only
   to assemble the owner's personal build. Removed on author request.

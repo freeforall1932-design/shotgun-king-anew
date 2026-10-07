@@ -87,6 +87,25 @@ function Resolve-GameDir([string]$Dir) {
     return $Dir
 }
 
+function Normalize-FullPath([string]$Path) {
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $root = [System.IO.Path]::GetPathRoot($fullPath)
+    if ($fullPath.Length -gt $root.Length) {
+        $fullPath = $fullPath.TrimEnd([char[]]@('\', '/'))
+    }
+    return $fullPath
+}
+
+function Test-SameOrNestedPath([string]$Parent, [string]$Candidate) {
+    if ([string]::Equals($Parent, $Candidate, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+    $separator = [System.IO.Path]::DirectorySeparatorChar.ToString()
+    $prefix = $Parent
+    if (-not $prefix.EndsWith($separator)) { $prefix += $separator }
+    return $Candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
 $RepoRoot = Resolve-RepoRoot
 $GameDir  = Resolve-GameDir $GameDir
 if (-not $OutDir)  { $OutDir  = Join-Path $RepoRoot "dist" }
@@ -100,11 +119,34 @@ if (-not (Test-Path -LiteralPath $Overlay)) { Write-Error "overlay missing: $Ove
 if (-not (Test-Path -LiteralPath $OurMod))  { Write-Error "our mod missing: $OurMod (keep tools\ inside the extracted repo alongside modded\)" }
 
 $dest = Join-Path $OutDir "ShotgunKing-Modded"
-if ($Clean -and (Test-Path -LiteralPath $dest)) { Remove-Item $dest -Recurse -Force }
+$sourceFull = Normalize-FullPath $GameDir
+$destFull = Normalize-FullPath $dest
+if ((Test-SameOrNestedPath $sourceFull $destFull) -or
+    (Test-SameOrNestedPath $destFull $sourceFull)) {
+    throw "Source and output paths overlap. Choose a separate -OutDir; source='$sourceFull' output='$destFull'."
+}
+
+# GetFullPath is lexical; it does not resolve junction/reparse-point targets.
+if ($Clean -and (Test-Path -LiteralPath $dest)) { Remove-Item -LiteralPath $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest -Force | Out-Null
 
 Write-Host "1/3 copying game -> $dest  (this copies ~100 MB, be patient)"
-robocopy $GameDir $dest /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+$nativePreference = Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue
+if ($nativePreference) {
+    $savedNativePreference = $nativePreference.Value
+    $PSNativeCommandUseErrorActionPreference = $false
+}
+try {
+    robocopy $GameDir $dest /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+    $copyExitCode = $LASTEXITCODE
+} finally {
+    if ($nativePreference) {
+        $PSNativeCommandUseErrorActionPreference = $savedNativePreference
+    }
+}
+if ($null -eq $copyExitCode -or $copyExitCode -lt 0 -or $copyExitCode -ge 8) {
+    throw "robocopy failed with exit code '$copyExitCode' while copying '$GameDir' to '$dest'."
+}
 
 $modsRoot        = Join-Path $dest "mods"
 $singularModRoot = Join-Path $dest "mod"
@@ -327,8 +369,9 @@ this copy's save stay unlocked (live-verified: all 128 still unlocked after
 a full modded session). Your original install is never touched.
 
 Included: 13 workshop mods (by their authors, from the official Discord /
-Steam Workshop) + sk-rework (this project - currently a debug stub that
-logs the game's function map to log.txt; it changes no gameplay).
+Steam Workshop) + sk-rework Build 9. Its SK DEV panel contains game-state
+controls; use them deliberately. Build 9 is sandbox-tested, but live-game
+validation is still pending.
 
 UNLOCK-ALL: applied automatically at build time (step 4/4) - this copy's
 save starts with EVERYTHING unlocked (all achievements, shotguns, modes and

@@ -17,6 +17,7 @@ Usage:
 import math
 import os
 import re
+import subprocess
 import sys
 import tempfile
 
@@ -201,6 +202,7 @@ end
 def build_env(L, all_mode="value"):
     """Install Lua wrapper functions so fake engine APIs have Lua type=function."""
     g = L.globals()
+    same_lua_table = L.eval("function(a, b) return rawequal(a, b) end")
     captured = []
     hooks = {}
     prepends = {}
@@ -333,8 +335,12 @@ def build_env(L, all_mode="value"):
         {"px": 3, "py": 6, "x": 48, "y": 96},
         {"px": 4, "py": 6, "x": 64, "y": 96},
         {"px": 5, "py": 6, "x": 80, "y": 96},
+        {"px": 4, "py": 7, "x": 64, "y": 112},
     ]
     g.squares = to_lua(L, squares)
+    hero_start_sq = g.squares[4]
+    hero_start_sq.p = g.hero
+    g.hero.sq = hero_start_sq
     g.ents = L.table()
     g.board_y = 16
     g.MCW = 320
@@ -444,12 +450,18 @@ def build_env(L, all_mode="value"):
     bind("black_mist_check", lambda e: False)
     bind("get_dodge", lambda e: None)
 
+    goto_sq_calls = []
+
     def engine_goto_sq(a, b):
-        # Models the real signature being unknown: only the (hero, sq) order
-        # works, so the mod's first guess must fail and its second must land.
-        if a is g.hero and b is not None and b.px is not None:
-            if g.hero.sq is not None:
-                g.hero.sq.px, g.hero.sq.py = b.px, b.py
+        # Verbatim relevant engine contract: goto_sq(piece, square) updates
+        # the piece's square reference and both squares' `.p` occupancy.
+        goto_sq_calls.append((a, b))
+        if same_lua_table(a, g.hero) and b is not None and b.px is not None and b.p is None:
+            old_sq = a.sq
+            if old_sq is not None and same_lua_table(old_sq.p, a):
+                old_sq.p = None
+            a.sq = b
+            b.p = a
             return True
         return False
     bind("goto_sq", engine_goto_sq)
@@ -576,6 +588,9 @@ def build_env(L, all_mode="value"):
         "board_clicks": board_clicks,
         "draw_log": draw_log,
         "init_menu_calls": init_menu_calls,
+        "hero_start_sq": hero_start_sq,
+        "goto_sq_calls": goto_sq_calls,
+        "same_lua_table": same_lua_table,
         "globals": g,
     }
 
@@ -722,10 +737,14 @@ def run_scenario(L, env, mode, dump=False):
     click("GOD:off")
     god_label_live = "GOD:on" in draw()
     g.hero.hp = 1
-    hero_px_before, hero_py_before = g.hero.sq.px, g.hero.sq.py
+    hero_sq_before = g.hero.sq
+    hero_px_before, hero_py_before = hero_sq_before.px, hero_sq_before.py
     g.hit(g.hero, 5, to_lua(L, {}))
     hp_after_hit = g.hero.hp
-    hero_moved = (g.hero.sq.px != hero_px_before or g.hero.sq.py != hero_py_before)
+    same_lua_table = env["same_lua_table"]
+    hero_moved = not same_lua_table(g.hero.sq, hero_sq_before)
+    hero_occupancy_consistent = (same_lua_table(g.hero.sq.p, g.hero)
+                                 and hero_sq_before.p is None)
 
     click("CARDS >")
     click("FILT:ALL")
@@ -733,7 +752,13 @@ def run_scenario(L, env, mode, dump=False):
     filt_label_live = "FILT:PIECE" in draw()
     click("< BACK")
 
-    g.hero.sq.px, g.hero.sq.py = 4, 7
+    # Restore a coherent starting-square relationship after the dodge so the
+    # following spawn placement test starts from the same baseline.
+    hero_start_sq = env["hero_start_sq"]
+    if not same_lua_table(g.hero.sq, hero_start_sq) and same_lua_table(g.hero.sq.p, g.hero):
+        g.hero.sq.p = None
+    hero_start_sq.p = g.hero
+    g.hero.sq = hero_start_sq
     click("SPAWN >")
     click("knight")
     click("< BACK")
@@ -765,6 +790,36 @@ def run_scenario(L, env, mode, dump=False):
     click("+3 AMMO")
     click("+3 AMMO")
     safe_after = g.ammo
+
+    # Once the one SAFE-mode action is spent, a lethal hit must not fall back
+    # to coordinate writes; the king's square and every grid tile stay intact.
+    safe_dodge_sq = g.hero.sq
+    safe_dodge_px, safe_dodge_py = safe_dodge_sq.px, safe_dodge_sq.py
+    board_before_blocked_dodge = [
+        (g.squares[i].px, g.squares[i].py, g.squares[i].p)
+        for i in range(1, len(g.squares) + 1)
+    ]
+    g.hero.hp = 1
+    g.hit(g.hero, 5, to_lua(L, {}))
+    board_after_blocked_dodge = [
+        (g.squares[i].px, g.squares[i].py, g.squares[i].p)
+        for i in range(1, len(g.squares) + 1)
+    ]
+    board_unchanged = all(
+        (before[0], before[1]) == (after[0], after[1])
+        and ((before[2] is None and after[2] is None)
+             or same_lua_table(before[2], after[2]))
+        for before, after in zip(board_before_blocked_dodge, board_after_blocked_dodge)
+    )
+    safe_dodge_blocked_unchanged = (
+        same_lua_table(g.hero.sq, safe_dodge_sq)
+        and (safe_dodge_sq.px, safe_dodge_sq.py) == (safe_dodge_px, safe_dodge_py)
+        and same_lua_table(safe_dodge_sq.p, g.hero)
+        and board_unchanged
+        and any("SKE|call|goto_sq_hero=blocked|reason=safe_mode" in line for line in captured)
+        and any("SKUI|dodge|from=4,7|to=3,6|route=diagonal|moved=false|reason=lethal_hit" in line
+                for line in captured)
+    )
     click("SAFE:on")
 
     click("CLOSE")
@@ -1008,9 +1063,15 @@ def run_scenario(L, env, mode, dump=False):
                                                 and bullet_dmg == 2),
         ("damage knobs cycle + persist", has("SKUI|cfg|on=1|dmg=1-2")
                                          and env["bank_store"].get((2, 0)) == 1),
-        ("God Mode dodge on lethal hit", hero_moved and hp_after_hit and hp_after_hit > 0
-                                         and has("SKUI|dodge|from=4,7|to=3,6|route=diagonal|moved=true")
-                                         and has("SKE|call|goto_sq_hero=ok")),
+        ("God Mode dodge relocates the king and preserves square occupancy",
+         hero_moved and hero_occupancy_consistent and hp_after_hit and hp_after_hit > 0
+         and has("SKUI|dodge|from=4,7|to=3,6|route=diagonal|moved=true")
+         and has("SKE|call|goto_sq_hero=ok")
+         and not has("SKE|call|goto_sq_sq=")),
+        ("fake goto_sq models the verified (piece, square) API",
+         len(env["goto_sq_calls"]) == 1
+         and same_lua_table(env["goto_sq_calls"][0][0], g.hero)
+         and same_lua_table(env["goto_sq_calls"][0][1], g.squares[1])),
         ("card LIST page + take by id", has("SKUI|card|page=1/1|pool=4")
                                         and has("SKE|cheat_card|mode=list|id=Right-hand")
                                         and has("via=card:Right-hand")),
@@ -1021,6 +1082,8 @@ def run_scenario(L, env, mode, dump=False):
         ("spawn prefers a diagonal (never blocks the king)", has("SKUI|spawn|type=1|px=3|py=6|route=diagonal|via=panel_pick")),
         ("SAFE mode blocks the 2nd mutating call", safe_after == safe_before + 3
                                                    and has("SKE|call|inc_ammo=blocked|reason=safe_mode")),
+        ("SAFE-blocked King dodge preserves coordinates and occupancy",
+         safe_dodge_blocked_unchanged),
         ("engine-call intent logging", has("SKE|call|inc_ammo=start")
                                        and has("SKE|call|inc_ammo=ok|r=")),
         ("mod menu: legend is a plain far-left entity (no button)", legend_created
@@ -1100,11 +1163,19 @@ def main(argv):
     try:
         import lupa
     except ImportError:
-        print("lupa is not installed (dev-only dependency):\n"
-              "    pip install lupa\n"
-              "Skipping the Lua smoke test; parser selftest still runs:\n"
-              "    python tools/parse_log.py --selftest")
-        return 0
+        print("SKIP: Lua smoke test requires the dev-only 'lupa' package; install it with:", flush=True)
+        print("    python -m pip install lupa", flush=True)
+        print("Running the independent parser selftest; this does not replace the Lua checks.", flush=True)
+        parser = subprocess.run(
+            [sys.executable, os.path.join(HERE, "parse_log.py"), "--selftest"],
+            check=False,
+        )
+        if parser.returncode != 0:
+            print(f"FAIL: parser selftest exited with status {parser.returncode}")
+            return 1
+        print("Lua smoke test: SKIPPED (lupa unavailable); parser selftest: PASSED")
+        print("Exit status 2 means SKIPPED; do not report this run as a Lua pass.")
+        return 2
 
     try:
         src = open(MOD, encoding="utf-8").read()

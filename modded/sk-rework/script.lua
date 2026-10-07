@@ -386,9 +386,9 @@ local function spawn_ally(ptype, via)
 end
 
 -- God Mode dodge (W6): move the king to a free square instead of relying on
--- HP alone. goto_sq's signature is unverified, so both plausible argument
--- orders are tried and validated; if neither moved the king, a direct
--- hero.sq write is used (plain table data). Every route logs what happened.
+-- HP alone. The decoded engine contract is goto_sq(piece, square); that call
+-- updates both the piece's square reference and the square's `.p` occupant.
+-- Never write square coordinates directly: they belong to the shared board.
 local function dodge_king(reason)
 	if not (hero and hero.sq) then
 		log("SKUI|dodge|status=no_hero|reason=" .. sv(reason))
@@ -400,22 +400,14 @@ local function dodge_king(reason)
 		return false
 	end
 	local bx, by = sv(hero.sq.px), sv(hero.sq.py)
-	local ok = false
+	local moved = false
 	if type(goto_sq) == "function" then
-		ecall("goto_sq_sq", goto_sq, hero.sq, sq)          -- GUESS #1
-		if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
-		if not ok then
-			ecall("goto_sq_hero", goto_sq, hero, sq)       -- GUESS #2
-			if hero.sq and hero.sq.px == sq.px and hero.sq.py == sq.py then ok = true end
-		end
-	end
-	if not ok and hero.sq then
-		hero.sq.px, hero.sq.py = sq.px, sq.py
-		ok = hero.sq.px == sq.px
+		ecall("goto_sq_hero", goto_sq, hero, sq)
+		moved = hero.sq == sq and sq.p == hero
 	end
 	log("SKUI|dodge|from=" .. bx .. "," .. by .. "|to=" .. sv(sq.px) .. "," .. sv(sq.py)
-		.. "|route=" .. sv(how) .. "|moved=" .. sv(ok) .. "|reason=" .. sv(reason))
-	return ok
+		.. "|route=" .. sv(how) .. "|moved=" .. sv(moved) .. "|reason=" .. sv(reason))
+	return moved
 end
 
 -- ---------- 1. find ourselves in MODLIST -------------------------------
