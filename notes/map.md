@@ -4,12 +4,12 @@
 (custom Lua engine by Rémy Devaux — NOT Godot; runtime version from live logs,
 see PLANNING.md §0.5) · **Scripting:** LuaJIT 2.1 / Lua 5.1.
 
-**Status: live-verified runs 1–4 + vendored-mod cross-referenced.** Run 4
-(2026-10-04, build 5) harvested the full card/piece/soul dump but **crashed at
-load** in the input probe — root cause and the permanent safety rule are in
-§"Input, UI & Persistence" below. Build 6 fixes it and is pending a new live
-run. Sources: `notes/game-map-draft.md`, `live testing result/SUMMARY.md`, and
-the 13 mods in `dist-overlay/mods/` (`notes/mods.md`).
+**Status: live-verified runs 1–5 + vendored-mod cross-referenced.** Run 4
+(Build 5) exposed the fatal unknown-`btn()` contract; Build 6 corrected it and
+Run 5 confirmed a clean boot plus the full runtime probe chain. Run-5 details
+and remaining owner tests are below. Sources: `notes/game-map-draft.md`,
+`live testing result/SUMMARY.md`, and the 13 mods in `dist-overlay/mods/`
+(`notes/mods.md`).
 
 ---
 
@@ -72,15 +72,16 @@ firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
   (values include `strafe`, `scope`, `decree`, `grenade`, `orb`, `dig`), and
   live `stack.special` is observed. The checked-in `Shootout/script.lua`
   contains representative base definitions, but its `special=` entries alone
-  do not account for the full owner-reported set. Build-5 `SKCF|` will dump all
-  live card fields and settle the exact card IDs/count.
+  do not account for the full owner-reported set. Run-4/5 `SKCF|` dumps settled
+  the exact 10 live card IDs/count; see the Run-4 section below.
 - **Wands / scepters (`wand=`):** the vanilla card table has `wand={...}`
   definitions (e.g. Downpour `{0,10}`, Frenzy `{1}`, Wrath `{2,"firepower"}`,
   Wings `{3,3}`, Gust `{4}`, Hypnosis `{5}`). The live map confirms a
   replaceable global named `scepters` and functions named `add_scepter`,
-  `activate_scepter`, `get_scepter`, `recal_scepters`; their runtime shape,
-  activation arguments, and relationship to `wand=` are **still unverified**
-  (Build-5 `SKS|` probe).
+  `activate_scepter`, `get_scepter`, `recal_scepters`; Run 5 observed
+  `get_scepter` calls but no `activate_scepter` call. A Build-7 test button now
+  grants `Wand of Souls` directly so the owner can trigger that path without
+  waiting for the card to appear randomly.
 - **Card/offer functions & flow:**
   - `new_card(id)`, `add_card(ca)`, `replace_card(old_id, new_id, cb)`,
     `tear_apart(ca, cb)`, `init_codex()`. Royal Card Lab and disgraced_justice
@@ -90,8 +91,9 @@ firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
     (Nightmare mode reference); `pick({team=...})` selects an eligible card
     (also used in Nightmare examples), while the exact vanilla offer filters
     are still unknown. `add_any_card({team=...}, cb)` is used by Royal Card
-    Lab to reopen a choice from the pool. Build-5 `SKOF|` probes `level_up`,
-    `pick`, and `is_card_available` without changing the roll.
+    Lab to reopen a choice from the pool. Build-6 `SKOF|` probes ran live in
+    Run 5; the panel's random-card control logged two additions (`August
+    Presence`, `Sprint`), though the owner did not always see the card appear.
 
 ## Enemies / spawning / floors (`PIECES`, `new_piece`, `spawn_pieces`, `gsq`)
 
@@ -124,11 +126,12 @@ firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
   the live global map/reference API. These helpers are confirmed to exist or
   be used, but `hit()` being the universal bullet/king damage path is **not**
   established.
-- **Build-5 `SKD|` probes** are configured to hook `fire`, `mk_bullet`, `hit`,
-  `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`, `xpl`, and
-  `xpl_king` when present. They will log post-fire bullet fields and damage
-  arguments; no multipliers/crit logic runs yet. Their output still needs the
-  owner's live run before any insertion point can be called verified.
+- **Build-6 `SKD|` probes ran live in Run 5:** 12 `fire` calls, 48 sampled
+  bullets (all `dmg=1`, `pierce=0`), and 30 `hit` samples. This confirms the
+  ordinary bullet/hit route is observable, but does not by itself prove every
+  damage source or where a configurable multiplier should go. No damage/crit
+  feature is implemented yet; the old `DMG GATED` placeholder is removed in
+  Build 7 because it confused the owner.
 - Vanilla card fields include `knockback`, `pierce`, bleed tags, `recoil`,
   and leech-like `leader_queen_vampire`; numeric meanings are card-specific.
 
@@ -173,15 +176,18 @@ firepower, firerange, spread, ammo_max, knockback, pierce, blade}`.
   `mk_but(x, y, w, h, fn)`, `mk_menu_but(id, x, y, w, h)`, and
   `mk_hint_but(x, y, w, h, text, colors)`. Royal Card Lab modes use
   `mk_text_but`/`mk_but`; Glac Terminal exposes `on_menu_but_init(but,id)` as
-  a Terminal-dispatched mod callback, but Build 5 uses additive hooks and
-  native `mk_text_but` controls rather than defining a global `on_*` name.
+  a Terminal-dispatched mod callback, but the current panel uses additive
+  hooks and native `mk_text_but` controls rather than defining a global `on_*` name.
 - **Per-frame/update APIs:** `loop(function() … end)` and entity `mke()` are
   available in the game, but sk-rework avoids global `upd`/`on_*` dispatchers.
-  Its Build-5 Dev panel is native-button-driven; it does not draw an overlay.
+  Its Dev panel is native-button-driven; it does not draw an overlay. Run 5
+  owner feedback reports the panel text/buttons can linger visually after close;
+  Build 7 strengthens cleanup and the next checklist asks for a re-test.
 - **Mod-specific persistent settings:** Royal Card Lab uses
   `newbnk(128,64,4)` + `bget`/`bset`/`savbnk()`; Nightmare mode demonstrates
-  a `SAVE.nightmare` preference table. Build 5 uses the bank pattern for its
-  God Mode toggle if those functions exist. The game also writes
+  a `SAVE.nightmare` preference table. Build 6 used the bank pattern for its
+  God Mode toggle; Run 5 observed bank writes and `magic=0` at initial read,
+  but did not verify the state after a separate game launch. The game also writes
   `save/mods/<mod>.sav` + registry; direct `SAVE.<mod>` usage is mode-specific,
   not yet confirmed as a universal script API.
 
@@ -199,15 +205,15 @@ append("fn_name", nil, "id")    -- unregister a hook
 
 ## Open questions / next intel steps
 
-**Build 6 status (2026-10-04):** run 4 harvested the full load-time probe
-chain (cards, EXCLUDE, pieces, souls, offer candidates — see the run-4 section
-below) and then crashed in the `btn()` probe; build 6 fixes that probe and adds
-per-block checkpoints. The **next owner run must happen in play**, because
-everything runtime-only is still unobserved: `SKD|` damage traces (fire/hit),
-`SKOF|` live offer rolls, `SKS|` soul/scepter activation, `SKI|menu_button/`
-`menu_but` IDs (mod-menu detection + Back/legend), Dev-panel clicks, and
-`SKUI|bank` config persistence. Do not promote results from the fake SUGAR
-smoke test as game facts.
+**Run-5 / Build-7 status (2026-10-04):** Run 5 completed Build 6's full probe
+chain in play: bullet/hit traces, offer checks, panel actions, safe input IDs,
+and bank writes are now observed. The owner confirms the mod-menu Back button
+worked. Still open: mod toggle + save/reboot persistence, whether the legend is
+visible, actual soul/scepter activation (not tried), bank readback after a
+separate launch, and the panel's close/hover appearance. Build 7 adds explicit
+reload/chamber controls, direct Majestic Censer + Wand of Souls grants, and
+stronger panel cleanup; see `INSTALL.md` for the exact checklist. Do not promote
+results from fake SUGAR as game facts.
 
 1. ~~game archive incomplete~~ → **SOLVED 2026-10-03**: all 4 parts uploaded,
    extracted (see changelog). Game copy analyzed; full file list in
@@ -216,7 +222,7 @@ smoke test as game facts.
    format docs (SUGAR engine is not open-source; only `sugarcoat`, a Lua
    interface for Castle/Love2D, is). **Decision: don't crack it.** We get the
    same intel at runtime via the live diagnostic mod (`gimme("global")` +
-   `_log`); the Build-5 follow-up probes now cover remaining feature unknowns.
+   `_log`); Build-6 probes supplied the Run-5 runtime traces.
 3. **SAVE FORMAT FULLY CRACKED 2026-10-03** (see tools/save_codec.py):
    `save/*.sav` = `[4-byte BE plaintext length][zlib stream]`; payload is
    PUNKCAKE serializer text (`PUNKCAKE\nt{ ... }\nFOREVER`; types: t table,
@@ -251,6 +257,41 @@ smoke test as game facts.
    Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod.
 
 ---
+
+## Live-verified facts — Run 5 (2026-10-04, Build 6, v1.623b)
+
+Source: `live testing result/run 5 i believe or latest run/` (owner's log,
+insights pack, and critique). Build 6 was active, ran for roughly 22 minutes,
+completed all five probe checkpoints, and shut down normally. Parser summary:
+30 hooks, 920 globals, 14 mods, 186 cards, 30 sampled turns; no crash.
+
+- **Runtime traces now present:** 12 shotgun `fire` calls, 48 bullet samples
+  (`dmg=1`, `pierce=0`), and 30 `hit` samples. The hit hook is useful for
+  damage-system work, but the current trace alone does not prove every damage
+  route or a safe multiplier insertion point.
+- **Panel actions ran:** 9 `+3 AMMO` calls, 2 random-card additions (August
+  Presence and Sprint), and 39 ally-spawn attempts. Spawn attempts produced
+  type-0 pawns only; some later attempts found no adjacent free square. The
+  owner confirms ammo behaves like reserve regeneration, not a chamber reload.
+- **Soul/scepter:** `add_soul_slot`, `add_soul`, and `get_scepter` were observed;
+  no `activate_soul` or `activate_scepter` call was observed. The owner did
+  not use a soul card or activate a soul/Wand skill during this run. Build 7 adds a
+  direct test-card grant for Majestic Censer + Wand of Souls; the user still
+  needs to collect a soul and activate the ability through normal gameplay.
+- **Mod menu:** the owner confirms the Back button worked. The owner did not
+  toggle a mod and test whether Save & Reboot appears or persists the selection.
+  The run did capture menu-button IDs, but no interaction/reboot result.
+- **Bank:** initial probe read `magic=0`; later bank writes and `.bnk` files were
+  observed. Reading persisted settings after closing and relaunching the game
+  remains unverified.
+- **UI/spawn feedback from the owner:** closing the Dev panel leaves labels
+  visible/frozen; a pawn summon can obstruct the king, and the owner reported a
+  ghost/occupancy issue after resigning and starting a new round. God Mode did
+  not protect the king; the desired behavior is a Mist-like escape from a
+  lethal threat, which is not yet implemented.
+- **Checklist for the next run:** `INSTALL.md` now separates tests available in
+  Build 7 from features that are not implemented yet, including the mod toggle
+  + Save & Reboot check, direct soul/Wand tests, and panel cleanup checks.
 
 ## Live-verified facts — run 4 (2026-10-04, build 5, v1.623b)
 
@@ -383,7 +424,7 @@ OBSERVED facts — prefer them over anything guessed above.
   the player's owned slots (Royal Card Lab copies this list for its picker;
   disgraced_justice searches it by `ca.id`). It is not the list of cards
   eligible for the next offer. The vanilla offer roll and its filtering remain
-  unverified until Build-5 `SKOF|` is live-tested.
+  live-tested in Run 5 (Build 6), but full offer manipulation remains unimplemented.
 - **`on_card_but_init(but, ca)`** — Glac Terminal gathers this named callback
   from each mod's private `mod.env` and calls it when a card-offer button is
   created; Royal Card Lab wraps `but.left_clic` this way. This is a Terminal
@@ -449,8 +490,7 @@ OBSERVED facts — prefer them over anything guessed above.
   display: `prepend("get_disp_stats", …)` + `append("add", …)` +
   `edit_disp_stats` callback list. Live globals include candidate damage
   functions `ev_hit`, `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg`;
-  Build 5 hooks them for logging, but their exact role/ordering awaits the
-  owner's live Build-5 run.
+  Build 6 hooked them for logging in Run 5; broader shot-modifier ordering still awaits targeted tests.
 - `edit_disp_stats` is NOT a global either — it is a Glac-Terminal-dispatched
   callback name.
 - **`on_*` globals and `upd()` are NEVER called by the engine for plain

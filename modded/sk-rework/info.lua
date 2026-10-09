@@ -3,18 +3,20 @@ name="sk-rework" -- must match this mod's folder name
 title="SK Rework"
 by="freeforall1932"
 description=[[
-SK Rework — Build 6 (Phase 2c + diagnostics). Build 5 crashed at boot in
-the input probe; build 6 only probes engine inputs the game itself has
-published, so it cannot hit the fatal unknown-button path.
+SK Rework — Build 7 (live-test helpers + diagnostics). The Build 6 input
+probe fix was confirmed live in Run 5; only engine-published button IDs are
+used, avoiding the fatal unknown-button path.
 
-DEV PANEL: native in-game buttons for +ammo, a random eligible card, an
-ally summon, and a God Mode toggle. The damage-multiplier control is
-intentionally gated until the live damage probe confirms the right hook.
-Settings use this mod's own bank save.
+DEV PANEL: native in-game controls for +3 reserve ammo, reload, +1 temporary
+chamber capacity, a random eligible card, ally summon, and best-effort God
+Mode (unreliable; DO NOT TEST YET).
+TEST SOUL/WAND directly grants Majestic Censer and Wand of Souls so the owner
+can exercise soul/scepter paths without waiting for a rare offer. Damage
+multipliers and Mist-style lethal-hit escape are not implemented yet.
 
-MOD MENU: adds a Back button and the WHITE=ON / BLACK=OFF legend when the
-menu button ID matches a live MODLIST entry. Existing load-order arrows are
-unchanged.
+MOD MENU: the owner confirmed the Back button works in Run 5. Please also
+check the WHITE=ON / BLACK=OFF legend and the save-and-reboot flow when a mod
+is toggled. Existing load-order arrows are unchanged.
 
 DIAGNOSTICS: full card fields and EXCLUDE pairs (SKCF|), offer flow (SKOF|),
 souls/scepters/pieces (SKS|), damage/bullet route (SKD|), input/`but` fields/menu IDs

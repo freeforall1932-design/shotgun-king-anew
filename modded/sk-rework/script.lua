@@ -1,19 +1,15 @@
--- SK-REWORK build 6 — Phase 2c Dev Panel + §0.7 live probes
+-- SK-REWORK build 7 — live-test helpers + §0.7 probes
 -- =====================================================================
--- Build 5 was run live on 2026-10-04 (run 4) and CRASHED AT BOOT: the input
--- probe called btn("left") on a name the engine does not know, which falls
--- through to the input-id parser and is a FATAL game error ("Button left for
--- player 0 doesn't exist", script.lua:817). Build 6 fixes that:
---   * btn() is only ever called with strings the running game has already
---     published (named buttons from INPUT_ASSIGNEMENT + the bound mouse
---     codes). Unknown ids are never blind-probed — there is no pcall here.
---   * probe blocks are reordered (safe blocks first) and each one logs a
---     completion marker, so one failure can no longer hide the rest.
--- Everything else from Build 5 is unchanged (live evidence in run 4: the
--- card/piece/soul/offer harvest below ran to completion before the crash).
+-- Build 5 crashed at boot in run 4 (btn("left") is fatal); Build 6 fixed
+-- that, and Run 5 confirmed the probe chain completes in the real game.
+-- Build 7 keeps the evidence-gated input probes and adds targeted test aids:
+--   * reserve ammo, reload, and temporary chamber-capacity controls;
+--   * direct live-card grants for Majestic Censer + Wand of Souls so the
+--     owner can exercise soul/scepter paths without waiting for random offers;
+--   * more careful native-button cleanup when the panel closes or a run starts.
 -- ---------------------------------------------------------------------
 -- Build 4 was live-proven (runs 1–3): load proof, MODLIST/CARDS map, and
--- five append() hooks. Build 6 keeps that harvest and adds the queued work:
+-- five append() hooks. Build 7 keeps that harvest and improves testability:
 --   * Native-button Dev panel: +ammo, a random eligible card, summon ally,
 --     and a God Mode toggle. Settings use the standard per-mod bank API.
 --   * Mod-menu legend + Back button, attached only when a menu button ID
@@ -35,7 +31,7 @@
 --   * The gameplay buttons are opt-in. No gameplay code runs unless clicked.
 -- =====================================================================
 
-local BUILD = 6
+local BUILD = 7
 local CAP_FIRST = 30
 local CAP_EVERY = 25
 local MAX_FIELDS = 16
@@ -46,6 +42,7 @@ local MAX_CARDS = 400
 local MAX_PIECES = 128
 local MAX_EXCLUDES = 512
 local MAX_ENTS_SCAN = 2000
+local MAX_GROUP_ENTS = 32
 
 -- ---------- tiny helpers (nil-safe; no dependencies on unavailable APIs)
 local function sv(v)
@@ -246,9 +243,21 @@ end
 local function group_alive(group)
 	if type(group) ~= "table" then return false end
 	if type(group.ents) ~= "table" then return true end
-	for i = 1, 8 do
+	if type(all) == "function" then
+		local scanned = 0
+		for a, b in all(group.ents) do
+			local e = iter_value(a, b)
+			if e ~= nil then
+				scanned = scanned + 1
+				if is_live_entity(e) then return true end
+				if scanned >= MAX_GROUP_ENTS then break end
+			end
+		end
+		return false
+	end
+	for i = 1, MAX_GROUP_ENTS do
 		local e = group.ents[i]
-		if e then return is_live_entity(e) end
+		if e ~= nil and is_live_entity(e) then return true end
 	end
 	return false
 end
@@ -256,7 +265,19 @@ end
 local function destroy_group(group)
 	if type(group) ~= "table" or type(group.ents) ~= "table" then return end
 	if type(del) ~= "function" or type(ents) ~= "table" then return end
-	for i = 1, 8 do
+	if type(all) == "function" then
+		local scanned = 0
+		for a, b in all(group.ents) do
+			local e = iter_value(a, b)
+			if e ~= nil then
+				del(ents, e)
+				scanned = scanned + 1
+				if scanned >= MAX_GROUP_ENTS then break end
+			end
+		end
+		return
+	end
+	for i = 1, MAX_GROUP_ENTS do
 		local e = group.ents[i]
 		if e ~= nil then del(ents, e) end
 	end
@@ -285,14 +306,17 @@ local function native_button(x, y, w, label, fn, store)
 	return group
 end
 
-local function remove_dev_actions()
+local function clear_dev_actions()
 	for i = 1, 16 do
 		local group = dev_actions[i]
-		if group == nil then break end
-		destroy_group(group)
+		if group ~= nil then destroy_group(group) end
 		dev_actions[i] = nil
 	end
 	dev_open = false
+end
+
+local function remove_dev_actions()
+	clear_dev_actions()
 	log("SKUI|panel|open=false")
 end
 
@@ -337,6 +361,53 @@ local function cheat_ammo()
 	log("SKE|cheat_ammo|amount=3|ammo=" .. sv(ammo) .. "|hero_ammo=" .. sv(hero and hero.ammo))
 end
 
+local function cheat_reload()
+	if type(reload) ~= "function" then
+		log("SKE|cheat_reload|status=api_unavailable")
+		return
+	end
+	if ammo == 0 then
+		log("SKE|cheat_reload|status=no_reserve|ammo=0|chamber=" .. sv(chamber))
+		return
+	end
+	reload()
+	log("SKE|cheat_reload|status=called|ammo=" .. sv(ammo) .. "|chamber=" .. sv(chamber)
+		.. "|chamber_max=" .. sv(stack and stack.chamber_max))
+end
+
+local function cheat_chamber_slot()
+	if type(uplift) ~= "function" then
+		log("SKE|cheat_chamber|status=api_unavailable")
+		return
+	end
+	uplift({chamber_max=1})
+	log("SKE|cheat_chamber|amount=1|chamber=" .. sv(chamber)
+		.. "|chamber_max=" .. sv(stack and stack.chamber_max))
+end
+
+local function grant_debug_card(id)
+	if type(new_card) ~= "function" or type(add_card) ~= "function" then
+		log("SKE|cheat_test_card|id=" .. sv(id) .. "|status=api_unavailable")
+		return false
+	end
+	local ca = new_card(id)
+	if ca == nil then
+		log("SKE|cheat_test_card|id=" .. sv(id) .. "|status=not_found")
+		return false
+	end
+	add_card(ca)
+	local actual_id = type(ca) == "table" and ca.id or id
+	log("SKE|cheat_test_card|id=" .. sv(actual_id) .. "|status=add_card_called")
+	return true
+end
+
+local function cheat_test_soul_wand()
+	-- Both card IDs are present in the live v1.623b CARDS dump (Run 5).
+	-- Majestic Censer opens a soul slot; Wand of Souls enables a scepter test.
+	grant_debug_card("Majestic Censer")
+	grant_debug_card("Wand of Souls")
+end
+
 local function cheat_random_card()
 	if type(pick) ~= "function" or type(add_card) ~= "function" then
 		log("SKE|cheat_card|status=api_unavailable")
@@ -379,20 +450,23 @@ make_dev_actions = function()
 	if dev_open or type(mk_text_but) ~= "function" then return end
 	dev_open = true
 	local sw = (type(MCW) == "number" and MCW) or 320
-	local width, gap = 62, 5
-	local total = width * 3 + gap * 2
+	local width, gap = 62, 4
+	local total = width * 4 + gap * 3
 	local x0 = (sw - total) / 2
 	if type(flr) == "function" then x0 = flr(x0) end
+	local x1 = x0 + width + gap
+	local x2 = x1 + width + gap
+	local x3 = x2 + width + gap
 	local y = (dev_y or 0) + 10
 	local y2 = y + 10
 	native_button(x0, y, width, "+3 AMMO", cheat_ammo, dev_actions)
-	native_button(x0 + width + gap, y, width, "RANDOM CARD", cheat_random_card, dev_actions)
-	native_button(x0 + 2 * (width + gap), y, width, "SPAWN ALLY", cheat_spawn_ally, dev_actions)
-	native_button(x0, y2, width, "GOD MODE", cheat_god_mode, dev_actions)
-	native_button(x0 + width + gap, y2, width, "DMG GATED", function()
-		log("SKUI|panel|damage_controls=deferred_until_live_damage_probe")
-	end, dev_actions)
-	native_button(x0 + 2 * (width + gap), y2, width, "CLOSE", remove_dev_actions, dev_actions)
+	native_button(x1, y, width, "RELOAD", cheat_reload, dev_actions)
+	native_button(x2, y, width, "CHAMBER +1", cheat_chamber_slot, dev_actions)
+	native_button(x3, y, width, "RANDOM CARD", cheat_random_card, dev_actions)
+	native_button(x0, y2, width, "SPAWN ALLY", cheat_spawn_ally, dev_actions)
+	native_button(x1, y2, width, "TEST SOUL/WAND", cheat_test_soul_wand, dev_actions)
+	native_button(x2, y2, width, "GOD MODE", cheat_god_mode, dev_actions)
+	native_button(x3, y2, width, "CLOSE", remove_dev_actions, dev_actions)
 	log("SKUI|panel|open=true|buttons=" .. sv(#dev_actions))
 end
 
@@ -537,8 +611,7 @@ end, "sk-rework:add_card")
 
 -- SK-REWORK: append init_game to install native panel buttons in a run.
 hookf("init_game", function(...)
-	dev_open = false
-	for i = 1, 16 do dev_actions[i] = nil end
+	clear_dev_actions()
 	ensure_dev_panel()
 	local n = capped("init_game")
 	if n then log("SKE|init_game|n=" .. sv(n)) end

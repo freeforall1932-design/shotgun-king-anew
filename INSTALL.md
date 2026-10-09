@@ -36,7 +36,7 @@ E:\testing\
 │   ├── data.sgr
 │   └── mod\ or mods\              ← (optional) any compressed or unpacked mods you already put here
 │
-├── repo\                          ← 1:1 root of the main branch (manual, Step 2)
+├── repo\                          ← 1:1 repo version containing Build 7 (manual, Step 2)
 │   ├── INSTALL.md
 │   ├── README.md
 │   ├── modded\
@@ -56,7 +56,7 @@ E:\testing\
 | Folder | What it is | Who writes to it |
 |---|---|---|
 | `E:\testing\game` | your untouched copy of the game (1:1 with the `.exe` + `data.sgr`) | you, manually in File Explorer (Step 1) |
-| `E:\testing\repo` | 1:1 root of the `main` branch (`tools\` is inside here) | you, manually in File Explorer (Step 2) |
+| `E:\testing\repo` | 1:1 repo version containing Build 7 (`tools\` is inside here) | you, manually in File Explorer (Step 2) |
 | `E:\testing\ShotgunKing-Modded` | the playable modded build | `build-dist.ps1` (Step 4) |
 
 ---
@@ -105,10 +105,12 @@ and `data.sgr`.
 ### Step 2 (Manual in File Explorer) — put the repo in `E:\testing\repo`
 
 1. In File Explorer, create `E:\testing\repo` (if you haven't already).
-2. Extract the downloaded repository so `E:\testing\repo` is **1:1 the root of
-   the `main` branch** — meaning `tools\`, `modded\`, `dist-overlay\`,
+2. Use the repo revision that contains Build 7 (currently branch
+   `arena/01a1062a-shotgun-king-anew`; `main` is suitable only after this
+   update is merged). Extract it so `E:\testing\repo` is **1:1 the root of
+   the repo version containing Build 7** — meaning `tools\`, `modded\`, `dist-overlay\`,
    `INSTALL.md`, and `README.md` sit directly inside `E:\testing\repo\` (not
-   inside an extra `shotgun-king-anew-main\` subfolder).
+   inside an extra ZIP-named subfolder).
 
 **Check in File Explorer:** `E:\testing\repo\tools\apply.ps1` exists.
 
@@ -174,48 +176,82 @@ itself silently ignores those too.
 
 ---
 
-### Step 5 — launch the copy and play a minute (Build-6 live test)
+### Step 5 — Build 7 live-test checklist (follow this during the run)
 
-1. Double-click the game `.exe` inside `E:\testing\ShotgunKing-Modded`
-   (Step 4 printed its exact path).
-2. To open the **mod menu**, click **Play** — it is the **top entry** of
-   that screen.
-3. **Mod menu states (verified live, run 2):** mods start **OFF by default**
-   — **black text = OFF, white text = ON**. The build writes
-   `mods\modlist.lua`, so `SK Rework` / `sk-rework` should already show white
-   (ON) and the 13 workshop mods black (OFF). The **up/down arrows only
-   change load priority**. Build 6 also attempts a Back button and white/black
-   legend inside the mod list; note whether they appear and whether Back exits
-   without save-and-reboot.
-4. Start a run and play a couple of turns. Find the native **SK DEV** text
-   button near the bottom of the board; click it to reveal the controls.
-   Try `+3 AMMO`, `RANDOM CARD`, `SPAWN ALLY`, and `GOD MODE` if convenient
-   — one at a time, and note which one you clicked if the game dies. (The
-   diagnostic probes all run at load, so a crash after a click still leaves
-   a complete harvest in `log.txt`.)
-   The `DMG GATED` button is intentionally a no-op placeholder until the live
-   damage trace confirms a safe implementation. The cheats only run if clicked;
-   otherwise the mod is diagnostic. Note crashes, UI overlap, or incorrect
-   actions. Then quit normally.
+This checklist is deliberately split into menu, in-run, and **not implemented**
+items. Tick each box and jot a short result; the log cannot tell us whether a
+button looked right or whether a pawn blocked your movement.
 
-Build 6 writes its load/hook proof plus the card/offer/soul/damage/input/UI
+#### A. Mod menu: Back is confirmed; test toggle + save/reboot
+
+- [x] The **Back button worked in Run 5** (owner-confirmed). No need to spend
+  time retesting it unless it disappears in this build.
+- [ ] Record whether the white/black legend is visible beside the mod entries.
+- [ ] Click **Play** to open the mod menu. Confirm `SK Rework` is ON/white.
+- [ ] Turn **one OFF workshop mod ON** (for example `Retry after Death`):
+  click its row once, then note whether its text turns white and a **Save &
+  Reboot** button appears. Do not use the up/down arrows for this check.
+- [ ] **If Save & Reboot appears**, click it once. Wait for the game to return.
+  Confirm the selected mod is still ON and `SK Rework` is still ON. This is a
+  soft reboot inside the same `log.txt`; repeated Build-7 banners are expected.
+  If the button does not appear, do not use the arrows as a substitute; report
+  exactly what the menu showed.
+- [ ] If convenient, toggle the test mod back OFF too. Note whether **Save &
+  Reboot** appears a second time; if it does, click it, wait for the game to
+  return, and confirm that mod is OFF while `SK Rework` remains ON. This checks
+  the reverse change also triggers a reboot and leaves the copy near its
+  original selection. If the button does not appear, report that rather than
+  using the arrows as a substitute. The copied game is disposable.
+
+#### B. In-run SK DEV panel: test only one action at a time
+
+Start a run, play a couple of turns, find **SK DEV**, and open it. Build 7's
+buttons are:
+
+| Button | What to do / what to note |
+|---|---|
+| `+3 AMMO` | Note reserve ammo before and after. This adds reserve; it does not promise to load the chamber. |
+| `RELOAD` | Click once and note whether the chamber loads from reserve. |
+| `CHAMBER +1` | **Experimental: the `uplift({chamber_max=1})` effect is not verified in the game yet.** Click once, then note whether the displayed chamber capacity actually increases; click `RELOAD` afterwards to test whether the new slot fills. Do not assume it worked from the log alone. |
+| `RANDOM CARD` | Click once while there is room for a card. Write down its name and whether it visibly entered the deck. The Run-5 log recorded two card additions, but the owner reported that a card was not always apparent. |
+| `TEST SOUL/WAND` | Click once near the start, **before `RANDOM CARD` and while there is room for both cards**. It directly grants **Majestic Censer** (opens a soul slot) and **Wand of Souls** (for a scepter test), so neither depends on a random offer. Confirm both cards appear. Then defeat a white piece to collect a soul, use the game's normal soul action, and try the Wand/scepter's normal in-game action once. Note what worked or was unclear; if a card is missing, report the `SKE|cheat_test_card` lines. |
+| `SPAWN ALLY` | Click **once only**. Build 7 still spawns a pawn beside the king. Note whether it blocks king movement/targeting. After resigning and starting a fresh run, check whether the old pawn tile behaves like an occupied square. Please do not spam it; repeated pawns can fill nearby squares. |
+| `GOD MODE` | **DO NOT TEST YET.** Run 5 showed the current HP/hit hook is unreliable. The intended Mist-like escape from lethal danger is not implemented yet. |
+| `SK DEV` / `CLOSE` | Open the panel, close it with `CLOSE`, then reopen/close it with `SK DEV`. Check whether all action text disappears, whether hidden controls remain clickable, and whether hover colours recover. This specifically retests Run 5's lingering/frozen-button report. |
+
+Quit normally after the checklist. If anything crashes, stop and keep both
+`log.txt` and the newest `crash_log_*.txt`.
+
+#### C. Not testable in Build 7 — please do not spend run time on these yet
+
+- **Damage/crit controls:** the Run-5 trace now observes the real bullet/hit
+  path, but configurable damage and crit controls are not implemented in this
+  build. The confusing `DMG GATED` button has been removed.
+- **Mist-style God Mode**, the multi-soul deck, ability-cap removal, free-choice
+  picker, and full enemy picker: still development work, not live controls.
+- **Mouse 4/5 or wheel remapping:** the engine has not published those input
+  IDs. Do not try to bind or probe guessed names; an unknown `btn()` ID can
+  crash the game.
+
+Build 7 writes its load/hook proof plus the card/offer/soul/damage/input/UI
 probes to `log.txt`. The game prefixes every line with `  . ` — that is normal.
 
-> **Build 5 crashed at boot (run 4)** — it probed an input name the engine did
-> not know, and SUGAR treats that as fatal. Build 6 only probes inputs the game
-> itself published, so that crash cannot repeat; if the game ever quits at boot
-> again, send me `log.txt` **and** the newest `crash_log_*.txt` — the last
-> `ERR`/`Stack traceback` block names the exact line.
+> Build 5 crashed at boot in Run 4 because it called `btn("left")`. Build 6
+> fixed that, and Run 5 confirmed Build 6 boots and completes every probe
+> checkpoint. Build 7 adds the test controls above. If this run quits unexpectedly, send `log.txt` **and** the newest
+> `crash_log_*.txt`; the final `ERR`/`Stack traceback` block names the failure.
 
 | Line/prefix in `log.txt` | Meaning |
 |---|---|
-| `SK-REWORK: BUILD=6 loaded (mod_index=…)` | the mod loaded |
+| `SK-REWORK: BUILD=7 loaded (mod_index=…)` | the mod loaded |
 | `SKA2\|mod_found=yes\|active=true` | it found itself enabled in the mod list |
 | `SKH\|…` | additive hook registrations |
 | `SKW\|turn=1\|…` | first per-turn state sample |
 | `SKA2\|probe\|<block>=done` | a probe block finished (cards/exclude/souls/bank/input) |
-| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | §0.7 card, offer, soul/scepter, damage, input, and UI probes (static dumps follow READY) |
-| `SK-REWORK: READY build=6 hooks=…` | load and registrations reached the marker |
+| `SKCF\|…`, `SKOF\|…`, `SKS\|…`, `SKD\|…`, `SKI\|…`, `SKUI\|…` | §0.7 card, offer, soul/scepter, damage, input, and UI probes |
+| `SKE\|cheat_test_card\|…` | direct debug-card grant result for Majestic Censer / Wand of Souls |
+| `SKE\|cheat_reload\|…`, `SKE\|cheat_chamber\|…` | reload/chamber-capacity action results |
+| `SK-REWORK: READY build=7 hooks=…` | load and registrations reached the marker |
 
 ---
 
@@ -299,9 +335,9 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 launch & mod menu | click Play → mod menu on top; 14 mods visible, `sk-rework` white/ON (pre-enabled), workshop mods black/OFF; note Build-6 Back/legend if shown |
-| 4 | Step 5 in-run panel | `SK DEV` opens native controls; note ammo/card/spawn/God Mode results, Back behavior, UI overlap, or crashes (`DMG GATED` is intentionally inactive) |
-| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=6`, `SK-REWORK: PROBE done build=6`, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
+| 3 | Step 5 menu checklist | Back still works; turn one workshop mod ON and verify after Save & Reboot; if convenient, turn it back OFF and check the second Save & Reboot + OFF state |
+| 4 | Step 5 in-run checklist | record reload/chamber, random-card visibility, one ally placement/reset, soul + Wand actions, and SK DEV/CLOSE visuals; skip the explicitly unimplemented items |
+| 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=7`, `SK-REWORK: PROBE done build=7`, and `SKCF/SKOF/SKS/SKD/SKI/SKUI` probe lines |
 | 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |
 
 Report anything that failed **at which step**, plus the end of `log.txt` if
@@ -316,11 +352,11 @@ the game crashed.
 | Phase | What | Status |
 |---|---|---|
 | 0–2a | engine identified, tooling + save tools + parser + smoke test built | ✅ done |
-| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ live map promoted (runs 1–4); Build-6 probes target the remaining unknowns |
-| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 5 crashed at boot (run 4); build 6 sandbox-tested and regression-guarded; owner live run pending; damage control gated until the hit path is confirmed in play |
-| 3 | ammo rework, staged A → B → C | ⛔ queued after Build-6 live probes/playtest |
-| 4 | card picker + enemy picker | ⛔ queued after Build-6 live probes/playtest |
-| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued after Build-6 live probes/playtest |
+| 2b | read your `log.txt` → complete the game's function map (`notes/map.md`) | ✅ Build-6 live map promoted from Run 5; runtime bullet/hit trace is observed. Build 7 itself is not live-tested. |
+| 2c | in-game dev/cheat panel + mod-menu legend/Back | 🟡 Build 7 adds reload/chamber and direct soul/Wand test aids; Run 5 owner-confirmed Back works, but panel cleanup and mod toggle/save-reboot still need checking |
+| 3 | ammo rework, staged A → B → C | 🟡 A (simple scale) is scoped and can be started; keep it out of the Build-7 live-test build until reload/chamber behavior is verified so the current run stays a clean baseline |
+| 4 | card picker + enemy picker | ⛔ queued after current debug-card action is validated |
+| 5 | extra shot mechanics (knockback/pierce/bleed — vanilla internals) | ⛔ queued; Run 5 observed bullet/hit data, but no player damage/crit controls are in Build 7 |
 | 6 | balance knobs + final packaging (+ zero-arg auto-discovery on waitlist) | ⛔ queued
 
 ---
@@ -340,7 +376,7 @@ the game crashed.
 
 | Symptom | Fix |
 |---|---|
-| `The argument '...\apply.ps1' to the -File parameter does not exist` | Make sure `E:\testing\repo` is 1:1 the root of the `main` branch so `apply.ps1` is at `E:\testing\repo\tools\apply.ps1` (not nested inside an extra `shotgun-king-anew-main` folder). |
+| `The argument '...\apply.ps1' to the -File parameter does not exist` | Make sure `E:\testing\repo` is 1:1 the repo revision containing Build 7 so `apply.ps1` is at `E:\testing\repo\tools\apply.ps1` (not nested inside an extra ZIP-named folder). |
 | `running scripts is disabled on this system` | Use the exact `powershell -ExecutionPolicy Bypass -File "..."` command shown; don't double-click `.ps1` files. |
 | `robocopy` fails partway ("file in use") | Close the game (and any Explorer window inside `ShotgunKing-Modded`), then re-run Step 4. |
 | `python` opens the Microsoft Store / not recognized | Install Python from python.org with "Add python.exe to PATH" ticked, or replace `python` with `py` in Steps 6–7. |

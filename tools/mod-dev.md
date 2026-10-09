@@ -8,7 +8,7 @@
 ```
 modded/sk-rework/
 ├── info.lua        # name="sk-rework", title="SK Rework", cover.png
-├── script.lua      # Build 5: native Dev panel + post-READY API probes
+├── script.lua      # Build 7: live-test helpers + post-READY API probes
 ├── modes/…         # (later) custom modes for the pickers, if needed
 ├── lang/…          # (later) strings
 └── cover.png       # 16:9 png, required for workshop upload
@@ -48,21 +48,28 @@ append("new_turn", function(...) _log("turn!") end, "dbg")    -- trace calls
 > Our mod reads it defensively (`for a,b in all(t)`, prefer `b`) so it works
 > under either semantics.
 
-## 3. Build 5 dev panel, probes & the log parser
+## 3. Build 7 testability update, probes & the log parser
 
-`modded/sk-rework/script.lua` is **Build 5**. Builds 3–4 are live-proven;
-Build 5 is sandbox-tested but still needs one owner game run. It retains the
-load proof and base `append()` hooks, adds native `mk_text_but` cheat controls,
-and harvests the §0.7 unknowns after its `READY` line. It does not yet ship the
-later gameplay modules (ammo rework A/B, crit tuning, ability rebinding, soul
-deck, or free-choice picker); those remain queued behind the live probes.
+`modded/sk-rework/script.lua` is **Build 7** in the current working tree.
+Build 6's unknown-button crash fix and runtime probes were confirmed in Run 5:
+the game booted and completed the probe checkpoints. Run 5 owner feedback also
+confirms that the mod-menu Back button worked; the absent
+`SKUI|menu|widgets_added` marker is not evidence that it failed.
 
-Build 6 controls: `+3 AMMO`, random eligible card, spawn an ally using a live
-`PIECES` entry/free adjacent square, God Mode toggle (best-effort through the
-confirmed `hit(p,dmg,tags)` helper + HP refill), and a clearly gated damage
-control placeholder until the hit pipeline is live-confirmed. Buttons use the
-game's native text-button API; no custom draw overlay or global `upd`/`on_*`
-dispatcher is defined. God Mode and menu behavior still need game validation.
+Build 7 adds native buttons for `+3 AMMO`, `RELOAD`, experimental `CHAMBER +1`,
+`RANDOM CARD`, one adjacent pawn summon, and `TEST SOUL/WAND` (direct grants for
+Majestic Censer and Wand of Souls). It also strengthens native-entity cleanup
+when the panel closes or a new run starts. **Build 7 has not been live-tested.**
+Follow the checklist in `INSTALL.md`; in particular, the chamber uplift, direct
+card grants, and close/reopen cleanup remain to be confirmed in the game.
+
+Run 5 did not test mod-toggle → Save & Reboot or use/activate a soul or scepter.
+The Build-7 card grants avoid depending on rare random offers; the player still
+needs to collect a soul and use the game's normal activation controls. God Mode
+is unreliable and marked **DO NOT TEST YET**; the Mist-style escape, damage/crit
+controls, ammo rework, pickers, soul-deck overhaul, and remapping are not
+implemented. Buttons use the game's native text API; no draw overlay or global
+`upd`/`on_*` dispatcher is defined.
 
 > 🛑 **Never call `btn()`/`btnp()`/`btnr()`/`defbtn()` with an unconfirmed
 > string.** Build 5 called `btn("left")` at load and the game quit with

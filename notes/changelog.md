@@ -14,6 +14,58 @@ file lives in `modded/` at that path).
 
 ---
 
+## 2026-10-04 — Owner follow-up: reverse toggle check, icon idea & Phase 3
+
+- `INSTALL.md` — clarify the optional OFF round trip: check whether the
+  second change also shows Save & Reboot, use it if offered, and verify the mod
+  stays OFF while SK Rework remains ON.
+- `WORKLIST.md`, `HANDOFF.md` — record the same reverse-toggle test; capture
+  the suggested wand/tool icon launcher beside the under-board `Turn 1: MODDED`
+  status as future UI polish, not part of Build 7 validation.
+- Phase 3 — ammo rework A is scoped and can be started, but should stay out of
+  the Build-7 live-test build until reload/chamber behavior is verified.
+- why: the owner asked whether toggling the mod back OFF also needs a reboot,
+  suggested an icon in place of the text-only SK DEV launcher, and asked about
+  starting the ammo-rework phase.
+- status: documentation/planning only; no icon or Phase-3 gameplay changes
+  implemented. Build 7 still needs a live test.
+
+## 2026-10-04 (Run 5 follow-up) — Build 7 testability update
+
+- `modded/sk-rework/script.lua` — Build 7 adds `RELOAD`, experimental
+  `CHAMBER +1` (`uplift({chamber_max=1})`), and `TEST SOUL/WAND` to grant
+  Majestic Censer + Wand of Souls directly. It also destroys stored panel
+  action entities on close and `init_game`, addressing Run 5's lingering/frozen
+  labels. The chamber uplift and visual cleanup still need live confirmation.
+- `modded/sk-rework/info.lua` — Build 7 description records the Build-6 fix
+  confirmed in Run 5, owner-confirmed working Back button, next-run toggle /
+  reboot test, direct card grants, and not-yet-implemented features.
+- `tools/mod_smoketest.py` — adds live test-card fixtures, fake `new_card` /
+  `uplift` support, Build-7 parser/banner assertions, panel close/reopen/reset
+  cleanup assertions, and a fatal unknown-`btn()` contract check. Fake-entity
+  IDs are unique so the test can verify deletions despite Lupa table-wrapper
+  identity semantics. Result: 37/37 per iterator mode on default Lua and
+  LuaJIT 2.1.
+- `tools/parse_log.py` — parser selftest remains 37/37; Build-7 fake log passes
+  the parser's banner, READY, probes, and markdown-render checks.
+- `notes/game-map-draft.md` — regenerated from the real Run-5 Build-6 log.
+  `notes/map.md` and `live testing result/SUMMARY.md` now record Run-5 runtime
+  data, the owner correction that Back worked, the untested toggle/reboot and
+  soul/scepter flows, and the bank readback gap.
+- `INSTALL.md` — rewrites Step 5 as a menu + panel checklist. It explicitly
+  asks for toggle → Save & Reboot → verify-after-reboot, treats Back as already
+  confirmed, uses deterministic direct card grants for soul/Wand checks, and
+  labels unreliable/unimplemented actions **DO NOT TEST YET**. Chamber uplift
+  is clearly marked experimental.
+- `README.md`, `HANDOFF.md`, `PLANNING.md`, `WORKLIST.md`, `tools/mod-dev.md` —
+  current state synced: Run 5 was Build 6; Build 7 is sandbox-tested but not
+  live-tested; advanced modules remain queued.
+- why: Run 5 owner feedback showed that reserve ammo, card visibility, ally
+  placement, God Mode, and panel closure needed a clearer test path. Soul and
+  scepter testing must not rely on a rare random offer, and Back must not be
+  reported as failed merely because its log marker was absent.
+- status: Build 7 implemented and sandbox-tested; **no Build-7 live run yet**.
+
 ## 2026-10-04 (session 8) — Run 4 crash fixed as Build 6; run-4 harvest promoted
 
 - `modded/sk-rework/script.lua` — BUILD 5 → 6. **Crash fix:** the input probe
@@ -25,8 +77,8 @@ file lives in `modded/` at that path).
   reached) now runs before the input probe. why: run 4 crashed the game at
   boot with `ERR Button left for player 0 doesn't exist.` (script.lua:817) —
   unknown `btn()` ids fall through to the engine's input parser and a malformed
-  id is fatal, with no `pcall` available to catch it. status: shipped;
-  playtest-pending (owner live run of build 6).
+  id is fatal, with no `pcall` available to catch it. status: shipped; Build 6
+  was later confirmed live in Run 5 (see the newer entry in this changelog).
 - `modded/sk-rework/info.lua` — description updated to Build 6 with the crash
   note and the checkpoint contract.
 - `tools/mod_smoketest.py` — the fake engine is now faithful where it mattered:

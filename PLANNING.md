@@ -35,12 +35,13 @@
 ## 0.7 Owner decisions (2026-10-04, run-3 follow-up)
 
 > **Where this work happens:** these specs are implemented via the queue in
-> `WORKLIST.md` → "🟠 Next features". Order: **sk-rework build 6 first**
-> (Phase 2c cheat panel + mod-menu legend/Back button + the §0.7 intel
-> probes — offer roll, full card fields, scepters, soul flow, damage point,
-> input space), then the cap removal + bindings, card picker, soul deck,
-> crit system, and remap menu on top of that panel. Live-test status of
-> every ask: `live testing result/SUMMARY.md`.
+> `WORKLIST.md` → "🟠 Next features". Build 6's safe input-probe fix and
+> runtime diagnostics were confirmed live in Run 5. The current working tree is
+> Build 7 (not yet live-tested): focused test controls, direct soul/Wand card
+> grants, and panel cleanup. Follow `INSTALL.md` Step 5 before treating any
+> Build-7 behavior as game-verified. Remaining feature work follows the live
+> evidence in `notes/map.md`; overall live-test status is in
+> `live testing result/SUMMARY.md`.
 
 6. **Right-click ability cap — REMOVE it** (owner's refined description,
    2026-10-04): right-click is ONE button, so vanilla lets you hold only
@@ -66,9 +67,10 @@
    swap/cycle UI. **Scepter cap (3): owner said relax it too** — scepters
    unify into the same dynamic active-ability pool. Run 4 showed `scepters`
    is not a global (only replaceable) and that the scepter API is
-   `add_scepter`/`activate_scepter`/`recal_scepters`/`get_scepter`; build 6
-   traces those calls so what scepters are/how they activate stops being a
-   guess. Goal: own MULTIPLE right-click
+   `add_scepter`/`activate_scepter`/`recal_scepters`/`get_scepter`; Run 5
+   observed soul-slot/soul additions and `get_scepter`, but not either
+   activation. Build 7 grants Wand of Souls directly for a deterministic test;
+   its live behavior is still unverified. Goal: own MULTIPLE right-click
    abilities + pick which one each button triggers (remap-menu binding /
    SPECIAL_BUTTON interception).
 8. **Soul-system rework** (owner, 2026-10-04): souls turn the king into a
@@ -88,9 +90,13 @@
    question (2026-10-04): does a stored pawn soul feed POWER or turn the
    king into a pawn? Answer plan: the power route is card-driven
    (`pawn_shell=1` Small Fry Harvest, `pawnreap=1` Cannon Fodder); whether
-   the movement route also accepts pawn is a build-5 probe — and the deck
-   UI will expose whichever routes the game actually supports (choice if
-   both), never a hardcoded pick. API:
+   the movement route also accepts pawn still needs a targeted soul activation
+   test — and the deck UI will expose whichever routes the game actually
+   supports (choice if both), never a hardcoded pick. Run 5 did not activate a
+   soul. Build 7 adds
+   a direct Majestic Censer grant so soul-slot and activation checks do not
+   depend on a rare card offer; the owner still needs to collect a soul in-play.
+   API:
    `add_soul(type, p, sanctity, replace)`, `activate_soul`,
    `stack.replace_soul`, `PIECES_NAMES[x].type`; summon blueprint =
    disgraced_justice's `dj_summon` (`new_piece(typ, false, sq)` +
@@ -109,31 +115,39 @@
    Known pipeline: shot modifiers are `stack.pierce` / `stack.blade` /
    `stack.knockback` / `stack.fearsome` with display priority
    `jump > fearsome > blade > pierce > knock > f_arc` (glac terminal's
-   `get_disp_stats` interception); damage globals to probe: `ev_hit`,
-   `damage`, `damages`, `fx_dmg`, `bleed_dmg`, `hop_dmg` → build-5 probe
-   pins the exact hit/damage application point.
+   `get_disp_stats` interception); Run 5 captured 12 `fire` calls, 48 bullet
+   samples, and 30 `hit` samples (`dmg=1`, `pierce=0`). That establishes an
+   observable ordinary shot/hit route, but does not yet prove a safe multiplier
+   insertion point or all damage sources. Damage/crit controls remain unimplemented.
 7. **Card picker — free choice instead of the 2-card offer** (already
    Phase 4; owner re-confirmed). Reference implementation exists in the
    vendored **Royal Card Lab** ("unlimited mode"): it wraps each offer
    button's handler via the `on_card_but_init(but, ca)` callback and
-   rebuilds the offer list from `get_slot_cards(true)`.
+   rebuilds the offer list from `get_slot_cards(true)`. Run 5 exercised the
+   existing random-card debug action; the free-choice picker itself remains
+   unimplemented.
 8. **Infinite soul card** (new): a card that, once owned, lets the player
    switch souls freely and infinitely during the current stage — like a
-   skill card but reusable — **except the pawn soul** (pawn = power/ammo
-   economy; cf. vanilla "Low-Cost Disguise" that disguises as a white pawn
-   for 3 turns). Souls = piece types; API seen in vendored mods:
+   skill card but reusable — **any soul, including pawn, is allowed**. Pawn
+   behavior stays card-driven (pawn-as-power is defined by skill cards, not
+   a hardcoded soul-deck exception). Souls = piece types; API seen in mods:
    `add_soul(type, …)`, `activate_soul` (global), `stack.replace_soul`
-   (glacies collection `effects.soul`). Needs the soul system dumped
-   (which souls exist, activation cooldown) → probe in the next build.
+   (glacies collection `effects.soul`). The Run-5 probe ran, but the owner did
+   not use a soul card or activate a soul. Build 7 directly grants Majestic Censer and
+   Wand of Souls to enable a deterministic live test; multi-soul behavior and
+   activation/cooldown are still open.
 9. **Full button-remap menu** (owner chose this over a fixed binding):
    in-game settings panel assigning any action to any extra mouse button
    (owner mouse: 2 side buttons + middle click). Mods can read/wrap
-   `but.left_clic` / `but.right_clic` and query `btn("unsafe")`; no mod
-   touches mouse4/5 or middle click yet → feasibility probe needed (dump
-   the `MOUSE` global, `but` table fields, `btn()` argument space).
-10. **Mod-menu Back button** (confirmed): the vanilla mod menu only offers
-    reset / save+reboot; add a Back button via the same UI-hook route as
-    the white/black legend line (Phase 2c).
+   `but.left_clic` / `but.right_clic` and query `btn("unsafe")`. Run 5
+   published `m:lb`, `m:rb`, `m:mb` plus axes; it did not publish mouse4/5 or
+   wheel IDs. Full remapping remains unimplemented; never probe guessed names
+   because an unknown `btn()` ID is fatal.
+10. **Mod-menu Back button + legend**: the owner confirms Back worked in
+    Run 5; the missing `SKUI|menu|widgets_added` marker is not evidence that it
+    failed. The legend's visibility still needs confirmation. Run 5 did not test
+    toggling a mod and using Save & Reboot; Build 7's checklist covers that
+    flow explicitly. Keep the native Back control in place.
 
 ## 0. What this project is
 
@@ -151,37 +165,22 @@ floors, drafting perk **cards** after each floor. Ammo (shells) is a core resour
 **Not a port project.** Nothing here bridges to Minecraft/other games — that's the
 SkyCraft fork's business (see §7). This is a standalone single-player game mod.
 
-## 1. Verified findings (2026-10-02 research — do not re-research)
+## 1. Engine and packaging reality (correction to the initial research)
 
-- The game is a **Godot engine** game (2D). Everything ships in a `.pck` package
-  (or embedded in the exe).
-- **Full source recovery is possible**: [gdsdecomp / Godot RE Tools](https://github.com/GDRETools/gdsdecomp)
-  (4.3k★, supports Godot 2.x–4.x) performs *full project recovery*: decompiles all
-  GDScript to readable source, restores resources, recovers the project file.
-  One command: `gdre_tools --headless --recover=game.pck`
-- **The game has an official-ish mod system** (Steam community guide id 2955710278,
-  "SGK Modding"). Mods are folders loaded by the game's own loader; the guide
-  documents a `load_mod("name")` call that must be registered in the right place
-  for some mod types (throne mods), and card data files with a `pwe` field
-  (power weight; base 4 if unspecified) controlling offer rarity.
-- **Known failure modes of the stock mod loader** (why the owner's downloaded mod
-  may not load): missing `load_mod()` registration, wrong folder name/structure,
-  mod built for a different game version, resources loaded too late (Godot
-  preloads), or Godot's `load_resource_pack` replace-flag behavior.
-- **Decision made this session: bypass the mod loader entirely.** Edit the
-  recovered game files directly and repack. This sidesteps every loader quirk
-  above. Trade-off: Steam "verify integrity" and game updates revert changes —
-  always keep the original `.pck` backed up, and keep OUR changes in a separate
-  patch-repo structure so they can be re-applied after any update.
-- **No runtime memory work needed.** The owner's original worry ("volatile
-  memory") does not apply: we edit GDScript at rest, we never chase pointers.
-  Cheat Engine is NOT part of the pipeline (optional 10-min recon on the stock
-  game only, see §6).
-- **Crash signature** (from the official guide): if the game crashes *after the
-  Sugar intro but before the PUNKCAKE Délicieux intro*, the cause is almost
-  always a **syntax error in a script file**. Check that first on any crash.
+The original 2026-10-02 notes below this section were written before the game
+archive was inspected and incorrectly assumed Godot, GDScript, a recoverable
+`.pck`, and a repack pipeline. **Those assumptions are obsolete.** Live
+inspection identifies Shotgun King v1.623b as a custom **SUGAR** Lua engine
+(LuaJIT 2.1 / Lua 5.1), with the game's supported `info.lua` mod-folder
+loader. This project adds an ordinary mod under `mods/` and builds a separate
+game copy; it does not decompile, patch, or repack the executable or `data.sgr`.
 
-## 2. Repo structure to create (the new repo)
+Current, evidence-based development instructions live in `README.md`,
+`INSTALL.md`, `HANDOFF.md`, and `tools/mod-dev.md`; the live API map is
+`notes/map.md`. Do not follow any old Godot/pck/repack instructions retained
+below for historical context.
+
+## 2. Original repo scaffold plan (implemented; current tree is in README.md)
 
 ```
 shotgun-king-rework/          (private; never publish game assets)
@@ -297,11 +296,10 @@ it is not part of the mod.
 ## 7. Session handoff — SkyCraft-fork port session, 2026-10-02
 
 Origin of this file: a SkyCraft (Skyrim↔Minecraft bridge) fork session that
-spawned several side-questions. Relevant outcomes for THIS project:
+spawned several side-questions. Its initial Godot/source-recovery assumption
+was incorrect for Shotgun King; the correction is recorded in §1 above. The
+remaining cross-project scope notes are retained as history:
 
-- **Godot games are among the easiest mod targets that exist** (full source
-  recovery via gdsdecomp) — that's why this project is file-editing, not
-  memory-patching.
 - **Volatile memory is a host-process property** (ASLR); editing files at rest
   has none of those problems.
 - The other threads of that session (PS2 bridge route, IW4L/MW3, FPS-to-FPS
@@ -318,7 +316,7 @@ pending) and notes: repo-map, integration-menu, ps2-route, side-projects
 
 ```bash
 # 2026-10-03: gdre/godot commands below are OBSOLETE (engine is SUGAR, not
-# Godot — see §0.5). Kept for history only.
+# Godot — see §1). Kept for history only.
 
 # OLD (void): gdre_tools --headless --recover=... ; godot --export-pack ...
 

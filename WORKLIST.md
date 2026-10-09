@@ -32,67 +32,68 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       + 9 special codex keys = 195 stats entries. `ACHIEVEMENTS: OFF` title
       label explained (Steam tracking paused while modded).
 
-## 🟠 Next features (Build 6 live validation first)
+## 🟠 Next features (Build 7 live validation)
 
-- [x] **Build 5 implementation** — Phase 2c native-button panel + §0.7 probes
-      are in `modded/sk-rework/script.lua`; `parse_log.py` and the fake-game
-      harness were updated. Panel controls currently cover +ammo,
-      random eligible card, a dynamically selected ally summon, and a
-      best-effort God Mode toggle. Damage-multiplier action is explicitly
-      gated until the live hit path is confirmed. Mod-menu Back/legend attach
-      when a native menu-button ID matches a live MODLIST entry.
-- [x] ~~**Owner live-run Build 5**~~ — **RAN 2026-10-04 (run 4) and CRASHED
-      AT BOOT**: the input probe called `btn("left")`; unknown SUGAR input
-      names fall through to the id parser and a malformed id is FATAL (game
-      quits, no pcall available). Root cause + evidence: `live testing
-      result/SUMMARY.md` run 4, `notes/map.md` input section.
-- [x] **Build 6 crash fix** — `btn*()` is now only called with ids the live
-      game published (`INPUT_ASSIGNEMENT` actions + bound mouse codes), the
-      probe chain is reordered (safe blocks first: cards → exclude → souls →
-      bank → input) with `SKA2|probe|<name>=done` checkpoints, and the fake
-      engine in `mod_smoketest.py` now **raises** on unconfirmed ids exactly
-      like the game (the old fake returned `false`, which is why 33/33 passed
-      while the game died). Verified by re-injecting the run-4 bug: the
-      harness fails with the live error. Parser 37/37 (crash detection included), smoke 36/36.
-- [ ] **Owner live-run Build 6** — confirm the game boots and plays; verify
-      Dev panel actions, mod-menu button-ID detection/Back/legend, bank
-      persistence, and collect the `SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`,
-      `SKUI|` probes **in play** (run 4 proved the load-time harvest works;
-      the runtime traces were never reached). Update `notes/map.md` from that
-      log. Fake-SUGAR results are not game evidence.
-- [ ] **Panel cheat actions are still unverified engine calls** — `pick({team=0})`
-      + `add_card`, `inc_ammo(3)`, `new_piece(type,false,sq)`, `hit`-based God
-      Mode. They are click-gated, run only on owner action, and the probe chain
-      completes at load, so a bad one costs a run but never the harvest. Ask
-      the owner to click them one at a time (see INSTALL step 5) so the failing
-      control is identifiable; fold the real signatures back in afterwards.
-- [ ] **Finish Phase 2c after probes** — implement damage multipliers only
-      after the `SKD|` trace proves a safe hook; fix any mod-menu false
-      positives/false negatives found in the live run.
-- [ ] **Extra-mouse-button binding — isolated experiment (run-4 finding).**
-      The only mouse ids the engine publishes are `m:lb`, `m:rb`, `m:mb`
-      (+ `m:x`/`m:y` axes); mouse4/mouse5/wheel appear nowhere, and a wrong
-      `defbtn`/`btn` id may be fatal. Do NOT blind-probe. Design: a separate
-      opt-in build that tries ONE candidate binding per boot (config-bank
-      switched), documented as crash-tolerant, so a failure costs one run
-      instead of a whole feature cycle.
-- [x] **Mod-menu Back + white/black legend code added** (owner ask run 3,
-      confirmed 2026-10-04) — native `mk_text_but` widgets are attached by
-      the `mk_menu_but` additive hook when a MODLIST-entry ID is recognized;
-      still needs the Build-6 live run to verify actual IDs and navigation.
+- [x] **Build 5 boot crash fixed by Build 6** — Run 4 exposed fatal
+      `btn("left")`; Build 6 restricted probes to confirmed engine IDs and
+      added per-block checkpoints. The fake engine now raises on unknown IDs.
+- [x] **Owner live-run Build 6 (Run 5)** — clean boot, full probe checkpoints,
+      30 hooks / 920 globals / 186 cards, runtime bullet/hit and UI traces.
+      Evidence and limitations: `live testing result/SUMMARY.md` Run 5 and
+      `notes/map.md`.
+- [x] **Run-5 owner feedback recorded** — Back worked; do not infer otherwise
+      from the absent `SKUI|menu|widgets_added` marker. Mod toggle → Save &
+      Reboot was not tested. The owner did not use/activate a soul or scepter.
+- [x] **Build 7 testability update implemented** — reload and chamber controls,
+      direct Majestic Censer + Wand of Souls grants, and panel-entity cleanup.
+      Sandbox smoke test: 37/37 in both `all()` modes on default Lua and LuaJIT
+      2.1. This is not live evidence; `uplift({chamber_max=1})` is experimental.
+- [ ] **Owner live-run Build 7** — follow `INSTALL.md` Step 5: test mod ON →
+      Save & Reboot → verify-after-reboot, then (if convenient) OFF → check for
+      a second Save & Reboot → verify OFF after reboot. Test safe panel controls
+      one at a time, including direct soul/Wand grants and close/reopen cleanup.
+      Collect the log + insight pack. No Build 7 live test has happened yet.
+- [ ] **Confirm chamber capacity in the actual game** — the panel uses
+      `uplift({chamber_max=1})`; the API exists and temporary stat changes are
+      used by reference mods, but this specific capacity change is unverified.
+- [ ] **Soul/scepter live test** — use Build 7's direct card grant (no rare
+      offer RNG), collect a soul from a white piece, and try normal soul and
+      Wand activation. Run 5 did not test either activation.
+- [ ] **Verify mod-toggle persistence and config readback** — Build 6 Run 5
+      captured menu IDs and bank writes, but not the requested toggle/reboot
+      interaction or a separate-launch bank readback.
+- [ ] **Damage/crit implementation** — Run 5 captured `fire`, bullet, and `hit`
+      traces. Review the trace to establish a safe insertion point; no damage
+      or crit control is implemented in Build 7. Do not test such a control yet.
+- [ ] **Extra-mouse-button binding — isolated experiment (Run-4 finding).**
+      Run 5 reconfirmed only `m:lb`, `m:rb`, `m:mb` and axes; mouse4/mouse5 /
+      wheel IDs remain unconfirmed. Do not blind-probe: an unknown `btn()` ID
+      can be fatal. Any experiment must try one explicit candidate per boot.
+- [x] **Mod-menu Back** — owner confirmed it worked in Run 5. Keep it; absence
+      of `SKUI|menu|widgets_added` is not failure evidence. Legend visibility
+      still needs the next-run check.
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
       5 soul slots, 3 scepters") — owning one removes all others from
       offers. Goal: own multiple + pick which one each button triggers.
       **Soft-coded by design (owner): discover ALL active-ability cards at
-      runtime (`special=` — owner reports 10 in v1.623b, including Unjust
-      Decree; SKCF probe will verify; also scepters and mod-added cards); no
-      hardcoded list, no fixed count.** Expected bindings: RMB + two side
+      runtime (`special=` — Run 4 confirmed 10 vanilla cards, including Unjust
+      Decree; continue supporting mod-added cards); no hardcoded list or fixed
+      count.** Expected bindings: RMB + two side
       buttons + optional middle click, remap menu, cycle if abilities exceed
       buttons. **Scepter cap relaxed too.** Probe results precede behavior.
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
-      (shell economy) → **C** (shell types)  [owner decision §0.6]
+      (shell economy) → **C** (shell types)  [owner decision §0.6]. A can be
+      started from the mapped ammo APIs, but keep it out of the Build-7 live
+      test until reload/chamber behavior is verified, so that run stays a clean
+      baseline.
+- [ ] **SK DEV icon polish (owner suggestion, afterthought)** — replace the
+      plain `SK DEV` text launcher with a compact wand/tool icon, placed below
+      the board by the `Turn 1: MODDED` status. Use a native clickable hitbox
+      plus a mod-owned sprite (or a documented engine icon); check placement,
+      tooltip/recognizability, and hover state in-game. Keep this separate from
+      the pending Build-7 live validation; no icon change is implemented yet.
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
@@ -102,10 +103,10 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       card-driven)**; summon the held soul's piece as a per-floor
       temporary ally — no summon cap beyond board capacity. Vanilla
       summon-family: Right-hand, Warhorse, Onboarding Party, Rapunzel,
-      Small Key; holograms: Holoking, Soul Projection. API mapped
-      (add_soul/activate_soul/stack.replace_soul/hero.free_souls/
-      soul_slot fields/dj_summon pattern) — needs a live probe of soul
-      activation flow + slot internals
+      Small Key; holograms: Holoking, Soul Projection. API/schema mapped
+      (`add_soul`/`activate_soul`/`stack.replace_soul`/`hero.free_souls`/
+      `soul_slot`/`dj_summon`); Run 5 had no soul activation. Build 7's direct
+      card grant enables the next deterministic activation test.
 - [ ] **Bullet damage & crit system** (owner, 2026-10-04 — PLANNING.md
       §0.7.11): configurable per-bullet damage (vanilla 1; `firepower` =
       the damage stat), configurable crit chance + crit damage (crits may
@@ -113,15 +114,14 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       `stack.pierce`, A Piercing Truth = 30). All knobs in the cheat
       panel / balance config, persisted in the mod save — nothing
       hardcoded. Pipeline partly mapped (shot-modifier priority
-      jump>fearsome>blade>pierce>knock>f_arc); build-5 probe pins the
-      damage application point (`ev_hit`/`damage`/`damages`/`fx_dmg`)
+      jump>fearsome>blade>pierce>knock>f_arc); Run 5 captured 12 `fire`, 48
+      bullets, and 30 `hit` samples, but a safe multiplier insertion point and
+      all damage routes still need review. Not implemented in Build 7.
 - [ ] **Full button-remap menu** (owner decision 2026-10-04): in-game
       settings panel to assign any action to any extra mouse button
       (owner mouse: 2 side buttons + middle click; right-click exclude
-      stays default). Gated on a probe: does SUGAR expose mouse4/mouse5
-      to mods at all? (mods only use `but.left_clic`/`but.right_clic` +
-      `btn("unsafe")` so far; dump `MOUSE` global + `but` fields + `btn()`
-      args in the next sk-rework build)
+      stays default). Run 5 published `m:lb`/`m:rb`/`m:mb` and axes, but no
+      mouse4/mouse5/wheel IDs. Do not guess unconfirmed `btn()` names.
 - [ ] Phase 5 — expose vanilla `knockback`/`pierce`/bleed as player tools
 - [ ] Phase 6 — balance knobs config + final packaging
       (persist knobs via the mod's own `save/mods/sk-rework.sav` slot —
@@ -135,14 +135,14 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 ## 🟢 Ready now, not blocked (agent can do without the game)
 
 - [x] ~~**log.txt parser** (`tools/parse_log.py`)~~ — strips the game's
-      `  . `/` !! ` prefix; parses legacy build-4 and Build-6 prefixes
+      `  . `/` !! ` prefix; parses runs 1–5 / Build-7-compatible probe prefixes
       (`SKCF|/SKOF|/SKS|/SKD|/SKI|/SKUI|`) into the draft, plus crashed logs
       and `SKA2|probe|<name>=done` checkpoints (`probe blocks completed` +
       a crash-location warning); selftest 37/37, including a `!! `
       warning-prefix regression and a crashed-chain case.
-- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 6
+- [x] ~~**no-game smoke test** (`tools/mod_smoketest.py`)~~ — runs Build 7
       in a fake SUGAR env under BOTH `all()` semantics, fires hooks and native
-      button callbacks, then checks parser output; 36/36 per mode on default
+      button callbacks, then checks parser output; 37/37 per mode on default
       Lua and LuaJIT 2.1. The fake `btn()` now models the engine's fatal
       unknown-id path (and self-checks that it does).
 - [x] ~~**diagnostics build 3** of sk-rework~~ — LIVE-PROVEN twice on the real
@@ -151,13 +151,13 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       run 2**: MODLIST dump (`SKM|` 14 entries), card id map (`SKC|` 186 cards);
       the `SKML|` in-log probe never fired (`loadfile` absent from the mod env)
       but `-GetInsights` harvested the real `mods/modlist.lua` instead
-- [x] **Build 5/6 script + tool support** — native-button dev controls, menu
-      helper hook, post-READY `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes; build 5
-      ran live and crashed (run 4), build 6 is the evidence-gated fix.
-- [x] **Promoted code map** — `notes/map.md` now folds in live runs 1–4 and
+- [x] **Build 5/6/7 script + tool support** — Build 5 crashed (Run 4), Build 6
+      fixed the unknown-button path and completed Run 5, and Build 7 adds focused
+      test aids. The Build-7 changes are sandbox-tested, not live-verified.
+- [x] **Promoted code map** — `notes/map.md` folds in live runs 1–5 and
       vendored mod patterns, with unknown/owner-reported facts labeled, the
-      `btn()` fatal contract documented, and the remaining runtime gaps called
-      out.
+      `btn()` fatal contract documented, and remaining Build-7 checks called
+      out. `notes/game-map-draft.md` is regenerated from the Run-5 log.
 - [x] **Save codec no-argument selftest** — `python tools/save_codec.py
       --selftest` now runs two built-in parser+container roundtrips; optional
       `[savedir]` adds real `.sav` text roundtrips; current result 2/2.
@@ -177,7 +177,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
       Shotgun-King-Puzzle-Developers/Shotgun-King-Puzzle-Mod
 - [ ] sk-rework `priority_hint` tuning once features stack up
 
-## ❓ Live-test answers (runs 1–4) + Build-6 questions (2026-10-04)
+## ❓ Live-test answers (runs 1–5) + Build-7 checks (2026-10-04)
 
 1. ~~Do plain mods receive `on_*` callbacks?~~ **No.** `on_*`/`upd` never
    fired during real gameplay; `append()` is the only proven hook. (Build 4
@@ -199,7 +199,7 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    exactly that set. The owner reports 10 `special=` ability cards (including
    Unjust Decree); **run 4 confirmed exactly 10 `special=` cards** and dumped
    every field of all 186 cards (see `notes/map.md` run-4 section).
-5. ~~What is the input/button space?~~ **Mostly answered run 4, with a
+5. ~~What is the input/button space?~~ **Mostly answered in Run 4/5, with a
    landmine attached.** Valid named actions come from `INPUT_ASSIGNEMENT`
    (validate/cancel/shoot/special/reload/unsafe) and `unsafe`/`cancel`/`ctrl`
    are callable; mouse ids are only `m:lb`, `m:rb`, `m:mb` (+`m:x`/`m:y`
@@ -207,13 +207,28 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
    Still open: whether `defbtn` accepts mouse4/mouse5-style codes at all
    (needs the isolated one-candidate-per-boot experiment, see the queued item
    above).
-6. **Build 6 must answer (needs gameplay, not just boot):** does the Dev panel
-   actually render/respond (`SKUI|panel|`), does the mod-menu Back/legend
-   attach to the real menu button ID (`SKI|menu_button|`, `SKI|menu_but|`),
-   does the bank persist across boots (`SKUI|bank|magic=505`), and does the
-   damage trace (`SKD|`) show the hit/bullet route during a real shot?
+6. **Build 7 must answer:** does `RELOAD` work, does `CHAMBER +1` change real
+   capacity, do both directly granted cards appear and allow normal soul/Wand
+   activation, and does panel cleanup remove stale visuals? Run 5 already
+   supplied runtime damage/bullet traces and confirmed Back works. Separately
+   test mod-toggle → Save & Reboot → verify-after-reboot; the owner did not
+   exercise that flow in Run 5.
 
 ## 🧹 Audit sweep log (latest first)
+
+**2026-10-04 (Run 5 follow-up — Build 7 testability update):**
+- ✅ Run 5 completed Build 6's live probe chain without a crash; the parser
+      reports 30 hooks, 920 globals, 186 cards, 30 sampled turns, and the
+      bullet/hit traces. Full details are in `live testing result/SUMMARY.md`.
+- ✅ Owner correction recorded: the Back button worked. The absent
+      `SKUI|menu|widgets_added` line is not evidence to the contrary.
+- ✅ Uncompleted Run-5 checks are explicit: no mod-toggle → Save & Reboot,
+      no soul card used, and no soul/scepter activated.
+- ✅ Build 7 adds RELOAD / experimental CHAMBER +1, direct Majestic Censer +
+      Wand of Souls grants, and cleanup for panel buttons. Smoke test 37/37 in
+      both iterator modes on Lua + LuaJIT; chamber uplift still needs the game.
+- ⏭ Next: owner Build-7 live run via `INSTALL.md` Step 5; collect the log and
+      verify menu persistence, direct soul/Wand path, chamber capacity, and UI cleanup.
 
 **2026-10-04 (session 8 — run 4 absorbed; boot crash fixed as Build 6):**
 - 🔴 **Run 4 (build 5) crashed the game at boot** — `ERR Button left for player
@@ -239,8 +254,8 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 - ✅ Owner doc note applied: mod-menu location now simply says "click Play"
       (no title-screen/main-menu contrast) in README/INSTALL/HANDOFF/map/
       mod-dev.
-- ⏭ Next: owner live-run Build 6 **in play** (runtime traces were never
-      reached in run 4).
+- ✅ Later completed by Run 5: Build 6 boots and reaches gameplay; see the
+      newer Build-7 entry above for current follow-up.
 
 **2026-10-04 (session 7 — Build 5 code + map/tooling refresh):**
 - ✅ Build 5 Phase-2c panel and §0.7 `SKCF/SKOF/SKS/SKD/SKI/SKUI` probes
@@ -451,11 +466,12 @@ ShotgunKing-Modded}`) · rationale: `notes/review-2026-10-03.md` §5.
 
 ## 👑 Owner to-do
 
-1. ~~Harvest + verification runs 1–3~~ **DONE and consolidated into
-      `live testing result/SUMMARY.md`.**
-2. Apply the updated Build-5 mod (or rebuild the copy) and confirm the
-      diagnostic banner and `READY build=5` in the log.
-3. **Playtest Build 5 now**: test SK DEV controls, mod-menu Back/legend, and
-      submit `-GetInsights` output. That live log validates the probes and
-      unblocks the queued feature work.
-4. At deployment: flip private; optionally scrub history; or archive repo
+1. ~~Runs 1–5~~ **Recorded in `live testing result/SUMMARY.md`; Run 5 was Build 6.**
+2. Apply Build 7 / rebuild the copy and follow `INSTALL.md` Step 5.
+3. Test one OFF workshop-mod toggle → **Save & Reboot** → verify the setting
+   after the soft reboot; report whether the legend is visible (Back is already
+   confirmed working).
+4. In a run, test `RELOAD`, experimental `CHAMBER +1`, direct soul/Wand grants,
+   and panel cleanup one at a time. Do not test God Mode, damage/crit, or other
+   unimplemented items yet. Send `-GetInsights` output.
+5. At deployment: flip private; optionally scrub history; or archive repo

@@ -1,12 +1,13 @@
-# Live testing — consolidated log (runs 1–3, 2026-10-03)
+# Live testing — consolidated log (runs 1–5, 2026-10-03–04)
 
-> This file replaces the raw evidence (screenshots, logs, save packs,
-> critique notes) that was absorbed into the project docs during sessions
-> 4–6. Raw files were deleted after every finding in them was recorded.
-> Where things live now:
+> Runs 1–3 were consolidated here after their raw packs were deleted. Run 4's
+> crash evidence remains in `live testing result/uploads/`; Run 5's raw log,
+> insights, notes, and critique remain in `live testing result/run 5 i believe
+> or latest run/`. Preserve those live artifacts as evidence.
+> Where the accumulated knowledge lives now:
 > - **`notes/map.md`** — live-verified engine facts + mod-API patterns
 > - **`notes/game-map-draft.md`** — the full parsed dump (globals, cards,
->   MODLIST, object model) from the latest run
+>   MODLIST, object model) regenerated from Run 5 (Build 6)
 > - **`PLANNING.md` §0.7** — the owner's feature specs from the critiques
 > - **`WORKLIST.md`** — what is fixed vs what is queued (next phase)
 > - **`notes/changelog.md`** — file-by-file change history
@@ -67,8 +68,37 @@ intro but second have intro but crash again."*
 | Harvest before the crash (load chain) — full card fields (`SKCF|`, 3353 lines), all 186 cards (`SKC|`), EXCLUDE pairs, pieces (`SKS|piece_*`, 14 defs), offer candidates (`SKOF|`, 25), API surface (`SKA|` 63 YES / 5 no), input dump (`SKI|`) | ✅ absorbed → `notes/map.md` (run-4 section) + regenerated `notes/game-map-draft.md` |
 | The 10 `special=` ability cards confirmed live (strafe, scope, decree, grenade ×5, orb, dig) — matches the owner's count and the cap-removal target | ✅ promoted to map.md |
 | `savbnk` does not exist; the per-mod save is written by the engine itself (`save/mods/sk-rework.sav` was written on exit) | ✅ promoted (bank read/write still unverified — its probe block never ran) |
-| `SKD|`/`SKUI|bank`/menu-ID probes never ran (crash + no gameplay) | 🔜 Build 6 re-run, this time through gameplay |
+| `SKD|`/`SKUI|bank`/menu-ID probes never ran (crash + no gameplay) | ✅ Build 6 reached gameplay in Run 5; see the next section |
 | Owner doc note: where the mod menu is should just say **"click Play"** — no mention of the title screen or a contrast ("not on the main menu") | ✅ all docs reworded in this session |
+
+## Run 5 — Build 6 live follow-up (2026-10-04)
+
+**Tested:** Build 6 in the modded copy, in a roughly 22-minute gameplay run.
+The game shut down normally, and all five probe checkpoints completed. Raw
+artifacts: `live testing result/run 5 i believe or latest run/`.
+
+| Finding | Status |
+|---|---|
+| Build 6 boot + probe chain | ✅ completed in the game; parser reports 30 hooks, 920 globals, 14 mods, 186 cards, 30 sampled turns; no crash |
+| Bullet / hit path | ✅ Run 5 captured 12 `fire` calls, 48 bullet samples (`dmg=1`, `pierce=0`), and 30 `hit` samples. This is runtime evidence, not proof of every damage route or a safe multiplier insertion point |
+| `+3 AMMO`, random card, ally spawn | ✅ run-time calls observed (9 ammo calls, 2 card additions, 39 spawn attempts). Owner confirms +3 behaves like reserve regeneration, not a chamber reload; the card was not always visually apparent; only type-0 pawns spawned |
+| Dev-panel close/hover visuals | ⚠️ owner reports labels remained visible/frozen after closing; panel buttons became unusable. Build 7 strengthens cleanup, but only sandbox-tested so far |
+| Pawn placement/reset | ⚠️ owner reports pawn can block king movement and a pawn/occupancy ghost after resigning and starting a new run. Build 7 still spawns one pawn beside the king; click once only and report the reset behavior |
+| God Mode | ❌ owner reports it did not protect the king. Mist-style escape from lethal threat is not implemented; mark **DO NOT TEST YET** |
+| **Mod-menu Back** | ✅ owner confirms Back worked. The absence of `SKUI|menu|widgets_added` is **not** evidence of failure; do not repeat that inference |
+| Mod toggle → Save & Reboot → verify-after-reboot | ⏭ **Not tested in Run 5.** Test ON → Save & Reboot → verify ON; if convenient, toggle back OFF, check for a second Save & Reboot, and verify OFF after reboot. Record whether each reboot control appears |
+| Soul / scepter | ⏭ Owner did not use a soul card or activate a soul or Wand/scepter skill. Build 7 adds a direct grant for Majestic Censer + Wand of Souls so testing does not depend on a rare random offer |
+| Bank persistence | ⚠️ Run 5 read `magic=0` at initial probe and wrote bank values; no separate-launch readback was tested |
+
+### Build 7 follow-up (working tree; not live-tested)
+
+Build 7 adds `RELOAD`, experimental `CHAMBER +1` (`uplift({chamber_max=1})`),
+direct **Majestic Censer + Wand of Souls** grants, and panel-entity cleanup; it
+removes the confusing `DMG GATED` placeholder. The capacity change, grants,
+visual cleanup, and all other Build-7 behavior must still be confirmed in the
+game. See the exact owner checklist in `INSTALL.md` Step 5. Damage/crit,
+Mist-style God Mode, the multi-soul deck, ability-cap removal, pickers, and full
+button remapping are **not implemented — do not test yet**.
 
 ## Still open — the owner's feature asks (all specs in PLANNING §0.7)
 
@@ -82,20 +112,19 @@ intro but second have intro but crash again."*
    card-driven), summons capped only by board capacity
 4. **Bullet damage & crit system** (§0.7.11) — configurable normal/crit
    damage + crit chance, pierce auto-crits
-5. **Full button-remap menu** (§0.7.9) + **mod-menu Back button** (§0.7.10)
+5. **Full button-remap menu** (§0.7.9); mod-menu Back is owner-confirmed
+   working in Run 5, while the legend visibility still needs confirmation.
 
-## Current follow-up status (2026-10-04, session 8)
+## Current follow-up status (2026-10-04, Build 7)
 
-**Build 5 is retired** (it crashed at boot — see run 4 above). Build 6 is in
-`modded/sk-rework/`: same Dev panel, Back/legend helper and probes, but the
-input probe only uses ids the live game published, probe blocks are reordered
-(safe blocks first) with `SKA2|probe|<name>=done` checkpoints, and the fake
-engine now models the fatal `btn()` contract. Sandbox: parser 34/34 (incl. a
-crashed-chain check), smoke test 36/36 under each `all()` semantics on default
-Lua and LuaJIT 2.1 — including a deliberate re-injection of the run-4 bug,
-which the harness now catches with the exact live error.
+Build 6 fixed Run 4's fatal `btn("left")` crash and was confirmed live in Run 5.
+Build 7 is now in `modded/sk-rework/`; it has not been applied or tested in the
+game. The owner checklist in `INSTALL.md` Step 5 covers the untested toggle →
+Save & Reboot flow, reload/chamber checks, direct soul/Wand grants, pawn-spawn
+safety, and panel close/reopen behavior. It clearly marks unreliable or
+unimplemented features **DO NOT TEST YET**.
 
-Next step: apply Build 6 (`apply.ps1` or a fresh `build-dist.ps1`), **play a
-couple of turns** (the runtime probes need gameplay), collect the log with
-`apply.ps1 -GetInsights`. Damage-multiplier controls remain gated until the
-`SKD|` traces are observed in play.
+Sandbox results after the Build-7 edits: parser 37/37; smoke test 37/37 for
+both `all()` semantics under default Lua and LuaJIT 2.1. These checks are not
+game evidence. `uplift({chamber_max=1})` and native-entity cleanup remain
+especially dependent on the next live run.

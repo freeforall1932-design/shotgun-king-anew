@@ -1,4 +1,4 @@
-# HANDOFF — Session 2026-10-04 (session 8, branch `arena/01a105e5-shotgun-king-anew`)
+# HANDOFF — Session 2026-10-04 (Run 5 follow-up / Build 7, branch `arena/01a1062a-shotgun-king-anew`)
 
 > **Purpose:** a fresh agent (or the owner after a break) can resume from this
 > file alone. Read `PLANNING.md` for the full history; this is *current state*.
@@ -24,11 +24,11 @@ game's own mod system).
 
 | Thing | Location |
 |---|---|
-| Working branch | `arena/01a105e5-shotgun-king-anew` (session-fixed branch; PRs #1 and #2 already merged to `main`) |
-| Our mod | `modded/sk-rework/` (**Build 6** — Build 5 crashed at boot in run 4; build 6 has the evidence-gated input probe, safe-first probe chain with checkpoints, plus the Phase-2c panel and legend/Back helper) |
-| Log parser + smoke test | `tools/parse_log.py` (37/37: `!!` warning prefixes, multi-boot dedup, probe checkpoints, **crash detection with the failing frame**), `tools/mod_smoketest.py` (36/36 under each `all()` semantics; default + LuaJIT 2.1; fake `btn()` re-raises the fatal unknown-id error) |
-| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–4; **run 4's raw pack is still in `live testing result/uploads/`** (log + 2 crash logs + saves + critique) and can be deleted once the run-5 pack arrives |
-| Parsed live map | `notes/game-map-draft.md` (**regenerated from the run-4 log**; it now reports the boot crash and the full load-time harvest) |
+| Working branch | `arena/01a1062a-shotgun-king-anew` (session-fixed branch) |
+| Our mod | `modded/sk-rework/` (**Build 7**, sandbox-tested but not live-tested; Build 6 completed Run 5 without a crash) |
+| Log parser + smoke test | `tools/parse_log.py` (37/37, including warning prefixes, multi-boot dedup, checkpoints, and crash location); `tools/mod_smoketest.py` (37/37 in both `all()` modes on default Lua + LuaJIT 2.1) |
+| Live-test evidence | `live testing result/SUMMARY.md` — consolidated runs 1–5; Run 5's raw pack is in `live testing result/run 5 i believe or latest run/` |
+| Parsed live map | `notes/game-map-draft.md` (**regenerated from the Run-5 Build-6 log**) |
 | Owner feature specs (from critiques) | `PLANNING.md` §0.7 — implemented queue in `WORKLIST.md` |
 | 13 workshop mods, vendored, name-verified | `dist-overlay/mods/` |
 | Tools | `tools/` (build-dist.ps1, install-mods.ps1, apply.ps1, save_codec.py, make_100pct_save.py, mod-dev.md, recover.md) |
@@ -134,81 +134,69 @@ nested `shotgun-king-anew-main` folder). Done:
   under tree-sitter-powershell; all 14 mod folders re-checked
   `folder == name=`; `sk-rework/script.lua` compiles under Lua.
 
-## 5. Current state & immediate next step (session 8)
+## 5. Current state & immediate next step (Run 5 follow-up / Build 7)
 
-**Run 4 happened (owner, 2026-10-04) and Build 5 crashed the game at boot.**
-Both launches died with the same fatal — `ERR Button left for player 0
-doesn't exist.` at `mods/sk-rework/script.lua:817`, inside the mod's own load.
-Cause: the input probe blind-called `btn()` on names the engine does not know;
-in SUGAR an unknown `btn()` id falls through to the input-id parser and a
-malformed id is **fatal**, and the mod sandbox has no `pcall`. The "no intro"
-vs "intro then crash" difference the owner saw was just timing — the crash is
-deterministic and identical in both logs.
+**Run 5 tested Build 6 in the real game.** It ran for about 22 minutes, shut
+down normally, and completed all five diagnostic checkpoints. The live parser
+reports 30 hooks, 920 globals, 14 mods, 186 cards, 30 sampled turns, 12 `fire`
+calls, 48 bullet samples, and 30 `hit` samples. The raw log/critique/insights
+are retained at `live testing result/run 5 i believe or latest run/`; the
+root `notes/game-map-draft.md` has been regenerated from that log.
 
-**But the run still paid off.** The whole load-time harvest completed before
-the crash and is now promoted into `notes/map.md` (run-4 section):
-- the live `gimme("global")` API surface (63 planned names present, incl. the
-  full soul/scepter family `add_soul`/`activate_soul`/`add_soul_slot`/
-  `remove_soul_slot`/`exhaust_soul`/`add_scepter`/`activate_scepter`/
-  `recal_scepters`/`get_scepter`, plus `fire`/`mk_bullet`/`hit`/`ev_hit`/
-  `pick`/`add_any_card`/`level_up`/`is_card_available`/`newbnk`/`bget`/`bset`);
-  `savbnk` and `scepters` do **not** exist as globals (the engine writes the
-  per-mod save itself, and `scepters` is only *replaceable*);
-- all 186 cards field-by-field (3353 `SKCF|` lines) — the ten `special=`
-  right-click cards are exactly the owner's list (strafe, scope, decree,
-  grenade ×5, orb, dig);
-- 14 piece definitions with the real schema (`type/name/hp/tempo/danger/seek/
-  behavior/sided/hdy/reap`), the 25 offer-eligible candidates, and the input
-  dump (`INPUT_ASSIGNEMENT` is a formatted string; mouse ids stop at
-  `m:lb`/`m:rb`/`m:mb` — no mouse4/mouse5 anywhere).
+**Run-5 corrections / open checks (keep these exact):**
+- The owner confirms the mod-menu **Back button worked**. The absence of
+  `SKUI|menu|widgets_added` is not evidence it failed; do not repeat that
+  inference.
+- The owner did **not** test toggling a mod ON and checking/using **Save &
+  Reboot**. The next run must explicitly perform toggle → Save & Reboot →
+  verify the mod remains ON after reboot.
+- No soul card was used and no soul was activated; no Wand/scepter skill was
+  activated. Build 7's **TEST SOUL/WAND** button directly grants Majestic
+  Censer + Wand of Souls so these tests do not depend on rare card offers.
+- Build 6's Run-5 damage probes are now present, but the owner reports God Mode
+  did not protect the king. Mist-style escape, damage/crit controls, pickers,
+  soul-deck overhaul, and input remapping are not implemented; mark them
+  **DO NOT TEST YET**.
+- Run 5 owner feedback: closing the panel left frozen/visible labels; ally
+  spawns can obstruct the king and a pawn/occupancy ghost was reported after
+  resigning and starting a new run. Build 7 changes cleanup, but this is only
+  sandbox-tested so far.
 
-**Build 6 (this session) fixes the crash**: `btn*()` is only called with ids
-the live game published; the probe chain is reordered safe-first (cards →
-exclude → souls → bank → input) with `SKA2|probe|<name>=done` checkpoints so a
-partial run is diagnosable; the parser now detects crashes and prints the
-failing frame. The smoke test's fake engine now **raises** on unconfirmed ids
-exactly like the real engine — re-injecting the run-4 bug into the script
-makes the harness fail with the live error message. Sandbox: parser 37/37,
-smoke 36/36 × both `all()` semantics × default Lua and LuaJIT 2.1.
+**Build 7 is in the working tree and has not been live-tested.** Changes:
+`RELOAD`, experimental `CHAMBER +1` (`uplift({chamber_max=1})`, not yet
+confirmed in the game), direct test-card grants, and stronger panel entity
+cleanup. It also removes the confusing no-op `DMG GATED` control. Follow
+`INSTALL.md` Step 5; don't treat smoke-test results as game facts.
 
-**Next: owner live run of Build 6, in play (not just boot).** Run 4 proved the
-load-time chain works; everything runtime-only is still unobserved: Dev-panel
-actions (`SKUI|panel|`), mod-menu Back/legend ID detection (`SKI|menu_button|`,
-`SKI|menu_but|`), bank persistence (`SKUI|bank|magic=505`), and the damage
-trace (`SKD|`) during real shots. Collect with `apply.ps1 -GetInsights`; if the
-game dies, send `log.txt` **and** the newest `crash_log_*.txt`.
+**Sandbox verification completed after these edits:**
+- `python tools/parse_log.py --selftest` — 37/37.
+- `PYTHONPATH=/tmp/sk-rework-deps python tools/mod_smoketest.py` — 37/37 for
+  value/pair `all()` semantics on default Lua and LuaJIT 2.1.
+- `python -m py_compile` — parser, smoke harness, save codec, and unlock tool
+  compile; `python tools/save_codec.py --selftest` — 2/2; `git diff --check` —
+  clean.
+- The smoke test checks direct card-grant calls, temporary chamber-capacity math in
+  its fake engine, and action-entity cleanup. The chamber behavior and visual
+  cleanup still need confirmation in the actual game.
 
-**The owner's feature requests are fully specified** (five asks, refined
-over several Q&A rounds into `PLANNING.md` §0.7 items 6–11): right-click
-ability cap removal (soft-coded discovery, any number of ability cards,
-bindings RMB + side buttons + optional middle click, scepter cap relaxed
-too), free-choice card picker, the Yu-Gi-Oh soul deck (any soul allowed —
-pawn behavior stays card-driven; summons capped by board capacity only),
-the bullet damage & crit system (configurable damage/crit-chance/crit-damage,
-pierce auto-crits), the button-remap menu, and the mod-menu Back button.
-Design rule throughout: **nothing hardcoded that can't be confirmed —
-universal, soft-coded, adaptable as the owner plays.** Run 4 sharpened this
-into a hard safety rule: **engine calls take only confirmed arguments.**
-
-Verified without the game this session: parser selftest 37/37 (incl. the
-crashed-chain and crash-render cases); smoke test 36/36 under both `all()`
-semantics on default Lua and LuaJIT 2.1, including the meta-check that the
-fake engine still rejects `btn("left")` and an end-to-end run of the real
-`script.lua`; Python compilation. Safety rules unchanged: no
-`pcall`/`loadfile`, nil/boolean-safe `sv()`, capped loops, additive hooks only,
-all static probe dumps after READY, and no unconfirmed arguments to engine
-functions.
+**Immediate next step:** the owner should apply/rebuild Build 7 and follow
+`INSTALL.md` Step 5. Collect `log.txt`, `modlist.lua`, and the `save/` folder
+with `apply.ps1 -GetInsights`; attach the entire insights pack. No Build 7 live
+run has occurred.
 
 ## 6. Owner (human) intervention points
 
-- ~~Harvest + verification runs 1–3~~ **DONE and consolidated**
-- Apply Build 6 to the modded copy (rebuild keeps the pre-enable + unlock) and
-  playtest **in play**: native panel actions, Back/legend in the mod menu,
-  bank persistence across a boot, and a few shots so the damage trace fires.
-  Collect `log.txt` with `apply.ps1 -GetInsights`; if it crashes, also send the
-  newest `crash_log_*.txt` (the parser now names the failing frame).
+- ~~Runs 1–5~~ **Recorded in `live testing result/SUMMARY.md`** (Run 5 was Build 6).
+- Apply/rebuild Build 7 and follow `INSTALL.md` Step 5. Test mod ON → Save &
+  Reboot → verify-after-reboot; if convenient, test OFF → a second Save &
+  Reboot → verify it stays OFF. Confirm legend visibility (Back is already
+  confirmed), then test safe panel controls one at a time. Use the direct soul /
+  Wand grant instead of waiting for random offers. Do not test God Mode,
+  damage/crit, remapping, pickers, or other unimplemented features yet.
+- Collect the full insights pack with `apply.ps1 -GetInsights`; if it crashes,
+  include the newest `crash_log_*.txt`.
 - At deployment: flip repo private, optional git history scrub (old commits
-  still contain the rars), or archive repo if abandoning
+  still contain the rars), or archive repo if abandoning.
 
 ## 7. Environment quirks (this sandbox / Arena agent mode)
 
@@ -217,9 +205,10 @@ functions.
   `git fetch origin && git reset --soft origin/arena/…` then `git reset`.
 - Network: `git`/`api.github.com`/`pypi` reachable. **Blocked:** raw
   GitHub, GitHub release assets, Debian apt mirrors (apt install fails).
-- **No `pwsh`** → PowerShell scripts are static-parsed (tree-sitter) but never
-  executed here. Python 3.11 is available; `/tmp/skvenv` (lupa + tree-sitter)
-  works and is ephemeral.
+- **No `pwsh` or system `lua`** → PowerShell scripts are static-parsed but not
+  executed here. Python 3.11 is available. Build-7 smoke tests used a temporary
+  Lupa install at `/tmp/sk-rework-deps` (`python -m pip install --target
+  /tmp/sk-rework-deps lupa`); that path is ephemeral and not part of the repo.
 - `uploads/` is gitignored and **absent in this session** — docs referencing
   it describe the owner's machine.
 - No unrar/7z preinstalled; unrar was compiled last session (that binary is

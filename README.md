@@ -9,10 +9,12 @@ Checkmate* v1.623b (PUNKCAKE Délicieux). Two separate things live here:
 
 1. **A ready-to-play modded copy of the game** — 13 workshop mods plus our own
    mod, assembled for you by a script.
-2. **Our own mod** (`sk-rework`) — Build 6 adds a native-button dev panel,
-   in-menu legend/Back affordance, and probes for the remaining gameplay APIs.
-   The advanced ammo rework, pickers, crit tuning, soul deck, and remapping
-   remain planned follow-up work.
+2. **Our own mod** (`sk-rework`) — Build 6's safe-input fix and runtime
+   probes were confirmed in Run 5. The working tree now contains Build 7's
+   reload/chamber controls, direct Majestic Censer + Wand of Souls grants, and
+   stronger panel cleanup. Build 7 has not yet been tested in the game; the
+   advanced ammo rework, pickers, crit tuning, soul deck, and remapping remain
+   follow-up work.
 
 Engine: **SUGAR** (the studio's custom Lua engine) · Mod system: the game's
 official `info.lua` folder format.
@@ -54,14 +56,14 @@ Honest status, because "it's written" is not the same as "it's been run":
 | Thing | Status | Meaning |
 |---|---|---|
 | 13 workshop mods vendored in `dist-overlay/mods/` | ✅ live-proven | all 13 loaded and ran in the owner's live test (2026-10-03) |
-| `sk-rework` Build 6 (dev panel + diagnostics) | 🟡 sandbox-tested; live run pending | build 5 crashed at boot in its input probe (run 4) — build 6 only probes engine inputs the game itself published, and reorders the chain with per-block checkpoints |
-| `tools/parse_log.py` log parser | ✅ live-proven + Build-6 extensions tested | parses runs 1–4 with multi-boot dedup, crashed logs, and `SKA2\|probe\|<block>=done` checkpoints (plus crash detection with the failing frame); selftest 37/37 |
-| `tools/mod_smoketest.py` | ✅ tested | runs Build 6 without the game (needs `lupa`); 36/36 checks under each `all()` semantics on default Lua + LuaJIT 2.1 — the fake engine now re-raises the fatal `btn()` error, so the run-4 crash cannot pass tests again |
+| `sk-rework` Build 7 (testability update) | 🟡 sandbox-tested; live run pending | Build 6's confirmed-button probe fix completed Run 5 without a crash. Build 7 adds reload/chamber and direct soul/Wand test controls plus panel cleanup; these changes are not yet game-verified |
+| `tools/parse_log.py` log parser | ✅ live-proven + Build-7 compatibility tested | parses runs 1–5 with multi-boot dedup, crashed logs, and `SKA2\|probe\|<block>=done` checkpoints (plus crash detection with the failing frame); selftest 37/37 |
+| `tools/mod_smoketest.py` | ✅ tested | runs Build 7 without the game (needs `lupa`); 37/37 checks under each `all()` semantics on default Lua + LuaJIT 2.1 — the fake engine models the fatal unknown-`btn()` path and verifies panel cleanup and debug-card grants |
 | `tools/build-dist.ps1` | ✅ live-proven | ran on the owner's machine (runs 1–3, incl. `-NoInheritMods`); pre-enables `sk-rework` via `mods\modlist.lua` (run-3-verified: booted ON with no toggling) and auto-applies the 100% unlock (step 4/4) |
 | `tools/save_codec.py` | ✅ verified | real-save text roundtrip was previously checked on all 6 saves; `--selftest` now also runs 2 built-in parse/container checks without needing a save directory |
 | `tools/make_100pct_save.py` | ✅ game-accepted | live test: achievements 100% (still 100% after a full modded session), weapons/ranks/chase unlocked; now writes the live-verified full card set (186 cards + 9 special keys = 195) |
-| Dev-cheat panel | 🟡 Build 6 sandbox-tested; live run pending | native controls are in; damage-multiplier action is intentionally gated until the new damage probe is confirmed |
-| Ammo rework, card/enemy pickers, crit system, soul deck, remapping | 🟢 scoped; queued | Build 6 probes target the remaining unknown engine paths; advanced modules wait on owner live data/playtest |
+| Dev-cheat panel | 🟡 Build 6 was live-tested in Run 5; Build 7 is sandbox-tested, not live-tested | Run 5 exercised reserve ammo, random-card, and ally-spawn paths. Build 7 adds reload/chamber and direct soul/Wand grants; actual chamber uplift, card visibility, direct grants, and cleanup need the next run |
+| Ammo rework, card/enemy pickers, crit system, soul deck, remapping | 🟢 scoped; queued | Run 5 provided runtime traces; damage/crit behavior and the advanced modules are not implemented yet |
 
 **The three pre-live unknowns — all resolved on 2026-10-03:**
 
@@ -89,15 +91,17 @@ In 20 seconds, it goes:
 | 3 | dry run (`apply.ps1 -List`) | nothing |
 | 4 | `build-dist.ps1` → `E:\testing\ShotgunKing-Modded` | the copy only |
 | 5 | launch the copy, play a couple of turns, note the mod menu, quit | game's own files |
-| 6 | `apply.ps1 -GetLog` → send me `log.txt` ← **the blocker** | a text file in the repo |
+| 6 | `apply.ps1 -GetInsights` → send the full evidence pack | `uploads/game-insights/` in the repo |
 | 7 | automatic: the build's 4/4 step unlock-alls the copy (manual only if skipped) | copy's `save\` (backed up) |
 
-Step 6 collects the live validation for Build 6: the mod writes its load/hook
-proof plus the game API, state, object, card-field, offer, soul/scepter,
-damage, input, and UI probes into `log.txt` (`SKG|`, `SKCF|`, `SKOF|`, `SKS|`,
-`SKD|`, `SKI|`, `SKUI|`…). `tools/parse_log.py` turns that into
-`notes/game-map-draft.md`; the new live data will validate the panel and unblock
-the queued ammo rework and pickers.
+Step 5 now has a Build 7 checklist: the mod-toggle → Save & Reboot →
+verify-after-reboot flow (plus an optional OFF → second reboot round trip),
+each safe panel control, direct soul/Wand test cards,
+and panel cleanup. Run 5 confirmed Build 6's runtime probes and that the Back
+button worked; it did **not** test the toggle/reboot flow or use a soul/Wand.
+Build 7 is not yet live-verified. Step 6 collects its `log.txt` probes
+(`SKCF|`, `SKOF|`, `SKS|`, `SKD|`, `SKI|`, `SKUI|`) into
+`notes/game-map-draft.md`.
 
 ### What to download
 
@@ -195,17 +199,16 @@ times or run history, and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-**Live testing (yours, next):** apply Build 6, open the mod menu and in-run
-Dev panel, play a few turns, then collect `log.txt` with `-GetInsights` as in
-`INSTALL.md`. Build 5's attempt (run 4) crashed at boot — that crash is fixed
-and regression-tested; this run validates the menu hooks, finishes the probe
-chain (bank/input), and fills the runtime card/offer/soul/damage traces.
+**Live testing (yours, next):** apply Build 7 and follow Step 5 in
+`INSTALL.md`. Run 5 confirmed that Build 6 boots and plays through its probe
+chain and that the Back button worked. It did not test mod-toggle → Save &
+Reboot or use a soul/Wand; Build 7 directly grants the relevant cards so those
+tests do not depend on random offers. Collect the new log with `-GetInsights`.
 
-**Development (current):** Build 6 has a native-button Dev panel and runtime
-probes; its smoke test passes under both `all()` semantics. That is not a
-replacement for the game run. The advanced ammo modes, card/enemy pickers,
-crit system, soul deck, and button remapping remain queued until the new data
-and playtest feedback arrive.
+**Development (current):** Build 7's helper code and smoke tests pass under both
+`all()` semantics, including reload/chamber controls, direct card grants, and
+panel cleanup. This is not a replacement for the game run. Damage/crit, the
+multi-soul deck, pickers, and button remapping remain unimplemented.
 
 Full plan and phase checkboxes: [`PLANNING.md`](PLANNING.md) ·
 current tasks: [`WORKLIST.md`](WORKLIST.md) · what changed when:

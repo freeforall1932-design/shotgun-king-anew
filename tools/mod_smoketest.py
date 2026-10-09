@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build-5 smoke test — run sk-rework against a fake SUGAR environment.
+"""Build-7 smoke test — run sk-rework against a fake SUGAR environment.
 
 The real engine can't run here (no Windows/game), but Lua load-time logic,
 additive hook registration, parser compatibility, native-button callbacks,
-and the safe dev-cheat actions can be exercised with lupa. The test runs
+and the testable dev-panel callbacks can be exercised with lupa. The test runs
 under both value-yielding and (index, value)-yielding `all()` semantics, using
 LuaJIT 2.1 as well when the installed `lupa` package provides it.
 
@@ -66,6 +66,7 @@ def build_env(L, all_mode="value"):
     bank_store = {}
     init_menu_calls = [0]
     entity_count = [0]
+    next_entity_id = [0]
 
     def bind(name, fn):
         g["__py_" + name] = fn
@@ -83,6 +84,8 @@ def build_env(L, all_mode="value"):
         {"id": "Right-hand", "gid": 157, "ext": 2, "pwe": 1, "special": "strafe"},
         {"id": "Unjust Decree", "gid": 22, "ext": 0, "pwe": 2, "special": "decree"},
         {"id": "Wand of Frenzy", "gid": 14, "ext": 0, "pwe": 1, "wand": [1]},
+        {"id": "Majestic Censer", "gid": 5, "ext": 0, "pwe": 4, "soul_slot": 1},
+        {"id": "Wand of Souls", "gid": 66, "ext": 2, "pwe": 1, "wand": [6]},
     ])
     g.EXCLUDE = to_lua(L, [["Royal Loafers", "Sawed-off Justice"]])
     g.PIECES = to_lua(L, [
@@ -188,8 +191,13 @@ def build_env(L, all_mode="value"):
     def lua_del(tbl, value):
         if tbl is None: return
         n = len(tbl)
+        value_id = getattr(value, "_smoketest_entity_id", None)
         for i in range(1, n + 1):
-            if tbl[i] == value:
+            current = tbl[i]
+            same_value = current == value
+            if value_id is not None and current is not None:
+                same_value = same_value or getattr(current, "_smoketest_entity_id", None) == value_id
+            if same_value:
                 for j in range(i, n): tbl[j] = tbl[j + 1]
                 tbl[n] = None
                 entity_count[0] = len(tbl)
@@ -199,7 +207,11 @@ def build_env(L, all_mode="value"):
     bind("inc_ammo", lambda n: setattr(g, "ammo", (g.ammo or 0) + n))
     bind("give_ammo", lambda source, n: setattr(g, "ammo", (g.ammo or 0) + n))
     bind("reload", lambda one=False: setattr(g, "chamber", (g.chamber or 0) + 1))
-    bind("uplift", lambda data: None)
+    def engine_uplift(data):
+        amount = data.chamber_max if data is not None else None
+        if amount is not None:
+            g.stack.chamber_max = (g.stack.chamber_max or 0) + amount
+    bind("uplift", engine_uplift)
     bind("newbnk", lambda w, h, d: None)
     bind("bget", lambda x, y: bank_store.get((x, y), 0))
     bind("bset", lambda x, y, v: bank_store.__setitem__((x, y), int(v)))
@@ -237,6 +249,14 @@ def build_env(L, all_mode="value"):
     def engine_add_card(ca):
         if "add_card" in hooks: hooks["add_card"](ca)
     bind("add_card", engine_add_card)
+
+    def engine_new_card(card_id):
+        for i in range(1, len(g.CARDS) + 1):
+            ca = g.CARDS[i]
+            if ca is not None and ca.id == card_id:
+                return ca
+        return None
+    bind("new_card", engine_new_card)
 
     def engine_add_soul(a1, a2=None, a3=None, a4=None):
         if "add_soul" in hooks: hooks["add_soul"](a1, a2, a3, a4)
@@ -276,6 +296,8 @@ def build_env(L, all_mode="value"):
         ent = L.table()
         ent.x, ent.y, ent.w, ent.label, ent.button = x, y, w, label, True
         ent.left_clic = fn
+        next_entity_id[0] += 1
+        ent._smoketest_entity_id = next_entity_id[0]
         add_entity(ent)
         group = L.table()
         list_table = L.table()
@@ -351,6 +373,21 @@ def call_button(env, label):
     return button
 
 
+def active_button_entities(env, labels):
+    """Return test buttons whose native entity is still in the fake engine."""
+    ents = env["globals"].ents
+    active = []
+    for button in env["native_buttons"]:
+        if button["label"] not in labels:
+            continue
+        entity_id = button["entity"]._smoketest_entity_id
+        for i in range(1, len(ents) + 1):
+            if ents[i] is not None and ents[i]._smoketest_entity_id == entity_id:
+                active.append(button)
+                break
+    return active
+
+
 def run_scenario(L, env, mode, dump=False):
     g = env["globals"]
     captured, hooks, prepends = env["captured"], env["hooks"], env["prepends"]
@@ -394,18 +431,25 @@ def run_scenario(L, env, mode, dump=False):
         return False
     # Header toggles action buttons.
     header["fn"]()
-    for label in ("+3 AMMO", "RANDOM CARD", "SPAWN ALLY", "GOD MODE", "DMG GATED"):
+    panel_labels = {"+3 AMMO", "RELOAD", "CHAMBER +1", "RANDOM CARD",
+                    "SPAWN ALLY", "TEST SOUL/WAND", "GOD MODE", "CLOSE"}
+    for label in panel_labels:
         if find_button(env, label) is None:
             print(f"FAIL[{mode}]: native Dev action was not created: {label}")
             return False
-    # Trigger actions individually. `CLOSE` is not clicked until assertions read its marker.
+    # Trigger actions individually; test-only cards are exact live IDs so the
+    # next owner run does not depend on drawing rare soul/scepter cards.
     before_ammo = g.ammo
     env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "+3 AMMO"][-1]]["fn"]()
     ammo_after = g.ammo
+    before_chamber_capacity = g.stack.chamber_max
+    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "RELOAD"][-1]]["fn"]()
+    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "CHAMBER +1"][-1]]["fn"]()
+    chamber_capacity_after = g.stack.chamber_max
     env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "RANDOM CARD"][-1]]["fn"]()
     env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "SPAWN ALLY"][-1]]["fn"]()
+    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "TEST SOUL/WAND"][-1]]["fn"]()
     env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "GOD MODE"][-1]]["fn"]()
-    env["native_buttons"][[i for i, b in enumerate(env["native_buttons"]) if b["label"] == "DMG GATED"][-1]]["fn"]()
 
     # A God Mode hit should leave hero HP unchanged in the fake engine.
     hp_before_hit = g.hero.hp
@@ -414,6 +458,16 @@ def run_scenario(L, env, mode, dump=False):
     close_button = find_button(env, "CLOSE")
     if close_button is not None:
         close_button["fn"]()
+    closed_cleanly = not active_button_entities(env, panel_labels)
+    # Reopen/close via SK DEV too, then simulate a new run while open. Old
+    # panel action entities must not accumulate or stay active.
+    header["fn"]()
+    reopened_count = len(active_button_entities(env, panel_labels))
+    header["fn"]()
+    toggled_closed_cleanly = not active_button_entities(env, panel_labels)
+    header["fn"]()
+    hooks["init_game"]()
+    reset_cleanly = not active_button_entities(env, panel_labels)
 
     # Simulate an actual menu button ID from MODLIST; the hook adds Back + legend.
     g.mk_menu_but("2. SK Rework", 0, 0, 80, 12)
@@ -423,7 +477,7 @@ def run_scenario(L, env, mode, dump=False):
         return any(fragment in line for line in captured)
 
     # Ensure the promised marker precedes every static §0.7 dump.
-    ready_idx = next((i for i, line in enumerate(captured) if "READY build=6" in line), -1)
+    ready_idx = next((i for i, line in enumerate(captured) if "READY build=7" in line), -1)
     probe_idx = next((i for i, line in enumerate(captured) if line.startswith("SKCF|")), -1)
 
     # Model self-check: the fake engine MUST reject unconfirmed buttons the
@@ -435,9 +489,15 @@ def run_scenario(L, env, mode, dump=False):
     except Exception:
         fatal_button_model = True
 
+    cleanup_ok = closed_cleanly and reopened_count == 8 and toggled_closed_cleanly and reset_cleanly
+    if not cleanup_ok:
+        print(f"DEBUG[{mode}]: panel cleanup close={closed_cleanly}, reopen={reopened_count}, "
+              f"toggle_close={toggled_closed_cleanly}, reset={reset_cleanly}, "
+              f"still_active={[b['label'] for b in active_button_entities(env, panel_labels)]}")
+
     checks = [
         ("fake engine models the fatal btn() contract", fatal_button_model),
-        ("build-6 load banner", has("SK-REWORK: BUILD=6 loaded (mod_index=2)")),
+        ("build-7 load banner", has("SK-REWORK: BUILD=7 loaded (mod_index=2)")),
         ("MODLIST self-check", has("SKA2|mod_found=yes|active=true")),
         ("MODLIST entry dump", has("SKM|2|title=SK Rework")),
         ("Lua function wrappers/API checks", has("SKA|append|no") and has("SKA|_log|YES")
@@ -462,27 +522,32 @@ def run_scenario(L, env, mode, dump=False):
                                                and not has("SKI|btn|wheel=")),
         ("menu button ID probe", has("SKI|menu_button|n=1|id=SK Rework")
                                  and has("SKI|menu_but|n=1|id=SK Rework")),
-        ("native panel controls", has("SKUI|panel|available=true|native=mk_text_but")
+        ("native panel controls + targeted test cards", has("SKUI|panel|available=true|native=mk_text_but")
                                   and has("SKE|cheat_ammo|amount=3")
+                                  and has("SKE|cheat_reload|status=called")
+                                  and has("SKE|cheat_chamber|amount=1")
                                   and has("SKE|cheat_card|id=Peace")
+                                  and has("SKE|cheat_test_card|id=Majestic Censer|status=add_card_called")
+                                  and has("SKE|cheat_test_card|id=Wand of Souls|status=add_card_called")
                                   and has("SKE|cheat_spawn|type=0|name=pawn")
                                   and has("SKUI|panel|god_mode=true")
                                   and has("SKUI|panel|open=false")
                                   and env["bank_store"].get((0, 0)) == 505
                                   and env["bank_store"].get((1, 0)) == 1),
+        ("native Dev-panel entity cleanup", cleanup_ok),
         ("God Mode hook basic path", hp_after_hit == hp_before_hit),
         ("native mod-menu Back + legend", has("SKUI|menu|widgets_added=true|entry=SK Rework|back=true")
                                           and back is not None),
         ("back click returns through init_menu", has("SKUI|menu|back_clicked=true")
                                                  and env["init_menu_calls"][0] == 1),
-        ("damage control clearly gated", has("SKUI|panel|damage_controls=deferred_until_live_damage_probe")),
         ("READY precedes SKCF probes", ready_idx >= 0 and probe_idx > ready_idx),
         ("loadfile absence logged", has("SKA2|loadfile=no")),
         ("probe block checkpoints", has("SKA2|probe|cards=done") and has("SKA2|probe|exclude=done")
                                     and has("SKA2|probe|souls=done") and has("SKA2|probe|bank=done")
                                     and has("SKA2|probe|input=done")),
-        ("probe done marker", has("SK-REWORK: PROBE done build=6")),
+        ("probe done marker", has("SK-REWORK: PROBE done build=7")),
         ("ammo cheat changes state", ammo_after == before_ammo + 3),
+        ("chamber cheat increases capacity", chamber_capacity_after == before_chamber_capacity + 1),
     ]
     bad = [name for name, ok in checks if not ok]
 
@@ -490,11 +555,11 @@ def run_scenario(L, env, mode, dump=False):
     import parse_log
     d = parse_log.parse_text(text)
     parser_checks = [
-        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 6
-                              and d["ready"] is not None and d["ready"]["build"] == 6),
+        ("parser build/READY", d["banner"] is not None and d["banner"]["build"] == 7
+                              and d["ready"] is not None and d["ready"]["build"] == 7),
         ("parser hooks", len(d["hooks"]) >= 15),
         ("parser world samples", len(d["world"]) == 2),
-        ("parser cards", len(d["cards"]) == 4),
+        ("parser cards", len(d["cards"]) == 6),
         ("parser all card fields", d["card_fields"]["Right-hand"].get("special") == "strafe"
                                 and "__CARD_COUNT__" not in d["card_fields"]),
         ("parser EXCLUDE pairs", d["exclude_pairs"] == ["Royal Loafers<>Sawed-off Justice"]),
@@ -509,13 +574,13 @@ def run_scenario(L, env, mode, dump=False):
     ]
     bad += [name for name, ok in parser_checks if not ok]
 
-    md = parse_log.render_markdown(d, "<smoketest-build-6>")
+    md = parse_log.render_markdown(d, "<smoketest-build-7>")
     if ("Did the mod load?" not in md or "Full card fields & EXCLUDE pairs" not in md
             or "Offer-roll choices & filters" not in md):
-        bad.append("parser Build-6 markdown rendering")
+        bad.append("parser Build-7 markdown rendering")
 
     if dump:
-        print("--- Build-6 captured mod log lines ---")
+        print("--- Build-7 captured mod log lines ---")
         for line in captured:
             print(line)
         print("--- end ---")
