@@ -199,6 +199,10 @@ exposed the panel bug: SK DEV → CLIP+ moved the king, and the panel never
 came back. With all mods ON there were 4 crash logs (`fairy_cards`) and red
 load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
 
+**Run-5 correction:** the owner confirms the Back button worked. The absent
+`SKUI|menu|widgets_added` marker is not evidence of failure; Run 6 later logged
+Build-7 widgets attached. Legend visibility still needs explicit confirmation.
+
 **Session 10 did:**
 1. Stored the owner's game in `game/` (§2b), cracked `data.sgr`, and
    committed the decoded source plus `tools/sgr_extract.py`; findings in
@@ -264,8 +268,8 @@ load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
      never loaded) still had the stale 7-gun list; it is patched, and
      `mode_guns_check` now sweeps every mod file for gun lists.
    - The Fairy comment no longer claims it never called `savbnk`.
-   - INSTALL Step 5: A4 keeps SK Rework ON, A5 expects no red text after
-     the reboot, and B runs with all mods ON (Terminal included).
+   - INSTALL Step 5: A5 keeps SK Rework ON, A6 expects no red text after
+     AUTO-FIX reboot, and A7 tests all mods ON (Terminal included).
    - Verified: smoke **66/66** ×4 (new: silent Terminal clients named in
      E1; worst-case legend + AUTO-FIX fits the 180-px screen),
      `mode_guns_check` **37/37** (new: Quartz ranks; static sweep), parser
@@ -290,8 +294,9 @@ load-order warnings. Analysis: `live testing result/SUMMARY.md` Run 6.
 
 **Next: owner live run of Build 9.** Rebuild with `build-dist.ps1`
 (INSTALL Step 4), then do INSTALL Step 5:
-- A1–A6: mod-menu legend, live toggle, Back after on→off, the AUTO-FIX
-  flow, no red text with all mods ON;
+- A1–A7: test the unsaved ON→OFF cancel separately from saved ON → Save &
+  Reboot → verify, then OFF → second Save & Reboot → verify; also check the
+  legend, Back and AUTO-FIX flow, and no red text with all mods ON;
 - B1–B4: 9 guns in Quartz, Fairy, Nightmare and Card Lab; all 15 Quartz
   ranks; Quartz and Fairy unlocks survive a relaunch;
 - C1–C8: the Build 8 panel, never run live (CLIP+ must not move the king).
@@ -308,7 +313,8 @@ features in `live testing result/SUMMARY.md` "Still open".
 - ~~Build 6 playtest~~ **done (run 5)**
 - ~~Build 7 playtest~~ **done (run 6)**
 - Rebuild with Build 9 and playtest it: INSTALL Step 4 (rebuild), then the
-  Step 5 test list (A1–A6, B1–B4, C1–C8).
+  Step 5 test list (A1–A7, B1–B4, C1–C8); A4 verifies saved ON and OFF
+  changes with separate reboots, while A3 checks cancelling an unsaved toggle.
 - ✅ Owner approved removal of `game/` from the current tree on 2026-10-07;
   [PR #11](https://github.com/freeforall1932-design/shotgun-king-anew/pull/11)
   was **merged** the same day — `main`'s current tree no longer tracks `game/`

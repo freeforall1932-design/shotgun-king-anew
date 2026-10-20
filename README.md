@@ -205,11 +205,12 @@ times or run history, and the game must be closed while it runs.
 
 ## 🗺️ Where the project is going (short)
 
-**Live testing (yours, next):** rebuild, click each SK DEV control once in
-play (`CLIP+` first: the king must not move), turn all mods ON once in the
-mod menu, then collect `log.txt` with `-GetInsights` as in `INSTALL.md`
-(the test list starts at Step 4). Run 6 (build 7) already proved the bank
-read-back and the menu widgets.
+**Live testing (yours, next):** rebuild and follow the Build 9 checklist in
+`INSTALL.md` Step 5. It separates canceling an unsaved ON→OFF toggle from
+saving ON and OFF across separate reboots, then covers the mod menu, modes and
+SK DEV panel (`CLIP+` first: the king must not move). Collect the full pack
+with `-GetInsights`. Run 6 (Build 7) already proved the bank read-back and
+that the menu widgets attached.
 
 **Development (current):** Build 9 = Build 8 plus the mod-menu rework and
 the Throne-like gun-list fix. Build 8 was the first build written against the

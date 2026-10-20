@@ -296,9 +296,12 @@ its `-GetInsights` save pack.
   `chase`, `charnier`, `tutorial`, `back`, `save_back`, the mod-list rows
   ` ON `, `OFF `, and the arrow glyphs `é`, `è`. A second menu pass logs the
   same ids with a numeric prefix (`100|play`, `2|options`…).
-- Build 6's attach predicate compared MODLIST *titles* with those ids, so it
-  could never match: `SKUI|menu|widgets_added` never appears in the run-5 log.
-  Build 7 arms on the ids above.
+- Build 6's custom-widget attach predicate compared MODLIST *titles* with
+  those ids, so it could not match: `SKUI|menu|widgets_added` is absent from
+  the Run-5 log. **The owner confirms the Back button itself worked**; that
+  missing marker is not evidence it failed. Run 6 later recorded Build-7
+  widgets attached (`entry=mods|back=true`). The legend still needs explicit
+  visibility confirmation.
 - `init_menu` fires on menu entry (4× in run 5) and its state dump shows
   `menu=nil`, `mMenu=tbl` — `mMenu` is the mod-menu table, not `menu`.
 

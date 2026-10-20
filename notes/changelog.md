@@ -1,3 +1,18 @@
+## 2026-10-21 — Run 5 Back correction and Build 9 menu-test clarification
+
+- `live testing result/SUMMARY.md`, `notes/map.md`, `WORKLIST.md`, and
+  `HANDOFF.md` — preserve the owner's correction that Back worked in Run 5;
+  the missing `SKUI|menu|widgets_added` marker is not evidence it failed.
+- `INSTALL.md` — separate the unsaved ON→OFF cancel test (Save and Reboot
+  should return to Back) from the saved ON → reboot → verify → OFF → second
+  reboot → verify persistence round trip. The mod-menu section now has A1–A7.
+- `WORKLIST.md` — record the suggested SK DEV wand/tool icon as future UI
+  polish, and note that Phase 3A is feasible but should not be mixed into the
+  pending Build 9 live baseline.
+- why: owner Run-5 correction and follow-up questions about toggle/reboot,
+  panel icon placement, and starting the ammo rework.
+- status: documentation only; Build 9 still needs the owner live run.
+
 ## 2026-10-07 — Owner-approved current-tree game removal
 
 - The owner superseded the earlier session-10 instruction to retain `game/`.
