@@ -190,12 +190,13 @@ is ON, is an **error**. Write down the exact words. `log.txt` keeps them, and
 |---|---|---|
 | A1 | Open the mod menu | A small legend at the **far left, vertically centred**, in separate short lines: `MOD MENU` · `WHITE = ON` / `DARK = OFF` · `CLICK A NAME` / `TO TOGGLE IT` · `ARROWS = LOAD ORDER`, then a status line. It doesn't overlap the rows, and hovering over it changes nothing (it never turns red). |
 | A2 | Click any mod's name | Its text flips `OFF` ↔ `ON` (dark ↔ white) **at once**, without leaving the menu. |
-| A3 | Click `The Magnificent Quartz Army` ON, then OFF again | The bottom button first reads `Save and Reboot`, then reads **`Back`** again, and clicking it **returns to the title** (run-6 bug: it stayed stuck). Moving a mod up and then back down behaves the same. |
-| A4 | Keep **`SK Rework` ON** (it runs these tests). Turn every other mod OFF, then turn **only** `Disgraced Justice` ON | Red legend lines appear: `E1 TERMINAL IS OFF` and `E3 COLLECTION IS OFF`, each followed by `FOR …` naming the mods, plus an `AUTO-FIX` button. |
-| A5 | Click `AUTO-FIX` | The menu reopens in dependency order. `Glacies' Collection` and `Glac Terminal` are now ON, `Glac Terminal` is the **last** row, the legend says `DEPENDENCIES OK`, and the button reads `Save and Reboot`. Click it: after the reboot the main menu shows **no red text**. |
-| A6 | Turn **all** mods ON (click AUTO-FIX if any `E` line shows), then Save and Reboot | **No red text** on the main menu or mod menu. Quartz Army and Extra Features need Glac Terminal too: they print no red text of their own, so the legend's `E1` is the only warning for them. |
+| A3 | Click `The Magnificent Quartz Army` ON, then OFF again **without saving between clicks** | The bottom button first reads `Save and Reboot`, then returns to **`Back`** because the pending change was undone. Click `Back`; it should return to the title (run-6 bug: it stayed stuck). This checks canceling an unsaved toggle, not persistence across reboots. Moving a mod up and then back down should behave the same. |
+| A4 | Persistence round trip (separate from A3): turn `Retry after Death` ON, click **Save and Reboot**, and verify ON after return. Then turn it OFF, click the second **Save and Reboot**, and verify OFF after return; keep `SK Rework` ON throughout | Both changes persist across their own reboot. If Save and Reboot does not appear after either toggle, or the state does not persist, report exactly what happened. This checks ON and OFF as separate saved changes. |
+| A5 | Keep **`SK Rework` ON** (it runs these tests). Turn every other mod OFF, then turn **only** `Disgraced Justice` ON | Red legend lines appear: `E1 TERMINAL IS OFF` and `E3 COLLECTION IS OFF`, each followed by `FOR …` naming the mods, plus an `AUTO-FIX` button. |
+| A6 | Click `AUTO-FIX` | The menu reopens in dependency order. `Glacies' Collection` and `Glac Terminal` are now ON, `Glac Terminal` is the **last** row, the legend says `DEPENDENCIES OK`, and the button reads `Save and Reboot`. Click it: after the reboot the main menu shows **no red text**. |
+| A7 | Turn **all** mods ON (click AUTO-FIX if any `E` line shows), then Save and Reboot | **No red text** on the main menu or mod menu. Quartz Army and Extra Features need Glac Terminal too: they print no red text of their own, so the legend's `E1` is the only warning for them. |
 
-**B. Throne-like modes** (keep all mods ON from A6; Quartz Army and Royal Card Lab need Glac Terminal)
+**B. Throne-like modes** (keep all mods ON from A7; Quartz Army and Royal Card Lab need Glac Terminal)
 
 | # | Do | Pass looks like |
 |---|---|---|
@@ -314,7 +315,7 @@ python "E:\testing\repo\tools\make_100pct_save.py" --game-dir "E:\testing\Shotgu
 |---|---|---|
 | 1 | Step 3 dry run | prints `[dry-run] would copy ...`, nothing written |
 | 2 | Step 4 build | `E:\testing\ShotgunKing-Modded\mods\` has the 14 mod folders; `E:\testing\game` unchanged |
-| 3 | Step 5 A (mod menu) | A1–A6 pass: left-centre legend, live ON/OFF text, Back returns after on→off, AUTO-FIX fixes E-codes, no red text with all mods ON |
+| 3 | Step 5 A (mod menu) | A1–A7 pass: legend/live ON/OFF, unsaved on→off returns to Back, separate ON/save/reboot and OFF/save/reboot states persist, AUTO-FIX fixes E-codes, no red text with all mods ON |
 | 4 | Step 5 B + C (modes, panel) | 9 guns unlocked in Quartz/Fairy that survive a relaunch; Nightmare/Card Lab list 9; panel C1–C8 pass; report crashes |
 | 5 | Step 6 insight pack | `uploads\game-insights\` (log + modlist.lua + save\) attached; log contains `READY build=9`, `SKUI\|modcheck\|boot`, `SKUI\|modmenu`, `SKUI\|panel\|entity=created` |
 | 6 | Step 4's 4/4 + Step 7 | build console shows `4/4 applying the 100% unlock...`; copy boots with achievements/shotguns/codex 100%; `ACHIEVEMENTS: OFF` title label is normal (Steam tracking paused; save-side achievements stay unlocked) |

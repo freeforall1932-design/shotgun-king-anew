@@ -191,8 +191,9 @@ unified audit bundle or its rejected hunks.
       E1–E4 load-order codes + AUTO-FIX; red text = error codes
       (`notes/red-warnings.md`, `parse_log.py` §1b). Smoke 64/64 ×4 with a
       verbatim port of the engine's mod-menu code; mutation-checked.
-- [x] **Build 8 item 6 → Build 9** — INSTALL Step 5 rewritten as the test
-      list only (A1–A6 mod menu, B1–B4 modes, C1–C8 panel).
+- [x] **Build 8 item 6 → Build 9** — INSTALL Step 5 is a test list only
+      (A1–A7 mod menu, B1–B4 modes, C1–C8 panel), including a saved ON →
+      reboot → verify, then OFF → second reboot → verify round trip.
 - [ ] **Owner live-run Build 9** — INSTALL Step 4 (rebuild), then the Step 5
       test list.
 - [ ] **Remaining API guesses, independent of SEC-03 dodge fix** —
@@ -212,10 +213,12 @@ unified audit bundle or its rejected hunks.
       opt-in build that tries ONE candidate binding per boot (config-bank
       switched), documented as crash-tolerant, so a failure costs one run
       instead of a whole feature cycle.
-- [x] **Mod-menu Back + white/black legend** (owner ask run 3) — Build 6
-      attached nothing because it compared MODLIST titles to button ids; run 5
-      harvested the real ids (`mods`/`save_back`/`" ON "`/`"OFF "`/arrows) and
-      Build 7 arms on those.
+- [x] **Mod-menu Back + white/black legend** (owner ask run 3) — Run 5 did not
+      log `SKUI|menu|widgets_added`, but the owner confirms Back worked; do not
+      infer failure from the missing marker. Build 6's custom-widget predicate
+      did compare MODLIST titles to button ids; Build 7 used harvested IDs, and
+      Run 6 logged widgets attached. Legend visibility still needs live
+      confirmation.
 - [ ] **Right-click ability cap removal** (owner asks run 3 + 2026-10-04
       refinements — see PLANNING.md §0.7.6): vanilla caps right-click
       abilities at 1 (Better Codex documents it: "1 right-click ability,
@@ -230,7 +233,14 @@ unified audit bundle or its rejected hunks.
       SEC-08 was verified absent in the 2026-10-07 audit; it remains a planned
       feature, not a fix to apply from the unverified `prepend` proposal.
 - [ ] Phase 3 — ammo rework **A** (simple scale) → playtest → **B**
-      (shell economy) → **C** (shell types)  [owner decision §0.6]
+      (shell economy) → **C** (shell types)  [owner decision §0.6]. A is
+      feasible from the mapped ammo APIs; keep it out of the Build-9 test until
+      reload/chamber baselines are verified so the next live run stays clear.
+- [ ] **SK DEV icon polish (owner suggestion, afterthought)** — replace the
+      plain launcher text with a compact wand/tool icon beside the under-board
+      `Turn 1: MODDED` status. Use a native hitbox and a mod-owned sprite (or a
+      documented engine icon), then verify the position, clarity and hover in
+      game. This is future UI polish; no icon is implemented yet.
 - [ ] Phase 4 — card picker (reuse Royal Card Lab pattern) + enemy picker
 - [ ] **Soul-system rework — "Yu-Gi-Oh deck"** (owner, 2026-10-04 —
       PLANNING.md §0.7.8): 2–3 soul slots, ONE slot holds MANY souls,
@@ -683,8 +693,9 @@ unified audit bundle or its rejected hunks.
 3. ~~Apply Build 7~~ **done (run 6)**.
 3b. **Apply Build 9 and playtest it**: rebuild with `build-dist.ps1`
       (INSTALL Step 4), then the INSTALL Step 5 tests:
-      - A1–A6 mod menu: legend at the far left, live ON/OFF, Back after
-        on→off, AUTO-FIX, no red text with all mods ON;
+      - A1–A7 mod menu: legend, live ON/OFF, unsaved on→off cancellation,
+        saved ON and OFF transitions with separate reboots, AUTO-FIX, and no
+        red text with all mods ON;
       - B1–B4: 9 guns in Quartz/Fairy/Nightmare/Card Lab, with Quartz and
         Fairy unlocks surviving a relaunch;
       - C1–C8: the panel.

@@ -45,7 +45,8 @@
 --     summon-family cards also spawn their `allies` piece).
 --   * MENU: legend/Back attach on the real mod-list ids harvested in run 5
 --     ("mods"/"save_back"/" ON "/"OFF "); the previous MODLIST-title compare
---     could never match, which is why widgets_added never appeared.
+--     could never match, so the custom-widget marker was absent in Run 5.
+--     The owner confirmed Back worked; the missing marker was not proof it failed.
 --   * SAFE mode: one engine-mutating action per boot (bank-stored), plus a
 --     SKE|call|<name>=start line before every mutating engine call, so a
 --     crash still names the failing control.

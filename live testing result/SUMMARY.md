@@ -85,7 +85,7 @@ critique; the run-4 raw pack was deleted after absorption).
 | **Spawn ally only ever made a pawn and blocked the king's 1-tile move** | 🔴 root-caused (`first_spawnable_piece` returns `PIECES[1]`; square picked without checking the king's movement line) → Build 7: piece picker page + diagonal-first square + logged route |
 | **God Mode did not save the king** ("still get destroyed") | 🟡 HP refill alone is not enough; Build 7 adds the owner's Mist-style dodge (`goto_sq`, both argument orders tried + validated) |
 | **Damage controls were gated** — live route is `mk_bullet` → `bullet.dmg` → `hit(p,dmg,tags)` → `fx_dmg(p,dmg)`; `ev_hit` never fires | ✅ gate lifted: Build 7 applies configurable damage/crit/pierce at `mk_bullet` |
-| **Mod-menu Back/legend never appeared** — real ids are `play/mods/save_back/" ON "/"OFF "…`; Build 6 compared MODLIST titles to ids, which can never match | 🔴 root-caused → Build 7 arms on the harvested ids |
+| **Mod-menu Back/legend marker** — Run 5 has no `SKUI|menu|widgets_added` line; Build 6's custom-widget predicate compared MODLIST titles with menu IDs, so that helper did not attach. The owner confirms the Back button itself worked; the missing marker is **not** evidence that Back failed. Legend visibility remained unconfirmed. Run 6 later logged the Build-7 widgets attached | ⚠️ keep the Back result owner-confirmed; do not infer failure from the Run-5 marker |
 | **Bank write path proven + file format decoded** — in-log `magic=0` (first write that boot), on-disk `sk-rework.bnk` = `128:64:4:` + hex, cells `(0,0)=505`, `(1,0)=1` | ✅ decoded → `notes/map.md`; Build 7 restores config from it and re-writes magic every boot |
 | **Souls/scepters/offers ran live** — `add_soul` ×2 (a1 = piece type, a2 = piece table), `add_soul_slot` ×5, `get_scepter` ×7, `SKOF\|candidate` list | ✅ absorbed; slot internals still open |
 | **Ammo semantics** — `hero.ammo` is nil, the counter is the global `ammo`; +3 behaves like a reserve refill; owner wants RELOAD + a cartridge/shell slot button | ✅ designed → Build 7 `RELOAD`/`CLIP+` |
@@ -211,7 +211,7 @@ Sandbox results:
 - save codec 2/2.
 
 Next step: rebuild with `build-dist.ps1` (Step 4), then run the INSTALL
-Step 5 test list (A1–A6 mod menu, B1–B4 modes, C1–C8 panel). The log must
+Step 5 test list (A1–A7 mod menu, B1–B4 modes, C1–C8 panel). The log must
 show:
 - `READY build=9`;
 - `SKUI|modcheck|boot|issues=0` with the dependency order;
