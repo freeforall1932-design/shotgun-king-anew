@@ -180,6 +180,9 @@ times or run history, and the game must be closed while it runs.
 │                          · parse_log.py     log -> draft game map
 │                          · mod_smoketest.py run our mod without the game
 │                          · mod-dev.md       dev loop + log-line reference
+├── tests/                 regression checks and historical test material
+│   └── experiments/lua-mod-safety/ archived fake-engine study + local Lua skills
+├── AGENTS.md              local agent-guidance loader
 ├── notes/                 map.md (game internals), mods.md (inventory + API),
 │                          review-2026-10-03.md (readiness review), changelog.md
 ├── PLANNING.md            full plan & decision log (dev-facing)
